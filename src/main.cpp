@@ -1,3 +1,8 @@
+/**
+ * @file main.cpp
+ * Code d'hydrodynamique radiative en devenir...
+ */
+
 #include <iostream>
 #include <Kokkos_Core.hpp>
 

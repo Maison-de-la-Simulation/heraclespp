@@ -13,6 +13,21 @@ set(BUILD_SET_VALUE_PLUGIN CACHE BOOL "Build Set_value plug-in" FORCE)
 set(BUILD_TESTING OFF CACHE BOOL "Build tests" FORCE)
 set(BUILD_DECL_NETCDF_PLUGIN OFF CACHE BOOL "Build Decl'NetCDF plug-in" FORCE)
 set(BUILD_NETCDF_PARALLEL OFF CACHE BOOL "Build Decl'NetCDF in parallel mode" FORCE)
+set(BUILD_USER_CODE_PLUGIN OFF CACHE BOOL "Build Decl'NetCDF in parallel mode" FORCE)
+
 add_subdirectory(vendor/pdi)
 
 add_subdirectory(src)
+
+
+find_package(Doxygen)
+
+set(DOXYGEN_GENERATE_HTML YES)
+
+doxygen_add_docs(
+    doxygen
+    ${PROJECT_SOURCE_DIR}/src
+    COMMENT "Generate html pages"
+)
+
+

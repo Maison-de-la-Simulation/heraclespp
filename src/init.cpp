@@ -1,3 +1,7 @@
+/**
+ * @file init.cpp
+ * Initialisation pour le tube a choc de Sod
+ */
 #include <iostream>
 #include <Kokkos_Core.hpp>
 
