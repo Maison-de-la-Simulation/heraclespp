@@ -4,10 +4,10 @@
 
 void ShockTubeInit(
         Kokkos::View<double*> const rho,
-        Kokkos::View<double*> const rhou,
-        Kokkos::View<double*> const E,
-        int const inter,
-        int const nx)
+        Kokkos::View<double*> const u,
+        Kokkos::View<double*> const P,
+        int const nx,
+        int const inter)
 {
     // Left side
     double const rhoL = 1; // Density
@@ -21,5 +21,18 @@ void ShockTubeInit(
     Kokkos::parallel_for(
             "ShockTubeInit",
             nx,
-            KOKKOS_LAMBDA(int i) { rho(i) = rhoL; });
+            KOKKOS_LAMBDA(int i) {
+              if(i < inter)
+              {
+                rho(i) = rhoL;
+                u(i) = uL;
+                P(i) = PL;
+              }
+              else
+              {
+                rho(i) = rhoR;
+                u(i) = uR;
+                P(i) =  PR;
+              }
+            });
 }
