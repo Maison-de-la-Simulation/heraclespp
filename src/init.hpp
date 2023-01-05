@@ -1,6 +1,6 @@
 /**
  * @file init.hpp
- * Initialisation pour le tube a choc de Sod
+ * Initialisation of the data
  */
 #pragma once
 
@@ -8,8 +8,8 @@
 
 //! Initialisation for the schock tube problem
 //! @param[out] rho density array
-//! @param[out] rhou momentum array
-//! @param[out] E energy array
+//! @param[out] u speed array
+//! @param[out] P pressue array
 //! @param[in] inter interface value
 //! @param[in] nx number of cells
 void ShockTubeInit(
