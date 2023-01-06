@@ -1,4 +1,4 @@
-add_executable(nova++ main.cpp init.cpp solver.cpp fonc.cpp)
+add_executable(nova++ main.cpp init.cpp fonc.cpp solver.cpp exact.cpp)
 
 target_link_libraries(nova++ PUBLIC Kokkos::kokkos)
 
