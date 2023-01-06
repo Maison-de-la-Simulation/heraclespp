@@ -15,7 +15,7 @@ void ConvPrimCons(
             "ConvPrimCons",
             nx,
             KOKKOS_LAMBDA(int i) {
-              rhou(i) = rho(i) * u(i);
+              rhou(i) = rho(i) * u(i) ;
               E(i) = (1. / 2) * rho(i) * u(i) * u(i) + P(i) / (gamma - 1);
             });
 }
@@ -34,7 +34,7 @@ void ConvConsPrim(
             nx,
             KOKKOS_LAMBDA(int i) {
               u(i) = rhou(i) / rho(i);
-              P(i) = (gamma - 1) * (E(i) - (1. / 2) *rho(i) * pow(u(i),2));
+              P(i) = (gamma - 1) * (E(i) - (1. / 2) *rho(i) * u(i) * u(i);
             });
 }
 
@@ -50,7 +50,7 @@ double VanLeer(
     else
     {
       double R = DiffL / DiffR;
-      double slope = (1. / 2) * (DiffR + DiffL) * (4 * R) / pow((R + 1), 2);
+      double slope = (1. / 2) * (DiffR + DiffL) * (4 * R) / ((R + 1) * (R + 1));
     }
     return slope;
 }
@@ -83,7 +83,7 @@ double VanAlbada(
     else
     {
       double R = DiffL / DiffR;
-      double slope = (1. / 2) * (DiffR + DiffL) * (2 * R) / (pow(R, 2) + 1);
+      double slope = (1. / 2) * (DiffR + DiffL) * (2 * R) / (R * R + 1);
     }
     return slope;
 }
@@ -100,7 +100,7 @@ double FluxRhou(
         double const u,
         double const P)
 {
-    return rho * pow(u,2) + P;
+    return rho * u * u + P;
 }
 
 double FluxE(
@@ -109,5 +109,5 @@ double FluxE(
         double const P,
         double const gamma)
 {
-    return u * (1. / 2) * rho * pow(u,2) + P / (gamma - 1) + P;
+    return u * (1. / 2) * rho * u * u + P / (gamma - 1) + P;
 }
