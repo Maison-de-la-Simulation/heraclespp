@@ -10,6 +10,10 @@
 #include "init.hpp"
 #include "fonc.hpp"
 #include "solver.hpp"
+#include "exact.hpp"
+
+//double global_a = 10.5;
+double const gamma = 5. / 3;
 
 int main(int argc, char** argv)
 {
@@ -18,7 +22,7 @@ int main(int argc, char** argv)
     int nx = 100; // Size
     int inter = nx / 2; // Interface
 
-    double gamma = 5. / 3;
+    //double gamma = 5. / 3;
 
     //------------------------------------------------------------------------//
 
@@ -45,8 +49,8 @@ int main(int argc, char** argv)
 
     //------------------------------------------------------------------------//
 
-    ShockTubeInit(rho, u, P, nx, inter);
-    ConvPrimCons(rho, rhou, E, u, P, nx, gamma);
+    ShockTubeInit(rho, u, P, nx, inter); // Initialisation of rho, u, P
+    ConvPrimCons(rho, rhou, E, u, P, nx, gamma); // Initialisation of rhou, E
 
     Kokkos::deep_copy(rho_host, rho);
     Kokkos::deep_copy(u_host, u);
@@ -57,11 +61,6 @@ int main(int argc, char** argv)
     for (int i = 0; i < nx; ++i)
     {
         std::printf("%f %f %f %f %f\n", rho_host(i), u_host(i), P_host(i), rhou_host(i), E_host(i));
-    }
-
-    for (int i = 1; i < nx-1; ++i)
-    {
-        std::printf("%f %f %f\n", FluxRho(rho_host(i), u_host(i)), FluxRhou(rho_host(i), u_host(i), P_host(i)), FluxE(rho_host(i), u_host(i), P_host(i), gamma));
     }
 
     printf("%s\n", "---Fin du programme---");
