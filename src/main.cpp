@@ -11,9 +11,11 @@
 #include "fonc.hpp"
 #include "solver.hpp"
 #include "exact.hpp"
+#include "global_var.hpp"
+
+// #include <pdi.h>
 
 //double global_a = 10.5;
-double const gamma = 5. / 3;
 
 int main(int argc, char** argv)
 {
@@ -50,7 +52,7 @@ int main(int argc, char** argv)
     //------------------------------------------------------------------------//
 
     ShockTubeInit(rho, u, P, nx, inter); // Initialisation of rho, u, P
-    ConvPrimCons(rho, rhou, E, u, P, nx, gamma); // Initialisation of rhou, E
+    ConvPrimCons(rho, rhou, E, u, P, nx, GV::gamma); // Initialisation of rhou, E
 
     Kokkos::deep_copy(rho_host, rho);
     Kokkos::deep_copy(u_host, u);

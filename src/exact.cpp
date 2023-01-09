@@ -1,23 +1,15 @@
 #include <Kokkos_Core.hpp>
 
 #include "exact.hpp"
+#include "global_var.hpp"
+using namespace GV;
 
-extern double const gamma;
-
-const double g1 = (gamma - 1) / (2 * gamma);
-const double g2 = (gamma + 1) / (2 * gamma);
-const double g3 = 2 * gamma / (gamma - 1);
-const double g4 = 2 / (gamma - 1);
-const double g4 = 2 / (gamma + 1);
-const double g6 = (gamma - 1) / (gamma + 1);
-const double g7 = (gamma - 1) / 2;
-const double g8 = (gamma - 1);
 
 double sound_speed(
         double rhok,
         double Pk)
 {
-    return sqrt(gamma * Pk / rhok);
+    return sqrt(GV::gamma * Pk / rhok);
 }
 
 double Ak(
@@ -34,7 +26,7 @@ double Bk(
 
 double gk(
         double rhok,
-        double Pk
+        double Pk,
         double P)
 {
     return sqrt(Ak(rhok) / P + Bk(Pk));

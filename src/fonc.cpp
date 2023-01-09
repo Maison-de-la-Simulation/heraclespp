@@ -34,7 +34,7 @@ void ConvConsPrim(
             nx,
             KOKKOS_LAMBDA(int i) {
               u(i) = rhou(i) / rho(i);
-              P(i) = (gamma - 1) * (E(i) - (1. / 2) *rho(i) * u(i) * u(i);
+              P(i) = (gamma - 1) * E(i) - (1. / 2) *rho(i) * u(i) * u(i);
             });
 }
 
