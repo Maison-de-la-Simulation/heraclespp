@@ -50,5 +50,5 @@ double Slope::VanAlbada()
         {
           double slopeChoice  = (1. / 2) * (diffr + diffl) * (2 * R) / (R * R + 1);
         }
-        return slopeChoice ;
+        return slopeChoice;
 }
