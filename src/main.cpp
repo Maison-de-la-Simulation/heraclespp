@@ -12,6 +12,8 @@
 #include "solver.hpp"
 #include "exact.hpp"
 #include "global_var.hpp"
+#include "slope.hpp"
+#include "flux.hpp"
 
 // #include <pdi.h>
 
@@ -59,12 +61,22 @@ int main(int argc, char** argv)
     Kokkos::deep_copy(P_host, P);
     Kokkos::deep_copy(rhou_host, rhou);
     Kokkos::deep_copy(E_host, E);
-
+/*
     for (int i = 0; i < nx; ++i)
     {
         std::printf("%f %f %f %f %f\n", rho_host(i), u_host(i), P_host(i), rhou_host(i), E_host(i));
+        Flux flux(rho_host(i), u_host(i), P_host(i), GV::gamma);
+        std::printf("%f %f %f\n", flux.FluxRho(), flux.FluxRhou(), flux.FluxE());
     }
 
-    printf("%s\n", "---Fin du programme---");
+/*
+    for (int i = 1; i < nx-1; ++i)
+    {
+        Slope slope(rho_host(i-1), rho_host(i), rho_host(i+1));
+        std::printf("%f %f %f\n", slope.VanLeer(), slope.Minmod(), slope.VanAlbada());
+    }
+*/
+
+    std::printf("%s\n", "---Fin du programme---");
     return 0;
 }
