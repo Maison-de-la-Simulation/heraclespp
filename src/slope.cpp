@@ -5,50 +5,43 @@ Slope::Slope(
         double const Ui,
         double const Uip1)
 {
-        diffl = Uip1 - Ui;
-        diffr = Ui - Uim1;
-        R = diffl / diffr;
+        diffR = Uip1 - Ui; // Right slope
+        diffL = Ui - Uim1; // Left
+        R = diffR / diffL;
 };
 
 double Slope::VanLeer()
 {
-        double slopeChoice;
-        if(diffl * diffr <= 0)
+        if(diffL * diffR <= 0)
         {
-          slopeChoice = 0;
+            return 0;
         }
         else
         {
-          slopeChoice = (1. / 2) * (diffr + diffl) * (4 * R) / ((R + 1) * (R + 1));
+            return (1. / 2) * (diffR + diffL) * (4 * R) / ((R + 1) * (R + 1));
         }
-        return slopeChoice;
-
 }
 
 double Slope::Minmod()
 {
-        double slopeChoice;
-        if(diffl * diffr <= 0)
+        if(diffL * diffR <= 0)
         {
-          slopeChoice = 0;
+            return 0;
         }
         else
         {
-          double slopeChoice = 1. / ((1. / diffl) + (1. / diffr));
+            return 1. / ((1. / diffL) + (1. / diffR));
         }
-        return slopeChoice;
 }
 
 double Slope::VanAlbada()
 {
-        double slopeChoice;
-        if(diffl * diffr <= 0)
+        if(diffL * diffR <= 0)
         {
-          slopeChoice = 0;
+            return 0;
         }
         else
         {
-          double slopeChoice  = (1. / 2) * (diffr + diffl) * (2 * R) / (R * R + 1);
+            return (1. / 2) * (diffR + diffL) * (2 * R) / (R * R + 1);
         }
-        return slopeChoice;
 }
