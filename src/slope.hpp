@@ -12,8 +12,8 @@
 class Slope
 {
 private :
-      double diffl;
-      double diffr;
+      double diffL;
+      double diffR;
       double R;
 
 public :
