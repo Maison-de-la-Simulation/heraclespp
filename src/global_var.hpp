@@ -1,3 +1,7 @@
+/**
+ * @fileglobla_var.hpp
+ * Variables with gamme dependance
+ */
 #ifndef GLOBAL_VAR_HPP
 #define GLOBAL_VAR_HPP
 
