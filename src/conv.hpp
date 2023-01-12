@@ -4,6 +4,12 @@
  */
 #pragma once
 
+//! Conversion primary variables to conservative
+//! @param[in] rho density
+//! @param[in] u speed
+//! @param[in] P pressure
+//! @return rhou momentum
+//! @return E total energy
 class ConvPtoC
 {
 private :
@@ -20,6 +26,12 @@ public :
       double ConvE();
 };
 
+//! Conversion conservtaive variables to primary
+//! @param[in] rho density
+//! @param[in] E total energy
+//! @param[in] P pressure
+//! @return u speed
+//! @return rhou momentum
 class ConvCtoP
 {
 private :
