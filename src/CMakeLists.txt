@@ -1,4 +1,4 @@
-add_executable(nova++ main.cpp init.cpp fonc.cpp solver.cpp exact.cpp slope.cpp flux.cpp)
+add_executable(nova++ main.cpp init.cpp fonc.cpp slope.cpp flux.cpp conv.cpp solver.cpp)
 
 # find_package(PDI REQUIRED)
 target_link_libraries(nova++ PUBLIC Kokkos::kokkos)
