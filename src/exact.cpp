@@ -15,13 +15,13 @@ double sound_speed(
 double Ak(
         double rhok)
 {
-    return g5 / rhok;
+    return GV::g5 / rhok;
 }
 
 double Bk(
         double Pk)
 {
-    return g6 * Pk;
+    return GV::g6 * Pk;
 }
 
 double gk(
