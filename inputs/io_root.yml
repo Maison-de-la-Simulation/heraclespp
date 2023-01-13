@@ -8,6 +8,7 @@ pdi:
   plugins:
     decl_hdf5:
       - file: test.h5
+        collision_policy: replace
         on_event: write_rho_new
         write:
           rho_new:
