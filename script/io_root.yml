@@ -1,0 +1,14 @@
+pdi:
+  metadata:
+    nx: int
+
+  data:
+    rho_new: { type: array, subtype: double, size: '$nx+4' }
+
+  plugins:
+    decl_hdf5:
+      - file: test.h5
+        on_event: write_rho_new
+        write:
+          rho_new:
+    trace:
