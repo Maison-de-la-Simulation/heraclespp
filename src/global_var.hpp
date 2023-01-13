@@ -19,7 +19,7 @@ namespace GV{
     const double g7 = (gamma - 1) / 2;
     const double g8 = (gamma - 1);
 }
-/*
+
 struct Grid {
 int Ndim       ; // Number of dimension of the run 1-3 (default = 1)
 int Nx_glob[3] ; // Total number of cells in each directions (excluding ghost)
@@ -50,7 +50,7 @@ Phys(int Ndim){
     Nvar_ray = 1 + Ndim ;
 }
 } ;
-*/
+
 /*
 implicit none
   integer, dimension(:,:), allocatable :: nx_cpu  Kokkos view   !< Number of cells in the x,y,z directions per cpu

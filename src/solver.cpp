@@ -41,7 +41,6 @@ double WaveSpeed::SR()
     return std::max(m_uL + m_cL, m_uR + m_cR);
 }
 
-
 SolverHLL::SolverHLL(
         double const rhoL,
         double const rhouL,
