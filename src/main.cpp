@@ -14,11 +14,15 @@
 #include "slope.hpp"
 #include "flux.hpp"
 #include "solver.hpp"
+#include "io.hpp"
 
-// #include <pdi.h>
+#include <pdi.h>
 
 int main(int argc, char** argv)
 {
+    PC_tree_t conf = PC_parse_path(argv[1]);
+    PDI_init(PC_get(conf, ".pdi"));
+
     Kokkos::ScopeGuard guard;
 
     int const nx = 100; // Cell number
@@ -37,6 +41,8 @@ int main(int argc, char** argv)
     {
         x(i) = (i - 1) * dx + dx / 2;
     });
+    
+
 /*
     for (int i = 0; i < nx+1; ++i)
     {
@@ -180,7 +186,10 @@ int main(int argc, char** argv)
         std::printf("%f %f\n", rho(i), rho_new(i));
     }
 
+    write(nx, rho_new.data());
 
+    PDI_finalize();
+    PC_tree_destroy(&conf);
     std::printf("%s\n", "---Fin du programme---");
     return 0;
 }
