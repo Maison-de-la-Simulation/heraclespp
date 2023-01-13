@@ -22,18 +22,18 @@
 
 int main(int argc, char** argv)
 {
-    PC_tree_t conf = PC_parse_path(argv[1]);
-    PDI_init(PC_get(conf, ".pdi"));
-
-    Kokkos::ScopeGuard guard;
-
-    if (argc < 2)
+    if (argc < 3)
     {
-        std::cout << "usage: " << argv[0] << " <path to the ini file>\n";
+        std::cout << "usage: " << argv[0] << " <path to the ini file> <path to the yaml file>\n";
         return EXIT_FAILURE;
     }
 
+    Kokkos::ScopeGuard guard;
+
     INIReader reader(argv[1]);
+
+    PC_tree_t conf = PC_parse_path(argv[2]);
+    PDI_init(PC_get(conf, ".pdi"));
 
     int const nx = reader.GetInteger("Grid", "nx", 10); // Cell number
     double const dx = 1. / nx;
