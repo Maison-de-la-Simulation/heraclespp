@@ -6,4 +6,5 @@
 
 #include <pdi.h>
 
-void write(int nx, void* rho);
+void init_write(int max_iter, int frequency);
+void write(int iter, int nx, void* rho);
