@@ -5,6 +5,8 @@
 
 #include <iostream>
 
+#include <inih/INIReader.hpp>
+
 #include <Kokkos_Core.hpp>
 
 #include "global_var.hpp"
@@ -25,7 +27,15 @@ int main(int argc, char** argv)
 
     Kokkos::ScopeGuard guard;
 
-    int const nx = 100; // Cell number
+    if (argc < 2)
+    {
+        std::cout << "usage: " << argv[0] << " <path to the ini file>\n";
+        return EXIT_FAILURE;
+    }
+
+    INIReader reader(argv[1]);
+
+    int const nx = reader.GetInteger("Grid", "nx", 10); // Cell number
     double const dx = 1. / nx;
     int inter = nx / 2; // Interface position
     int nt = 10000;

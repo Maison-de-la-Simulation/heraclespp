@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 
 project(nova++ LANGUAGES CXX)
 
+add_subdirectory(vendor/inih)
 add_subdirectory(vendor/kokkos)
 
 add_subdirectory(src)
