@@ -1,9 +1,10 @@
 /**
- * @fileglobla_var.hpp
+ * @file globla_var.hpp
  * Variables with gamme dependance
  */
-#ifndef GLOBAL_VAR_HPP
-#define GLOBAL_VAR_HPP
+
+#pragma once
+
 #include <cmath>
 
 // Transformer en structure. Mettre dans un fichier EOS.
@@ -18,7 +19,6 @@ namespace GV{
     const double g7 = (gamma - 1) / 2;
     const double g8 = (gamma - 1);
 }
-#endif
 /*
 struct Grid {
 int Ndim       ; // Number of dimension of the run 1-3 (default = 1)
@@ -50,7 +50,8 @@ Phys(int Ndim){
     Nvar_ray = 1 + Ndim ;
 }
 } ;
-/* 
+*/
+/*
 implicit none
   integer, dimension(:,:), allocatable :: nx_cpu  Kokkos view   !< Number of cells in the x,y,z directions per cpu
   integer, dimension(3)                :: nx_glob               !< Global simulation dimensions
