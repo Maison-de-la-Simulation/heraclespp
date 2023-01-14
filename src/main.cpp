@@ -4,6 +4,7 @@
  */
 
 #include <iostream>
+#include <memory>
 
 #include <inih/INIReader.hpp>
 
@@ -17,6 +18,7 @@
 #include "flux.hpp"
 #include "solver.hpp"
 #include "io.hpp"
+#include "face_reconstruction.hpp"
 
 #include <pdi.h>
 
@@ -49,6 +51,10 @@ int main(int argc, char** argv)
     double dt = 0.001;
 
     init_write(max_iter, output_frequency);
+
+    std::string const reconstruction_type = reader.Get("hydro", "reconstruction", "Minmod");
+    std::unique_ptr<IFaceReconstruction> face_reconstruction
+            = factory_face_reconstruction(reconstruction_type, dx);
 
     Kokkos::View<double*> x("x", grid.Nx_glob[0]+2); // Position
 
@@ -155,21 +161,9 @@ int main(int argc, char** argv)
 
     while (t < timeout || iter<=max_iter)
     {
-        Kokkos::parallel_for(
-            "Trace",
-            Kokkos::RangePolicy<>(1, grid.Nx_glob[0]+3),
-            KOKKOS_LAMBDA(int i)
-        {
-            Slope slopeRho(rho(i-1), rho(i), rho(i+1));
-            rhoL(i) = rho(i) - (dx / 2) * slopeRho.VanLeer();
-            rhoR(i) = rho(i) + (dx / 2) * slopeRho.VanLeer();
-            Slope slopeU(u(i-1), u(i), u(i+1));
-            uL(i) = u(i) - (dx / 2) * slopeU.VanLeer();
-            uR(i) = u(i) + (dx / 2) * slopeU.VanLeer();
-            Slope slopeP(P(i-1), P(i), P(i+1));
-            PL(i) = P(i) - (dx / 2) * slopeP.VanLeer();
-            PR(i) = P(i) + (dx / 2) * slopeP.VanLeer();
-        });
+        face_reconstruction->execute(rho, rhoL, rhoR);
+        face_reconstruction->execute(u, uL, uR);
+        face_reconstruction->execute(P, PL, PR);
 
         t = t + dt;
         //std::printf("%f \n", t);
