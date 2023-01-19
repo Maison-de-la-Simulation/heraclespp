@@ -46,6 +46,15 @@ class WaveSpeed
           double SR();
 };
 
+double Dt(Kokkos::View<double*> const rhoL,
+    Kokkos::View<double*> const uL,
+    Kokkos::View<double*> const PL,
+    Kokkos::View<double*> const rhoR,
+    Kokkos::View<double*> const uR,
+    Kokkos::View<double*> const PR,
+    double const dx, 
+    double const cfl);
+
 //! HLL solver
 //! @param[in] rhoL density left
 //! @param[in] uL speed left
