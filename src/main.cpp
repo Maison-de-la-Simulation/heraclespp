@@ -14,11 +14,11 @@
 #include "conv.hpp"
 #include "init.hpp"
 #include "fonc.hpp"
-#include "slope.hpp"
 #include "flux.hpp"
 #include "solver.hpp"
 #include "io.hpp"
 #include "face_reconstruction.hpp"
+#include "boundary.hpp"
 
 #include <pdi.h>
 
@@ -45,10 +45,11 @@ int main(int argc, char** argv)
     double const timeout = reader.GetReal("Run", "timeout", 0.2);
     int const max_iter = reader.GetInteger("Output", "max_iter", 10000);
     int const output_frequency = reader.GetInteger("Output", "frequency", 10);
-    double const dx = 1. / grid.Nx_glob[0];
+
+    double const dx = 1. / (grid.Nx_glob[0]+2*grid.Nghost);
     int inter = grid.Nx_glob[0] / 2; // Interface position
-    int nt = 10000;
-    double dt = 0.001;
+    double dt = 0.0017;
+    double cfl = 0.4;
 
     init_write(max_iter, output_frequency);
 
@@ -56,26 +57,23 @@ int main(int argc, char** argv)
     std::unique_ptr<IFaceReconstruction> face_reconstruction
             = factory_face_reconstruction(reconstruction_type, dx);
 
-    Kokkos::View<double*> x("x", grid.Nx_glob[0]+2); // Position
+    Kokkos::View<double*> x("x", grid.Nx_glob[0]+2*grid.Nghost); // Position
 
     Kokkos::parallel_for(
             "Initialisation_x",
-            Kokkos::RangePolicy<>(1, grid.Nx_glob[0]+1),
+            Kokkos::RangePolicy<>(0, grid.Nx_glob[0]+2*grid.Nghost),
             KOKKOS_LAMBDA(int i)
     {
-        x(i) = (i - 1) * dx + dx / 2;
+        x(i) = i * dx + dx / 2;
     });
-    
-
 /*
-    for (int i = 0; i < Nx_glob+1; ++i)
+    for (int i = 0; i < grid.Nx_glob[0]+2*grid.Nghost; ++i)
     {
-        std::printf("%f \n", x(i));
+        std::printf("*d %f \n", i, x(i));
     }
 */
     //------------------------------------------------------------------------//
     
-
     Kokkos::View<double*> rho("rho", grid.Nx_glob[0]+2*grid.Nghost); // Density
     Kokkos::View<double*> rhou("rhou", grid.Nx_glob[0]+2*grid.Nghost); // Momentum
     Kokkos::View<double*> E("E", grid.Nx_glob[0]+2*grid.Nghost); // Energy
@@ -108,31 +106,7 @@ int main(int argc, char** argv)
     Kokkos::deep_copy(P_host, P);
     Kokkos::deep_copy(rhou_host, rhou);
     Kokkos::deep_copy(E_host, E);
-/*
-    for (int i = 0; i < Nx_glob; ++i)
-    {
-        ConvPtoC convPtoC(rho_host(i), u_host(i), P_host(i));
-        ConvCtoP convCtoP(rho_host(i), rhou_host(i), E_host(i));
-        std::printf("%f %f %f %f %f %f %f %f %f\n", rho_host(i), u_host(i), P_host(i), rhou_host(i), E_host(i), convPtoC.ConvRhou(), convPtoC.ConvE(), convCtoP.ConvU() , convCtoP.ConvP());
-        Flux flux(rho_host(i), u_host(i), P_host(i));
-        std::printf("%f %f %f\n", flux.FluxRho(), flux.FluxRhou(), flux.FluxE());
-    }
 
-    for (int i = 1; i < Nx_glob-1; ++i)
-    {
-        Slope slope(rho_host(i-1), rho_host(i), rho_host(i+1));
-        std::printf("%f %f %f\n", slope.VanLeer(), slope.Minmod(), slope.VanAlbada());
-    }
-
-    WaveSpeed WS(rho_host(0), u_host(0), P_host(0), rho_host(1), u_host(1), P_host(1));
-    std::printf("%f %f\n", WS.SL(), WS.SR());
-
-    SolverHLL solverHLL(rho_host(0), rhou_host(0), E_host(0), rho_host(1), rhou_host(1), E_host(1));
-    std::printf("%f %f %f\n", solverHLL.FinterRho(), solverHLL.FinterRhou(), solverHLL.FinterE());
-*/
-
-    //------------------------------------------------------------------------//
-    
     Kokkos::View<double*> rhoL("rhoL", grid.Nx_glob[0]+2*grid.Nghost);
     Kokkos::View<double*> uL("uL", grid.Nx_glob[0]+2*grid.Nghost);
     Kokkos::View<double*> PL("PL", grid.Nx_glob[0]+2*grid.Nghost);
@@ -154,22 +128,45 @@ int main(int argc, char** argv)
     Kokkos::View<double*> rho_new("rhonew", grid.Nx_glob[0]+2*grid.Nghost);
     Kokkos::View<double*> rhou_new("rhounew", grid.Nx_glob[0]+2*grid.Nghost);
     Kokkos::View<double*> E_new("Enew", grid.Nx_glob[0]+2*grid.Nghost);
-
+    /*
+    for (int i = 0; i < grid.Nx_glob[0]+2*grid.Nghost; ++i)
+    {
+        std::printf("%d %f %f %f %f %f\n",i , rho(i), u(i), P(i), rhou(i), E(i));
+    }
+    */
     double t = 0;
     int iter = 0;
     
-
     while (t < timeout || iter<=max_iter)
     {
+        std::printf("Time = %f et iteration = %d  \n", t, iter);
+        for (int i = 0; i < grid.Nx_glob[0]+2*grid.Nghost; ++i)
+        {
+        //std::printf("fin boucle %d %f %f %f %f %f\n", i, rho(i), u(i), P(i), rhou(i), E(i));
+        }
+
+        // Calcul des pentes
         face_reconstruction->execute(rho, rhoL, rhoR);
         face_reconstruction->execute(u, uL, uR);
         face_reconstruction->execute(P, PL, PR);
+       
+        double dt = Dt(rhoL, uL, PL, rhoR, uR, PR, dx, cfl);
+        
+        //std::printf("dt=%f\n", dt);
 
-        t = t + dt;
-        //std::printf("%f \n", t);
-
+        for (int i = 0; i < grid.Nx_glob[0]+2*grid.Nghost; ++i)
+        {
+        //std::printf("la1 %d %f %f \n", i, rhouL(i), EL(i));
+        }
+        // Conversion en variables conservatives
         ConvPrimCons(rhoL, rhouL, EL, uL, PL, GV::gamma);
         ConvPrimCons(rhoR, rhouR, ER, uR, PR, GV::gamma);
+        for (int i = 0; i < grid.Nx_glob[0]+2*grid.Nghost; ++i)
+        {
+        //std::printf("la2 %d %f %f \n", i, rhouL(i), EL(i));
+        }
+
+        double dto2dx = dt / (2 * dx);
 
         Kokkos::parallel_for(
             "Extrapolation",
@@ -178,47 +175,75 @@ int main(int argc, char** argv)
         {
             Flux fluxL(rhoL(i), uL(i), PL(i));
             Flux fluxR(rhoR(i), uR(i), PR(i));
-            rho_moyL(i) = rhoL(i) + dt / (2 * dx) * (fluxL.FluxRho() - fluxR.FluxRho());
-            rhou_moyL(i) = rhouL(i) + dt / (2 * dx) * (fluxL.FluxRhou() - fluxR.FluxRhou());
-            E_moyL(i) = EL(i) + dt / (2 * dx) * (fluxL.FluxE() - fluxR.FluxE());
-            rho_moyR(i) = rhoR(i) + dt / (2 * dx) * (fluxL.FluxRho() - fluxR.FluxRho());
-            rhou_moyR(i) = rhouR(i) + dt / (2 * dx) * (fluxL.FluxRhou() - fluxR.FluxRhou());
-            E_moyR(i) = ER(i) + dt / (2 * dx) * (fluxL.FluxE() - fluxR.FluxE());
+            //std::printf("%f %f\n", rhoL(i), uL(i));
+
+            rho_moyL(i) = rhoL(i) + dto2dx * (fluxL.FluxRho() - fluxR.FluxRho());
+            rhou_moyL(i) = rhouL(i) + dto2dx * (fluxL.FluxRhou() - fluxR.FluxRhou());
+            E_moyL(i) = EL(i) + dto2dx * (fluxL.FluxE() - fluxR.FluxE());
+            rho_moyR(i) = rhoR(i) + dto2dx * (fluxL.FluxRho() - fluxR.FluxRho());
+            rhou_moyR(i) = rhouR(i) + dto2dx * (fluxL.FluxRhou() - fluxR.FluxRhou());
+            E_moyR(i) = ER(i) + dto2dx * (fluxL.FluxE() - fluxR.FluxE());
         });
 
-        double dtdx = dt / dx;
+         double dtodx = dt / dx;
 
-        Kokkos::parallel_for(
+         Kokkos::parallel_for(
             "New value",
-            Kokkos::RangePolicy<>(grid.Nghost, grid.Nx_glob[0]+grid.Nghost),
+            Kokkos::RangePolicy<>(2, grid.Nx_glob[0]+2),
             KOKKOS_LAMBDA(int i)
         {
-            SolverHLL FluxM1(rho_host(i-1), rhou_host(i-1), E_host(i-1), rho_host(i), rhou_host(i), E_host(i));
-            SolverHLL FluxP1(rho_host(i), rhou_host(i), E_host(i), rho_host(i+1), rhou_host(i+1), E_host(i+1));
+            SolverHLL FluxM1(rho_moyR(i-1), rhou_moyR(i-1), E_moyR(i-1), rho_moyL(i), rhou_moyL(i), E_moyL(i));
+            SolverHLL FluxP1(rho_moyR(i), rhou_moyR(i), E_moyR(i),rho_moyL(i+1), rhou_moyL(i+1), E_moyL(i+1));
+            //std::printf("%f %f %f %f %f\n", rhou(i), rhou_moyR(i), rhou_moyL(i), FluxM1.FinterRhou(), FluxP1.FinterRhou());
 
-            rho_new(i) = rho(i) + dtdx * (FluxM1.FinterRho() - FluxP1.FinterRho());
-            rhou_new(i) = rhou(i) + dtdx * (FluxM1.FinterRhou() -  FluxP1.FinterRhou());
-            E_new(i) = E(i) + dtdx * (FluxM1.FinterE() -  FluxP1.FinterE());
-          /* code */
+            rho_new(i) = rho(i) + dtodx * (FluxM1.FinterRho() - FluxP1.FinterRho());
+            rhou_new(i) = rhou(i) + dtodx * (FluxM1.FinterRhou() -  FluxP1.FinterRhou());
+            E_new(i) = E(i) + dtodx * (FluxM1.FinterE() -  FluxP1.FinterE());
         });
 
-        //Boundaries conditions
-    write(iter, grid.Nx_glob[0], rho_new.data());
-    iter++;
-//  std::printf("%f %f %f\n", solverHLL.FinterRho(), solverHLL.FinterRhou(), solverHLL.FinterE());
+        //Boundary condition
+        rho_new(0) = rho_new(1)=  rho_new(2);
+        rhou_new(0) = rhou_new(1) = rhou_new(2);
+        E_new(0) = E_new(1) = E_new(2);
 
-  }
+        rho_new(grid.Nx_glob[0]+grid.Nghost) = rho_new(grid.Nx_glob[0]+grid.Nghost+1) = rho_new(grid.Nx_glob[0]+1); 
+        rhou_new(grid.Nx_glob[0]+grid.Nghost) = rhou_new(grid.Nx_glob[0]+grid.Nghost+1) = rhou_new(grid.Nx_glob[0]+1); 
+        E_new(grid.Nx_glob[0]+grid.Nghost) = E_new(grid.Nx_glob[0]+grid.Nghost+1) = E_new(grid.Nx_glob[0]+1); 
 
-    for (int i = 0; i < grid.Nx_glob[0]+2*grid.Nghost; ++i)
-    {
-        //std::printf("%f %f %f %f\n", rhoL(i), rhoR(i), rhouL(i), EL(i));
-        // std::printf("%f %f\n", rho(i), rho_new(i));
+        //Boundary Trans(rho_new, rhou_new, E_new);
+        //Trans.GradientNul();
+
+        for (int i = 0; i < grid.Nx_glob[0]+2*grid.Nghost; ++i)
+        {
+        //std::printf("la1 %f %f %f \n", rho(i), u(i), rhou_new(i));
+        }
+       
+        //Conversion des variables conservatives en primaires
+        ConvConsPrim(rho_new, rhou_new, E_new, u, P, GV::gamma);
+        Kokkos::deep_copy(rho, rho_new);
+        Kokkos::deep_copy(rhou, rhou_new);
+        Kokkos::deep_copy(E, E_new);
+
+        for (int i = 0; i < grid.Nx_glob[0]+2*grid.Nghost; ++i)
+        {
+        //std::printf("la2 %f %f %f\n", rho(i), u(i), rhou(i));
+        }
+
+        for (int i = 0; i < grid.Nx_glob[0]+2*grid.Nghost; ++i)
+        {
+        //std::printf("fin boucle %d %f %f %f %f %f\n", i, rho(i), u(i), P(i), rhou(i), E(i));
+        }
+        t = t + dt;
+        iter++;
+        //write(iter, grid.Nx_glob[0], rho.data());
+        
     }
 
-    
+    write(iter, grid.Nx_glob[0], rho.data());
 
     PDI_finalize();
     PC_tree_destroy(&conf);
+
     std::printf("%s\n", "---Fin du programme---");
     return 0;
 }
