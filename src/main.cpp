@@ -18,6 +18,7 @@
 #include "solver.hpp"
 #include "io.hpp"
 #include "face_reconstruction.hpp"
+#include "coordinate_system.hpp"
 #include "boundary.hpp"
 
 #include <pdi.h>
@@ -48,7 +49,6 @@ int main(int argc, char** argv)
 
     double const dx = 1. / (grid.Nx_glob[0]+2*grid.Nghost);
     int inter = grid.Nx_glob[0] / 2; // Interface position
-    double dt = 0.0017;
     double cfl = 0.4;
 
     init_write(max_iter, output_frequency);
@@ -57,15 +57,33 @@ int main(int argc, char** argv)
     std::unique_ptr<IFaceReconstruction> face_reconstruction
             = factory_face_reconstruction(reconstruction_type, dx);
 
-    Kokkos::View<double*> x("x", grid.Nx_glob[0]+2*grid.Nghost); // Position
+    int alpha;
+    std::string const system_choice = reader.Get("Grid", "coord", "Cartesian");
+    std::printf("%s\n", system_choice.c_str());
+    if (system_choice == "Cartesian")
+    {
+        alpha = 0;
+    }
+    else if (system_choice == "Cylindrical")
+    {
+        alpha = 1;
+    }
+     else if (system_choice == "Spherical")
+    {
+        alpha = 2;
+    }
+    std::printf("%d\n", alpha);
+
+    Kokkos::View<double*> r("r", grid.Nx_glob[0]+2*grid.Nghost); // Position
 
     Kokkos::parallel_for(
             "Initialisation_x",
             Kokkos::RangePolicy<>(0, grid.Nx_glob[0]+2*grid.Nghost),
             KOKKOS_LAMBDA(int i)
     {
-        x(i) = i * dx + dx / 2;
+        r(i) = i * dx + dx / 2;
     });
+
 /*
     for (int i = 0; i < grid.Nx_glob[0]+2*grid.Nghost; ++i)
     {
@@ -243,12 +261,13 @@ int main(int argc, char** argv)
         //std::printf("dt = %f\n", dt);
         t = t + dt;
         iter++;
-        write(iter, grid.Nx_glob[0], rho.data());
-        std::printf("Time = %f et iteration = %d  \n", t, iter);
+        //write(iter, grid.Nx_glob[0], rho.data());
+        //std::printf("Time = %f et iteration = %d  \n", t, iter);
         
     }
-
-    write(iter, grid.Nx_glob[0], rho.data());
+    std::printf("Time = %f et iteration = %d  \n", t, iter);
+        
+    //write(iter, grid.Nx_glob[0], rho.data());
 
     PDI_finalize();
     PC_tree_destroy(&conf);
