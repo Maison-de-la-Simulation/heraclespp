@@ -83,11 +83,10 @@ int main(int argc, char** argv)
     {
         r(i) = i * dx + dx / 2;
     });
-
 /*
     for (int i = 0; i < grid.Nx_glob[0]+2*grid.Nghost; ++i)
     {
-        std::printf("*d %f \n", i, x(i));
+        std::printf("*d %f \n", i, r(i));
     }
 */
     //------------------------------------------------------------------------//
@@ -157,31 +156,15 @@ int main(int argc, char** argv)
     
     while (t <= timeout || iter<=max_iter)
     {
-        for (int i = 0; i < grid.Nx_glob[0]+2*grid.Nghost; ++i)
-        {
-        //std::printf("fin boucle %d %f %f %f %f %f\n", i, rho(i), u(i), P(i), rhou(i), E(i));
-        }
-
-        // Calcul des pentes
-        face_reconstruction->execute(rho, rhoL, rhoR);
+        face_reconstruction->execute(rho, rhoL, rhoR); // Calcul des pentes
         face_reconstruction->execute(u, uL, uR);
         face_reconstruction->execute(P, PL, PR);
        
         double dt = Dt(rhoL, uL, PL, rhoR, uR, PR, dx, cfl);
-        
         //std::printf("dt=%f\n", dt);
 
-        for (int i = 0; i < grid.Nx_glob[0]+2*grid.Nghost; ++i)
-        {
-        //std::printf("la1 %d %f %f \n", i, rhouL(i), EL(i));
-        }
-        // Conversion en variables conservatives
-        ConvPrimCons(rhoL, rhouL, EL, uL, PL, GV::gamma);
+        ConvPrimCons(rhoL, rhouL, EL, uL, PL, GV::gamma); // Conversion en variables conservatives
         ConvPrimCons(rhoR, rhouR, ER, uR, PR, GV::gamma);
-        for (int i = 0; i < grid.Nx_glob[0]+2*grid.Nghost; ++i)
-        {
-        //std::printf("la2 %d %f %f \n", i, rhouL(i), EL(i));
-        }
 
         double dto2dx = dt / (2 * dx);
 
@@ -192,7 +175,6 @@ int main(int argc, char** argv)
         {
             Flux fluxL(rhoL(i), uL(i), PL(i));
             Flux fluxR(rhoR(i), uR(i), PR(i));
-            //std::printf("%f %f\n", rhoL(i), uL(i));
 
             rho_moyL(i) = rhoL(i) + dto2dx * (fluxL.FluxRho() - fluxR.FluxRho());
             rhou_moyL(i) = rhouL(i) + dto2dx * (fluxL.FluxRhou() - fluxR.FluxRhou());
@@ -216,29 +198,16 @@ int main(int argc, char** argv)
 
             SolverHLL FluxM1(rho_moyR(i-1), rhou_moyR(i-1), E_moyR(i-1), rho_moyL(i), rhou_moyL(i), E_moyL(i));
             SolverHLL FluxP1(rho_moyR(i), rhou_moyR(i), E_moyR(i),rho_moyL(i+1), rhou_moyL(i+1), E_moyL(i+1));
-            //std::printf("%f %f %f %f %f\n", rhou(i), rhou_moyR(i), rhou_moyL(i), FluxM1.FinterRhou(), FluxP1.FinterRhou());
 
             rho_new(i) = rho(i) + dtodv * (rm1 * FluxM1.FinterRho() - rp1 * FluxP1.FinterRho());
             rhou_new(i) = rhou(i) + dtodv * (rm1 * FluxM1.FinterRhou() - rp1 * FluxP1.FinterRhou()) + dtodv * (rp1 *  PR(i) - rm1 * PL(i)) - dtodx *(PR(i) - PL(i));
             E_new(i) = E(i) + dtodv * (rm1 * FluxM1.FinterE() - rp1 * FluxP1.FinterE());
-            /*
-            rp1 = r[i]**coord_param
-            rm1 = r[i-1]**coord_param
-            U_new[0,i] = U[0,i] + (dt / dv) * (rm1 * flux_inter[0, i-1] - rp1 * flux_inter[0, i])
-            U_new[1,i] = U[1,i] + (dt / dv) * (rm1 * flux_inter[1, i-1] - rp1 * flux_inter[1, i]) \
-                + (dt / dv) * (rp1 * U_primR[2, i] - rm1 * U_primL[2, i]) - (dt / dx) * (U_primR[2, i] - U_primL[2, i])
-            U_new[2,i] = U[2,i] + (dt / dv) * (rm1 * flux_inter[2, i-1] - rp1 * flux_inter[2, i])
-            */
             /*
             rho_new(i) = rho(i) + dtodx * (FluxM1.FinterRho() - FluxP1.FinterRho());
             rhou_new(i) = rhou(i) + dtodx * (FluxM1.FinterRhou() -  FluxP1.FinterRhou());
             E_new(i) = E(i) + dtodx * (FluxM1.FinterE() -  FluxP1.FinterE());
             */
         });
-        for (int i = 0; i < grid.Nx_glob[0]+2*grid.Nghost; ++i)
-        {
-        //std::printf("la1 %f %f %f \n", rho_new(i), rhou_new(i), E_new(i));
-        }
         
         //Boundary condition
         rho_new(0) = rho_new(1)=  rho_new(2);
@@ -249,38 +218,27 @@ int main(int argc, char** argv)
         rhou_new(grid.Nx_glob[0]+grid.Nghost) = rhou_new(grid.Nx_glob[0]+grid.Nghost+1) = rhou_new(grid.Nx_glob[0]+1); 
         E_new(grid.Nx_glob[0]+grid.Nghost) = E_new(grid.Nx_glob[0]+grid.Nghost+1) = E_new(grid.Nx_glob[0]+1); 
         
-
         //GradientNull(rho_new, rhou_new, E_new, grid.Nx_glob[0]);
-
-        for (int i = 0; i < grid.Nx_glob[0]+2*grid.Nghost; ++i)
-        {
-        //std::printf("la2 %f %f %f \n", rho_new(i), rhou_new(i), E_new(i));
-        }
        
-        //Conversion des variables conservatives en primaires
-        ConvConsPrim(rho_new, rhou_new, E_new, u, P, GV::gamma);
+        ConvConsPrim(rho_new, rhou_new, E_new, u, P, GV::gamma); //Conversion des variables conservatives en primitives
         Kokkos::deep_copy(rho, rho_new);
         Kokkos::deep_copy(rhou, rhou_new);
         Kokkos::deep_copy(E, E_new);
 
-        for (int i = 0; i < grid.Nx_glob[0]+2*grid.Nghost; ++i)
-        {
-        //std::printf("la2 %f %f %f\n", rho(i), u(i), rhou(i));
-        }
-
-        for (int i = 0; i < grid.Nx_glob[0]+2*grid.Nghost; ++i)
-        {
-        //std::printf("fin boucle %d %f %f %f %f %f\n", i, rho(i), u(i), P(i), rhou(i), E(i));
-        }
         if (t + dt > timeout)
         {
             dt = timeout - t + 0.00001 ;
         }
         //std::printf("dt = %f\n", dt);
+        for (int i = 0; i < grid.Nx_glob[0]+2*grid.Nghost; ++i)
+        {
+        //std::printf("fin boucle %d %f %f %f %f %f\n", i, rho(i), u(i), P(i), rhou(i), E(i));
+        }
+
         t = t + dt;
         iter++;
         //write(iter, grid.Nx_glob[0], rho.data());
-        //std::printf("Time = %f et iteration = %d  \n", t, iter);
+        std::printf("Time = %f et iteration = %d  \n", t, iter);
         
     }
     std::printf("Time = %f et iteration = %d  \n", t, iter);
