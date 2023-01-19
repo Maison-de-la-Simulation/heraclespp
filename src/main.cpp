@@ -209,13 +209,31 @@ int main(int argc, char** argv)
             Kokkos::RangePolicy<>(2, grid.Nx_glob[0]+2),
             KOKKOS_LAMBDA(int i)
         {
+            double dv = (1. / (1 + alpha)) * (std::pow(r(i), alpha + 1) - std::pow(r(i-1), alpha + 1));
+            double rm1 = std::pow(r(i-1), alpha);
+            double rp1 = std::pow(r(i), alpha);
+            double dtodv = dt / dv;
+
             SolverHLL FluxM1(rho_moyR(i-1), rhou_moyR(i-1), E_moyR(i-1), rho_moyL(i), rhou_moyL(i), E_moyL(i));
             SolverHLL FluxP1(rho_moyR(i), rhou_moyR(i), E_moyR(i),rho_moyL(i+1), rhou_moyL(i+1), E_moyL(i+1));
             //std::printf("%f %f %f %f %f\n", rhou(i), rhou_moyR(i), rhou_moyL(i), FluxM1.FinterRhou(), FluxP1.FinterRhou());
 
+            rho_new(i) = rho(i) + dtodv * (rm1 * FluxM1.FinterRho() - rp1 * FluxP1.FinterRho());
+            rhou_new(i) = rhou(i) + dtodv * (rm1 * FluxM1.FinterRhou() - rp1 * FluxP1.FinterRhou()) + dtodv * (rp1 *  PR(i) - rm1 * PL(i)) - dtodx *(PR(i) - PL(i));
+            E_new(i) = E(i) + dtodv * (rm1 * FluxM1.FinterE() - rp1 * FluxP1.FinterE());
+            /*
+            rp1 = r[i]**coord_param
+            rm1 = r[i-1]**coord_param
+            U_new[0,i] = U[0,i] + (dt / dv) * (rm1 * flux_inter[0, i-1] - rp1 * flux_inter[0, i])
+            U_new[1,i] = U[1,i] + (dt / dv) * (rm1 * flux_inter[1, i-1] - rp1 * flux_inter[1, i]) \
+                + (dt / dv) * (rp1 * U_primR[2, i] - rm1 * U_primL[2, i]) - (dt / dx) * (U_primR[2, i] - U_primL[2, i])
+            U_new[2,i] = U[2,i] + (dt / dv) * (rm1 * flux_inter[2, i-1] - rp1 * flux_inter[2, i])
+            */
+            /*
             rho_new(i) = rho(i) + dtodx * (FluxM1.FinterRho() - FluxP1.FinterRho());
             rhou_new(i) = rhou(i) + dtodx * (FluxM1.FinterRhou() -  FluxP1.FinterRhou());
             E_new(i) = E(i) + dtodx * (FluxM1.FinterE() -  FluxP1.FinterE());
+            */
         });
         for (int i = 0; i < grid.Nx_glob[0]+2*grid.Nghost; ++i)
         {
@@ -267,7 +285,7 @@ int main(int argc, char** argv)
     }
     std::printf("Time = %f et iteration = %d  \n", t, iter);
         
-    //write(iter, grid.Nx_glob[0], rho.data());
+    write(iter, grid.Nx_glob[0], rho.data());
 
     PDI_finalize();
     PC_tree_destroy(&conf);
