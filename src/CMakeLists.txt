@@ -1,4 +1,4 @@
-add_executable(nova++ main.cpp init.cpp fonc.cpp flux.cpp conv.cpp solver.cpp io.cpp boundary.hpp)
+add_executable(nova++ main.cpp init.cpp fonc.cpp flux.cpp conv.cpp solver.cpp io.cpp boundary.cpp)
 target_compile_features(nova++ PUBLIC cxx_std_17)
 
 find_package(PDI REQUIRED)
