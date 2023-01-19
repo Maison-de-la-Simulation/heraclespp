@@ -38,6 +38,7 @@ private :
         double m_rho;
         double m_rhou;
         double m_E;
+        double m_u;
 
 public :
       ConvCtoP(
