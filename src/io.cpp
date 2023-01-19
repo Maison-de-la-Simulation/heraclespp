@@ -1,5 +1,7 @@
 #include "io.hpp"
 
+#include <pdi.h>
+
 void init_write(int max_iter, int frequency)
 {
     PDI_multi_expose("init_PDI",
