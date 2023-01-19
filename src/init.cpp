@@ -24,7 +24,7 @@ void ShockTubeInit(
             nx,
             KOKKOS_LAMBDA(int i)
     {
-              if(i < inter)
+              if(i <= inter)
               {
                 rho(i) = rhoL;
                 u(i) = uL;
