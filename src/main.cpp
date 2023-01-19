@@ -137,9 +137,8 @@ int main(int argc, char** argv)
     double t = 0;
     int iter = 0;
     
-    while (t < timeout || iter<=max_iter)
+    while (t <= timeout || iter<=max_iter)
     {
-        std::printf("Time = %f et iteration = %d  \n", t, iter);
         for (int i = 0; i < grid.Nx_glob[0]+2*grid.Nghost; ++i)
         {
         //std::printf("fin boucle %d %f %f %f %f %f\n", i, rho(i), u(i), P(i), rhou(i), E(i));
@@ -202,7 +201,7 @@ int main(int argc, char** argv)
         });
         for (int i = 0; i < grid.Nx_glob[0]+2*grid.Nghost; ++i)
         {
-        std::printf("la1 %f %f %f \n", rho_new(i), rhou_new(i), E_new(i));
+        //std::printf("la1 %f %f %f \n", rho_new(i), rhou_new(i), E_new(i));
         }
         
         //Boundary condition
@@ -219,7 +218,7 @@ int main(int argc, char** argv)
 
         for (int i = 0; i < grid.Nx_glob[0]+2*grid.Nghost; ++i)
         {
-        std::printf("la2 %f %f %f \n", rho_new(i), rhou_new(i), E_new(i));
+        //std::printf("la2 %f %f %f \n", rho_new(i), rhou_new(i), E_new(i));
         }
        
         //Conversion des variables conservatives en primaires
@@ -237,9 +236,15 @@ int main(int argc, char** argv)
         {
         //std::printf("fin boucle %d %f %f %f %f %f\n", i, rho(i), u(i), P(i), rhou(i), E(i));
         }
+        if (t + dt > timeout)
+        {
+            dt = timeout - t + 0.00001 ;
+        }
+        //std::printf("dt = %f\n", dt);
         t = t + dt;
         iter++;
-        //write(iter, grid.Nx_glob[0], rho.data());
+        write(iter, grid.Nx_glob[0], rho.data());
+        std::printf("Time = %f et iteration = %d  \n", t, iter);
         
     }
 
