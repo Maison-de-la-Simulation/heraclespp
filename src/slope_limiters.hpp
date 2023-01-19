@@ -12,14 +12,12 @@ class Null
 public:
     static constexpr std::string_view s_label = "Null";
 
-    //! @param[in] Uim1 float U_{i-1}^{n}
-    //! @param[in] Ui float U_{i}^{n}
-    //! @param[in] Uip1 float U_{i+1}^{n}
+    //! @param[in] diffR float (U_{i+1}^{n} - U_{i}^{n}) / dx
+    //! @param[in] diffL float (U_{i-1}^{n} - U_{i}^{n}) / dx
     //! @return slope
     double operator()(
-            [[maybe_unused]] double const Uim1,
-            [[maybe_unused]] double const Ui,
-            [[maybe_unused]] double const Uip1) const
+            [[maybe_unused]] double const diffR,
+            [[maybe_unused]] double const diffL) const
     {
         return 0;
     }
@@ -32,18 +30,62 @@ public:
     static constexpr std::string_view s_label = "VanLeer";
 
     //! The Van Leer formula.
-    //! @param[in] Uim1 float U_{i-1}^{n}
-    //! @param[in] Ui float U_{i}^{n}
-    //! @param[in] Uip1 float U_{i+1}^{n}
+    //! @param[in] diffR float (U_{i+1}^{n} - U_{i}^{n}) / dx
+    //! @param[in] diffL float (U_{i-1}^{n} - U_{i}^{n}) / dx
     //! @return slope
-    double operator()(double const Uim1, double const Ui, double const Uip1) const
+    double operator()(double const diffR, double const diffL) const
     {
-        double const diffR = Uip1 - Ui; // Right slope
-        double const diffL = Ui - Uim1; // Left
         double const R = diffR / diffL;
         if (diffL * diffR > 0)
         {
             return (1. / 2) * (diffR + diffL) * (4 * R) / ((R + 1) * (R + 1));
+        }
+        else
+        {
+            return 0;
+        }
+    }
+};
+
+//! The Minmod slope limiter.
+class Minmod
+{
+public:
+    static constexpr std::string_view s_label = "Minmod";
+    
+    //! The Minmod formula.
+    //! @param[in] diffR float (U_{i+1}^{n} - U_{i}^{n}) / dx
+    //! @param[in] diffL float (U_{i-1}^{n} - U_{i}^{n}) / dx
+    //! @return slope
+    double operator()(double const diffR, double const diffL) const
+    {
+        if (diffL * diffR > 0)
+        {
+            return 1. / ((1. / diffL) + (1. / diffR));
+        }
+        else
+        {
+            return 0;
+        }
+    }
+};
+
+//! The Van Albada slope limiter.
+class VanAlbada
+{
+public:
+    static constexpr std::string_view s_label = "VanAlbada";
+    
+    //! The Minmod formula.
+    //! @param[in] diffR float (U_{i+1}^{n} - U_{i}^{n}) / dx
+    //! @param[in] diffL float (U_{i-1}^{n} - U_{i}^{n}) / dx
+    //! @return slope
+    double operator()(double const diffR, double const diffL) const
+    {
+        double const R = diffR / diffL;
+        if (diffL * diffR > 0)
+        {
+            return (1. / 2) * (diffR + diffL) * (2 * R) / (R * R + 1);
         }
         else
         {
