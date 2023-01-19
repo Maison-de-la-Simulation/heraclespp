@@ -30,6 +30,7 @@ ConvCtoP::ConvCtoP(
         m_rho = rho;
         m_rhou = rhou;
         m_E = E;
+        m_u = rhou / rho;
 };
 
 double ConvCtoP::ConvU()
@@ -39,5 +40,5 @@ double ConvCtoP::ConvU()
 
 double ConvCtoP::ConvP()
 {
-        return (GV::gamma - 1) * (m_E - (1. / 2) * m_rhou * m_rhou / m_rho);
+        return (GV::gamma - 1) * (m_E - (1. / 2) * m_rho * m_u * m_u);
 }
