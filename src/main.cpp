@@ -200,7 +200,11 @@ int main(int argc, char** argv)
             rhou_new(i) = rhou(i) + dtodx * (FluxM1.FinterRhou() -  FluxP1.FinterRhou());
             E_new(i) = E(i) + dtodx * (FluxM1.FinterE() -  FluxP1.FinterE());
         });
-
+        for (int i = 0; i < grid.Nx_glob[0]+2*grid.Nghost; ++i)
+        {
+        std::printf("la1 %f %f %f \n", rho_new(i), rhou_new(i), E_new(i));
+        }
+        
         //Boundary condition
         rho_new(0) = rho_new(1)=  rho_new(2);
         rhou_new(0) = rhou_new(1) = rhou_new(2);
@@ -209,13 +213,13 @@ int main(int argc, char** argv)
         rho_new(grid.Nx_glob[0]+grid.Nghost) = rho_new(grid.Nx_glob[0]+grid.Nghost+1) = rho_new(grid.Nx_glob[0]+1); 
         rhou_new(grid.Nx_glob[0]+grid.Nghost) = rhou_new(grid.Nx_glob[0]+grid.Nghost+1) = rhou_new(grid.Nx_glob[0]+1); 
         E_new(grid.Nx_glob[0]+grid.Nghost) = E_new(grid.Nx_glob[0]+grid.Nghost+1) = E_new(grid.Nx_glob[0]+1); 
+        
 
-        //Boundary Trans(rho_new, rhou_new, E_new);
-        //Trans.GradientNul();
+        //GradientNull(rho_new, rhou_new, E_new, grid.Nx_glob[0]);
 
         for (int i = 0; i < grid.Nx_glob[0]+2*grid.Nghost; ++i)
         {
-        //std::printf("la1 %f %f %f \n", rho(i), u(i), rhou_new(i));
+        std::printf("la2 %f %f %f \n", rho_new(i), rhou_new(i), E_new(i));
         }
        
         //Conversion des variables conservatives en primaires
