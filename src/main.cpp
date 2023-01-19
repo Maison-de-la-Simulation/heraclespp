@@ -58,7 +58,7 @@ int main(int argc, char** argv)
             = factory_face_reconstruction(reconstruction_type, dx);
 
     int alpha;
-    std::string const system_choice = reader.Get("Grid", "coord", "Cartesian");
+    std::string const system_choice = reader.Get("Grid", "system", "Cartesian");
     std::printf("%s\n", system_choice.c_str());
     if (system_choice == "Cartesian")
     {
