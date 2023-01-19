@@ -12,16 +12,16 @@
 class Flux
 {
 private :
-      double m_rho;
-      double m_u;
-      double m_P;
+    double m_rho;
+    double m_u;
+    double m_P;
 
 public :
       Flux(
-            double const rho,
-            double const u,
-            double const P);
-      double FluxRho();
-      double FluxRhou();
-      double FluxE();
+          double const rho,
+          double const u,
+          double const P);
+    double FluxRho();
+    double FluxRhou();
+    double FluxE();
 };
