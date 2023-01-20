@@ -4,9 +4,11 @@ pdi:
     max_iter: int
     frequency: int
     iter: int
+    ghost_depth: int
 
   data:
-    rho_new: { type: array, subtype: double, size: '$nx+4' }
+    rho_new: { type: array, subtype: double, size: '$nx+2*$ghost_depth' }
+    u: { type: array, subtype: double, size: '$nx+2*$ghost_depth' }
     
 
   plugins:
@@ -17,4 +19,5 @@ pdi:
         when: "$iter%$frequency=0"
         write:
           rho_new:
+          u:
     trace:

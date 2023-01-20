@@ -18,7 +18,7 @@
 #include "solver.hpp"
 #include "io.hpp"
 #include "face_reconstruction.hpp"
-#include "coordinate_system.hpp"
+// #include "coordinate_system.hpp"
 #include "boundary.hpp"
 
 #include <pdi.h>
@@ -51,7 +51,7 @@ int main(int argc, char** argv)
     int inter = grid.Nx_glob[0] / 2; // Interface position
     double cfl = 0.4;
 
-    init_write(max_iter, output_frequency);
+    init_write(max_iter, output_frequency, grid.Nghost);
 
     std::string const reconstruction_type = reader.Get("hydro", "reconstruction", "Minmod");
     std::unique_ptr<IFaceReconstruction> face_reconstruction
@@ -243,7 +243,7 @@ int main(int argc, char** argv)
     }
     std::printf("Time = %f et iteration = %d  \n", t, iter);
         
-    write(iter, grid.Nx_glob[0], rho.data());
+    write(iter, grid.Nx_glob[0], rho.data(), u.data());
 
     PDI_finalize();
     PC_tree_destroy(&conf);
