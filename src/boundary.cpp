@@ -6,15 +6,15 @@ void GradientNull(
     Kokkos::View<double *> const rho,
     Kokkos::View<double *> const rhou,
     Kokkos::View<double *> const E,
-    double size)
+    int size)
 {
     rho(0) = rho(1)= rho(2);
     rhou(0) = rhou(1)= rhou(2);
     E(0) = E(1)= E(2);
 
-    //rho(size+2) = rho(size+3) = rho(size+1); 
-    //rhou(size+2) = rhou(size+3) = rhou(size+1); 
-    //E(size+2) = E(size+3) = E(size+1); 
+    rho(size+2) = rho(size+3) = rho(size+1); 
+    rhou(size+2) = rhou(size+3) = rhou(size+1); 
+    E(size+2) = E(size+3) = E(size+1); 
 }
 
 /*

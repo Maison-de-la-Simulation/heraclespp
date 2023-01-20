@@ -17,7 +17,10 @@ void write(int iter, int nx, double current, void * rho, void *u)
                     "nx", &nx, PDI_OUT,
                     "current_time", &current, PDI_OUT,
                     "iter", &iter, PDI_OUT,
+<<<<<<< HEAD
                     "rho_new", rho, PDI_OUT,
+=======
+>>>>>>> 03afff19f0fd0efbddc330985f3122dac302a267
                     "u", u, PDI_OUT,
                     NULL);
 }
