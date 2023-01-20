@@ -142,6 +142,7 @@ int main(int argc, char** argv)
     double t = 0;
     int iter = 0;
     bool should_exit = false;
+
     while (!should_exit && t < timeout & iter<=max_iter)
     {
         face_reconstruction->execute(rho, rhoL, rhoR); // Calcul des pentes
@@ -164,7 +165,7 @@ int main(int argc, char** argv)
 
         Kokkos::parallel_for(
             "Extrapolation",
-            Kokkos::RangePolicy<>(1, grid.Nx_glob[0]+3),
+            Kokkos::RangePolicy<>(grid.Nghost-1, grid.Nx_glob[0]+grid.Nghost+1),
             KOKKOS_LAMBDA(int i)
         {
             Flux fluxL(rhoL(i), uL(i), PL(i));
@@ -182,7 +183,7 @@ int main(int argc, char** argv)
 
          Kokkos::parallel_for(
             "New value",
-            Kokkos::RangePolicy<>(2, grid.Nx_glob[0]+2),
+            Kokkos::RangePolicy<>(grid.Nghost, grid.Nx_glob[0]+grid.Nghost),
             KOKKOS_LAMBDA(int i)
         {
             double dv = (1. / (1 + alpha)) * (std::pow(r(i), alpha + 1) - std::pow(r(i-1), alpha + 1));
@@ -202,7 +203,7 @@ int main(int argc, char** argv)
             E_new(i) = E(i) + dtodx * (FluxM1.FinterE() -  FluxP1.FinterE());
             */
         });
-        
+        /*
         //Boundary condition
         rho_new(0) = rho_new(1)=  rho_new(2);
         rhou_new(0) = rhou_new(1) = rhou_new(2);
@@ -211,7 +212,7 @@ int main(int argc, char** argv)
         rho_new(grid.Nx_glob[0]+grid.Nghost) = rho_new(grid.Nx_glob[0]+grid.Nghost+1) = rho_new(grid.Nx_glob[0]+1); 
         rhou_new(grid.Nx_glob[0]+grid.Nghost) = rhou_new(grid.Nx_glob[0]+grid.Nghost+1) = rhou_new(grid.Nx_glob[0]+1); 
         E_new(grid.Nx_glob[0]+grid.Nghost) = E_new(grid.Nx_glob[0]+grid.Nghost+1) = E_new(grid.Nx_glob[0]+1); 
-        
+        */
         //GradientNull(rho_new, rhou_new, E_new, grid.Nx_glob[0]);
        
         ConvConsPrim(rho_new, rhou_new, E_new, u, P, GV::gamma); //Conversion des variables conservatives en primitives
@@ -238,7 +239,6 @@ int main(int argc, char** argv)
         std::printf("Time = %f et iteration = %d  \n", t, iter);
     }
         
-
     PDI_finalize();
     PC_tree_destroy(&conf);
 
