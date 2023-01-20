@@ -18,7 +18,7 @@
 #include "solver.hpp"
 #include "io.hpp"
 #include "face_reconstruction.hpp"
-// #include "coordinate_system.hpp"
+#include "coordinate_system.hpp"
 #include "boundary.hpp"
 
 #include <pdi.h>
@@ -57,23 +57,11 @@ int main(int argc, char** argv)
     std::unique_ptr<IFaceReconstruction> face_reconstruction
             = factory_face_reconstruction(reconstruction_type, dx);
 
-    int alpha;
-    std::string const system_choice = reader.Get("Grid", "system", "Cartesian");
-    std::printf("%s\n", system_choice.c_str());
-    if (system_choice == "Cartesian")
-    {
-        alpha = 0;
-    }
-    else if (system_choice == "Cylindrical")
-    {
-        alpha = 1;
-    }
-     else if (system_choice == "Spherical")
-    {
-        alpha = 2;
-    }
-    std::printf("%d\n", alpha);
-
+        
+    int alpha = GetenumIndex(reader.Get("Grid", "system", "Cartesian"));
+    
+    std::cout<<"alpha = "<<alpha<<std::endl;
+    
     Kokkos::View<double*> r("r", grid.Nx_glob[0]+2*grid.Nghost); // Position
 
     Kokkos::parallel_for(
