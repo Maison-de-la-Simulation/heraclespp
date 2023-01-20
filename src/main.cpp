@@ -141,15 +141,20 @@ int main(int argc, char** argv)
     */
     double t = 0;
     int iter = 0;
-    bool make_output = false;
-    
-    while (t <= timeout & iter<=max_iter)
+    bool should_exit = false;
+    while (!should_exit && t < timeout & iter<=max_iter)
     {
         face_reconstruction->execute(rho, rhoL, rhoR); // Calcul des pentes
         face_reconstruction->execute(u, uL, uR);
         face_reconstruction->execute(P, PL, PR);
        
         double dt = Dt(rhoL, uL, PL, rhoR, uR, PR, dx, cfl);
+
+        if ((t + dt) > timeout)
+        {
+            dt = timeout - t;
+            should_exit = true;
+        }
         //std::printf("dt=%f\n", dt);
 
         ConvPrimCons(rhoL, rhouL, EL, uL, PL, GV::gamma); // Conversion en variables conservatives
@@ -220,23 +225,19 @@ int main(int argc, char** argv)
         //std::printf("fin boucle %d %f %f %f %f %f\n", i, rho(i), u(i), P(i), rhou(i), E(i));
         }
         
-        make_output = should_output(iter, output_frequency, max_iter, t, dt, timeout);
+        bool make_output = should_output(iter, output_frequency, max_iter, t, dt, timeout);
+
+        t = t + dt;
+        iter++;
+
         if(make_output)
         {
             write(iter, grid.Nx_glob[0], t, rho.data(), u.data());
         }
-        
-        if ((t + dt) > timeout)
-        {
-            dt = 0.00001 ;
-        }
 
         std::printf("Time = %f et iteration = %d  \n", t, iter);
-        t = t + dt;
-        iter++;
     }
         
-    
 
     PDI_finalize();
     PC_tree_destroy(&conf);
