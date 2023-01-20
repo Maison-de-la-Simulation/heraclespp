@@ -104,7 +104,7 @@ int main(int argc, char** argv)
     Kokkos::View<double*, Kokkos::HostSpace> E_host
             = Kokkos::create_mirror_view(E); // Energy always on host
     Kokkos::View<double*, Kokkos::HostSpace> u_host
-            = Kokkos::create_mirror_view(rhou); // Speedalways on host
+            = Kokkos::create_mirror_view(u); // Speedalways on host
     Kokkos::View<double*, Kokkos::HostSpace> P_host
             = Kokkos::create_mirror_view(P); // Pressure always on host
 
@@ -241,8 +241,6 @@ int main(int argc, char** argv)
         {
             write(iter, grid.Nx_glob[0], t, rho.data(), u.data());
         }
-        
-
         
         //write(iter, grid.Nx_glob[0], rho.data());
         std::printf("Time = %f et iteration = %d  \n", t, iter);
