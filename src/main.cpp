@@ -203,16 +203,19 @@ int main(int argc, char** argv)
             E_new(i) = E(i) + dtodx * (FluxM1.FinterE() -  FluxP1.FinterE());
             */
         });
-        /*
+        
         //Boundary condition
-        rho_new(0) = rho_new(1)=  rho_new(2);
-        rhou_new(0) = rhou_new(1) = rhou_new(2);
-        E_new(0) = E_new(1) = E_new(2);
+        for (int i=0; i<grid.Nghost; i++)
+        {
+            rho_new(i) = rho_new(grid.Nghost);    
+            rho_new(grid.Nx_glob[0]+grid.Nghost+i) = rho_new(grid.Nx_glob[0]+1);
 
-        rho_new(grid.Nx_glob[0]+grid.Nghost) = rho_new(grid.Nx_glob[0]+grid.Nghost+1) = rho_new(grid.Nx_glob[0]+1); 
-        rhou_new(grid.Nx_glob[0]+grid.Nghost) = rhou_new(grid.Nx_glob[0]+grid.Nghost+1) = rhou_new(grid.Nx_glob[0]+1); 
-        E_new(grid.Nx_glob[0]+grid.Nghost) = E_new(grid.Nx_glob[0]+grid.Nghost+1) = E_new(grid.Nx_glob[0]+1); 
-        */
+            rhou_new(i) = rhou_new(grid.Nghost);    
+            rhou_new(grid.Nx_glob[0]+grid.Nghost+i) = rhou_new(grid.Nx_glob[0]+1);
+
+            E_new(i) = E_new(grid.Nghost);    
+            E_new(grid.Nx_glob[0]+grid.Nghost+i) = E_new(grid.Nx_glob[0]+1); 
+        }
         //GradientNull(rho_new, rhou_new, E_new, grid.Nx_glob[0]);
        
         ConvConsPrim(rho_new, rhou_new, E_new, u, P, GV::gamma); //Conversion des variables conservatives en primitives
