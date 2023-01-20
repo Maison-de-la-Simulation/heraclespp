@@ -153,8 +153,9 @@ int main(int argc, char** argv)
     */
     double t = 0;
     int iter = 0;
+    bool make_output = false;
     
-    while (t <= timeout || iter<=max_iter)
+    while (t <= timeout & iter<=max_iter)
     {
         face_reconstruction->execute(rho, rhoL, rhoR); // Calcul des pentes
         face_reconstruction->execute(u, uL, uR);
@@ -234,16 +235,23 @@ int main(int argc, char** argv)
         {
         //std::printf("fin boucle %d %f %f %f %f %f\n", i, rho(i), u(i), P(i), rhou(i), E(i));
         }
+        
+        make_output = should_output(iter, output_frequency, max_iter, t, dt, timeout);
+        if(make_output)
+        {
+            write(iter, grid.Nx_glob[0], t, rho.data(), u.data());
+        }
+        
 
-        t = t + dt;
-        iter++;
+        
         //write(iter, grid.Nx_glob[0], rho.data());
         std::printf("Time = %f et iteration = %d  \n", t, iter);
-        
+        t = t + dt;
+        iter++;
     }
     std::printf("Time = %f et iteration = %d  \n", t, iter);
         
-    write(iter, grid.Nx_glob[0], rho.data(), u.data());
+    
 
     PDI_finalize();
     PC_tree_destroy(&conf);

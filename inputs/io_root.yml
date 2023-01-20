@@ -5,6 +5,9 @@ pdi:
     frequency: int
     iter: int
     ghost_depth: int
+    time_out: double
+    current_time: double
+
 
   data:
     rho_new: { type: array, subtype: double, size: '$nx+2*$ghost_depth' }
@@ -16,7 +19,6 @@ pdi:
       - file: test_${iter}.h5
         collision_policy: replace
         on_event: write_rho_new
-        when: "$iter%$frequency=0"
         write:
           rho_new:
           u:
