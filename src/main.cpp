@@ -214,10 +214,6 @@ int main(int argc, char** argv)
         Kokkos::deep_copy(rhou, rhou_new);
         Kokkos::deep_copy(E, E_new);
 
-        if (t + dt > timeout)
-        {
-            dt = timeout - t + 0.00001 ;
-        }
         //std::printf("dt = %f\n", dt);
         for (int i = 0; i < grid.Nx_glob[0]+2*grid.Nghost; ++i)
         {
@@ -230,12 +226,15 @@ int main(int argc, char** argv)
             write(iter, grid.Nx_glob[0], t, rho.data(), u.data());
         }
         
-        //write(iter, grid.Nx_glob[0], rho.data());
+        if ((t + dt) > timeout)
+        {
+            dt = 0.00001 ;
+        }
+
         std::printf("Time = %f et iteration = %d  \n", t, iter);
         t = t + dt;
         iter++;
     }
-    std::printf("Time = %f et iteration = %d  \n", t, iter);
         
     
 
