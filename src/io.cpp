@@ -16,9 +16,9 @@ void write(int iter, int nx, double current, void * rho, void *u)
     PDI_multi_expose("write_rho_new",
                     "nx", &nx, PDI_OUT,
                     "current_time", &current, PDI_OUT,
-                    "rho_new", rho, PDI_OUT,
                     "iter", &iter, PDI_OUT,
-                    "u", &u, PDI_OUT,
+                    "rho_new", rho, PDI_OUT,
+                    "u", u, PDI_OUT,
                     NULL);
 }
 
