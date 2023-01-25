@@ -1,14 +1,14 @@
 #include <Kokkos_Core.hpp>
 
-#include "global_var.hpp"
 #include "boundary.hpp"
+#include "grid.hpp"
 
 void GradientNull(
     Kokkos::View<double ***> const rho,
     Kokkos::View<double ***> const rhou,
     Kokkos::View<double ***> const E)
 {
-    Grid grid(1, 0);
+    Grid grid;
     int size = rho.extent(0) - 2*grid.Nghost;
     Kokkos::parallel_for(
         "boundary",
@@ -33,7 +33,7 @@ void Periodic(
     Kokkos::View<double ***> const rhou,
     Kokkos::View<double ***> const E)
 {
-    Grid grid(1, 0);
+    Grid grid;
     int size = rho.extent(0) - 2*grid.Nghost;
     Kokkos::parallel_for(
         "boundary",
@@ -58,7 +58,7 @@ void Reflexive(
     Kokkos::View<double ***> const rhou,
     Kokkos::View<double ***> const E)
 {
-    Grid grid(1, 0);
+    Grid grid;
     int size = rho.extent(0) - 2*grid.Nghost;
     Kokkos::parallel_for(
         "boundary",
