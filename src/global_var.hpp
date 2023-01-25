@@ -7,11 +7,6 @@
 
 #include <cmath>
 
-// Transformer en structure. Mettre dans un fichier EOS.
-namespace GV{
-    inline double gamma;
-}
-
 struct Grid {
 int Ndim       ; // Number of dimension of the run 1-3 (default = 1)
 int Nx_glob[3] ; // Total number of cells in each directions (excluding ghost)

@@ -47,7 +47,7 @@ int main(int argc, char** argv)
     double const timeout = reader.GetReal("Run", "timeout", 0.2);
     int const max_iter = reader.GetInteger("Output", "max_iter", 10000);
     int const output_frequency = reader.GetInteger("Output", "frequency", 10);
-    GV::gamma = reader.GetReal("Thermodynamics", "gamma", 5. / 3);
+    double const gamma = reader.GetReal("Thermodynamics", "gamma", 5. / 3);
 
     double const dx = 1. / (grid.Nx_glob[0]+2*grid.Nghost);
     int inter = grid.Nx_glob[0] / 2; // Interface position
@@ -113,7 +113,7 @@ int main(int argc, char** argv)
 
     ShockTubeInit(rho, u, P, inter); // Initialisation primary variables (rho, u, P)
     
-    ConvPrimConsArray(rho, rhou, E, u, P, GV::gamma); // Initialisation conservative variables (rho, rhou, E)
+    ConvPrimConsArray(rho, rhou, E, u, P, gamma); // Initialisation conservative variables (rho, rhou, E)
     
     Kokkos::deep_copy(rho_host, rho);
     Kokkos::deep_copy(u_host, u);
@@ -132,15 +132,15 @@ int main(int argc, char** argv)
         face_reconstruction->execute(u, uL, uR);
         face_reconstruction->execute(P, PL, PR);
         
-        double dt = time_step(cfl, rho, u, P, dx, dx, dx, GV::gamma);
+        double dt = time_step(cfl, rho, u, P, dx, dx, dx, gamma);
         if ((t + dt) > timeout)
         {
             dt = timeout - t;
             should_exit = true;
         }
 
-        ConvPrimConsArray(rhoL, rhouL, EL, uL, PL, GV::gamma); // Conversion en variables conservatives
-        ConvPrimConsArray(rhoR, rhouR, ER, uR, PR, GV::gamma);
+        ConvPrimConsArray(rhoL, rhouL, EL, uL, PL, gamma); // Conversion en variables conservatives
+        ConvPrimConsArray(rhoR, rhouR, ER, uR, PR, gamma);
 
         double dto2dx = dt / (2 * dx);
 
@@ -151,8 +151,8 @@ int main(int argc, char** argv)
             {grid.Nx_glob[0]+2*grid.Nghost-1, 1, 1}),
             KOKKOS_LAMBDA(int i, int j, int k)
         {
-            Flux fluxL(rhoL(i, j, k), uL(i, j, k), PL(i, j, k), GV::gamma);
-            Flux fluxR(rhoR(i, j, k), uR(i, j, k), PR(i, j, k), GV::gamma);  
+            Flux fluxL(rhoL(i, j, k), uL(i, j, k), PL(i, j, k), gamma);
+            Flux fluxR(rhoR(i, j, k), uR(i, j, k), PR(i, j, k), gamma);  
 
             rho_moyL(i, j, k) = rhoL(i, j, k) + dto2dx * (fluxL.FluxRho() - fluxR.FluxRho());
             rhou_moyL(i, j, k) = rhouL(i, j, k) + dto2dx * (fluxL.FluxRhou() - fluxR.FluxRhou());
@@ -171,8 +171,8 @@ int main(int argc, char** argv)
             {grid.Nx_glob[0]+grid.Nghost, 1, 1}),
             KOKKOS_LAMBDA(int i, int j, int k)
         {
-            SolverHLL FluxM1(rho_moyR(i-1, j, k), rhou_moyR(i-1, j, k), E_moyR(i-1, j, k), rho_moyL(i, j, k), rhou_moyL(i, j, k), E_moyL(i, j, k), GV::gamma);
-            SolverHLL FluxP1(rho_moyR(i, j, k), rhou_moyR(i, j, k), E_moyR(i, j, k),rho_moyL(i+1, j, k), rhou_moyL(i+1, j, k), E_moyL(i+1, j, k), GV::gamma);
+            SolverHLL FluxM1(rho_moyR(i-1, j, k), rhou_moyR(i-1, j, k), E_moyR(i-1, j, k), rho_moyL(i, j, k), rhou_moyL(i, j, k), E_moyL(i, j, k), gamma);
+            SolverHLL FluxP1(rho_moyR(i, j, k), rhou_moyR(i, j, k), E_moyR(i, j, k),rho_moyL(i+1, j, k), rhou_moyL(i+1, j, k), E_moyL(i+1, j, k), gamma);
 
             rho_new(i, j, k) = rho(i, j, k) + dtodx * (FluxM1.FinterRho() - FluxP1.FinterRho());
             rhou_new(i, j, k) = rhou(i, j, k) + dtodx * (FluxM1.FinterRhou() -  FluxP1.FinterRhou());
@@ -181,7 +181,7 @@ int main(int argc, char** argv)
 
        GradientNull(rho_new, rhou_new, E_new);
 
-        ConvConsPrimArray(rho_new, rhou_new, E_new, u, P, GV::gamma); //Conversion des variables conservatives en primitives
+        ConvConsPrimArray(rho_new, rhou_new, E_new, u, P, gamma); //Conversion des variables conservatives en primitives
         Kokkos::deep_copy(rho, rho_new);
         Kokkos::deep_copy(rhou, rhou_new);
         Kokkos::deep_copy(E, E_new);
