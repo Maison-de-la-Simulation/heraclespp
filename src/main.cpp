@@ -47,7 +47,8 @@ int main(int argc, char** argv)
     double const timeout = reader.GetReal("Run", "timeout", 0.2);
     int const max_iter = reader.GetInteger("Output", "max_iter", 10000);
     int const output_frequency = reader.GetInteger("Output", "frequency", 10);
-    
+    GV::gamma = reader.GetReal("Thermodynamics", "gamma", 5. / 3);
+
     double const dx = 1. / (grid.Nx_glob[0]+2*grid.Nghost);
     int inter = grid.Nx_glob[0] / 2; // Interface position
     double const cfl = 0.4;
