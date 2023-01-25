@@ -7,23 +7,6 @@
 
 #include <cmath>
 
-struct Grid {
-int Ndim       ; // Number of dimension of the run 1-3 (default = 1)
-int Nx_glob[3] ; // Total number of cells in each directions (excluding ghost)
-int Nx[3]      ; // Number of cells on the local MPI process
-int Nghost     ; // Number of ghost cells (default = 2)
-int Nx_size[3] ; // Size of local arrays 
-int NBlock[3]  ; // number of sub-blocks
-
-// taille des tableaux N (0:N-1) tjrs
-
-Grid(int Ncpu , int MyRank){
-    Ndim     = 1 ;
-    Nghost   = 2 ;
-   
-} 
-} ; // end of Grid
-
 struct Phys{
 int Nvit       ; // Number of velocity component (default Ndim)
 int Nvar       ; // Number of hydro/MHD variable

@@ -21,6 +21,7 @@
 #include "coordinate_system.hpp"
 #include "cfl_cond.hpp"
 #include "boundary.hpp"
+#include "grid.hpp"
 
 #include <pdi.h>
 
@@ -39,7 +40,7 @@ int main(int argc, char** argv)
     PC_tree_t conf = PC_parse_path(argv[2]);
     PDI_init(PC_get(conf, ".pdi"));
 
-    Grid grid(1, 0);
+    Grid grid;
 
     grid.Nx_glob[0] = reader.GetInteger("Grid", "Nx_glob", 10); // Cell number
     grid.Nx_glob[1] = reader.GetInteger("Grid", "Ny_glob", 10); // Cell number
