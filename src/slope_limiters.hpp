@@ -13,7 +13,7 @@ public:
     static constexpr std::string_view s_label = "Null";
 
     //! @param[in] diffR float (U_{i+1}^{n} - U_{i}^{n}) / dx
-    //! @param[in] diffL float (U_{i-1}^{n} - U_{i}^{n}) / dx
+    //! @param[in] diffL float (U_{i}^{n} - U_{i-1}^{n}) / dx
     //! @return slope
     double operator()(
             [[maybe_unused]] double const diffR,
@@ -31,7 +31,7 @@ public:
 
     //! The Van Leer formula.
     //! @param[in] diffR float (U_{i+1}^{n} - U_{i}^{n}) / dx
-    //! @param[in] diffL float (U_{i-1}^{n} - U_{i}^{n}) / dx
+    //! @param[in] diffL float (U_{i}^{n} - U_{i-1}^{n}) / dx
     //! @return slope
     double operator()(double const diffR, double const diffL) const
     {
@@ -55,7 +55,7 @@ public:
     
     //! The Minmod formula.
     //! @param[in] diffR float (U_{i+1}^{n} - U_{i}^{n}) / dx
-    //! @param[in] diffL float (U_{i-1}^{n} - U_{i}^{n}) / dx
+    //! @param[in] diffL float (U_{i}^{n} - U_{i-1}^{n}) / dx
     //! @return slope
     double operator()(double const diffR, double const diffL) const
     {
@@ -78,7 +78,7 @@ public:
     
     //! The Minmod formula.
     //! @param[in] diffR float (U_{i+1}^{n} - U_{i}^{n}) / dx
-    //! @param[in] diffL float (U_{i-1}^{n} - U_{i}^{n}) / dx
+    //! @param[in] diffL float (U_{i}^{n} - U_{i-1}^{n}) / dx
     //! @return slope
     double operator()(double const diffR, double const diffL) const
     {
