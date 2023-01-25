@@ -1,5 +1,6 @@
 //!
 //! @file coordinate_system.hpp
+// Choice for the coordinate system
 //!
 
 #pragma once
@@ -13,6 +14,9 @@ enum system_choice_enum{
 };
 
 
+//! Conversion primary to conservative variables
+//! @param[in] s string system name
+//! @param[out] x alpha value
 system_choice_enum GetenumIndex( std::string s ) {    
     static std::map<std::string,system_choice_enum> string2choice {
        { "Cartesian",   Cartesian }, 

@@ -1,42 +1,103 @@
 #include <Kokkos_Core.hpp>
 
+#include "global_var.hpp"
 #include "boundary.hpp"
 
 void GradientNull(
-    Kokkos::View<double *> const rho,
-    Kokkos::View<double *> const rhou,
-    Kokkos::View<double *> const E,
-    int size)
+    Kokkos::View<double ***> const rho,
+    Kokkos::View<double ***> const rhou,
+    Kokkos::View<double ***> const E)
 {
-    rho(0) = rho(1)= rho(2);
-    rhou(0) = rhou(1)= rhou(2);
-    E(0) = E(1)= E(2);
+    Grid grid(1, 0);
+    int size = rho.extent(0) - 2*grid.Nghost;
+    Kokkos::parallel_for(
+        "boundary",
+        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
+        {0, 0, 0},
+        {2, 1, 1}),
+        KOKKOS_LAMBDA(int i, int j, int k)
+    {
+        rho(i, j, k) = rho(2, j, k);    
+        rho(size+2+i, j, k) = rho(size+1, j, k);
 
-    rho(size+2) = rho(size+3) = rho(size+1); 
-    rhou(size+2) = rhou(size+3) = rhou(size+1); 
-    E(size+2) = E(size+3) = E(size+1); 
+        rhou(i, j, k) = rhou(2, j, k);    
+        rhou(size+2+i, j, k) = rhou(size+1, j, k);
+
+        E(i, j, k) = E(2, j, k);    
+        E(size+2+i, j, k) = E(size+1, j, k); 
+    });
+}
+
+void Periodic(
+    Kokkos::View<double ***> const rho,
+    Kokkos::View<double ***> const rhou,
+    Kokkos::View<double ***> const E)
+{
+    Grid grid(1, 0);
+    int size = rho.extent(0) - 2*grid.Nghost;
+    Kokkos::parallel_for(
+        "boundary",
+        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
+        {0, 0, 0},
+        {2, 1, 1}),
+        KOKKOS_LAMBDA(int i, int j, int k)
+    {
+        rho(i, j, k) = rho(size+i, j, k);    
+        rho(size+2+i, j, k) = rho(2+i, j, k);
+
+        rhou(i, j, k) = rhou(size+i, j, k);    
+        rhou(size+2+i, j, k) = rhou(2+i, j, k);
+
+        E(i, j, k) = E(size+i, j, k);    
+        E(size+2+i, j, k) = E(2+i, j, k);
+    });
+}
+
+void Reflexive(
+    Kokkos::View<double ***> const rho,
+    Kokkos::View<double ***> const rhou,
+    Kokkos::View<double ***> const E)
+{
+    Grid grid(1, 0);
+    int size = rho.extent(0) - 2*grid.Nghost;
+    Kokkos::parallel_for(
+        "boundary",
+        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
+        {0, 0, 0},
+        {2, 1, 1}),
+        KOKKOS_LAMBDA(int i, int j, int k)
+    {
+        rho(i, j, k) = rho(3-i, j, k);    
+        rho(size+2+i, j, k) = rho(size+1, j, k);
+
+        rhou(i, j, k) = - rhou(3-i, j, k);    
+        rhou(size+2+i, j, k) = - rhou(size+1, j, k);
+
+        E(i, j, k) = E(3-i, j, k);    
+        E(size+2+i, j, k) = E(size+1, j, k);
+    });
 }
 
 /*
  if(bord=='trans'):
             # Conditions aux limites : transmitives
-            U_new[:,0] = U_new[:,2]
-            U_new[:,1] = U_new[:,2]
-            U_new[:,nx+2] = U_new[:,nx+1]
-            U_new[:,nx+3] = U_new[:,nx+1]
+            U[:,0] = U[:,2]
+            U[:,1] = U[:,2]
+            U[:,nx+2] = U[:,nx+1]
+            U[:,nx+3] = U[:,nx+1]
         elif(bord=='per'):
             # Conditions aux limites : périodiques
-            U_new[:,0] = U_new[:,nx]
-            U_new[:,1] = U_new[:,nx+1]
-            U_new[:,nx+2] = U_new[:,2]
-            U_new[:,nx+3] = U_new[:,3]
+            U[:,0] = U[:,nx]
+            U[:,1] = U[:,nx+1]
+            U[:,nx+2] = U[:,2]
+            U[:,nx+3] = U[:,3]
         elif(bord=='ref'):
             # Conditions aux limites : réflexives
-            U_new[:,0] = U_new[:,3]
-            U_new[:,1] = U_new[:,2]
-            U_new[:,nx+2] = U_new[:,nx+1]
-            U_new[:,nx+3] = U_new[:,nx+1]
+            U[:,0] = U[:,3]
+            U[:,1] = U[:,2]
+            U[:,nx+2] = U[:,nx+1]
+            U[:,nx+3] = U[:,nx+1]
             # Vitesse négative
-            U_new[1,0] = - U_new[1,3]
-            U_new[1,1] = - U_new[1,2]
+            U[1,0] = - U[1,3]
+            U[1,1] = - U[1,2]
 */

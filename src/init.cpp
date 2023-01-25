@@ -13,28 +13,29 @@ double const uR = 0;
 double const PR = 0.1;
 
 void ShockTubeInit(
-        Kokkos::View<double*> const rho,
-        Kokkos::View<double*> const u,
-        Kokkos::View<double*> const P,
-        int const nx,
-        int const inter)
+    Kokkos::View<double***> const rho,
+    Kokkos::View<double***> const u,
+    Kokkos::View<double***> const P,
+    int const inter)
 {
     Kokkos::parallel_for(
-            "ShockTubeInit",
-            nx,
-            KOKKOS_LAMBDA(int i)
+       "ShockTubeInit",
+       Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
+       {0, 0, 0},
+       {rho.extent(0), rho.extent(1), rho.extent(2)}),
+       KOKKOS_LAMBDA(int i, int j, int k)
     {
-              if(i <= inter)
-              {
-                rho(i) = rhoL;
-                u(i) = uL;
-                P(i) = PL;
-              }
-              else
-              {
-                rho(i) = rhoR;
-                u(i) = uR;
-                P(i) =  PR;
-              }
-      });
+        if (i <= inter)
+        {
+            rho(i, j, k) = rhoL;
+            u(i, j, k) = uL;
+            P(i, j, k) = PL; 
+        }
+        else
+        {
+            rho(i, j, k) = rhoR;
+            u(i, j, k) = uR;
+            P(i, j, k) =  PR;
+        }
+    });
 }
