@@ -1,19 +1,9 @@
 #include <Kokkos_Core.hpp>
 
-#include "global_var.hpp"
 #include "solver.hpp"
-#include "conv.hpp"
+#include "float_conversion.hpp"
 #include "flux.hpp"
-
-using namespace GV;
-
-
-double sound_speed(
-    double rhok,
-    double Pk)
-{
-    return std::sqrt(GV::gamma * Pk / rhok);
-}
+#include "speed_sound.hpp"
 
 WaveSpeed::WaveSpeed(
     double const rhoL,
@@ -21,7 +11,8 @@ WaveSpeed::WaveSpeed(
     double const PL,
     double const rhoR,
     double const uR,
-    double const PR)
+    double const PR,
+    double const gamma)
 {
     m_rhoL = rhoL;
     m_uL = uL;
@@ -29,8 +20,9 @@ WaveSpeed::WaveSpeed(
     m_rhoR = rhoR;
     m_uR = uR;
     m_PR = PR;
-    m_cL = sound_speed(rhoL, PL);
-    m_cR = sound_speed(rhoR, PR);
+    m_gamma = gamma;
+    m_cL = speed_sound2(rhoL, PL, gamma);
+    m_cR = speed_sound2(rhoR, PR, gamma);
 };
 
 double WaveSpeed::SL()
@@ -42,49 +34,14 @@ double WaveSpeed::SR()
     return std::max(m_uL + m_cL, m_uR + m_cR);
 }
 
-double Dt(Kokkos::View<double*> const rhoL,
-    Kokkos::View<double*> const uL,
-    Kokkos::View<double*> const PL,
-    Kokkos::View<double*> const rhoR,
-    Kokkos::View<double*> const uR,
-    Kokkos::View<double*> const PR,
-    double const dx, 
-    double const cfl)
-{   
-    Kokkos::View<double*> tab_sL("tab_sL", 102);
-    Kokkos::View<double*> tab_sR("tab_sR", 102);
-    Kokkos::parallel_for(
-            "tab",
-            Kokkos::RangePolicy<>(1, 103),
-            KOKKOS_LAMBDA(int i)
-        {
-            WaveSpeed WS(rhoL(i), uL(i), PL(i), rhoR(i), uR(i), PR(i));
-            tab_sL(i-1) = WS.SL();
-            tab_sR(i-1) = WS.SR();
-        });
-        
-        double max_tab;
-        double smax = 0;
-
-        for (int i=0; i<102; i++)
-        {   
-            max_tab = std::max(tab_sL(i), tab_sR(i));
-            if (max_tab >= smax)
-            {
-                smax = max_tab;
-            }
-           }
-    return (cfl * dx) / smax;
-}
-
-
 SolverHLL::SolverHLL(
     double const rhoL,
     double const rhouL,
     double const EL,
     double const rhoR,
     double const rhouR,
-    double const ER)
+    double const ER,
+    double const gamma)
 {
     m_rhoL = rhoL;
     m_rhouL = rhouL;
@@ -92,25 +49,26 @@ SolverHLL::SolverHLL(
     m_rhoR = rhoR;
     m_rhouR = rhouR;
     m_ER = ER;
+    m_gamma = gamma;
 
-    ConvCtoP convCtoPL(m_rhoL, m_rhouL, m_EL);
+    ConvCtoP convCtoPL(m_rhoL, m_rhouL, m_EL, m_gamma);
     m_uL = convCtoPL.ConvU();
     m_PL = convCtoPL.ConvP();
-    ConvCtoP convCtoPR(m_rhoR, m_rhouR, m_ER);
+    ConvCtoP convCtoPR(m_rhoR, m_rhouR, m_ER, m_gamma);
     m_uR = convCtoPR.ConvU();
     m_PR = convCtoPR.ConvP();
 
-    WaveSpeed WS(m_rhoL, m_uL, m_PL, m_rhoR, m_uR, m_PR);
+    WaveSpeed WS(m_rhoL, m_uL, m_PL, m_rhoR, m_uR, m_PR, m_gamma);
     m_SL = WS.SL();
     m_SR = WS.SR();
     m_diff = m_SR - m_SL;
 
-    Flux fluxL(m_rhoL, m_uL, m_PL);
+    Flux fluxL(m_rhoL, m_uL, m_PL, m_gamma);
     m_FrhoL = fluxL.FluxRho();
     m_FrhouL = fluxL.FluxRhou();
     m_FEL = fluxL.FluxE();
 
-    Flux fluxR(m_rhoR, m_uR, m_PR);
+    Flux fluxR(m_rhoR, m_uR, m_PR, m_gamma);
     m_FrhoR = fluxR.FluxRho();
     m_FrhouR = fluxR.FluxRhou();
     m_FER = fluxR.FluxE();
@@ -134,8 +92,7 @@ double SolverHLL::FinterRho()
     if (m_SR <= 0)
     {
         return m_FrhoR;
-    }
-    
+    }  
 }
 
 double SolverHLL::FinterRhou()
@@ -152,7 +109,6 @@ double SolverHLL::FinterRhou()
     {
         return m_FrhouR;
     }
-    
 }
 
 double SolverHLL::FinterE()

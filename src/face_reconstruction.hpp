@@ -30,9 +30,9 @@ public:
     //! @param[out] varL left edge reconstruction values
     //! @param[out] varR right edge reconstruction values
     virtual void execute(
-            Kokkos::View<const double*> var,
-            Kokkos::View<double*> varL,
-            Kokkos::View<double*> varR) const = 0;
+            Kokkos::View<const double***> var,
+            Kokkos::View<double***> varL,
+            Kokkos::View<double***> varR) const = 0;
 };
 
 template <class SlopeLimiter>
@@ -57,19 +57,26 @@ public:
     }
 
     void execute(
-            Kokkos::View<const double*> const var,
-            Kokkos::View<double*> const varL,
-            Kokkos::View<double*> const varR) const final
+            Kokkos::View<const double***> const var,
+            Kokkos::View<double***> const varL,
+            Kokkos::View<double***> const varR) const final
     {
         assert(var.extent(0) == varL.extent(0));
         assert(varL.extent(0) == varR.extent(0));
+        assert(var.extent(1) == varL.extent(1));
+        assert(varL.extent(1) == varR.extent(1));
+        assert(var.extent(2) == varL.extent(2));
+        assert(varL.extent(2) == varR.extent(2));
         Kokkos::parallel_for(
                 "LimitedLinearFaceReconstruction",
-                Kokkos::RangePolicy<>(1, var.extent(0) - 1),
-                KOKKOS_LAMBDA(int i) {
-                    double const slope_var = m_slope_limiter((var(i+1) - var(i)) / m_dx, (var(i) - var(i-1)) / m_dx);
-                    varL(i) = var(i) - m_half_dx * slope_var;
-                    varR(i) = var(i) + m_half_dx * slope_var;
+                Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
+                {1, 0, 0},
+                {static_cast<int>(var.extent(0) - 1), static_cast<int>(var.extent(1)), static_cast<int>(var.extent(2))}), // Warning on (y,z) -> -1
+                KOKKOS_LAMBDA(int i, int j, int k)
+                {
+                    double const slope_var = m_slope_limiter((var(i+1, j, k) - var(i, j, k)) / m_dx, (var(i, j, k) - var(i-1, j, k)) / m_dx);
+                    varL(i, j, k) = var(i, j, k) - m_half_dx * slope_var;
+                    varR(i, j, k) = var(i, j, k) + m_half_dx * slope_var;
                 });
     }
 };
@@ -78,18 +85,26 @@ class ConstantReconstruction : public IFaceReconstruction
 {
 public:
     void execute(
-            Kokkos::View<const double*> const var,
-            Kokkos::View<double*> const varL,
-            Kokkos::View<double*> const varR) const final
+            Kokkos::View<const double***> const var,
+            Kokkos::View<double***> const varL,
+            Kokkos::View<double***> const varR) const final
     {
         assert(var.extent(0) == varL.extent(0));
         assert(varL.extent(0) == varR.extent(0));
+        assert(var.extent(1) == varL.extent(1));
+        assert(varL.extent(1) == varR.extent(1));
+        assert(var.extent(2) == varL.extent(2));
+        assert(varL.extent(2) == varR.extent(2));
+        
         Kokkos::parallel_for(
                 "ConstantReconstruction",
-                Kokkos::RangePolicy<>(1, var.extent(0) - 1),
-                KOKKOS_LAMBDA(int i) {
-                    varL(i) = var(i);
-                    varR(i) = var(i);
+                Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
+                {1, 0, 0},
+                {static_cast<int>(var.extent(0) - 1), static_cast<int>(var.extent(1)), static_cast<int>(var.extent(2))}),
+                KOKKOS_LAMBDA(int i, int j, int k) 
+                {
+                    varL(i, j, k) = var(i, j, k);
+                    varR(i, j, k) = var(i, j, k);
                 });
     }
 };

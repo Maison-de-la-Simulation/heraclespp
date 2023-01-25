@@ -4,14 +4,6 @@
  */
 #pragma once
 
-//! Sound speed
-//! @param[in] rhok density with k = left or right
-//! @param[in] Pk pressure with k = left or right
-//! @return sound speed
-double sound_speed(
-        double rhok,
-        double Pk);
-
 //! Wave speed
 //! @param[in] rhoL density left
 //! @param[in] uL speed left
@@ -21,6 +13,7 @@ double sound_speed(
 //! @param[in] PR pressure right
 //! @return SL wave speed left
 //! @return SR wave speed right
+
 class WaveSpeed
 {
   private :
@@ -41,30 +34,12 @@ class WaveSpeed
                   double const PL,
                   double const rhoR,
                   double const uR,
-                  double const PR);
+                  double const PR,
+                  double const gamma);
           double SL();
           double SR();
 };
 
-double Dt(Kokkos::View<double*> const rhoL,
-    Kokkos::View<double*> const uL,
-    Kokkos::View<double*> const PL,
-    Kokkos::View<double*> const rhoR,
-    Kokkos::View<double*> const uR,
-    Kokkos::View<double*> const PR,
-    double const dx, 
-    double const cfl);
-
-//! HLL solver
-//! @param[in] rhoL density left
-//! @param[in] uL speed left
-//! @param[in] PL pressure left
-//! @param[in] rhoR density right
-//! @param[in] uR speed right
-//! @param[in] PR pressure right
-//! @return intercell flux density
-//! @return intercell flux momentum
-//! @return intercell flux energy
 class SolverHLL
 {
   private :
@@ -87,6 +62,7 @@ class SolverHLL
           double m_FrhoR;
           double m_FrhouR;
           double m_FER;
+          double m_gamma;
   public :
           SolverHLL(
                   double const rhoL,
@@ -94,7 +70,8 @@ class SolverHLL
                   double const EL,
                   double const rhoR,
                   double const rhouR,
-                  double const ER);
+                  double const ER, 
+                  double const gamma);
           double FluxHLL(double UL, double UR, double FL, double FR);
           double FinterRho();
           double FinterRhou();

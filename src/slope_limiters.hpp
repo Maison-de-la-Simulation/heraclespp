@@ -35,9 +35,9 @@ public:
     //! @return slope
     double operator()(double const diffR, double const diffL) const
     {
-        double const R = diffR / diffL;
         if (diffL * diffR > 0)
         {
+            double const R = diffR / diffL;
             return (1. / 2) * (diffR + diffL) * (4 * R) / ((R + 1) * (R + 1));
         }
         else
@@ -82,9 +82,10 @@ public:
     //! @return slope
     double operator()(double const diffR, double const diffL) const
     {
-        double const R = diffR / diffL;
+        
         if (diffL * diffR > 0)
         {
+            double const R = diffR / diffL;
             return (1. / 2) * (diffR + diffL) * (2 * R) / (R * R + 1);
         }
         else
