@@ -7,6 +7,13 @@
 
 #include <Kokkos_Core.hpp>
 
+namespace thermodynamics
+{
+
+class PerfectGas;
+
+} // namespace thermodynamics
+
 //! Time step with the cfl condition
 //! @param[in] rho density array 3D
 //! @param[in] u celerity array 3D
@@ -23,4 +30,4 @@ double time_step(
     double const dx,
     double const dy,
     double const dz, 
-    double const gamma);
+    thermodynamics::PerfectGas const& eos);

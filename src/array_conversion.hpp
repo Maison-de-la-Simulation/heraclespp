@@ -6,20 +6,27 @@
 
 #include <Kokkos_Core.hpp>
 
+namespace thermodynamics
+{
+
+class PerfectGas;
+
+} // namespace thermodynamics
+
 //! Conversion primary to conservative variables
 //! @param[inout] rho density array 3D
 //! @param[inout] rhou momentum array 3D
 //! @param[inout] E energy array 3D
 //! @param[in] u speed array 3D
 //! @param[in] P pressure array 3D
-//! @param[in] gamma
+//! @param[in] eos equation of state
 void ConvPrimConsArray(
     Kokkos::View<double***> const rho,
     Kokkos::View<double***> const rhou,
     Kokkos::View<double***> const E,
     Kokkos::View<double***> const u,
     Kokkos::View<double***> const P,
-    double const gamma);
+    thermodynamics::PerfectGas const& eos);
     
 //! Conversion conservative to primary variables
 //! @param[inout] rho density array 3D
@@ -27,11 +34,11 @@ void ConvPrimConsArray(
 //! @param[inout] E energy array 3D
 //! @param[in] u speed array 3D
 //! @param[in] P pressure array 3D
-//! @param[in] gamma
+//! @param[in] eos equation of state
 void ConvConsPrimArray(
     Kokkos::View<double***> const rho,
     Kokkos::View<double***> const rhou,
     Kokkos::View<double***> const E,
     Kokkos::View<double***> const u,
     Kokkos::View<double***> const P,
-    double const gamma);
+    thermodynamics::PerfectGas const& eos);

@@ -4,6 +4,8 @@
  */
 #pragma once
 
+#include <PerfectGas.hpp>
+
 //! Flux formule
 //! @param[in] rho double density
 //! @param[in] u double speed
@@ -15,17 +17,17 @@ private :
     double m_rho;
     double m_u;
     double m_P;
-    double m_gamma;
+    thermodynamics::PerfectGas const& m_eos;
 
 public :
     Flux(double const rho,
         double const u,
         double const P,
-        double const gamma)
+        thermodynamics::PerfectGas const& eos)
         : m_rho(rho)
         , m_u(u)
         , m_P(P)
-        , m_gamma(gamma)
+        , m_eos(eos)
     {
     }
 
@@ -41,6 +43,6 @@ public :
 
     double FluxE()
     {
-        return m_u * ((1. / 2) * m_rho * m_u * m_u + m_P / (m_gamma - 1) + m_P);
+        return m_u * ((1. / 2) * m_rho * m_u * m_u + m_eos.compute_volumic_internal_energy(m_rho, m_P) + m_P);
     }
 };

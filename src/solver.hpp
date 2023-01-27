@@ -4,6 +4,13 @@
  */
 #pragma once
 
+namespace thermodynamics
+{
+
+class PerfectGas;
+
+} // namespace thermodynamics
+
 //! Wave speed
 //! @param[in] rhoL density left
 //! @param[in] uL speed left
@@ -23,7 +30,6 @@ class WaveSpeed
           double m_rhoR;
           double m_uR;
           double m_PR;
-          double m_gamma;
           double m_cL;
           double m_cR;
 
@@ -35,7 +41,7 @@ class WaveSpeed
                   double const rhoR,
                   double const uR,
                   double const PR,
-                  double const gamma);
+                  thermodynamics::PerfectGas const& eos);
           double SL();
           double SR();
 };
@@ -62,7 +68,6 @@ class SolverHLL
           double m_FrhoR;
           double m_FrhouR;
           double m_FER;
-          double m_gamma;
   public :
           SolverHLL(
                   double const rhoL,
@@ -71,7 +76,7 @@ class SolverHLL
                   double const rhoR,
                   double const rhouR,
                   double const ER, 
-                  double const gamma);
+                  thermodynamics::PerfectGas const& eos);
           double FluxHLL(double UL, double UR, double FL, double FR);
           double FinterRho();
           double FinterRhou();
