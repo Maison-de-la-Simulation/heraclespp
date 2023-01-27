@@ -20,8 +20,8 @@
 #include "face_reconstruction.hpp"
 #include "coordinate_system.hpp"
 #include "cfl_cond.hpp"
-#include "boundary.hpp"
 #include "grid.hpp"
+#include "set_boundary.hpp"
 #include "PerfectGas.hpp"
 
 #include <pdi.h>
@@ -62,6 +62,10 @@ int main(int argc, char** argv)
     std::unique_ptr<IFaceReconstruction> face_reconstruction
             = factory_face_reconstruction(reconstruction_type, dx);
     int alpha = GetenumIndex(reader.Get("Grid", "system", "Cartesian"));
+
+    std::string const boundary_condition_type = reader.Get("hydro", "boundary", "NullGradient");
+    std::unique_ptr<IBoundaryCondition> boundary_construction
+            = factory_boundary_construction(boundary_condition_type);
     
     Kokkos::View<double***> position("position", grid.Nx_glob[0]+2*grid.Nghost, 1, 1); // Position
 
@@ -182,7 +186,7 @@ int main(int argc, char** argv)
             E_new(i, j, k) = E(i, j, k) + dtodx * (FluxM1.FinterE() -  FluxP1.FinterE());
         });
 
-       GradientNull(rho_new, rhou_new, E_new);
+        boundary_construction->execute(rho_new, rhou_new, E_new, grid.Nghost);
 
         ConvConsPrimArray(rho_new, rhou_new, E_new, u, P, eos); //Conversion des variables conservatives en primitives
         Kokkos::deep_copy(rho, rho_new);
