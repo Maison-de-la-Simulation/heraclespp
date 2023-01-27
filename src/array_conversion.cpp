@@ -1,4 +1,5 @@
 #include <Kokkos_Core.hpp>
+#include <PerfectGas.hpp>
 
 #include "array_conversion.hpp"
 
@@ -8,7 +9,7 @@ void ConvPrimConsArray(
     Kokkos::View<double***> const E,
     Kokkos::View<double***> const u,
     Kokkos::View<double***> const P,
-    double const gamma)
+    thermodynamics::PerfectGas const& eos)
 {
     Kokkos::parallel_for(
         "ConvPrimConsArray",
@@ -18,7 +19,7 @@ void ConvPrimConsArray(
         KOKKOS_LAMBDA(int i, int j, int k)
     {
             rhou(i, j, k) =  rho(i, j, k) * u(i, j, k);
-            E(i, j, k) = (1. / 2) * rho(i, j, k) * u(i, j, k) * u(i, j, k) + P(i, j, k) / (gamma - 1);
+            E(i, j, k) = (1. / 2) * rho(i, j, k) * u(i, j, k) * u(i, j, k) + eos.compute_volumic_internal_energy(rho(i, j, k), P(i, j, k));
     });
 }
 
@@ -28,7 +29,7 @@ void ConvConsPrimArray(
     Kokkos::View<double***> const E,
     Kokkos::View<double***> const u,
     Kokkos::View<double***> const P,
-    double const gamma)
+    thermodynamics::PerfectGas const& eos)
 {
     Kokkos::parallel_for(
         "ConvConsPrimArray",
@@ -38,6 +39,6 @@ void ConvConsPrimArray(
         KOKKOS_LAMBDA(int i, int j, int k)
         {
             u(i, j, k) = rhou(i, j, k) / rho(i, j, k);
-            P(i, j, k) = (gamma - 1) * (E(i, j, k) - (1. / 2) * rho(i, j, k) * u(i, j, k) * u(i, j, k));
+            P(i, j, k) = eos.compute_pressure(rho(i, j, k), E(i, j, k) - (1. / 2) * rho(i, j, k) * u(i, j, k) * u(i, j, k));
         });
 }

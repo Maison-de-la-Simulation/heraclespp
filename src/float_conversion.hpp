@@ -4,11 +4,13 @@
  */
 #pragma once
 
+#include <PerfectGas.hpp>
+
 //! Conversion primary variables to conservative
 //! @param[in] rho density
 //! @param[in] u speed
 //! @param[in] P pressure
-//! @param[in] gamma gamma
+//! @param[in] eos equation of state
 //! @return rhou momentum
 //! @return E total energy
 class ConvPtoC
@@ -17,17 +19,17 @@ private :
     double m_rho;
     double m_u;
     double m_P;
-    double m_gamma;
+    thermodynamics::PerfectGas const& m_eos;
 
 public :
     ConvPtoC(double const rho,
         double const u,
         double const P,
-        double const gamma)
+        thermodynamics::PerfectGas const& eos)
         : m_rho(rho)
         , m_u(u)
         , m_P(P)
-        , m_gamma(gamma)
+        , m_eos(eos)
     {
     }
 
@@ -38,7 +40,7 @@ public :
 
     double ConvE()
     {
-        return (1. / 2) * m_rho * m_u * m_u + m_P / (m_gamma - 1); 
+        return (1. / 2) * m_rho * m_u * m_u + m_eos.compute_volumic_internal_energy(m_rho, m_P);
     }
 };
 
@@ -46,7 +48,7 @@ public :
 //! @param[in] rho density
 //! @param[in] E total energy
 //! @param[in] P pressure
-//! @param[in] gamma gamma
+//! @param[in] eos equation of state
 //! @return u speed
 //! @return rhou momentum
 class ConvCtoP
@@ -55,19 +57,19 @@ private :
     double m_rho;
     double m_rhou;
     double m_E;
-    double m_gamma;
     double m_u;
+    thermodynamics::PerfectGas const& m_eos;
     
 public :
     ConvCtoP(double const rho,
         double const rhou,
         double const E, 
-        double const gamma)
+        thermodynamics::PerfectGas const& eos)
         : m_rho(rho)
         , m_rhou(rhou)
         , m_E(E)
-        , m_gamma(gamma)
         , m_u(rhou / rho)
+        , m_eos(eos)
     {
     }
 
@@ -78,6 +80,6 @@ public :
 
     double ConvP()
     {
-        return (m_gamma - 1) * (m_E - (1. / 2) * m_rho * m_u * m_u);
+        return m_eos.compute_pressure(m_rho, m_E - (1. / 2) * m_rho * m_u * m_u);
     }
 };

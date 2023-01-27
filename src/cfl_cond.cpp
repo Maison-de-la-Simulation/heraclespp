@@ -1,7 +1,7 @@
 #include <Kokkos_Core.hpp>
+#include <PerfectGas.hpp>
 
 #include "cfl_cond.hpp"
-#include "speed_sound.hpp"
 
 double time_step(
     double const cfl,
@@ -11,7 +11,7 @@ double time_step(
     double const dx,
     double const dy,
     double const dz, 
-    double const gamma)
+    thermodynamics::PerfectGas const& eos)
 {
     double sound;
     double difference;
@@ -19,7 +19,7 @@ double time_step(
 
     for (int i=0; i<rho.extent(0); i++)
     {
-        sound = speed_sound2(rho(i,0,0),P(i,0,0), gamma);
+        sound = eos.compute_speed_of_sound(rho(i,0,0),P(i,0,0));
         difference = std::abs(u(i,0,0)) + sound;
         ax = std::max(difference, ax);
     }
