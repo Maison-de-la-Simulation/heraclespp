@@ -15,7 +15,6 @@
 #include "init.hpp"
 #include "float_conversion.hpp"
 #include "flux.hpp"
-#include "solver.hpp"
 #include "io.hpp"
 #include "face_reconstruction.hpp"
 #include "coordinate_system.hpp"
@@ -23,6 +22,7 @@
 #include "grid.hpp"
 #include "set_boundary.hpp"
 #include "PerfectGas.hpp"
+#include "godunov_scheme.hpp"
 
 #include <pdi.h>
 
@@ -67,6 +67,10 @@ int main(int argc, char** argv)
     std::unique_ptr<IBoundaryCondition> boundary_construction
             = factory_boundary_construction(boundary_condition_type);
     
+    std::string const riemann_solver = reader.Get("hydro", "riemann_solver", "HLL");
+    std::unique_ptr<IGodunovScheme> godunov_scheme
+            = factory_godunov_scheme(riemann_solver, eos, dx);
+
     Kokkos::View<double***> position("position", grid.Nx_glob[0]+2*grid.Nghost, 1, 1); // Position
 
     Kokkos::parallel_for(
@@ -169,22 +173,20 @@ int main(int argc, char** argv)
             E_moyR(i, j, k) = ER(i, j, k) + dto2dx * (fluxL.FluxE() - fluxR.FluxE());
         });
 
-        double dtodx = dt / dx;
-
-        Kokkos::parallel_for(
-            "new_values",
-            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-            {grid.Nghost, 0, 0},
-            {grid.Nx_glob[0]+grid.Nghost, 1, 1}),
-            KOKKOS_LAMBDA(int i, int j, int k)
-        {
-            SolverHLL FluxM1(rho_moyR(i-1, j, k), rhou_moyR(i-1, j, k), E_moyR(i-1, j, k), rho_moyL(i, j, k), rhou_moyL(i, j, k), E_moyL(i, j, k), eos);
-            SolverHLL FluxP1(rho_moyR(i, j, k), rhou_moyR(i, j, k), E_moyR(i, j, k),rho_moyL(i+1, j, k), rhou_moyL(i+1, j, k), E_moyL(i+1, j, k), eos);
-
-            rho_new(i, j, k) = rho(i, j, k) + dtodx * (FluxM1.FinterRho() - FluxP1.FinterRho());
-            rhou_new(i, j, k) = rhou(i, j, k) + dtodx * (FluxM1.FinterRhou() -  FluxP1.FinterRhou());
-            E_new(i, j, k) = E(i, j, k) + dtodx * (FluxM1.FinterE() -  FluxP1.FinterE());
-        });
+        godunov_scheme->execute(
+                rho,
+                rhou,
+                E,
+                rho_moyL,
+                rhou_moyL,
+                E_moyL,
+                rho_moyR,
+                rhou_moyR,
+                E_moyR,
+                rho_new,
+                rhou_new,
+                E_new,
+                dt);
 
         boundary_construction->execute(rho_new, rhou_new, E_new, grid.Nghost);
 

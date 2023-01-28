@@ -1,6 +1,6 @@
 add_subdirectory(thermodynamics)
 
-add_executable(nova++ main.cpp init.cpp array_conversion.cpp solver.cpp io.cpp domain_dec.cpp cfl_cond.cpp)
+add_executable(nova++ main.cpp init.cpp array_conversion.cpp io.cpp domain_dec.cpp cfl_cond.cpp)
 target_compile_features(nova++ PUBLIC cxx_std_17)
 
 find_package(PDI REQUIRED)
