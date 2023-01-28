@@ -134,17 +134,19 @@ int main(int argc, char** argv)
 
     while (!should_exit && t < timeout && iter<=max_iter)
     {
-
-        face_reconstruction->execute(rho, rhoL, rhoR); // Calcul des pentes
-        face_reconstruction->execute(u, uL, uR);
-        face_reconstruction->execute(P, PL, PR);
-        
         double dt = time_step(cfl, rho, u, P, dx, dx, dx, eos);
+
+        bool const make_output = should_output(iter, output_frequency, max_iter, t, dt, timeout);
+        
         if ((t + dt) > timeout)
         {
             dt = timeout - t;
             should_exit = true;
         }
+
+        face_reconstruction->execute(rho, rhoL, rhoR); // Calcul des pentes
+        face_reconstruction->execute(u, uL, uR);
+        face_reconstruction->execute(P, PL, PR);
 
         ConvPrimConsArray(rhoL, rhouL, EL, uL, PL, eos); // Conversion en variables conservatives
         ConvPrimConsArray(rhoR, rhouR, ER, uR, PR, eos);
@@ -192,8 +194,6 @@ int main(int argc, char** argv)
         Kokkos::deep_copy(rho, rho_new);
         Kokkos::deep_copy(rhou, rhou_new);
         Kokkos::deep_copy(E, E_new);
-
-        bool make_output = should_output(iter, output_frequency, max_iter, t, dt, timeout);
 
         t = t + dt;
         iter++;
