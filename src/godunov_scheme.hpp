@@ -94,11 +94,11 @@ public:
         EulerPrim const primL = to_prim(consL, eos);
         EulerPrim const primR = to_prim(consR, eos);
 
-        double const spL = eos.compute_speed_of_sound(primL.density, primL.pressure);
-        double const spR = eos.compute_speed_of_sound(primR.density, primR.pressure);
+        double const cL = eos.compute_speed_of_sound(primL.density, primL.pressure);
+        double const cR = eos.compute_speed_of_sound(primR.density, primR.pressure);
 
-        double const wsL = std::min(primL.velocity - spL, primR.velocity - spR);
-        double const wsR = std::max(primL.velocity + spL, primR.velocity + spR);
+        double const wsL = std::min(primL.velocity - cL, primR.velocity - cR);
+        double const wsR = std::max(primL.velocity + cL, primR.velocity + cR);
 
         EulerFlux const fluxL = compute_flux(primL, eos);
         EulerFlux const fluxR = compute_flux(primR, eos);
