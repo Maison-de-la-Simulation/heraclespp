@@ -128,7 +128,7 @@ int main(int argc, char** argv)
     int iter = 0;
     bool should_exit = false;
 
-    while (!should_exit && t < timeout && iter<=max_iter)
+    while (!should_exit && t < timeout && iter < max_iter)
     {
 
         face_reconstruction->execute(rho, rhoL, rhoR); // Calcul des pentes
