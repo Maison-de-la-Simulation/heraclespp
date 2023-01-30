@@ -157,8 +157,6 @@ int main(int argc, char** argv)
             {grid.Nx_glob[0]+grid.Nghost, 1, 1}),
             KOKKOS_LAMBDA(int i, int j, int k)
         {
-            // SolverHLL FluxM1(rho_moyR(i-1, j, k), rhou_moyR(i-1, j, k), E_moyR(i-1, j, k), rho_moyL(i, j, k), rhou_moyL(i, j, k), E_moyL(i, j, k), eos);
-            // SolverHLL FluxP1(rho_moyR(i, j, k), rhou_moyR(i, j, k), E_moyR(i, j, k),rho_moyL(i+1, j, k), rhou_moyL(i+1, j, k), E_moyL(i+1, j, k), eos);
             SolverHLL FluxM1(rhoR(i-1, j, k), rhouR(i-1, j, k), ER(i-1, j, k), rhoL(i, j, k), rhouL(i, j, k), EL(i, j, k), eos);
             SolverHLL FluxP1(rhoR(i, j, k), rhouR(i, j, k), ER(i, j, k),rhoL(i+1, j, k), rhouL(i+1, j, k), EL(i+1, j, k), eos);
 
