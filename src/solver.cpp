@@ -2,7 +2,7 @@
 
 #include "solver.hpp"
 #include "float_conversion.hpp"
-#include "flux.hpp"
+#include "flux_definition.hpp"
 #include "PerfectGas.hpp"
 
 WaveSpeed::WaveSpeed(

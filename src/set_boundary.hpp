@@ -37,8 +37,6 @@ public:
         Kokkos::View<double***> const E,
         int nghost_cell) const final
     {
-        //static constexpr std::string_view s_label = "NullGradient";
-        
         assert(rho.extent(0) == rhou.extent(0));
         assert(rhou.extent(0) == E.extent(0));
         assert(rho.extent(1) == rhou.extent(1));
