@@ -12,7 +12,7 @@
 
 #include "global_var.hpp"
 #include "array_conversion.hpp"
-#include "init.hpp"
+#include "initialisation_problem.hpp"
 #include "float_conversion.hpp"
 #include "solver.hpp"
 #include "io.hpp"
@@ -57,6 +57,10 @@ int main(int argc, char** argv)
     double const cfl = 0.4;
 
     init_write(max_iter, output_frequency, grid.Nghost);
+
+    std::string const initialisation_problem = reader.Get("Problem", "type", "ShockTube");
+    std::unique_ptr<IInitialisationProblem> initialisation
+            = factory_initialisation(initialisation_problem);
 
     std::string const reconstruction_type = reader.Get("hydro", "reconstruction", "Minmod");
     std::unique_ptr<IFaceReconstruction> face_reconstruction
@@ -114,7 +118,16 @@ int main(int argc, char** argv)
     Kokkos::View<double***> rhou_new("rhounew", grid.Nx_glob[0]+2*grid.Nghost, 1, 1);
     Kokkos::View<double***> E_new("Enew", grid.Nx_glob[0]+2*grid.Nghost, 1, 1);
 
-    ShockTubeInit(rho, u, P, inter); // Initialisation primary variables (rho, u, P)
+    initialisation->execute(rho, u, P, position);
+
+    Kokkos::parallel_for(
+            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
+            {0, 0, 0},
+            {grid.Nx_glob[0]+2*grid.Nghost, 1, 1}),
+            KOKKOS_LAMBDA(int i, int j, int k)
+        {
+            //std::printf("%f %f %f \n", rho(i, j, k), u(i, j, k), P(i, j, k));
+        });
     
     ConvPrimConsArray(rho, rhou, E, u, P, eos); // Initialisation conservative variables (rho, rhou, E)
     
