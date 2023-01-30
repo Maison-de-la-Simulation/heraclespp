@@ -45,12 +45,12 @@ inline double compute_volumic_kinetic_energy(EulerPrim const& prim) noexcept
 inline EulerFlux compute_flux(EulerPrim const& prim, thermodynamics::PerfectGas const& eos) noexcept
 {
     EulerFlux flux;
+    double const volumic_total_energy
+            = compute_volumic_kinetic_energy(prim)
+              + eos.compute_volumic_internal_energy(prim.density, prim.pressure);
     flux.density = prim.density * prim.velocity;
     flux.momentum = prim.density * prim.velocity * prim.velocity + prim.pressure;
-    flux.energy = prim.velocity
-                  * (compute_volumic_kinetic_energy(prim)
-                     + eos.compute_volumic_internal_energy(prim.density, prim.pressure)
-                     + prim.pressure);
+    flux.energy = prim.velocity * (volumic_total_energy + prim.pressure);
     return flux;
 }
 
