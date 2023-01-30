@@ -143,51 +143,11 @@ int main(int argc, char** argv)
             should_exit = true;
         }
 
-        Kokkos::parallel_for(
-            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-            {0, 0, 0},
-            {grid.Nx_glob[0]+2*grid.Nghost, 1, 1}),
-            KOKKOS_LAMBDA(int i, int j, int k)
-        {
-            //std::printf("la 1 %f %f %f \n", rhoL(i, j, k), rhouL(i, j, k), PL(i, j, k));
-        });
-
         ConvPrimConsArray(rhoL, rhouL, EL, uL, PL, eos); // Conversion en variables conservatives
         ConvPrimConsArray(rhoR, rhouR, ER, uR, PR, eos);
 
         extrapolation_construction->execute(rhoL, uL, PL, rhoR, uR, PR, rhoL, rhouL, EL, rhoR, rhouR, ER, eos, dt, dx);
     
-        /*
-
-        double dto2dx = dt / (2 * dx);
-
-        Kokkos::parallel_for(
-            "extrapolation",
-            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-            {1, 0, 0},
-            {grid.Nx_glob[0]+2*grid.Nghost-1, 1, 1}),
-            KOKKOS_LAMBDA(int i, int j, int k)
-        {
-            Flux fluxL(rhoL(i, j, k), uL(i, j, k), PL(i, j, k), eos);
-            Flux fluxR(rhoR(i, j, k), uR(i, j, k), PR(i, j, k), eos);  
-
-            rhoL(i, j, k) = rhoL(i, j, k) + dto2dx * (fluxL.FluxRho() - fluxR.FluxRho());
-            rhouL(i, j, k) = rhouL(i, j, k) + dto2dx * (fluxL.FluxRhou() - fluxR.FluxRhou());
-            EL(i, j, k) = EL(i, j, k) + dto2dx * (fluxL.FluxE() - fluxR.FluxE());
-            rhoR(i, j, k) = rhoR(i, j, k) + dto2dx * (fluxL.FluxRho() - fluxR.FluxRho());
-            rhouR(i, j, k) = rhouR(i, j, k) + dto2dx * (fluxL.FluxRhou() - fluxR.FluxRhou());
-            ER(i, j, k) = ER(i, j, k) + dto2dx * (fluxL.FluxE() - fluxR.FluxE());
-        });
- */
-        Kokkos::parallel_for(
-            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-            {0, 0, 0},
-            {grid.Nx_glob[0]+2*grid.Nghost, 1, 1}),
-            KOKKOS_LAMBDA(int i, int j, int k)
-        {
-            //std::printf("la 2 %f %f %f \n", rhoL(i, j, k), rhouL(i, j, k), PL(i, j, k));
-        });
-
         double dtodx = dt / dx;
 
         Kokkos::parallel_for(
