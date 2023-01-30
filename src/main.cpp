@@ -14,7 +14,6 @@
 #include "array_conversion.hpp"
 #include "init.hpp"
 #include "float_conversion.hpp"
-//#include "flux_definition.hpp"
 #include "solver.hpp"
 #include "io.hpp"
 #include "face_reconstruction.hpp"
@@ -146,7 +145,7 @@ int main(int argc, char** argv)
         ConvPrimConsArray(rhoL, rhouL, EL, uL, PL, eos); // Conversion en variables conservatives
         ConvPrimConsArray(rhoR, rhouR, ER, uR, PR, eos);
 
-        extrapolation_construction->execute(rhoL, uL, PL, rhoR, uR, PR, rhoL, rhouL, EL, rhoR, rhouR, ER, eos, dt, dx);
+        extrapolation_construction->execute(rhoL, uL, PL, rhoR, uR, PR, rhouL, EL, rhouR, ER, eos, dt, dx);
     
         double dtodx = dt / dx;
 
