@@ -5,7 +5,7 @@ import numpy as np
 L = 1 # Domaine lenght
 inter = 0.5 # Interface position
 
-gamma = 5. / 3
+gamma = 1.4
 
 z = (gamma - 1) / (2 * gamma)
 g2 = (gamma + 1) / (2 * gamma)
