@@ -193,7 +193,7 @@ int main(int argc, char** argv)
 
         if(make_output)
         {
-            write(iter, grid.Nx_glob[0], t, rho.data(), u.data());
+            write(iter, grid.Nx_glob[0], t, rho.data(), u.data(), P.data());
         }
     }
 

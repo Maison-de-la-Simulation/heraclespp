@@ -10,16 +10,17 @@ pdi:
 
 
   data:
-    rho_new: { type: array, subtype: double, size: '$nx+2*$ghost_depth' }
+    rho: { type: array, subtype: double, size: '$nx+2*$ghost_depth' }
     u: { type: array, subtype: double, size: '$nx+2*$ghost_depth' }
-    
+    P: { type: array, subtype: double, size: '$nx+2*$ghost_depth' }
 
   plugins:
     decl_hdf5:
       - file: test_${iter}.h5
         collision_policy: replace
-        on_event: write_rho_new
+        on_event: write_file
         write:
-          rho_new:
+          rho:
           u:
+          P:
     trace:

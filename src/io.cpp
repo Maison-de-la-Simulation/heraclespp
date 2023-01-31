@@ -11,14 +11,15 @@ void init_write(int max_iter, int frequency, int ghost)
                     NULL);
 }
 
-void write(int iter, int nx, double current, void * rho, void *u)
+void write(int iter, int nx, double current, void * rho, void *u, void *P)
 {
-    PDI_multi_expose("write_rho_new",
+    PDI_multi_expose("write_file",
                     "nx", &nx, PDI_OUT,
                     "current_time", &current, PDI_OUT,
                     "iter", &iter, PDI_OUT,
-                    "rho_new", rho, PDI_OUT,
+                    "rho", rho, PDI_OUT,
                     "u", u, PDI_OUT,
+                    "P", P, PDI_OUT,
                     NULL);
 }
 
