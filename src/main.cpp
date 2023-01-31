@@ -133,7 +133,7 @@ int main(int argc, char** argv)
             //std::printf("%f %f %f \n", rho(i, j, k), u(i, j, k), P(i, j, k));
         });
     
-    ConvPrimConsArray(rho, rhou, E, u, P, eos); // Initialisation conservative variables (rho, rhou, E)
+    ConvPrimConsArray(rhou, E, rho, u, P, eos); // Initialisation conservative variables (rho, rhou, E)
     
     Kokkos::deep_copy(rho_host, rho);
     Kokkos::deep_copy(u_host, u);
@@ -161,8 +161,8 @@ int main(int argc, char** argv)
         face_reconstruction->execute(u, uL, uR);
         face_reconstruction->execute(P, PL, PR);
 
-        ConvPrimConsArray(rhoL, rhouL, EL, uL, PL, eos); // Conversion en variables conservatives
-        ConvPrimConsArray(rhoR, rhouR, ER, uR, PR, eos);
+        ConvPrimConsArray(rhouL, EL, rhoL, uL, PL, eos); // Conversion en variables conservatives
+        ConvPrimConsArray(rhouR, ER, rhoR, uR, PR, eos);
 
         extrapolation_construction->execute(rhoL, uL, PL, rhoR, uR, PR, rhouL, EL, rhouR, ER, eos, dt, dx);
     
@@ -183,7 +183,7 @@ int main(int argc, char** argv)
 
         boundary_construction->execute(rho_new, rhou_new, E_new, grid.Nghost);
 
-        ConvConsPrimArray(rho_new, rhou_new, E_new, u, P, eos); //Conversion des variables conservatives en primitives
+        ConvConsPrimArray(u, P, rho_new, rhou_new, E_new, eos); //Conversion des variables conservatives en primitives
         Kokkos::deep_copy(rho, rho_new);
         Kokkos::deep_copy(rhou, rhou_new);
         Kokkos::deep_copy(E, E_new);

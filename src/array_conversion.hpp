@@ -21,11 +21,11 @@ class PerfectGas;
 //! @param[in] P pressure array 3D
 //! @param[in] eos equation of state
 void ConvPrimConsArray(
-    Kokkos::View<double***> const rho,
     Kokkos::View<double***> const rhou,
     Kokkos::View<double***> const E,
-    Kokkos::View<double***> const u,
-    Kokkos::View<double***> const P,
+    Kokkos::View<const double***> const rho,
+    Kokkos::View<const double***> const u,
+    Kokkos::View<const double***> const P,
     thermodynamics::PerfectGas const& eos);
     
 //! Conversion conservative to primary variables
@@ -36,9 +36,9 @@ void ConvPrimConsArray(
 //! @param[in] P pressure array 3D
 //! @param[in] eos equation of state
 void ConvConsPrimArray(
-    Kokkos::View<double***> const rho,
-    Kokkos::View<double***> const rhou,
-    Kokkos::View<double***> const E,
     Kokkos::View<double***> const u,
     Kokkos::View<double***> const P,
+    Kokkos::View<const double***> const rho,
+    Kokkos::View<const double***> const rhou,
+    Kokkos::View<const double***> const E,
     thermodynamics::PerfectGas const& eos);
