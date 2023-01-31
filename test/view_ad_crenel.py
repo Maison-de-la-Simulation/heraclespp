@@ -11,7 +11,7 @@ print(" Advection test : crenel")
 print("********************************")
 
 # Solution solver 
-file_name = 'test_367.h5'
+file_name = 'test_358.h5'
 
 with h5py.File(file_name, 'r') as f : 
     print(f.keys())

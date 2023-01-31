@@ -11,7 +11,7 @@ print(" Advection test : sinusoide")
 print("********************************")
 
 # Solution solver 
-file_name = 'test_782.h5'
+file_name = 'test_740.h5'
 
 with h5py.File(file_name, 'r') as f : 
     print(f.keys())

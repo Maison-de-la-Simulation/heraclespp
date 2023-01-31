@@ -50,7 +50,7 @@ int main(int argc, char** argv)
     int const max_iter = reader.GetInteger("Output", "max_iter", 10000);
     int const output_frequency = reader.GetInteger("Output", "frequency", 10);
 
-    thermodynamics::PerfectGas eos(reader.GetReal("PerfectGas", "gamma", 5. / 3), 0.0);
+    thermodynamics::PerfectGas eos(reader.GetReal("PerfectGas", "gamma", 1.4), 0.0);
 
     double const dx = 1. / (grid.Nx_glob[0]+2*grid.Nghost);
     int inter = grid.Nx_glob[0] / 2; // Interface position
