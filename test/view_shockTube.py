@@ -24,10 +24,11 @@ timeout = 0.2
 rho_exact, u_exact, P_exact, e_exact = ExactShockTube(x_exact, inter, var_int0l, var_int0r, timeout)
 print('Final time shock tube problem = ', timeout, 's')
 
-# Solution solver 
-file_name = 'test_113.h5'
+# Solution solver
+print("Enter file path :")
+file_path = input()
 
-with h5py.File(file_name, 'r') as f : 
+with h5py.File(str(file_path), 'r') as f : 
     print(f.keys())
     rho = f['rho'][()]
     u = f['u'][()]

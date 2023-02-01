@@ -11,9 +11,10 @@ print(" Advection test : crenel")
 print("********************************")
 
 # Solution solver 
-file_name = 'test_344.h5'
+print("Enter file path :")
+file_path = input()
 
-with h5py.File(file_name, 'r') as f : 
+with h5py.File(str(file_path), 'r') as f : 
     print(f.keys())
     rho = f['rho'][()]
 
