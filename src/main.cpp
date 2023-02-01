@@ -52,7 +52,7 @@ int main(int argc, char** argv)
 
     thermodynamics::PerfectGas eos(reader.GetReal("PerfectGas", "gamma", 1.4), 0.0);
 
-    double const dx = 1. / (grid.Nx_glob[0]+2*grid.Nghost);
+    double const dx = 1. / grid.Nx_glob[0];
     int inter = grid.Nx_glob[0] / 2; // Interface position
     double const cfl = 0.4;
 
@@ -123,15 +123,6 @@ int main(int argc, char** argv)
     Kokkos::View<double***> E_new("Enew", grid.Nx_glob[0]+2*grid.Nghost, 1, 1);
 
     initialisation->execute(rho, u, P, position);
-
-    Kokkos::parallel_for(
-            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-            {0, 0, 0},
-            {grid.Nx_glob[0]+2*grid.Nghost, 1, 1}),
-            KOKKOS_LAMBDA(int i, int j, int k)
-        {
-            //std::printf("%f %f %f \n", rho(i, j, k), u(i, j, k), P(i, j, k));
-        });
     
     ConvPrimConsArray(rhou, E, rho, u, P, eos); // Initialisation conservative variables (rho, rhou, E)
     
@@ -144,6 +135,8 @@ int main(int argc, char** argv)
     double t = 0;
     int iter = 0;
     bool should_exit = false;
+
+    write(iter, grid.Nx_glob[0], t, rho.data(), u.data(), P.data());
 
     while (!should_exit && t < timeout && iter < max_iter)
     {
