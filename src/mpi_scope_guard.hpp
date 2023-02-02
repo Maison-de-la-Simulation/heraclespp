@@ -3,6 +3,7 @@
  * MPI initialization
  */
 #pragma once
+#include <mpi.h>
 
 class MpiScopeGuard
 {

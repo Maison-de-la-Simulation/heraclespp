@@ -7,9 +7,9 @@ add_subdirectory(vendor/kokkos)
 
 add_subdirectory(src)
 
-find_package(MPI)
+find_package(MPI REQUIRED)
 include_directories(SYSTEM ${MPI_INCLUDE_PATH})
-target_link_libraries(nova++ PRIVATE MPI::MPI_CXX)
+target_link_libraries(nova++ PUBLIC MPI::MPI_CXX)
 
 find_package(Doxygen)
 if (Doxygen_FOUND)

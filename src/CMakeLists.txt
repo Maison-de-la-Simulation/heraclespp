@@ -1,6 +1,12 @@
 add_subdirectory(thermodynamics)
 
-add_executable(nova++ main.cpp array_conversion.cpp io.cpp domain_dec.cpp cfl_cond.cpp)
+add_executable(nova++ main.cpp 
+                      array_conversion.cpp 
+                      io.cpp 
+                      cfl_cond.cpp 
+                      mpi_scope_guard.cpp 
+                      grid.cpp
+                      buffer.cpp)
 
 target_compile_features(nova++ PUBLIC cxx_std_17)
 
