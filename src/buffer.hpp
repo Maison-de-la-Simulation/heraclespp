@@ -68,15 +68,17 @@ public :
 };
 
 
-void copyToBuffer        (Kokkos::View<double***> host_view, Buffer *send_buffer, int ivar);
-void copyToBuffer_faces  (Kokkos::View<double***> host_view, Buffer *send_buffer, int ivar);
-void copyToBuffer_edges  (Kokkos::View<double***> host_view, Buffer *send_buffer, int ivar);
-void copyToBuffer_corners(Kokkos::View<double***> host_view, Buffer *send_buffer, int ivar);
+void copyToBuffer        (Kokkos::View<double***> view, Buffer *send_buffer, int ivar);
+void copyToBuffer_faces  (Kokkos::View<double***> view, Buffer *send_buffer, int ivar);
+void copyToBuffer_edges  (Kokkos::View<double***> view, Buffer *send_buffer, int ivar);
+void copyToBuffer_corners(Kokkos::View<double***> view, Buffer *send_buffer, int ivar);
 
-
-void copyFromBuffer        (Kokkos::View<double***> host_view, Buffer *recv_buffer, int ivar);
-void copyFromBuffer_faces  (Kokkos::View<double***> host_view, Buffer *recv_buffer, int ivar);
-void copyFromBuffer_edges  (Kokkos::View<double***> host_view, Buffer *recv_buffer, int ivar);
-void copyFromBuffer_corners(Kokkos::View<double***> host_view, Buffer *recv_buffer, int ivar);
+void copyFromBuffer        (Kokkos::View<double***> view, Buffer *recv_buffer, int ivar);
+void copyFromBuffer_faces  (Kokkos::View<double***> view, Buffer *recv_buffer, int ivar);
+void copyFromBuffer_edges  (Kokkos::View<double***> view, Buffer *recv_buffer, int ivar);
+void copyFromBuffer_corners(Kokkos::View<double***> view, Buffer *recv_buffer, int ivar);
 
 void exchangeBuffer(Buffer *send_buffer, Buffer *recv_buffer, Grid *grid);
+void exchangeBuffer_faces(Buffer *send_buffer, Buffer *recv_buffer, Grid *grid);
+void exchangeBuffer_edges(Buffer *send_buffer, Buffer *recv_buffer, Grid *grid);
+void exchangeBuffer_corners(Buffer *send_buffer, Buffer *recv_buffer, Grid *grid);

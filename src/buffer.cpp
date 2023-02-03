@@ -14,6 +14,11 @@ Buffer::Buffer(Grid *grid, int nvar)
         faceBuffer[0][f] = Kokkos::DualView<double****> ("", Nghost, grid->Nx_local_ng[1], grid->Nx_local_ng[2], nvar);
         faceBuffer[1][f] = Kokkos::DualView<double****> ("", grid->Nx_local_ng[0], Nghost, grid->Nx_local_ng[2], nvar);
         faceBuffer[2][f] = Kokkos::DualView<double****> ("", grid->Nx_local_ng[0], grid->Nx_local_ng[1], Nghost, nvar);
+#if defined(Kokkos_ENABLE_DEBUG)
+        Kokkos::deep_copy(faceBuffer[0][f].view_device(), NAN);
+        Kokkos::deep_copy(faceBuffer[1][f].view_device(), NAN);
+        Kokkos::deep_copy(faceBuffer[2][f].view_device(), NAN);
+#endif
     }
 
     for(int j=0; j<2; j++)
@@ -23,6 +28,11 @@ Buffer::Buffer(Grid *grid, int nvar)
             edgeBuffer[0][j][k] = Kokkos::DualView<double****> ("edgeBuffer", grid->Nx_local_ng[0], Nghost, Nghost, nvar);
             edgeBuffer[1][j][k] = Kokkos::DualView<double****> ("edgeBuffer", Nghost, grid->Nx_local_ng[1], Nghost, nvar);
             edgeBuffer[2][j][k] = Kokkos::DualView<double****> ("edgeBuffer", Nghost, Nghost, grid->Nx_local_ng[2], nvar);
+#if defined(Kokkos_ENABLE_DEBUG)
+            Kokkos::deep_copy(edgeBuffer[0][j][k].view_device(), NAN);
+            Kokkos::deep_copy(edgeBuffer[1][j][k].view_device(), NAN);
+            Kokkos::deep_copy(edgeBuffer[2][j][k].view_device(), NAN);
+#endif
         }
     }
     
@@ -33,6 +43,9 @@ Buffer::Buffer(Grid *grid, int nvar)
             for (int k = 0; k < 2; k++)
             {
                 cornerBuffer[i][j][k] = Kokkos::DualView<double****> ("cornerBuffer", Nghost, Nghost, Nghost, nvar);
+#if defined(Kokkos_ENABLE_DEBUG)
+                Kokkos::deep_copy(cornerBuffer[i][j][k].view_device(), NAN);
+#endif
             }
         }
     }
@@ -51,6 +64,21 @@ void copyToBuffer(Kokkos::View<double***> view, Buffer *buffer, int ivar)
     copyToBuffer_edges(view, buffer, ivar);
     copyToBuffer_corners(view, buffer, ivar);
     Kokkos::fence();
+};
+
+void copyFromBuffer(Kokkos::View<double***> view, Buffer *buffer, int ivar)
+{
+    copyFromBuffer_faces(view, buffer, ivar);  
+    copyFromBuffer_edges(view, buffer, ivar);
+    copyFromBuffer_corners(view, buffer, ivar);
+    Kokkos::fence();
+};
+
+void exchangeBuffer(Buffer *send_buffer, Buffer *recv_buffer, Grid *grid)
+{    
+    exchangeBuffer_faces(send_buffer, recv_buffer, grid);
+    exchangeBuffer_edges(send_buffer, recv_buffer, grid);
+    exchangeBuffer_corners(send_buffer, recv_buffer, grid);
 };
 
 
@@ -78,7 +106,6 @@ void copyToBuffer_corners(Kokkos::View<double***> view, Buffer *buffer, int ivar
         }   
     }
 };
-
 
 void copyToBuffer_edges(Kokkos::View<double***> view, Buffer *buffer, int ivar)
 {
@@ -141,40 +168,31 @@ void copyToBuffer_faces(Kokkos::View<double***> view, Buffer *buffer, int ivar)
     }
 };
 
-void copyFromBuffer(Kokkos::View<double***> view, Buffer *buffer, int ivar)
-{
-    copyFromBuffer_faces(view, buffer, ivar);  
-    copyFromBuffer_edges(view, buffer, ivar);
-    copyFromBuffer_corners(view, buffer, ivar);
-    Kokkos::fence();
-};
-
-
 void copyFromBuffer_corners(Kokkos::View<double***> view, Buffer *buffer, int ivar)
 {
     int ng = buffer->Nghost;
     int lim0 = view.extent(0)-ng;
     int lim1 = view.extent(1)-ng;
     int lim2 = view.extent(2)-ng;
-    
+
     for(int i=0; i<2; i++)
     {
         for (int j = 0; j < 2; j++)
         {
             for (int k = 0; k < 2; k++)
             {
-                Kokkos::View<double****> view_device = buffer->cornerBuffer[i][j][k].view_device();
-                Kokkos::parallel_for("copyFromBuffer_corners", 
-                                     Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0,0,0},{ng,ng,ng}),
-                                     KOKKOS_LAMBDA (int ii, int jj, int kk) {
-                                        view(ii+i*lim0,jj+j*lim1,kk+k*lim2)
-                                      = view_device(ii, jj, kk, ivar);
-                                    });
+                auto sub_view = Kokkos::subview(view, Kokkos::pair(i*lim0, i*lim0+ng),
+                                                      Kokkos::pair(j*lim1, j*lim1+ng),
+                                                      Kokkos::pair(k*lim2, k*lim2+ng));
+
+                auto sub_view_buffer = Kokkos::subview(buffer->cornerBuffer[i][j][k].view_device(), 
+                                                       Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, ivar);
+                                                                            
+                Kokkos::deep_copy(sub_view, sub_view_buffer);
             }   
         }   
     }
 };
-
 
 void copyFromBuffer_edges(Kokkos::View<double***> view, Buffer *buffer, int ivar)
 {
@@ -236,13 +254,12 @@ void copyFromBuffer_faces(Kokkos::View<double***> view, Buffer *buffer, int ivar
     }
 };
 
-
-void exchangeBuffer(Buffer *send_buffer, Buffer *recv_buffer, Grid *grid)
+void exchangeBuffer_faces(Buffer *send_buffer, Buffer *recv_buffer, Grid *grid)
 {    
     MPI_Status mpi_status;
     
     int left_neighbor, right_neighbor;
-    for(int i=0; i<1; i++)
+    for(int i=0; i<3; i++)
     {
         MPI_Cart_shift(grid->comm_cart, i, -1, &right_neighbor, &left_neighbor);
         //send to left, recv from right
@@ -263,7 +280,13 @@ void exchangeBuffer(Buffer *send_buffer, Buffer *recv_buffer, Grid *grid)
                      left_neighbor, i,
                      MPI_COMM_WORLD, &mpi_status);
     }
+};
 
+void exchangeBuffer_edges(Buffer *send_buffer, Buffer *recv_buffer, Grid *grid)
+{    
+    MPI_Status mpi_status;
+    
+    int left_neighbor, right_neighbor;
     for(int i=0; i<3; i++)
     {
         for(int f=0; f<4; f++)
@@ -278,8 +301,14 @@ void exchangeBuffer(Buffer *send_buffer, Buffer *recv_buffer, Grid *grid)
                          right_neighbor, 88,
                          MPI_COMM_WORLD, &mpi_status);
         }
-    }
+    }  
+};
+
+void exchangeBuffer_corners(Buffer *send_buffer, Buffer *recv_buffer, Grid *grid)
+{    
+    MPI_Status mpi_status;
     
+    int left_neighbor, right_neighbor; 
     for(int j=0; j<2; j++)
     {
         for (int i=0; i<2; i++)

@@ -55,7 +55,7 @@ int main(int argc, char** argv)
     copyToBuffer(rho3d, &send_buffer, 0);
 
     exchangeBuffer(&send_buffer, &recv_buffer, &grid);
-    Kokkos::deep_copy(rho3d, 0.0);
+    Kokkos::deep_copy(rho3d, 2.0);
     copyFromBuffer(rho3d, &recv_buffer, 0);
     // // end of a small test
 
