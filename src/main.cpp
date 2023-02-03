@@ -23,6 +23,8 @@
 #include "extrapolation_construction.hpp"
 #include "PerfectGas.hpp"
 #include "godunov_scheme.hpp"
+#include "mpi_scope_guard.hpp"
+#include "buffer.hpp"
 
 #include <pdi.h>
 
@@ -35,25 +37,38 @@ int main(int argc, char** argv)
     }
 
     Kokkos::ScopeGuard guard;
-
+    MpiScopeGuard mpi_guard;
+    
     INIReader reader(argv[1]);
 
     PC_tree_t conf = PC_parse_path(argv[2]);
     PDI_init(PC_get(conf, ".pdi"));
 
-    Grid grid;
+    Grid grid(reader);
+//     grid.print_grid();
 
-    grid.Nx_glob[0] = reader.GetInteger("Grid", "Nx_glob", 10); // Cell number
-    grid.Nx_glob[1] = reader.GetInteger("Grid", "Ny_glob", 10); // Cell number
-    grid.Nx_glob[2] = reader.GetInteger("Grid", "Nz_glob", 10); // Cell number
+//     Buffer send_buffer(&grid, 3);
+//     Buffer recv_buffer(&grid, 3);
+
+//     Kokkos::View<double***> rho3d("rho3D", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
+
+//     setView(rho3d, 1.0);
+//     // printView(rho3d);
+//     copyToBuffer(rho3d, &send_buffer, 0);
+
+//     exchangeBuffer(&send_buffer, &recv_buffer, &grid);
+//     setView(rho3d, 0.0);
+//     copyFromBuffer(rho3d, &recv_buffer, 0);
+//     printView(rho3d);
+
     double const timeout = reader.GetReal("Run", "timeout", 0.2);
     int const max_iter = reader.GetInteger("Output", "max_iter", 10000);
     int const output_frequency = reader.GetInteger("Output", "frequency", 10);
 
     thermodynamics::PerfectGas eos(reader.GetReal("PerfectGas", "gamma", 1.4), 0.0);
 
-    double const dx = 1. / grid.Nx_glob[0];
-    int inter = grid.Nx_glob[0] / 2; // Interface position
+    double const dx = 1. / grid.Nx_glob_ng[0];
+    int inter = grid.Nx_glob_ng[0] / 2; // Interface position
     double const cfl = 0.4;
 
     init_write(max_iter, output_frequency, grid.Nghost);
@@ -78,23 +93,23 @@ int main(int argc, char** argv)
     std::unique_ptr<IGodunovScheme> godunov_scheme
             = factory_godunov_scheme(riemann_solver, eos, dx);
 
-    Kokkos::View<double***> position("position", grid.Nx_glob[0]+2*grid.Nghost, 1, 1); // Position
+    Kokkos::View<double***> position("position", grid.Nx_glob_ng[0]+2*grid.Nghost, 1, 1); // Position
 
     Kokkos::parallel_for(
         "initialisation_r",
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
         {0, 0, 0},
-        {grid.Nx_glob[0]+2*grid.Nghost, 1, 1}),
+        {grid.Nx_glob_ng[0]+2*grid.Nghost, 1, 1}),
         KOKKOS_LAMBDA(int i, int j, int k)
     {
         position(i, j, k) = i * dx; // Position of the left interface
     });
 
-    Kokkos::View<double***> rho("rho", grid.Nx_glob[0]+2*grid.Nghost, 1, 1); // Density
-    Kokkos::View<double***> rhou("rhou", grid.Nx_glob[0]+2*grid.Nghost, 1, 1); // Momentum
-    Kokkos::View<double***> E("E", grid.Nx_glob[0]+2*grid.Nghost, 1, 1); // Energy
-    Kokkos::View<double***> u("u", grid.Nx_glob[0]+2*grid.Nghost, 1, 1); // Speed
-    Kokkos::View<double***> P("P", grid.Nx_glob[0]+2*grid.Nghost, 1, 1); // Pressure
+    Kokkos::View<double***> rho("rho", grid.Nx_glob_ng[0]+2*grid.Nghost, 1, 1); // Density
+    Kokkos::View<double***> rhou("rhou", grid.Nx_glob_ng[0]+2*grid.Nghost, 1, 1); // Momentum
+    Kokkos::View<double***> E("E", grid.Nx_glob_ng[0]+2*grid.Nghost, 1, 1); // Energy
+    Kokkos::View<double***> u("u", grid.Nx_glob_ng[0]+2*grid.Nghost, 1, 1); // Speed
+    Kokkos::View<double***> P("P", grid.Nx_glob_ng[0]+2*grid.Nghost, 1, 1); // Pressure
     
     Kokkos::View<double***, Kokkos::HostSpace> rho_host
             = Kokkos::create_mirror_view(rho); // Density always on host
@@ -107,20 +122,20 @@ int main(int argc, char** argv)
     Kokkos::View<double***, Kokkos::HostSpace> P_host
             = Kokkos::create_mirror_view(P); // Pressure always on host
 
-    Kokkos::View<double***> rhoL("rhoL", grid.Nx_glob[0]+2*grid.Nghost, 1, 1);
-    Kokkos::View<double***> uL("uL", grid.Nx_glob[0]+2*grid.Nghost, 1, 1);
-    Kokkos::View<double***> PL("PL", grid.Nx_glob[0]+2*grid.Nghost, 1, 1);
-    Kokkos::View<double***> rhoR("rhoR", grid.Nx_glob[0]+2*grid.Nghost, 1, 1);
-    Kokkos::View<double***> uR("uR", grid.Nx_glob[0]+2*grid.Nghost, 1, 1);
-    Kokkos::View<double***> PR("PR", grid.Nx_glob[0]+2*grid.Nghost, 1, 1);
-    Kokkos::View<double***> rhouL("rhouL", grid.Nx_glob[0]+2*grid.Nghost, 1, 1);
-    Kokkos::View<double***> EL("EL", grid.Nx_glob[0]+2*grid.Nghost, 1, 1);
-    Kokkos::View<double***> rhouR("rhouR", grid.Nx_glob[0]+2*grid.Nghost, 1, 1);
-    Kokkos::View<double***> ER("ER", grid.Nx_glob[0]+2*grid.Nghost, 1, 1);
+    Kokkos::View<double***> rhoL("rhoL", grid.Nx_glob_ng[0]+2*grid.Nghost, 1, 1);
+    Kokkos::View<double***> uL("uL", grid.Nx_glob_ng[0]+2*grid.Nghost, 1, 1);
+    Kokkos::View<double***> PL("PL", grid.Nx_glob_ng[0]+2*grid.Nghost, 1, 1);
+    Kokkos::View<double***> rhoR("rhoR", grid.Nx_glob_ng[0]+2*grid.Nghost, 1, 1);
+    Kokkos::View<double***> uR("uR", grid.Nx_glob_ng[0]+2*grid.Nghost, 1, 1);
+    Kokkos::View<double***> PR("PR", grid.Nx_glob_ng[0]+2*grid.Nghost, 1, 1);
+    Kokkos::View<double***> rhouL("rhouL", grid.Nx_glob_ng[0]+2*grid.Nghost, 1, 1);
+    Kokkos::View<double***> EL("EL", grid.Nx_glob_ng[0]+2*grid.Nghost, 1, 1);
+    Kokkos::View<double***> rhouR("rhouR", grid.Nx_glob_ng[0]+2*grid.Nghost, 1, 1);
+    Kokkos::View<double***> ER("ER", grid.Nx_glob_ng[0]+2*grid.Nghost, 1, 1);
 
-    Kokkos::View<double***> rho_new("rhonew", grid.Nx_glob[0]+2*grid.Nghost, 1, 1);
-    Kokkos::View<double***> rhou_new("rhounew", grid.Nx_glob[0]+2*grid.Nghost, 1, 1);
-    Kokkos::View<double***> E_new("Enew", grid.Nx_glob[0]+2*grid.Nghost, 1, 1);
+    Kokkos::View<double***> rho_new("rhonew", grid.Nx_glob_ng[0]+2*grid.Nghost, 1, 1);
+    Kokkos::View<double***> rhou_new("rhounew", grid.Nx_glob_ng[0]+2*grid.Nghost, 1, 1);
+    Kokkos::View<double***> E_new("Enew", grid.Nx_glob_ng[0]+2*grid.Nghost, 1, 1);
 
     initialisation->execute(rho, u, P, position);
     
@@ -136,7 +151,7 @@ int main(int argc, char** argv)
     int iter = 0;
     bool should_exit = false;
 
-    write(iter, grid.Nx_glob[0], t, rho.data(), u.data(), P.data());
+    write(iter, grid.Nx_glob_ng.data(), t, rho.data(), u.data(), P.data());
 
     while (!should_exit && t < timeout && iter < max_iter)
     {
@@ -186,7 +201,7 @@ int main(int argc, char** argv)
 
         if(make_output)
         {
-            write(iter, grid.Nx_glob[0], t, rho.data(), u.data(), P.data());
+            write(iter, grid.Nx_glob_ng.data(), t, rho.data(), u.data(), P.data());
         }
     }
 
@@ -195,7 +210,7 @@ int main(int argc, char** argv)
     Kokkos::parallel_for(
             Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
             {0, 0, 0},
-            {grid.Nx_glob[0]+2*grid.Nghost, 1, 1}),
+            {grid.Nx_glob_ng[0]+2*grid.Nghost, 1, 1}),
             KOKKOS_LAMBDA(int i, int j, int k)
         {
             std::printf("%f %f %f \n", rho(i, j, k), u(i, j, k), P(i, j, k));

@@ -1,6 +1,7 @@
 #include "io.hpp"
 
 #include <pdi.h>
+#include <iostream>
 
 void init_write(int max_iter, int frequency, int ghost)
 {
@@ -11,10 +12,16 @@ void init_write(int max_iter, int frequency, int ghost)
                     NULL);
 }
 
-void write(int iter, int nx, double current, void * rho, void *u, void *P)
+void write(int iter, int* nx, double current, void * rho, void *u, void *P)
 {
+    int nnx=nx[0];
+    int nny=nx[1];
+    int nnz=nx[2];
     PDI_multi_expose("write_file",
-                    "nx", &nx, PDI_OUT,
+                    "nx", &nnx, PDI_OUT,
+                    // "nnx", &nnx, PDI_OUT,
+                    // "nny", &nny, PDI_OUT,
+                    // "nnz", &nnz, PDI_OUT,
                     "current_time", &current, PDI_OUT,
                     "iter", &iter, PDI_OUT,
                     "rho", rho, PDI_OUT,
