@@ -95,13 +95,14 @@ void copyToBuffer_corners(Kokkos::View<double***> view, Buffer *buffer, int ivar
         {
             for (int k = 0; k < 2; k++)
             {
-                Kokkos::View<double****> view_device = buffer->cornerBuffer[i][j][k].view_device();
-                Kokkos::parallel_for("copyToBuffer_corners", 
-                                     Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0,0,0},{ng,ng,ng}),
-                                     KOKKOS_LAMBDA (int ii, int jj, int kk) {
-                                        view_device(ii, jj, kk, ivar) 
-                                      = view(ii+i*lim0,jj+j*lim1,kk+k*lim2);
-                                    });
+                auto sub_view = Kokkos::subview(view, Kokkos::pair(i*lim0, i*lim0+ng),
+                                                      Kokkos::pair(j*lim1, j*lim1+ng),
+                                                      Kokkos::pair(k*lim2, k*lim2+ng));
+
+                auto sub_view_buffer = Kokkos::subview(buffer->cornerBuffer[i][j][k].view_device(), 
+                                                       Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, ivar);
+                                                                            
+                Kokkos::deep_copy(sub_view_buffer, sub_view);
             }   
         }   
     }
@@ -114,33 +115,44 @@ void copyToBuffer_edges(Kokkos::View<double***> view, Buffer *buffer, int ivar)
     int lim1 = view.extent(1)-ng;
     int lim2 = view.extent(2)-ng;
 
-    Kokkos::parallel_for("copyToBuffer_edge_0123", Kokkos::MDRangePolicy<Kokkos::Rank<3>>({ng,0,0},{lim0,ng,ng}),
-                          KOKKOS_LAMBDA (int i, int j, int k) 
+    for(int j=0; j<2; j++)
     {
-        buffer->edgeBuffer[0][0][0].view_device()(i-ng, j, k, ivar) = view(i,j,     k);
-        buffer->edgeBuffer[0][1][0].view_device()(i-ng, j, k, ivar) = view(i,j+lim1,k);
-        buffer->edgeBuffer[0][0][1].view_device()(i-ng, j, k, ivar) = view(i,j,     k+lim2);
-        buffer->edgeBuffer[0][1][1].view_device()(i-ng, j, k, ivar) = view(i,j+lim1,k+lim2);
-    });
+        for(int k=0; k<2; k++)
+        {
+            auto sub_view = Kokkos::subview(view,Kokkos::pair(ng, lim0),
+                                             Kokkos::pair(j*lim1, ng+j*lim1),
+                                             Kokkos::pair(k*lim2, ng+k*lim2));
+            auto sub_buffer = Kokkos::subview(buffer->edgeBuffer[0][j][k].view_device(), 
+                                           Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, ivar);                      
+            Kokkos::deep_copy(sub_buffer, sub_view);
+        }
+    }
 
-    Kokkos::parallel_for("copyToBuffer_edge_4567", Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0,ng,0},{ng,lim1,ng}),
-                          KOKKOS_LAMBDA (int i, int j, int k) 
+    for(int j=0; j<2; j++)
     {
-        buffer->edgeBuffer[1][0][0].view_device()(i, j-ng, k, ivar) = view(i,     j,k);
-        buffer->edgeBuffer[1][1][0].view_device()(i, j-ng, k, ivar) = view(i+lim0,j,k);
-        buffer->edgeBuffer[1][0][1].view_device()(i, j-ng, k, ivar) = view(i,     j,k+lim2);
-        buffer->edgeBuffer[1][1][1].view_device()(i, j-ng, k, ivar) = view(i+lim0,j,k+lim2);
-    });
+        for(int k=0; k<2; k++)
+        {
+            auto sub_view = Kokkos::subview(view,Kokkos::pair(j*lim0, ng+j*lim0),
+                                             Kokkos::pair(ng, lim1),
+                                             Kokkos::pair(k*lim2, ng+k*lim2));
+            auto sub_buffer = Kokkos::subview(buffer->edgeBuffer[1][j][k].view_device(), 
+                                           Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, ivar);                      
+            Kokkos::deep_copy(sub_buffer, sub_view);
+        }
+    }
 
-    Kokkos::parallel_for("copyToBuffer_edge_891011", Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0,0,ng},{ng,ng,lim2}),
-                          KOKKOS_LAMBDA (int i, int j, int k) 
+    for(int j=0; j<2; j++)
     {
-        buffer->edgeBuffer[2][0][0].view_device()(i, j, k-ng, ivar) = view(i,     j,k);
-        buffer->edgeBuffer[2][1][0].view_device()(i, j, k-ng, ivar) = view(i+lim0,j,k);
-        buffer->edgeBuffer[2][0][1].view_device()(i, j, k-ng, ivar) = view(i,     j+lim1,k);
-        buffer->edgeBuffer[2][1][1].view_device()(i, j, k-ng, ivar) = view(i+lim0,j+lim1,k);
-    });
-
+        for(int k=0; k<2; k++)
+        {
+            auto sub_view = Kokkos::subview(view,Kokkos::pair(j*lim0, ng+j*lim0),
+                                             Kokkos::pair(k*lim1, ng+k*lim1),
+                                             Kokkos::pair(ng, lim2));
+            auto sub_buffer = Kokkos::subview(buffer->edgeBuffer[2][j][k].view_device(), 
+                                           Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, ivar);                      
+            Kokkos::deep_copy(sub_buffer, sub_view);
+        }
+    }
 };
 
 void copyToBuffer_faces(Kokkos::View<double***> view, Buffer *buffer, int ivar)
@@ -150,21 +162,25 @@ void copyToBuffer_faces(Kokkos::View<double***> view, Buffer *buffer, int ivar)
     int lim1 = view.extent(1)-ng;
     int lim2 = view.extent(2)-ng;
 
-    for(int f=0; f<2; f++)
+    for(int i=0; i<3; i++)
     {
-        Kokkos::parallel_for("copyToBuffer_X", Kokkos::MDRangePolicy<Kokkos::Rank<3>>({f==0?0:lim0,ng,ng},{f==0?ng:lim0+ng,lim1,lim2}),        
-                             KOKKOS_LAMBDA (int i, int j, int k) {
-                                 buffer->faceBuffer[0][f].view_device()(i-f*lim0, j-ng, k-ng, ivar) = view(i,j,k);
-                            });
+        int Istart = ng, Ystart=ng, Zstart=ng;
+        int Iend = lim0, Yend=lim1, Zend=lim2;
+        for(int f=0; f<2; f++)
+        {          
+            if(i==0) { Istart = f*lim0 ; Iend = f*lim0+ng; }
+            if(i==1) { Ystart = f*lim1 ; Yend = f*lim1+ng; }
+            if(i==2) { Zstart = f*lim2 ; Zend = f*lim2+ng; }
 
-        Kokkos::parallel_for("copyToBuffer_Y", Kokkos::MDRangePolicy<Kokkos::Rank<3>>({ng,f==0?0:lim1,ng},{lim0,f==0?ng:lim1+ng,lim2}),        
-                             KOKKOS_LAMBDA (int i, int j, int k) {
-                                 buffer->faceBuffer[1][f].view_device()(i-ng, j-f*lim1, k-ng, ivar) = view(i,j,k);
-                            });
-        Kokkos::parallel_for("copyToBuffer_Z", Kokkos::MDRangePolicy<Kokkos::Rank<3>>({ng,ng, f==0?0:lim2},{lim0,lim1,f==0?ng:lim2+ng}),        
-                             KOKKOS_LAMBDA (int i, int j, int k) {
-                                 buffer->faceBuffer[2][f].view_device()(i-ng, j-ng, k-f*lim2, ivar) = view(i,j,k);
-                            });
+            auto sub_view = Kokkos::subview(view, Kokkos::pair(Istart, Iend),
+                                            Kokkos::pair(Ystart, Yend),
+                                            Kokkos::pair(Zstart, Zend));
+
+            auto sub_view_buffer = Kokkos::subview(buffer->faceBuffer[i][f].view_device(), 
+                                                   Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, ivar);
+                                                                            
+            Kokkos::deep_copy(sub_view_buffer, sub_view);
+        }
     }
 };
 
@@ -201,32 +217,44 @@ void copyFromBuffer_edges(Kokkos::View<double***> view, Buffer *buffer, int ivar
     int lim1 = view.extent(1)-ng;
     int lim2 = view.extent(2)-ng;
 
-    Kokkos::parallel_for("copyFromBuffer_edge_0123", Kokkos::MDRangePolicy<Kokkos::Rank<3>>({ng,0,0},{lim0,ng,ng}),
-                          KOKKOS_LAMBDA (int i, int j, int k) 
+    for(int j=0; j<2; j++)
     {
-        view(i,j,     k)      = buffer->edgeBuffer[0][0][0].view_device()(i-ng, j, k, ivar) ;
-        view(i,j+lim1,k)      = buffer->edgeBuffer[0][1][0].view_device()(i-ng, j, k, ivar) ;
-        view(i,j,     k+lim2) = buffer->edgeBuffer[0][0][1].view_device()(i-ng, j, k, ivar) ;
-        view(i,j+lim1,k+lim2) = buffer->edgeBuffer[0][1][1].view_device()(i-ng, j, k, ivar) ;
-    });
+        for(int k=0; k<2; k++)
+        {
+            auto sub_view = Kokkos::subview(view,Kokkos::pair(ng, lim0),
+                                             Kokkos::pair(j*lim1, ng+j*lim1),
+                                             Kokkos::pair(k*lim2, ng+k*lim2));
+            auto sub_buffer = Kokkos::subview(buffer->edgeBuffer[0][j][k].view_device(), 
+                                           Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, ivar);                      
+            Kokkos::deep_copy(sub_view, sub_buffer);
+        }
+    }
 
-    Kokkos::parallel_for("copyFromBuffer_edge_4567", Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0,ng,0},{ng,lim1,ng}),
-                          KOKKOS_LAMBDA (int i, int j, int k) 
+    for(int j=0; j<2; j++)
     {
-        view(i,     j,k)      = buffer->edgeBuffer[1][0][0].view_device()(i, j-ng, k, ivar) ;
-        view(i+lim0,j,k)      = buffer->edgeBuffer[1][1][0].view_device()(i, j-ng, k, ivar) ;
-        view(i,     j,k+lim2) = buffer->edgeBuffer[1][0][1].view_device()(i, j-ng, k, ivar) ;
-        view(i+lim0,j,k+lim2) = buffer->edgeBuffer[1][1][1].view_device()(i, j-ng, k, ivar) ;
-    });
+        for(int k=0; k<2; k++)
+        {
+            auto sub_view = Kokkos::subview(view,Kokkos::pair(j*lim0, ng+j*lim0),
+                                             Kokkos::pair(ng, lim1),
+                                             Kokkos::pair(k*lim2, ng+k*lim2));
+            auto sub_buffer = Kokkos::subview(buffer->edgeBuffer[1][j][k].view_device(), 
+                                           Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, ivar);                      
+            Kokkos::deep_copy(sub_view, sub_buffer);
+        }
+    }
 
-    Kokkos::parallel_for("copyFromBuffer_edge_891011", Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0,0,ng},{ng,ng,lim2}),
-                          KOKKOS_LAMBDA (int i, int j, int k) 
+    for(int j=0; j<2; j++)
     {
-        view(i,     j,k)      = buffer->edgeBuffer[2][0][0].view_device()(i, j, k-ng, ivar) ;
-        view(i+lim0,j,k)      = buffer->edgeBuffer[2][1][0].view_device()(i, j, k-ng, ivar) ;
-        view(i,     j+lim1,k) = buffer->edgeBuffer[2][0][1].view_device()(i, j, k-ng, ivar) ;
-        view(i+lim0,j+lim1,k) = buffer->edgeBuffer[2][1][1].view_device()(i, j, k-ng, ivar) ;
-    });
+        for(int k=0; k<2; k++)
+        {
+            auto sub_view = Kokkos::subview(view,Kokkos::pair(j*lim0, ng+j*lim0),
+                                             Kokkos::pair(k*lim1, ng+k*lim1),
+                                             Kokkos::pair(ng, lim2));
+            auto sub_buffer = Kokkos::subview(buffer->edgeBuffer[2][j][k].view_device(), 
+                                           Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, ivar);                      
+            Kokkos::deep_copy(sub_view, sub_buffer);
+        }
+    }
 };
 
 void copyFromBuffer_faces(Kokkos::View<double***> view, Buffer *buffer, int ivar)
@@ -235,22 +263,26 @@ void copyFromBuffer_faces(Kokkos::View<double***> view, Buffer *buffer, int ivar
     int lim0 = view.extent(0)-ng;
     int lim1 = view.extent(1)-ng;
     int lim2 = view.extent(2)-ng;
-    
-    for(int f=0; f<2; f++)
-    {
-        Kokkos::parallel_for("copyToBuffer_X", Kokkos::MDRangePolicy<Kokkos::Rank<3>>({f==0?0:lim0,ng,ng},{f==0?ng:lim0+ng,lim1,lim2}),        
-                             KOKKOS_LAMBDA (int i, int j, int k) {
-                                 view(i,j,k) = buffer->faceBuffer[0][f].view_device()(i-f*lim0, j-ng, k-ng, ivar) ;
-                            });
 
-        Kokkos::parallel_for("copyToBuffer_Y", Kokkos::MDRangePolicy<Kokkos::Rank<3>>({ng,f==0?0:lim1,ng},{lim0,f==0?ng:lim1+ng,lim2}),        
-                             KOKKOS_LAMBDA (int i, int j, int k) {
-                                 view(i,j,k) = buffer->faceBuffer[1][f].view_device()(i-ng, j-f*lim1, k-ng, ivar) ;
-                            });
-        Kokkos::parallel_for("copyToBuffer_Z", Kokkos::MDRangePolicy<Kokkos::Rank<3>>({ng,ng, f==0?0:lim2},{lim0,lim1,f==0?ng:lim2+ng}),        
-                             KOKKOS_LAMBDA (int i, int j, int k) {
-                                 view(i,j,k) = buffer->faceBuffer[2][f].view_device()(i-ng, j-ng, k-f*lim2, ivar) ;
-                            });
+    for(int i=0; i<3; i++)
+    {
+        int Istart = ng, Ystart=ng, Zstart=ng;
+        int Iend = lim0, Yend=lim1, Zend=lim2;
+        for(int f=0; f<2; f++)
+        {          
+            if(i==0) { Istart = f*lim0 ; Iend = f*lim0+ng; }
+            if(i==1) { Ystart = f*lim1 ; Yend = f*lim1+ng; }
+            if(i==2) { Zstart = f*lim2 ; Zend = f*lim2+ng; }
+
+            auto sub_view = Kokkos::subview(view, Kokkos::pair(Istart, Iend),
+                                            Kokkos::pair(Ystart, Yend),
+                                            Kokkos::pair(Zstart, Zend));
+
+            auto sub_view_buffer = Kokkos::subview(buffer->faceBuffer[i][f].view_device(), 
+                                                   Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, ivar);
+                                                                            
+            Kokkos::deep_copy(sub_view, sub_view_buffer);
+        }
     }
 };
 
