@@ -45,21 +45,19 @@ int main(int argc, char** argv)
     PDI_init(PC_get(conf, ".pdi"));
 
     Grid grid(reader);
-//     grid.print_grid();
 
-//     Buffer send_buffer(&grid, 3);
-//     Buffer recv_buffer(&grid, 3);
+    // // a small test
+    Buffer send_buffer(&grid, 3);
+    Buffer recv_buffer(&grid, 3);
 
-//     Kokkos::View<double***> rho3d("rho3D", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
+    Kokkos::View<double***> rho3d("rho3D", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
+    Kokkos::deep_copy(rho3d, 1.0);
+    copyToBuffer(rho3d, &send_buffer, 0);
 
-//     setView(rho3d, 1.0);
-//     // printView(rho3d);
-//     copyToBuffer(rho3d, &send_buffer, 0);
-
-//     exchangeBuffer(&send_buffer, &recv_buffer, &grid);
-//     setView(rho3d, 0.0);
-//     copyFromBuffer(rho3d, &recv_buffer, 0);
-//     printView(rho3d);
+    exchangeBuffer(&send_buffer, &recv_buffer, &grid);
+    Kokkos::deep_copy(rho3d, 0.0);
+    copyFromBuffer(rho3d, &recv_buffer, 0);
+    // // end of a small test
 
     double const timeout = reader.GetReal("Run", "timeout", 0.2);
     int const max_iter = reader.GetInteger("Output", "max_iter", 10000);

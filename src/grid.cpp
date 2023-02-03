@@ -20,8 +20,6 @@ Grid::Grid(INIReader reader)
     Nx_local_ng      = Nx_glob_ng ; // default for a single MPI process
 
     MPI_Decomp();
-    domainDecomp(); 
-
 
     grid_type = reader.Get("Grid", "type", "");
 
@@ -65,15 +63,6 @@ void Grid::init_grid_other()
  };
 
 /* ****************************************************************
-This routine compute the domaine partitioning
-Npcu    : Number of cpu, input
-MyRank  : Local process number
-G       : Grid structure 
-Ncpu_x  : Number of cpu along each direction, input
-          Ncpu = Ncpu_x[0] * Ncpu_x[1] * Ncpu_x[2]  
-*/
-
-/* ****************************************************************
 This routine distribute the cpu over the various direction in an optimum way
 Ncpu_x  : Number of cpu along each direction, output
           Ncpu = Ncpu_x[0] * Ncpu_x[1] * Ncpu_x[2]  
@@ -98,10 +87,7 @@ void Grid::MPI_Decomp()
     
     MPI_Dims_create(Ncpu, Ndim, Ncpu_x.data());
 
-    // std::cout<<"rank "<<mpi_rank<<" : Ncpu_x = "<<Ncpu_x[0]<<","<<Ncpu_x[1]<<","<<Ncpu_x[2]<<std::endl;
-
     std::array<int, 3> periodic = {1,1,1} ;
-    // std::array<int, 3> mpi_rank_cart = {0,0,0};
 
     MPI_Cart_create(MPI_COMM_WORLD, Ndim, Ncpu_x.data(), periodic.data(), 1, &comm_cart);
     MPI_Cart_coords(comm_cart, mpi_rank, Ndim, mpi_rank_cart.data());
@@ -116,8 +102,6 @@ void Grid::MPI_Decomp()
         Nx_local_wg[i] = Nx_local_ng[i] + 2*Nghost;                         ;
     }
     
-    // std::cout<<"rank "<<mpi_rank<<" : Nx_local_ng = "<<Nx_local_ng[0]<<","<<Nx_local_ng[1]<<","<<Nx_local_ng[2]<<std::endl;
-    // std::cout<<"rank "<<mpi_rank<<" : mpi_rank_cart = "<<mpi_rank_cart[0]<<","<<mpi_rank_cart[1]<<","<<mpi_rank_cart[2]<<std::endl;
     for(int i=0; i<Ndim; i++)
     {
         cornerPosition[i][0] = mpi_rank_cart[i]*Nx_glob_ng[i]/Ncpu_x[i];
@@ -127,10 +111,7 @@ void Grid::MPI_Decomp()
         }
         cornerPosition[i][1] = cornerPosition[i][0] + Nx_local_ng[i]-1;
     }
-    // std::cout<<"rank "<<mpi_rank<<" : cornerX = ("<<cornerPosition[0][0]<<","<<cornerPosition[0][1]<<") size = "<<Nx_local_ng[0]<<std::endl;
-    // std::cout<<"rank "<<mpi_rank<<" : cornerY = ("<<cornerPosition[1][0]<<","<<cornerPosition[1][1]<<") size = "<<Nx_local_ng[1]<<std::endl;
-    // std::cout<<"rank "<<mpi_rank<<" : cornerZ = ("<<cornerPosition[2][0]<<","<<cornerPosition[2][1]<<") size = "<<Nx_local_ng[2]<<std::endl;
-
+    
     int tmp_coord[3];
     for(int i=-1; i<2; i++)
     {
@@ -155,7 +136,6 @@ void Grid::MPI_Decomp()
 
 void Grid::print_grid()
 {
-    using namespace std;
     int mpiRank;
     MPI_Comm_rank(MPI_COMM_WORLD, &mpiRank);
 
@@ -198,8 +178,3 @@ void Grid::print_grid()
         prinf_info("Corner_max[2]", cornerPosition[2][1]);
     }
 };
-
-void Grid::domainDecomp ()
-{
-    
-}

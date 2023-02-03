@@ -11,7 +11,7 @@
 #include <Kokkos_Core.hpp>
 #include <Kokkos_DualView.hpp>
 #include "grid.hpp"
-
+      
 enum CORNERS
 {
       LOWER_LEFT_FRONT  = 0,
@@ -80,5 +80,3 @@ void copyFromBuffer_edges  (Kokkos::View<double***> host_view, Buffer *recv_buff
 void copyFromBuffer_corners(Kokkos::View<double***> host_view, Buffer *recv_buffer, int ivar);
 
 void exchangeBuffer(Buffer *send_buffer, Buffer *recv_buffer, Grid *grid);
-void setView(Kokkos::View<double***> view, double value);
-void printView(Kokkos::View<double***> view);

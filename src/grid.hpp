@@ -32,7 +32,6 @@ public :
 private:
     void MPI_Decomp();
     // void Domain_partitioning();
-    void domainDecomp();
     void init_grid_recti();
     void init_grid_irrecti();
     void init_grid_other();
@@ -46,7 +45,6 @@ public :
     std::array<int, 3> Nx_glob_ng;    // Total number of cells in each directions (excluding ghost)
     std::array<int, 3> Nx_local_ng;    // Number of cells on the local MPI process (excluding ghost)
     std::array<int, 3> Nx_local_wg;    // Number of cells on the local MPI process (excluding ghost)
-    // std::array<int, 3> Nx_size;    // Size of local arrays (including ghost cells) 
     std::array<int, 3> NBlock;     // number of sub-blocks (default (1,1,1))
     std::array<int, 3> Nx_block;   // Maximum size of sub-block, including ghost
     std::array<std::array<int, 2>,3> cornerPosition; // Position of corner in the global grid (no ghost)

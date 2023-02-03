@@ -19,9 +19,6 @@ void write(int iter, int* nx, double current, void * rho, void *u, void *P)
     int nnz=nx[2];
     PDI_multi_expose("write_file",
                     "nx", &nnx, PDI_OUT,
-                    // "nnx", &nnx, PDI_OUT,
-                    // "nny", &nny, PDI_OUT,
-                    // "nnz", &nnz, PDI_OUT,
                     "current_time", &current, PDI_OUT,
                     "iter", &iter, PDI_OUT,
                     "rho", rho, PDI_OUT,

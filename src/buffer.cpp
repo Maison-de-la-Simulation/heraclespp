@@ -24,7 +24,6 @@ Buffer::Buffer(Grid *grid, int nvar)
             edgeBuffer[1][j][k] = Kokkos::DualView<double****> ("edgeBuffer", Nghost, grid->Nx_local_ng[1], Nghost, nvar);
             edgeBuffer[2][j][k] = Kokkos::DualView<double****> ("edgeBuffer", Nghost, Nghost, grid->Nx_local_ng[2], nvar);
         }
-        
     }
     
     for (int i=0; i<2; i++)
@@ -68,10 +67,11 @@ void copyToBuffer_corners(Kokkos::View<double***> view, Buffer *buffer, int ivar
         {
             for (int k = 0; k < 2; k++)
             {
+                Kokkos::View<double****> view_device = buffer->cornerBuffer[i][j][k].view_device();
                 Kokkos::parallel_for("copyToBuffer_corners", 
                                      Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0,0,0},{ng,ng,ng}),
                                      KOKKOS_LAMBDA (int ii, int jj, int kk) {
-                                        buffer->cornerBuffer[i][j][k].view_device()(ii, jj, kk, ivar) 
+                                        view_device(ii, jj, kk, ivar) 
                                       = view(ii+i*lim0,jj+j*lim1,kk+k*lim2);
                                     });
             }   
@@ -163,11 +163,12 @@ void copyFromBuffer_corners(Kokkos::View<double***> view, Buffer *buffer, int iv
         {
             for (int k = 0; k < 2; k++)
             {
+                Kokkos::View<double****> view_device = buffer->cornerBuffer[i][j][k].view_device();
                 Kokkos::parallel_for("copyFromBuffer_corners", 
                                      Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0,0,0},{ng,ng,ng}),
                                      KOKKOS_LAMBDA (int ii, int jj, int kk) {
                                         view(ii+i*lim0,jj+j*lim1,kk+k*lim2)
-                                      = buffer->cornerBuffer[i][j][k].view_device()(ii, jj, kk, ivar);
+                                      = view_device(ii, jj, kk, ivar);
                                     });
             }   
         }   
@@ -237,19 +238,14 @@ void copyFromBuffer_faces(Kokkos::View<double***> view, Buffer *buffer, int ivar
 
 
 void exchangeBuffer(Buffer *send_buffer, Buffer *recv_buffer, Grid *grid)
-{
-    std::cout<<"============== exchange buffer started"<<std::endl;
-    
-    std::cout<<"== face buffer (6)"<<std::endl;
+{    
     MPI_Status mpi_status;
     
-    // int src_rank, dest_rank;
     int left_neighbor, right_neighbor;
     for(int i=0; i<1; i++)
     {
         MPI_Cart_shift(grid->comm_cart, i, -1, &right_neighbor, &left_neighbor);
         //send to left, recv from right
-        // std::cout<<"LEFT: proc "<<grid->mpi_rank<<" send to "<<left_neighbor<<" and recv from "<<right_neighbor<<std::endl;
         MPI_Sendrecv(send_buffer->faceBuffer[i][0].view_device().data(), 
                      send_buffer->faceBufferSize[i], MPI_DOUBLE,
                      left_neighbor, i,
@@ -257,8 +253,8 @@ void exchangeBuffer(Buffer *send_buffer, Buffer *recv_buffer, Grid *grid)
                      recv_buffer->faceBufferSize[i], MPI_DOUBLE,
                      right_neighbor, i,
                      MPI_COMM_WORLD, &mpi_status);
+
         //send to right, recv from left
-        // std::cout<<"RIGHT: proc "<<grid->mpi_rank<<" send to "<<right_neighbor<<" and recv from "<<left_neighbor<<std::endl;
         MPI_Sendrecv(send_buffer->faceBuffer[i][1].view_device().data(), 
                      send_buffer->faceBufferSize[i], MPI_DOUBLE,
                      right_neighbor, i,
@@ -266,18 +262,14 @@ void exchangeBuffer(Buffer *send_buffer, Buffer *recv_buffer, Grid *grid)
                      recv_buffer->faceBufferSize[i], MPI_DOUBLE,
                      left_neighbor, i,
                      MPI_COMM_WORLD, &mpi_status);
-
     }
 
-    std::cout<<"== edge buffer (12)"<<std::endl;
     for(int i=0; i<3; i++)
     {
         for(int f=0; f<4; f++)
         {
             left_neighbor = grid->NeighborRank[i==0?1:(f%2==0?0:2)][i==1?1:(i==1?(f%2==0?0:2):(f/2>0?2:0))][i==2?1:(f/2>0?2:0)];
             right_neighbor = grid->NeighborRank[i==0?1:(f%2==0?2:0)][i==1?1:(i==1?(f%2==0?0:2):(f/2>0?0:2))][i==2?1:(f/2>0?0:2)];
-            // std::cout<<"proc "<<grid->mpi_rank<<" send edge "<<i*4+f/2*2+f%2<<" to rank "<<left_neighbor<<std::endl;
-            // std::cout<<"proc "<<grid->mpi_rank<<" recv edge "<<i*4+(3-f)/2*2+(3-f)%2<<" to rank "<<right_neighbor<<std::endl;
             MPI_Sendrecv(send_buffer->edgeBuffer[i][f/2][f%2].view_device().data(), 
                          send_buffer->edgeBufferSize[i], MPI_DOUBLE,
                          left_neighbor, 88,
@@ -288,17 +280,12 @@ void exchangeBuffer(Buffer *send_buffer, Buffer *recv_buffer, Grid *grid)
         }
     }
     
-    std::cout<<"== corner buffer (8)"<<std::endl;
-    
     for(int j=0; j<2; j++)
     {
         for (int i=0; i<2; i++)
         {
             left_neighbor = grid->NeighborRank[i*2][j*2][0];
-            right_neighbor = grid->NeighborRank[2-2*i][2-2*j][2];
-            // std::cout<<"proc "<<grid->mpi_rank<<" send corner "<<i+j*2<<" to rank "<<left_neighbor<<std::endl;
-            // std::cout<<"proc "<<grid->mpi_rank<<" recv corner "<<((i+1)%2)+((j+1)%2)*2+4<<" from rank "<<right_neighbor<<std::endl;
-            
+            right_neighbor = grid->NeighborRank[2-2*i][2-2*j][2];       
             MPI_Sendrecv(send_buffer->cornerBuffer[i][j][0].view_device().data(), 
                          send_buffer->cornerBufferSize, MPI_DOUBLE,
                          left_neighbor, 77,
@@ -309,8 +296,6 @@ void exchangeBuffer(Buffer *send_buffer, Buffer *recv_buffer, Grid *grid)
 
             left_neighbor = grid->NeighborRank[i*2][j*2][2];
             right_neighbor = grid->NeighborRank[2-2*i][2-2*j][0];
-            // std::cout<<"proc "<<grid->mpi_rank<<" send corner "<<i+j*2+4<<" to rank "<<left_neighbor<<std::endl;
-            // std::cout<<"proc "<<grid->mpi_rank<<" recv corner "<<((i+1)%2)+((j+1)%2)*2<<" from rank "<<right_neighbor<<std::endl;
             MPI_Sendrecv(send_buffer->cornerBuffer[i][j][1].view_device().data(), 
                          send_buffer->cornerBufferSize, MPI_DOUBLE,
                          left_neighbor, 77,
@@ -320,33 +305,4 @@ void exchangeBuffer(Buffer *send_buffer, Buffer *recv_buffer, Grid *grid)
                          MPI_COMM_WORLD, &mpi_status);
         }
     }
-    
-    std::cout<<"============== exchange buffer finished"<<std::endl;
-};
-
-
-void setView(Kokkos::View<double***> view, double value)
-{
-    Kokkos::parallel_for("setView", Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0,0,0},{view.extent(0),view.extent(1),view.extent(2)}),
-                          KOKKOS_LAMBDA (int i, int j, int k) 
-    {
-        view(i,j,k) = value;
-    });
-};
-
-void printView(Kokkos::View<double***> view)
-{
-    int mpi_rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
-    if(mpi_rank) return;
-    Kokkos::parallel_for("printView", Kokkos::MDRangePolicy<Kokkos::Rank<2>>({0,0},{view.extent(0),view.extent(1)}),
-                          KOKKOS_LAMBDA (int i, int j) 
-    {
-        std::cout<<"view("<<i<<","<<j<<") = "<<view(i,j,0);
-        std::cout<<" "<<view(i,j,1);
-        std::cout<<" "<<view(i,j,2);
-        std::cout<<" "<<view(i,j,3);
-        std::cout<<" "<<view(i,j,4);
-        std::cout<<" "<<view(i,j,5)<<std::endl;
-    });
 };
