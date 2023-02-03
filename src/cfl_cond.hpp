@@ -22,7 +22,7 @@ class PerfectGas;
 //! @param[in] dy space step in y
 //! @param[in] dz space step in z
 //! @param[out] dt time step
-double time_step(
+[[nodiscard]] double time_step(
     double const cfl,
     Kokkos::View<double***> rho,
     Kokkos::View<double***> u,
