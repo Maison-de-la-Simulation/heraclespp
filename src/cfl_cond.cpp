@@ -13,15 +13,12 @@ double time_step(
     [[maybe_unused]] double const dz, 
     thermodynamics::PerfectGas const& eos)
 {
-    double sound;
-    double difference;
     double ax = 0;
-
     for (int i=0; i<rho.extent_int(0); i++)
     {
-        sound = eos.compute_speed_of_sound(rho(i,0,0),P(i,0,0));
-        difference = std::abs(u(i,0,0)) + sound;
-        ax = std::max(difference, ax);
+        double const sound = eos.compute_speed_of_sound(rho(i,0,0),P(i,0,0));
+        double const difference = std::fabs(u(i,0,0)) + sound;
+        ax = std::fmax(difference, ax);
     }
     return cfl / (ax / dx);
 }
