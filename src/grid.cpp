@@ -35,7 +35,7 @@ Grid::Grid(INIReader reader)
     {
         init_grid_other();
     }
- } ;
+ }
 
 
  void Grid::init_grid_recti()
@@ -44,7 +44,7 @@ Grid::Grid(INIReader reader)
     grid_coords_name[0] = "coord_X";
     grid_coords_name[1] = "coord_Y";
     grid_coords_name[2] = "coord_Z";
- };
+ }
 
 void Grid::init_grid_irrecti()
  {
@@ -52,7 +52,7 @@ void Grid::init_grid_irrecti()
     grid_coords_name[0] = "coord_X";
     grid_coords_name[1] = "coord_Y";
     grid_coords_name[2] = "coord_Z";
- };
+ }
 
 void Grid::init_grid_other()
  {
@@ -60,7 +60,7 @@ void Grid::init_grid_other()
     grid_coords_name[0] = "coord_R";
     grid_coords_name[1] = "coord_theta";
     grid_coords_name[2] = "coord_Z";
- };
+ }
 
 /* ****************************************************************
 This routine distribute the cpu over the various direction in an optimum way
@@ -87,7 +87,7 @@ void Grid::MPI_Decomp()
     
     MPI_Dims_create(Ncpu, Ndim, Ncpu_x.data());
 
-    std::array<int, 3> periodic = {1,1,1} ;
+    std::array<int, 3> periodic = {1,1,1};
 
     MPI_Cart_create(MPI_COMM_WORLD, Ndim, Ncpu_x.data(), periodic.data(), 1, &comm_cart);
     MPI_Cart_coords(comm_cart, mpi_rank, Ndim, mpi_rank_cart.data());
@@ -177,4 +177,4 @@ void Grid::print_grid()
         prinf_info("Corner_max[1]", cornerPosition[1][1]);
         prinf_info("Corner_max[2]", cornerPosition[2][1]);
     }
-};
+}

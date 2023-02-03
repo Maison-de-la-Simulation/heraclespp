@@ -21,7 +21,7 @@ void prinf_info(std::string var_name, T var_value)
     using namespace std;
     cout << std::left << std::setw(40) << std::setfill('.') << var_name;
     cout << std::right << std::setw(40) << std::setfill('.') << var_value<<endl;
-};
+}
 
 class Grid
 {

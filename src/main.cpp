@@ -66,7 +66,6 @@ int main(int argc, char** argv)
     thermodynamics::PerfectGas eos(reader.GetReal("PerfectGas", "gamma", 1.4), 0.0);
 
     double const dx = 1. / grid.Nx_glob_ng[0];
-    int inter = grid.Nx_glob_ng[0] / 2; // Interface position
     double const cfl = 0.4;
 
     init_write(max_iter, output_frequency, grid.Nghost);
@@ -78,7 +77,6 @@ int main(int argc, char** argv)
     std::string const reconstruction_type = reader.Get("hydro", "reconstruction", "Minmod");
     std::unique_ptr<IFaceReconstruction> face_reconstruction
             = factory_face_reconstruction(reconstruction_type, dx);
-    int alpha = GetenumIndex(reader.Get("Grid", "system", "Cartesian"));
 
     std::unique_ptr<IExtrapolationValues> extrapolation_construction
             = std::make_unique<ExtrapolationCalculation>();

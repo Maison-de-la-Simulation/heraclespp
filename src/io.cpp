@@ -15,8 +15,6 @@ void init_write(int max_iter, int frequency, int ghost)
 void write(int iter, int* nx, double current, void * rho, void *u, void *P)
 {
     int nnx=nx[0];
-    int nny=nx[1];
-    int nnz=nx[2];
     PDI_multi_expose("write_file",
                     "nx", &nnx, PDI_OUT,
                     "current_time", &current, PDI_OUT,

@@ -56,7 +56,7 @@ Buffer::Buffer(Grid *grid, int nvar)
         edgeBufferSize[i] = edgeBuffer[i][0][0].extent(0)*edgeBuffer[i][0][0].extent(1)*edgeBuffer[i][0][0].extent(2)*edgeBuffer[i][0][0].extent(3);
     }
     cornerBufferSize = Nghost*Nghost*Nghost*nvar;
-};
+}
 
 void copyToBuffer(Kokkos::View<double***> view, Buffer *buffer, int ivar)
 {
@@ -64,7 +64,7 @@ void copyToBuffer(Kokkos::View<double***> view, Buffer *buffer, int ivar)
     copyToBuffer_edges(view, buffer, ivar);
     copyToBuffer_corners(view, buffer, ivar);
     Kokkos::fence();
-};
+}
 
 void copyFromBuffer(Kokkos::View<double***> view, Buffer *buffer, int ivar)
 {
@@ -72,14 +72,14 @@ void copyFromBuffer(Kokkos::View<double***> view, Buffer *buffer, int ivar)
     copyFromBuffer_edges(view, buffer, ivar);
     copyFromBuffer_corners(view, buffer, ivar);
     Kokkos::fence();
-};
+}
 
 void exchangeBuffer(Buffer *send_buffer, Buffer *recv_buffer, Grid *grid)
 {    
     exchangeBuffer_faces(send_buffer, recv_buffer, grid);
     exchangeBuffer_edges(send_buffer, recv_buffer, grid);
     exchangeBuffer_corners(send_buffer, recv_buffer, grid);
-};
+}
 
 
 void copyToBuffer_corners(Kokkos::View<double***> view, Buffer *buffer, int ivar)
@@ -106,7 +106,7 @@ void copyToBuffer_corners(Kokkos::View<double***> view, Buffer *buffer, int ivar
             }   
         }   
     }
-};
+}
 
 void copyToBuffer_edges(Kokkos::View<double***> view, Buffer *buffer, int ivar)
 {
@@ -153,7 +153,7 @@ void copyToBuffer_edges(Kokkos::View<double***> view, Buffer *buffer, int ivar)
             Kokkos::deep_copy(sub_buffer, sub_view);
         }
     }
-};
+}
 
 void copyToBuffer_faces(Kokkos::View<double***> view, Buffer *buffer, int ivar)
 {
@@ -182,7 +182,7 @@ void copyToBuffer_faces(Kokkos::View<double***> view, Buffer *buffer, int ivar)
             Kokkos::deep_copy(sub_view_buffer, sub_view);
         }
     }
-};
+}
 
 void copyFromBuffer_corners(Kokkos::View<double***> view, Buffer *buffer, int ivar)
 {
@@ -208,7 +208,7 @@ void copyFromBuffer_corners(Kokkos::View<double***> view, Buffer *buffer, int iv
             }   
         }   
     }
-};
+}
 
 void copyFromBuffer_edges(Kokkos::View<double***> view, Buffer *buffer, int ivar)
 {
@@ -255,7 +255,7 @@ void copyFromBuffer_edges(Kokkos::View<double***> view, Buffer *buffer, int ivar
             Kokkos::deep_copy(sub_view, sub_buffer);
         }
     }
-};
+}
 
 void copyFromBuffer_faces(Kokkos::View<double***> view, Buffer *buffer, int ivar)
 {
@@ -284,7 +284,7 @@ void copyFromBuffer_faces(Kokkos::View<double***> view, Buffer *buffer, int ivar
             Kokkos::deep_copy(sub_view, sub_view_buffer);
         }
     }
-};
+}
 
 void exchangeBuffer_faces(Buffer *send_buffer, Buffer *recv_buffer, Grid *grid)
 {    
@@ -312,7 +312,7 @@ void exchangeBuffer_faces(Buffer *send_buffer, Buffer *recv_buffer, Grid *grid)
                      left_neighbor, i,
                      MPI_COMM_WORLD, &mpi_status);
     }
-};
+}
 
 void exchangeBuffer_edges(Buffer *send_buffer, Buffer *recv_buffer, Grid *grid)
 {    
@@ -334,7 +334,7 @@ void exchangeBuffer_edges(Buffer *send_buffer, Buffer *recv_buffer, Grid *grid)
                          MPI_COMM_WORLD, &mpi_status);
         }
     }  
-};
+}
 
 void exchangeBuffer_corners(Buffer *send_buffer, Buffer *recv_buffer, Grid *grid)
 {    
@@ -366,4 +366,4 @@ void exchangeBuffer_corners(Buffer *send_buffer, Buffer *recv_buffer, Grid *grid
                          MPI_COMM_WORLD, &mpi_status);
         }
     }
-};
+}

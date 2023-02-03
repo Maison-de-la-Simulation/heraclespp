@@ -28,4 +28,4 @@ system_choice_enum GetenumIndex( std::string s ) {
         return x->second;
     }
     throw std::invalid_argument("s");
-};
+}
