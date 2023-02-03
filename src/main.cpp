@@ -10,7 +10,6 @@
 
 #include <Kokkos_Core.hpp>
 
-#include "global_var.hpp"
 #include "array_conversion.hpp"
 #include "initialisation_problem.hpp"
 #include "float_conversion.hpp"
