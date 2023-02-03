@@ -11,6 +11,9 @@ add_executable(nova++ main.cpp
 target_compile_features(nova++ PUBLIC cxx_std_17)
 
 find_package(PDI REQUIRED)
+find_package(MPI REQUIRED)
+
+target_link_libraries(nova++ PUBLIC MPI::MPI_CXX)
 target_link_libraries(nova++ PUBLIC Kokkos::kokkos)
 target_link_libraries(nova++ PUBLIC PDI::PDI_C)
 target_link_libraries(nova++ PUBLIC inih)
