@@ -191,6 +191,45 @@ int main(int argc, char** argv)
         Kokkos::deep_copy(rhou, rhou_new);
         Kokkos::deep_copy(E, E_new);
 
+        {
+        // start border exchange
+        Kokkos::View<double *> s_buf_left("s_buf_l", grid.Nghost);
+        Kokkos::View<double *> s_buf_right("s_buf_r", grid.Nghost);
+        Kokkos::View<double *> r_buf_left("r_buf_l", grid.Nghost);
+        Kokkos::View<double *> r_buf_right("r_buf_r", grid.Nghost);
+
+        Kokkos::parallel_for(grid.Nghost, KOKKOS_LAMBDA (int i) 
+        { 
+            s_buf_left(i) = rho(i+grid.Nghost,1,1);
+            s_buf_right(i) = rho(i+grid.Nx_local_wg[0]-2*grid.Nghost, 1, 1);
+        });
+
+        MPI_Status mpi_status;    
+        int left_neighbor, right_neighbor;
+        
+        MPI_Cart_shift(grid.comm_cart, 0, -1, &right_neighbor, &left_neighbor);
+        //send to left, recv from right
+        MPI_Sendrecv(s_buf_left.data(), 2, MPI_DOUBLE,
+                     left_neighbor, 99,
+                     r_buf_right.data(), 2, MPI_DOUBLE,
+                     right_neighbor, 99,
+                     MPI_COMM_WORLD, &mpi_status);
+
+        //send to right, recv from left
+        MPI_Sendrecv(s_buf_right.data(), 2, MPI_DOUBLE,
+                     right_neighbor, 99,
+                     r_buf_left.data(), 2, MPI_DOUBLE,
+                     left_neighbor, 99,
+                     MPI_COMM_WORLD, &mpi_status);
+
+        Kokkos::parallel_for(grid.Nghost, KOKKOS_LAMBDA (int i) 
+        { 
+            rho(i,1,1) = r_buf_left(i);
+            rho(i+grid.Nx_local_wg[0]-grid.Nghost, 1, 1) = r_buf_right(i);
+        });
+        // end border exchange
+        }
+
         t = t + dt;
         iter++;
 

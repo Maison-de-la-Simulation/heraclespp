@@ -1,18 +1,20 @@
 pdi:
   metadata:
-    nx: int
+    nx: int #globle ng
     max_iter: int
     frequency: int
     iter: int
     ghost_depth: int
     time_out: double
     current_time: double
+    mpi_rank: int
+    mpi_size: int
 
 
   data:
-    rho: { type: array, subtype: double, size: ['$nx+2*$ghost_depth'] }
-    u: { type: array, subtype: double, size: ['$nx+2*$ghost_depth'] }
-    P: { type: array, subtype: double, size: ['$nx+2*$ghost_depth'] }
+    rho: { type: array, subtype: double, size: ['$nx/$mpi_size+2*$ghost_depth'] }
+    u: { type: array, subtype: double, size: ['$nx/$mpi_size+2*$ghost_depth'] }
+    P: { type: array, subtype: double, size: ['$nx/$mpi_size+2*$ghost_depth'] }
 
   plugins:
     mpi:
@@ -21,8 +23,30 @@ pdi:
         collision_policy: write_into
         communicator: '$MPI_COMM_WORLD'
         on_event: write_file
+        datasets:
+          rho: {type: array, subtype: double, size: ['$nx'] }
+          u: {type: array, subtype: double, size: ['$nx'] }
+          P: {type: array, subtype: double, size: ['$nx'] }
         write:
           rho:
+            memory_selection:
+              size: ['$nx/$mpi_size']
+              start: ['$ghost_depth']
+            dataset_selection:
+              size: ['$nx/$mpi_size']
+              start: ['$mpi_rank*$nx/$mpi_size']
           u:
+            memory_selection:
+              size: ['$nx/$mpi_size']
+              start: ['$ghost_depth']
+            dataset_selection:
+              size: ['$nx/$mpi_size']
+              start: ['$mpi_rank*$nx/$mpi_size']
           P:
+            memory_selection:
+              size: ['$nx/$mpi_size']
+              start: ['$ghost_depth']
+            dataset_selection:
+              size: ['$nx/$mpi_size']
+              start: ['$mpi_rank*$nx/$mpi_size']
     # trace:
