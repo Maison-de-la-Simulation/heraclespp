@@ -5,9 +5,9 @@
 
 double time_step(
     double const cfl,
-    Kokkos::View<double***> rho,
-    Kokkos::View<double***> u,
-    Kokkos::View<double***> P,
+    Kokkos::View<const double***> rho,
+    Kokkos::View<const double***> u,
+    Kokkos::View<const double***> P,
     double const dx,
     [[maybe_unused]] double const dy,
     [[maybe_unused]] double const dz, 
