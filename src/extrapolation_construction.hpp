@@ -3,7 +3,7 @@
 //!
 #pragma once
 
-#include "flux_definition.hpp"
+#include "euler_equations.hpp"
 
 class IExtrapolationValues
 {
@@ -83,15 +83,23 @@ public :
         {rho_left.extent(0) - 1, rho_left.extent(1), rho_left.extent(2)}),
         KOKKOS_LAMBDA(int i, int j, int k)
         {
-            Flux left_flux(rho_left(i, j, k), u_left(i, j, k), P_left(i, j, k), eos);
-            Flux right_flux(rho_right(i, j, k), u_right(i, j, k), P_right(i, j, k), eos);
+            EulerPrim prim_left;
+            prim_left.density = rho_left(i, j, k);
+            prim_left.velocity = u_left(i, j, k);
+            prim_left.pressure = P_left(i, j, k);
+            EulerFlux const flux_left = compute_flux(prim_left, eos);
+            EulerPrim prim_right;
+            prim_right.density = rho_right(i, j, k);
+            prim_right.velocity = u_right(i, j, k);
+            prim_right.pressure = P_right(i, j, k);
+            EulerFlux const flux_right = compute_flux(prim_right, eos);
             
-            rho_left(i, j, k) += dto2dx * (left_flux.FluxRho() - right_flux.FluxRho());
-            rhou_left(i, j, k) += dto2dx * (left_flux.FluxRhou() - right_flux.FluxRhou());
-            E_left(i, j, k) += dto2dx * (left_flux.FluxE() - right_flux.FluxE());
-            rho_right(i, j, k) += dto2dx * (left_flux.FluxRho() - right_flux.FluxRho());
-            rhou_right(i, j, k) += dto2dx * (left_flux.FluxRhou() - right_flux.FluxRhou());
-            E_right(i, j, k) += dto2dx * (left_flux.FluxE() - right_flux.FluxE());
+            rho_left(i, j, k) += dto2dx * (flux_left.density - flux_right.density);
+            rhou_left(i, j, k) += dto2dx * (flux_left.momentum - flux_right.momentum);
+            E_left(i, j, k) += dto2dx * (flux_left.energy - flux_right.energy);
+            rho_right(i, j, k) += dto2dx * (flux_left.density - flux_right.density);
+            rhou_right(i, j, k) += dto2dx * (flux_left.momentum - flux_right.momentum);
+            E_right(i, j, k) += dto2dx * (flux_left.energy - flux_right.energy);
         });   
     }
 };
