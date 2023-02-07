@@ -1,0 +1,73 @@
+pdi:
+  metadata:
+    nx: int #globle ng
+    max_iter: int
+    frequency: int
+    iter: int
+    ghost_depth: int
+    time_out: double
+    current_time: double
+    mpi_rank: int
+    mpi_size: int
+    version: { type: array, subtype: int64, size: 2 }
+    whole_extents: { type: array, subtype: int64, size: 6 }
+    direction: { type: array, subtype: int64, size: 9 }
+    spacing: { type: array, subtype: double, size: 3 }
+    origin: { type: array, subtype: double, size: 3 }
+    type: { type: array, subtype: char, size: 9 }
+
+
+  data:
+    rho: { type: array, subtype: double, size: ['$nx/$mpi_size+2*$ghost_depth'] }
+    u: { type: array, subtype: double, size: ['$nx/$mpi_size+2*$ghost_depth'] }
+    P: { type: array, subtype: double, size: ['$nx/$mpi_size+2*$ghost_depth'] }
+
+  plugins:
+    mpi:
+    decl_hdf5:
+      - file: test_${iter}.hdf
+        collision_policy: write_into
+        communicator: '$MPI_COMM_WORLD'
+        on_event: write_file
+        datasets:
+          /VTKHDF/CellData/rho: {type: array, subtype: double, size: [1, 1, '$nx'] }
+          /VTKHDF/CellData/u: {type: array, subtype: double, size: [1, 1, '$nx'] }
+          /VTKHDF/CellData/P: {type: array, subtype: double, size: [1, 1, '$nx'] }
+        write:
+          direction:
+            attribute: VTKHDF#Direction
+          origin:
+            attribute: VTKHDF#Origin
+          spacing:
+            attribute: VTKHDF#Spacing
+          type:
+            attribute: VTKHDF#Type
+          version:
+            attribute: VTKHDF#Version
+          whole_extent:
+            attribute: VTKHDF#WholeExtent
+          rho:
+            dataset: /VTKHDF/CellData/rho
+            memory_selection:
+              size: ['$nx/$mpi_size']
+              start: ['$ghost_depth']
+            dataset_selection:
+              size: [1, 1, '$nx/$mpi_size']
+              start: [0, 0, '$mpi_rank*$nx/$mpi_size']
+          u:
+            dataset: /VTKHDF/CellData/u
+            memory_selection:
+              size: ['$nx/$mpi_size']
+              start: ['$ghost_depth']
+            dataset_selection:
+              size: [1, 1, '$nx/$mpi_size']
+              start: [0, 0, '$mpi_rank*$nx/$mpi_size']
+          P:
+            dataset: /VTKHDF/CellData/P
+            memory_selection:
+              size: ['$nx/$mpi_size']
+              start: ['$ghost_depth']
+            dataset_selection:
+              size: [1, 1, '$nx/$mpi_size']
+              start: [0, 0, '$mpi_rank*$nx/$mpi_size']
+    # trace:
