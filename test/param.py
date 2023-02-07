@@ -19,8 +19,8 @@ g8 = (gamma - 1)
 ## -------- Shock Tube
 Ncell = 1_000 
 dx_exact = L / Ncell
-x_exact = np.zeros(Ncell)
-for i in range(Ncell):
+x_exact = np.zeros(Ncell+1)
+for i in range(Ncell+1):
     x_exact[i] = i * dx_exact
 
 # Initialisation
@@ -41,19 +41,20 @@ var_int0r = np.array([rho0r, u0r, P0r, c0r])
 ## -------- Advection
 
 nx = 100
-dx_ad = 1. / nx
-x_ad = np.zeros(nx+4)
-for i in range(nx+4):
+dx_ad = L / nx
+nface = nx + 1
+x_ad = np.zeros(nface)
+for i in range(0, nface):
     x_ad[i] = i * dx_ad
 
 # Sinusoide
-rho0_ad_sin = np.zeros(nx+4)
-for i in range(nx+4):
+rho0_ad_sin = np.zeros(nface)
+for i in range(nface):
     rho0_ad_sin[i] = 1 * np.exp(-15 * ((1. / 2)  - x_ad[i])**2) # Sinusoïdale
     
 # Crenel
-rho0_ad_cre = np.zeros(nx+4)
-for i in range(nx+4):
+rho0_ad_cre = np.zeros(nface)
+for i in range(nface):
     if (x_ad[i]<= 0.3) :
         rho0_ad_cre[i] = 1
     elif (x_ad[i]>= 0.7):
