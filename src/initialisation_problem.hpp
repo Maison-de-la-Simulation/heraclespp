@@ -24,7 +24,7 @@ public:
         Kokkos::View<double***> rho,
         Kokkos::View<double***> u,
         Kokkos::View<double***> P,
-        Kokkos::View<const double***> position) const 
+        Kokkos::View<const double*> nodes_x0) const 
         = 0;
 };
 
@@ -35,7 +35,7 @@ public:
         Kokkos::View<double***> const rho,
         Kokkos::View<double***> const u,
         Kokkos::View<double***> const P,
-        Kokkos::View<const double***> const position) const final
+        Kokkos::View<const double*> const nodes_x0) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -51,7 +51,7 @@ public:
        {rho.extent(0), rho.extent(1), rho.extent(2)}),
        KOKKOS_LAMBDA(int i, int j, int k)
        {
-        if (position(i, j, k) <= 0.5)
+        if (nodes_x0(i) <= 0.5)
         {
             rho(i, j, k) = 1;
             u(i, j, k) = 0;
@@ -74,7 +74,7 @@ public:
         Kokkos::View<double***> rho,
         Kokkos::View<double***> u,
         Kokkos::View<double***> P,
-        Kokkos::View<const double***> const position) const final
+        Kokkos::View<const double*> const nodes_x0) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -90,7 +90,7 @@ public:
        {rho.extent(0), rho.extent(1), rho.extent(2)}),
        KOKKOS_LAMBDA(int i, int j, int k)
        {
-            rho(i, j, k) = 1 * std::exp(- 15 * std::pow(1. / 2  - position(i, j, k), 2));
+            rho(i, j, k) = 1 * std::exp(- 15 * std::pow(1. / 2  - nodes_x0(i), 2));
             u(i, j, k) = 1;
             P(i, j, k) = 0.1;
         });
@@ -104,7 +104,7 @@ public:
         Kokkos::View<double***> rho,
         Kokkos::View<double***> u,
         Kokkos::View<double***> P,
-        Kokkos::View<const double***> const position) const final
+        Kokkos::View<const double*> const nodes_x0) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -120,11 +120,11 @@ public:
        {rho.extent(0), rho.extent(1), rho.extent(2)}),
        KOKKOS_LAMBDA(int i, int j, int k)
        {
-        if (position(i, j, k) <= 0.3)
+        if (nodes_x0(i) <= 0.3)
         {
             rho(i, j, k) = 1;
         }
-        else if (position(i, j, k) >= 0.7)
+        else if (nodes_x0(i) >= 0.7)
         {
             rho(i, j, k) = 1;
         }
