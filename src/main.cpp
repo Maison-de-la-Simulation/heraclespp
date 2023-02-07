@@ -88,17 +88,15 @@ int main(int argc, char** argv)
     std::unique_ptr<IGodunovScheme> godunov_scheme
             = factory_godunov_scheme(riemann_solver, eos, dx);
 
-    Kokkos::View<double***> position("position", grid.Nx_local_wg[0], 1, 1); // Position
+    Kokkos::View<double*> nodes_x0("nodes_x0", grid.Nx_local_wg[0]); // Nodes for x0
 
     Kokkos::parallel_for(
-        "initialisation_r",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-        {0, 0, 0},
-        {grid.Nx_local_wg[0], 1, 1}),
-        KOKKOS_LAMBDA(int i, int j, int k)
-    {
-        position(i, j, k) = i * dx; // Position of the left interface
-    });
+        "initialisation_x0",
+        grid.Nx_local_wg[0],
+        KOKKOS_LAMBDA(int i)
+        {
+            nodes_x0(i) = i * dx; // Position of the left interface
+        });
 
     Kokkos::View<double***> rho("rho", grid.Nx_local_wg[0], 1, 1); // Density
     Kokkos::View<double***> rhou("rhou", grid.Nx_local_wg[0], 1, 1); // Momentum
@@ -132,7 +130,7 @@ int main(int argc, char** argv)
     Kokkos::View<double***> rhou_new("rhounew", grid.Nx_local_wg[0], 1, 1);
     Kokkos::View<double***> E_new("Enew", grid.Nx_local_wg[0], 1, 1);
 
-    initialisation->execute(rho, u, P, position);
+    initialisation->execute(rho, u, P, nodes_x0);
     
     ConvPrimConsArray(rhou, E, rho, u, P, eos); // Initialisation conservative variables (rho, rhou, E)
     
