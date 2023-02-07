@@ -50,7 +50,7 @@ public:
         "NullGradient_implementation",
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
         {0, 0, 0},
-        {nghost_cell, 1, 1}),
+        {nghost_cell, rho.extent_int(1), rho.extent_int(2)}),
         KOKKOS_LAMBDA(int i, int j, int k)
         {
             rho(i, j, k) = rho(2, j, k);
@@ -87,7 +87,7 @@ public:
         "Periodic_implementation",
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
         {0, 0, 0},
-        {nghost_cell, 1, 1}),
+        {nghost_cell, rho.extent_int(1), rho.extent_int(2)}),
         KOKKOS_LAMBDA(int i, int j, int k)
     {
         rho(i, j, k) = rho(size_x+i, j, k);    
@@ -124,7 +124,7 @@ public:
         "Reflexive_implementation",
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
         {0, 0, 0},
-        {nghost_cell, 1, 1}),
+        {nghost_cell, rho.extent_int(1), rho.extent_int(2)}),
         KOKKOS_LAMBDA(int i, int j, int k)
     {
         rho(i, j, k) = rho(3-i, j, k);    

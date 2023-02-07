@@ -14,7 +14,6 @@ void init_write(int max_iter, int frequency, int ghost)
 
 void write(int iter, int* nx, double current, void * rho, void *u, void *P)
 {
-    int nnx=nx[0];
     int mpi_rank, mpi_size;
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
@@ -22,7 +21,9 @@ void write(int iter, int* nx, double current, void * rho, void *u, void *P)
     PDI_multi_expose("write_file",
                     "mpi_rank", &mpi_rank, PDI_OUT,
                     "mpi_size", &mpi_size, PDI_OUT,
-                    "nx", &nnx, PDI_OUT,
+                    "nx", nx + 0, PDI_OUT,
+                    "ny", nx + 1, PDI_OUT,
+                    "nz", nx + 2, PDI_OUT,
                     "current_time", &current, PDI_OUT,
                     "iter", &iter, PDI_OUT,
                     "rho", rho, PDI_OUT,

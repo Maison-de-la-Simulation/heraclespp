@@ -72,9 +72,7 @@ public:
                 "LimitedLinearFaceReconstruction",
                 Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
                         {1, 0, 0},
-                        {static_cast<int>(var.extent(0) - 1),
-                         static_cast<int>(var.extent(1)),
-                         static_cast<int>(var.extent(2))}), // Warning on (y,z) -> -1
+                        {var.extent(0) - 1, var.extent(1), var.extent(2)}),
                 KOKKOS_LAMBDA(int i, int j, int k) {
                     double const slope_var = m_slope_limiter(
                             (var(i + 1, j, k) - var(i, j, k)) / m_dx,
@@ -104,9 +102,7 @@ public:
                 "ConstantReconstruction",
                 Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
                         {1, 0, 0},
-                        {static_cast<int>(var.extent(0) - 1),
-                         static_cast<int>(var.extent(1)),
-                         static_cast<int>(var.extent(2))}),
+                        {var.extent(0) - 1, var.extent(1), var.extent(2)}),
                 KOKKOS_LAMBDA(int i, int j, int k) {
                     varL(i, j, k) = var(i, j, k);
                     varR(i, j, k) = var(i, j, k);

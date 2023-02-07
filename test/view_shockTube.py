@@ -30,9 +30,9 @@ file_path = input()
 
 with h5py.File(str(file_path), 'r') as f :
     print(f.keys())
-    rho = f['rho'][()]
-    u = f['u'][()]
-    P = f['P'][()]
+    rho = f['rho'][:, 0, 0]
+    u = f['u'][:, 0, 0]
+    P = f['P'][:, 0, 0]
 e = P / rho / (gamma - 1)
 
 dx = L / len(rho)
