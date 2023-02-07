@@ -1,6 +1,8 @@
 pdi:
   metadata:
     nx: int #globle ng
+    ny: int
+    nz: int
     max_iter: int
     frequency: int
     iter: int
@@ -12,9 +14,9 @@ pdi:
 
 
   data:
-    rho: { type: array, subtype: double, size: ['$nx/$mpi_size+2*$ghost_depth'] }
-    u: { type: array, subtype: double, size: ['$nx/$mpi_size+2*$ghost_depth'] }
-    P: { type: array, subtype: double, size: ['$nx/$mpi_size+2*$ghost_depth'] }
+    rho: { type: array, subtype: double, size: ['$nx/$mpi_size+2*$ghost_depth', '$ny', '$nz'] }
+    u: { type: array, subtype: double, size: ['$nx/$mpi_size+2*$ghost_depth', '$ny', '$nz'] }
+    P: { type: array, subtype: double, size: ['$nx/$mpi_size+2*$ghost_depth', '$ny', '$nz'] }
 
   plugins:
     mpi:
@@ -24,29 +26,29 @@ pdi:
         communicator: '$MPI_COMM_WORLD'
         on_event: write_file
         datasets:
-          rho: {type: array, subtype: double, size: ['$nx'] }
-          u: {type: array, subtype: double, size: ['$nx'] }
-          P: {type: array, subtype: double, size: ['$nx'] }
+          rho: {type: array, subtype: double, size: ['$nx', '$ny', '$nz'] }
+          u: {type: array, subtype: double, size: ['$nx', '$ny', '$nz'] }
+          P: {type: array, subtype: double, size: ['$nx', '$ny', '$nz'] }
         write:
           rho:
             memory_selection:
-              size: ['$nx/$mpi_size']
-              start: ['$ghost_depth']
+              size: ['$nx/$mpi_size', '$ny', '$nz']
+              start: ['$ghost_depth', 0, 0]
             dataset_selection:
-              size: ['$nx/$mpi_size']
-              start: ['$mpi_rank*$nx/$mpi_size']
+              size: ['$nx/$mpi_size', '$ny', '$nz']
+              start: ['$mpi_rank*$nx/$mpi_size', 0, 0]
           u:
             memory_selection:
-              size: ['$nx/$mpi_size']
-              start: ['$ghost_depth']
+              size: ['$nx/$mpi_size', '$ny', '$nz']
+              start: ['$ghost_depth', 0, 0]
             dataset_selection:
-              size: ['$nx/$mpi_size']
-              start: ['$mpi_rank*$nx/$mpi_size']
+              size: ['$nx/$mpi_size', '$ny', '$nz']
+              start: ['$mpi_rank*$nx/$mpi_size', 0, 0]
           P:
             memory_selection:
-              size: ['$nx/$mpi_size']
-              start: ['$ghost_depth']
+              size: ['$nx/$mpi_size', '$ny', '$nz']
+              start: ['$ghost_depth', 0, 0]
             dataset_selection:
-              size: ['$nx/$mpi_size']
-              start: ['$mpi_rank*$nx/$mpi_size']
+              size: ['$nx/$mpi_size', '$ny', '$nz']
+              start: ['$mpi_rank*$nx/$mpi_size', 0, 0]
     # trace:
