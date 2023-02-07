@@ -45,13 +45,13 @@ public:
         assert(u.extent(2) == P.extent(2));
 
         Kokkos::parallel_for(
-       "ShockTubeInit",
-       Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-       {0, 0, 0},
-       {rho.extent(0), rho.extent(1), rho.extent(2)}),
-       KOKKOS_LAMBDA(int i, int j, int k)
-       {
-        if (nodes_x0(i) <= 0.5)
+        "ShockTubeInit",
+        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
+        {0, 0, 0},
+        {rho.extent(0), rho.extent(1), rho.extent(2)}),
+        KOKKOS_LAMBDA(int i, int j, int k)
+        {
+        if((nodes_x0(i) + nodes_x0(i+1)) / 2 <= 0.5)
         {
             rho(i, j, k) = 1;
             u(i, j, k) = 0;
@@ -84,13 +84,13 @@ public:
         assert(u.extent(2) == P.extent(2));
 
         Kokkos::parallel_for(
-       "AdvectionInitSinus",
-       Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-       {0, 0, 0},
-       {rho.extent(0), rho.extent(1), rho.extent(2)}),
-       KOKKOS_LAMBDA(int i, int j, int k)
-       {
-            rho(i, j, k) = 1 * std::exp(- 15 * std::pow(1. / 2  - nodes_x0(i), 2));
+        "AdvectionInitSinus",
+        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
+        {0, 0, 0},
+        {rho.extent(0), rho.extent(1), rho.extent(2)}),
+        KOKKOS_LAMBDA(int i, int j, int k)
+        {
+            rho(i, j, k) = 1 * std::exp(- 15 * std::pow(1. / 2  - (nodes_x0(i) + nodes_x0(i+1)) / 2, 2));
             u(i, j, k) = 1;
             P(i, j, k) = 0.1;
         });
@@ -114,17 +114,17 @@ public:
         assert(u.extent(2) == P.extent(2));
 
         Kokkos::parallel_for(
-       "AdvectionInitCrenel",
-       Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-       {0, 0, 0},
-       {rho.extent(0), rho.extent(1), rho.extent(2)}),
-       KOKKOS_LAMBDA(int i, int j, int k)
-       {
-        if (nodes_x0(i) <= 0.3)
+        "AdvectionInitCrenel",
+        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
+        {0, 0, 0},
+        {rho.extent(0), rho.extent(1), rho.extent(2)}),
+        KOKKOS_LAMBDA(int i, int j, int k)
+        {
+        if ( (nodes_x0(i) + nodes_x0(i+1)) / 2 <= 0.3)
         {
             rho(i, j, k) = 1;
         }
-        else if (nodes_x0(i) >= 0.7)
+        else if ( (nodes_x0(i) + nodes_x0(i+1)) / 2 >= 0.7)
         {
             rho(i, j, k) = 1;
         }

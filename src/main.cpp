@@ -91,18 +91,18 @@ int main(int argc, char** argv)
     Kokkos::View<double*> nodes_x0("nodes_x0", grid.Nx_local_wg[0]); // Nodes for x0
 
     Kokkos::parallel_for(
-        "initialisation_x0",
-        grid.Nx_local_wg[0],
-        KOKKOS_LAMBDA(int i)
-        {
-            nodes_x0(i) = i * dx; // Position of the left interface
-        });
+    "InitialisationNodes",
+    Kokkos::RangePolicy<>(0, grid.Nx_local_wg[0]),
+    KOKKOS_LAMBDA(int i)
+    {
+        nodes_x0(i) = (i - grid.Nghost) * dx; // Position of the left interface
+    });
 
-    Kokkos::View<double***> rho("rho", grid.Nx_local_wg[0], 1, 1); // Density
-    Kokkos::View<double***> rhou("rhou", grid.Nx_local_wg[0], 1, 1); // Momentum
-    Kokkos::View<double***> E("E", grid.Nx_local_wg[0], 1, 1); // Energy
-    Kokkos::View<double***> u("u", grid.Nx_local_wg[0], 1, 1); // Speed
-    Kokkos::View<double***> P("P", grid.Nx_local_wg[0], 1, 1); // Pressure
+    Kokkos::View<double***> rho("rho", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]); // Density
+    Kokkos::View<double***> rhou("rhou", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]); // Momentum
+    Kokkos::View<double***> E("E", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]); // Energy
+    Kokkos::View<double***> u("u", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]); // Speed
+    Kokkos::View<double***> P("P", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]); // Pressure
     
     Kokkos::View<double***, Kokkos::HostSpace> rho_host
             = Kokkos::create_mirror_view(rho); // Density always on host
@@ -115,20 +115,20 @@ int main(int argc, char** argv)
     Kokkos::View<double***, Kokkos::HostSpace> P_host
             = Kokkos::create_mirror_view(P); // Pressure always on host
 
-    Kokkos::View<double***> rhoL("rhoL", grid.Nx_local_wg[0], 1, 1);
-    Kokkos::View<double***> uL("uL", grid.Nx_local_wg[0], 1, 1);
-    Kokkos::View<double***> PL("PL", grid.Nx_local_wg[0], 1, 1);
-    Kokkos::View<double***> rhoR("rhoR", grid.Nx_local_wg[0], 1, 1);
-    Kokkos::View<double***> uR("uR", grid.Nx_local_wg[0], 1, 1);
-    Kokkos::View<double***> PR("PR", grid.Nx_local_wg[0], 1, 1);
-    Kokkos::View<double***> rhouL("rhouL", grid.Nx_local_wg[0], 1, 1);
-    Kokkos::View<double***> EL("EL", grid.Nx_local_wg[0], 1, 1);
-    Kokkos::View<double***> rhouR("rhouR", grid.Nx_local_wg[0], 1, 1);
-    Kokkos::View<double***> ER("ER", grid.Nx_local_wg[0], 1, 1);
+    Kokkos::View<double***> rhoL("rhoL", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]);
+    Kokkos::View<double***> uL("uL", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]);
+    Kokkos::View<double***> PL("PL", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]);
+    Kokkos::View<double***> rhoR("rhoR", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]);
+    Kokkos::View<double***> uR("uR", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]);
+    Kokkos::View<double***> PR("PR", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]);
+    Kokkos::View<double***> rhouL("rhouL", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]);
+    Kokkos::View<double***> EL("EL", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]);
+    Kokkos::View<double***> rhouR("rhouR", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]);
+    Kokkos::View<double***> ER("ER", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]);
 
-    Kokkos::View<double***> rho_new("rhonew", grid.Nx_local_wg[0], 1, 1);
-    Kokkos::View<double***> rhou_new("rhounew", grid.Nx_local_wg[0], 1, 1);
-    Kokkos::View<double***> E_new("Enew", grid.Nx_local_wg[0], 1, 1);
+    Kokkos::View<double***> rho_new("rhonew", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]);
+    Kokkos::View<double***> rhou_new("rhounew", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]);
+    Kokkos::View<double***> E_new("Enew", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]);
 
     initialisation->execute(rho, u, P, nodes_x0);
     
@@ -240,13 +240,13 @@ int main(int argc, char** argv)
     std::printf("Final time = %f and number of iterations = %d  \n", t, iter);
 
     Kokkos::parallel_for(
-            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-            {0, 0, 0},
-            {grid.Nx_local_wg[0], 1, 1}),
-            KOKKOS_LAMBDA(int i, int j, int k)
-        {
-            std::printf("%f %f %f \n", rho(i, j, k), u(i, j, k), P(i, j, k));
-        });
+    Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
+    {0, 0, 0},
+    {rho.extent(0), rho.extent(1), rho.extent(2)}),
+    KOKKOS_LAMBDA(int i, int j, int k)
+    {
+        std::printf("%f %f %f \n", rho(i, j, k), u(i, j, k), P(i, j, k));
+    });
     
     PDI_finalize();
     PC_tree_destroy(&conf);

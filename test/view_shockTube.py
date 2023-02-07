@@ -28,26 +28,24 @@ print('Final time shock tube problem = ', timeout, 's')
 print("Enter file path :")
 file_path = input()
 
-with h5py.File(str(file_path), 'r') as f : 
+with h5py.File(str(file_path), 'r') as f :
     print(f.keys())
-    rho = f['rho'][()]
-    u = f['u'][()]
-    P = f['P'][()]
+    rho = f['rho'][:, 0, 0]
+    u = f['u'][:, 0, 0]
+    P = f['P'][:, 0, 0]
 e = P / rho / (gamma - 1)
-x = np.linspace(0, 1, len(rho))
 
-rho_rec = rho[1:len(rho)]
-u_rec = u[1:len(rho)]
-P_rec = P[1:len(rho)]
-e_rec = e[1:len(rho)]
-x_rec = x[0:len(rho)-1]
+dx = L / len(rho)
+x = np.zeros(len(rho))
+for i in range(0, len(rho)):
+    x[i] = i * dx + dx / 2
 
 plt.figure(figsize=(10,8))
 plt.suptitle('Shock tube')
 plt.subplot(221)
 plt.plot(x_exact, tab_rho0, '--', label='t=0')
 plt.plot(x_exact,rho_exact, label='Exact')
-plt.plot(x_rec, rho_rec, label='Solver')
+plt.plot(x, rho, label='Solver')
 plt.ylabel('Densité'); plt.xlabel('Position')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
@@ -55,7 +53,7 @@ plt.legend()
 plt.subplot(222)
 plt.plot(x_exact, tab_u0, '--', label='t=0')
 plt.plot(x_exact, u_exact, label='Exact')
-plt.plot(x_rec, u_rec, label='Solver')
+plt.plot(x, u, label='Solver')
 plt.ylabel('Speed'); plt.xlabel('Position')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
@@ -63,7 +61,7 @@ plt.legend()
 plt.subplot(223)
 plt.plot(x_exact, tab_P0,'--', label='t=0')
 plt.plot(x_exact, P_exact, label='Exact')
-plt.plot(x_rec, P_rec, label='Solver')
+plt.plot(x, P, label='Solver')
 plt.ylabel('pressure'); plt.xlabel('Position')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
@@ -71,7 +69,7 @@ plt.legend()
 plt.subplot(224)
 plt.plot(x_exact, tab_e0,'--', label='t=0')
 plt.plot(x_exact, e_exact, label='Exact')
-plt.plot(x_rec, e_rec, label='Solver')
+plt.plot(x, e, label='Solver')
 plt.ylabel('Internal energy'); plt.xlabel('Position')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
