@@ -85,9 +85,9 @@ void exchangeBuffer(Buffer *send_buffer, Buffer *recv_buffer, Grid *grid)
 void copyToBuffer_corners(Kokkos::View<double***> view, Buffer *buffer, int ivar)
 {
     int ng = buffer->Nghost;
-    int lim0 = view.extent(0)-ng;
-    int lim1 = view.extent(1)-ng;
-    int lim2 = view.extent(2)-ng;
+    int lim0 = view.extent(0)-2*ng;
+    int lim1 = view.extent(1)-2*ng;
+    int lim2 = view.extent(2)-2*ng;
     
     for(int i=0; i<2; i++)
     {
@@ -95,9 +95,9 @@ void copyToBuffer_corners(Kokkos::View<double***> view, Buffer *buffer, int ivar
         {
             for (int k = 0; k < 2; k++)
             {
-                auto sub_view = Kokkos::subview(view, Kokkos::pair(i*lim0, i*lim0+ng),
-                                                      Kokkos::pair(j*lim1, j*lim1+ng),
-                                                      Kokkos::pair(k*lim2, k*lim2+ng));
+                auto sub_view = Kokkos::subview(view, Kokkos::pair(i==0?ng:lim0, i==0?2*ng:lim0+ng),
+                                                      Kokkos::pair(j==0?ng:lim1, j==0?2*ng:lim1+ng),
+                                                      Kokkos::pair(k==0?ng:lim2, k==0?2*ng:lim2+ng));
 
                 auto sub_view_buffer = Kokkos::subview(buffer->cornerBuffer[i][j][k].view_device(), 
                                                        Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, ivar);
@@ -111,17 +111,17 @@ void copyToBuffer_corners(Kokkos::View<double***> view, Buffer *buffer, int ivar
 void copyToBuffer_edges(Kokkos::View<double***> view, Buffer *buffer, int ivar)
 {
     int ng = buffer->Nghost;
-    int lim0 = view.extent(0)-ng;
-    int lim1 = view.extent(1)-ng;
-    int lim2 = view.extent(2)-ng;
+    int lim0 = view.extent(0)-2*ng;
+    int lim1 = view.extent(1)-2*ng;
+    int lim2 = view.extent(2)-2*ng;
 
     for(int j=0; j<2; j++)
     {
         for(int k=0; k<2; k++)
         {
-            auto sub_view = Kokkos::subview(view,Kokkos::pair(ng, lim0),
-                                             Kokkos::pair(j*lim1, ng+j*lim1),
-                                             Kokkos::pair(k*lim2, ng+k*lim2));
+            auto sub_view = Kokkos::subview(view,Kokkos::pair(ng, lim0+ng),
+                                                 Kokkos::pair(j==0?ng:lim1, j==0?2*ng:lim1+ng),
+                                                 Kokkos::pair(k==0?ng:lim2, k==0?2*ng:lim2+ng));
             auto sub_buffer = Kokkos::subview(buffer->edgeBuffer[0][j][k].view_device(), 
                                            Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, ivar);                      
             Kokkos::deep_copy(sub_buffer, sub_view);
@@ -132,9 +132,9 @@ void copyToBuffer_edges(Kokkos::View<double***> view, Buffer *buffer, int ivar)
     {
         for(int k=0; k<2; k++)
         {
-            auto sub_view = Kokkos::subview(view,Kokkos::pair(j*lim0, ng+j*lim0),
-                                             Kokkos::pair(ng, lim1),
-                                             Kokkos::pair(k*lim2, ng+k*lim2));
+            auto sub_view = Kokkos::subview(view,Kokkos::pair(j==0?ng:lim0, j==0?2*ng:lim0+ng),
+                                                 Kokkos::pair(ng, lim1+ng),
+                                                 Kokkos::pair(k==0?ng:lim2, k==0?2*ng:lim2+ng));
             auto sub_buffer = Kokkos::subview(buffer->edgeBuffer[1][j][k].view_device(), 
                                            Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, ivar);                      
             Kokkos::deep_copy(sub_buffer, sub_view);
@@ -145,9 +145,9 @@ void copyToBuffer_edges(Kokkos::View<double***> view, Buffer *buffer, int ivar)
     {
         for(int k=0; k<2; k++)
         {
-            auto sub_view = Kokkos::subview(view,Kokkos::pair(j*lim0, ng+j*lim0),
-                                             Kokkos::pair(k*lim1, ng+k*lim1),
-                                             Kokkos::pair(ng, lim2));
+            auto sub_view = Kokkos::subview(view,Kokkos::pair(j==0?ng:lim0, j==0?2*ng:lim0+ng),
+                                                 Kokkos::pair(k==0?ng:lim1, k==0?2*ng:lim1+ng),
+                                                 Kokkos::pair(ng, lim2+ng));
             auto sub_buffer = Kokkos::subview(buffer->edgeBuffer[2][j][k].view_device(), 
                                            Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, ivar);                      
             Kokkos::deep_copy(sub_buffer, sub_view);
@@ -158,23 +158,23 @@ void copyToBuffer_edges(Kokkos::View<double***> view, Buffer *buffer, int ivar)
 void copyToBuffer_faces(Kokkos::View<double***> view, Buffer *buffer, int ivar)
 {
     int ng = buffer->Nghost;
-    int lim0 = view.extent(0)-ng;
-    int lim1 = view.extent(1)-ng;
-    int lim2 = view.extent(2)-ng;
+    int lim0 = view.extent(0)-2*ng;
+    int lim1 = view.extent(1)-2*ng;
+    int lim2 = view.extent(2)-2*ng;
 
     for(int i=0; i<3; i++)
     {
         int Istart = ng, Ystart=ng, Zstart=ng;
-        int Iend = lim0, Yend=lim1, Zend=lim2;
+        int Iend = lim0+ng, Yend=lim1+ng, Zend=lim2+ng;
         for(int f=0; f<2; f++)
         {          
-            if(i==0) { Istart = f*lim0 ; Iend = f*lim0+ng; }
-            if(i==1) { Ystart = f*lim1 ; Yend = f*lim1+ng; }
-            if(i==2) { Zstart = f*lim2 ; Zend = f*lim2+ng; }
+            if(i==0) { Istart = (f==0? ng:lim0); Iend = (f==0?2*ng:lim0+ng); }
+            if(i==1) { Ystart = (f==0? ng:lim1); Yend = (f==0?2*ng:lim1+ng); }
+            if(i==2) { Zstart = (f==0? ng:lim2); Zend = (f==0?2*ng:lim2+ng); }
 
             auto sub_view = Kokkos::subview(view, Kokkos::pair(Istart, Iend),
-                                            Kokkos::pair(Ystart, Yend),
-                                            Kokkos::pair(Zstart, Zend));
+                                                  Kokkos::pair(Ystart, Yend),
+                                                  Kokkos::pair(Zstart, Zend));
 
             auto sub_view_buffer = Kokkos::subview(buffer->faceBuffer[i][f].view_device(), 
                                                    Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, ivar);
@@ -187,9 +187,9 @@ void copyToBuffer_faces(Kokkos::View<double***> view, Buffer *buffer, int ivar)
 void copyFromBuffer_corners(Kokkos::View<double***> view, Buffer *buffer, int ivar)
 {
     int ng = buffer->Nghost;
-    int lim0 = view.extent(0)-ng;
-    int lim1 = view.extent(1)-ng;
-    int lim2 = view.extent(2)-ng;
+    int lim0 = view.extent(0)-2*ng;
+    int lim1 = view.extent(1)-2*ng;
+    int lim2 = view.extent(2)-2*ng;
 
     for(int i=0; i<2; i++)
     {
@@ -197,9 +197,9 @@ void copyFromBuffer_corners(Kokkos::View<double***> view, Buffer *buffer, int iv
         {
             for (int k = 0; k < 2; k++)
             {
-                auto sub_view = Kokkos::subview(view, Kokkos::pair(i*lim0, i*lim0+ng),
-                                                      Kokkos::pair(j*lim1, j*lim1+ng),
-                                                      Kokkos::pair(k*lim2, k*lim2+ng));
+                auto sub_view = Kokkos::subview(view, Kokkos::pair(i==0?0:lim0+ng, i==0?ng:lim0+2*ng),
+                                                      Kokkos::pair(j==0?0:lim1+ng, j==0?ng:lim1+2*ng),
+                                                      Kokkos::pair(k==0?0:lim2+ng, k==0?ng:lim2+2*ng));
 
                 auto sub_view_buffer = Kokkos::subview(buffer->cornerBuffer[i][j][k].view_device(), 
                                                        Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, ivar);
@@ -213,31 +213,31 @@ void copyFromBuffer_corners(Kokkos::View<double***> view, Buffer *buffer, int iv
 void copyFromBuffer_edges(Kokkos::View<double***> view, Buffer *buffer, int ivar)
 {
     int ng = buffer->Nghost;
-    int lim0 = view.extent(0)-ng;
-    int lim1 = view.extent(1)-ng;
-    int lim2 = view.extent(2)-ng;
+    int lim0 = view.extent(0)-2*ng;
+    int lim1 = view.extent(1)-2*ng;
+    int lim2 = view.extent(2)-2*ng;
 
-    for(int j=0; j<2; j++)
+    for(int k=0; k<2; k++)
     {
-        for(int k=0; k<2; k++)
+        for(int j=0; j<2; j++)
         {
-            auto sub_view = Kokkos::subview(view,Kokkos::pair(ng, lim0),
-                                             Kokkos::pair(j*lim1, ng+j*lim1),
-                                             Kokkos::pair(k*lim2, ng+k*lim2));
+            auto sub_view = Kokkos::subview(view,Kokkos::pair(ng, lim0+ng),
+                                                 Kokkos::pair(j*(lim1+ng), j*(lim1+ng)+ng),
+                                                 Kokkos::pair(k*(lim2+ng), k*(lim2+ng)+ng));
             auto sub_buffer = Kokkos::subview(buffer->edgeBuffer[0][j][k].view_device(), 
                                            Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, ivar);                      
             Kokkos::deep_copy(sub_view, sub_buffer);
         }
     }
 
-    for(int j=0; j<2; j++)
+    for(int k=0; k<2; k++)
     {
-        for(int k=0; k<2; k++)
+        for(int i=0; i<2; i++)
         {
-            auto sub_view = Kokkos::subview(view,Kokkos::pair(j*lim0, ng+j*lim0),
-                                             Kokkos::pair(ng, lim1),
-                                             Kokkos::pair(k*lim2, ng+k*lim2));
-            auto sub_buffer = Kokkos::subview(buffer->edgeBuffer[1][j][k].view_device(), 
+            auto sub_view = Kokkos::subview(view,Kokkos::pair(i*(lim0+ng), i*(lim0+ng)+ng),
+                                                 Kokkos::pair(ng, lim1+ng),
+                                                 Kokkos::pair(k*(lim2+ng), k*(lim2+ng)+ng));
+            auto sub_buffer = Kokkos::subview(buffer->edgeBuffer[1][i][k].view_device(), 
                                            Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, ivar);                      
             Kokkos::deep_copy(sub_view, sub_buffer);
         }
@@ -245,12 +245,12 @@ void copyFromBuffer_edges(Kokkos::View<double***> view, Buffer *buffer, int ivar
 
     for(int j=0; j<2; j++)
     {
-        for(int k=0; k<2; k++)
+        for(int i=0; i<2; i++)
         {
-            auto sub_view = Kokkos::subview(view,Kokkos::pair(j*lim0, ng+j*lim0),
-                                             Kokkos::pair(k*lim1, ng+k*lim1),
-                                             Kokkos::pair(ng, lim2));
-            auto sub_buffer = Kokkos::subview(buffer->edgeBuffer[2][j][k].view_device(), 
+            auto sub_view = Kokkos::subview(view,Kokkos::pair(i*(lim0+ng), i*(lim0+ng)+ng),
+                                                 Kokkos::pair(j*(lim1+ng), j*(lim1+ng)+ng),
+                                                 Kokkos::pair(ng, lim2+ng));
+            auto sub_buffer = Kokkos::subview(buffer->edgeBuffer[2][i][j].view_device(), 
                                            Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, ivar);                      
             Kokkos::deep_copy(sub_view, sub_buffer);
         }
@@ -260,23 +260,23 @@ void copyFromBuffer_edges(Kokkos::View<double***> view, Buffer *buffer, int ivar
 void copyFromBuffer_faces(Kokkos::View<double***> view, Buffer *buffer, int ivar)
 {
     int ng = buffer->Nghost;
-    int lim0 = view.extent(0)-ng;
-    int lim1 = view.extent(1)-ng;
-    int lim2 = view.extent(2)-ng;
-
+    int lim0 = view.extent(0)-2*ng;
+    int lim1 = view.extent(1)-2*ng;
+    int lim2 = view.extent(2)-2*ng;
+    
     for(int i=0; i<3; i++)
     {
-        int Istart = ng, Ystart=ng, Zstart=ng;
-        int Iend = lim0, Yend=lim1, Zend=lim2;
+        int Xstart = ng, Ystart=ng, Zstart=ng;
+        int Xend = lim0+ng, Yend=lim1+ng, Zend=lim2+ng;
         for(int f=0; f<2; f++)
         {          
-            if(i==0) { Istart = f*lim0 ; Iend = f*lim0+ng; }
-            if(i==1) { Ystart = f*lim1 ; Yend = f*lim1+ng; }
-            if(i==2) { Zstart = f*lim2 ; Zend = f*lim2+ng; }
-
-            auto sub_view = Kokkos::subview(view, Kokkos::pair(Istart, Iend),
-                                            Kokkos::pair(Ystart, Yend),
-                                            Kokkos::pair(Zstart, Zend));
+            if(i==0) { Xstart = f*(lim0+ng); Xend = f*(lim0+ng)+ng; }
+            if(i==1) { Ystart = f*(lim1+ng); Yend = f*(lim1+ng)+ng; }
+            if(i==2) { Zstart = f*(lim2+ng); Zend = f*(lim2+ng)+ng; }
+    
+            auto sub_view = Kokkos::subview(view, Kokkos::pair(Xstart, Xend),
+                                                  Kokkos::pair(Ystart, Yend),
+                                                  Kokkos::pair(Zstart, Zend));
 
             auto sub_view_buffer = Kokkos::subview(buffer->faceBuffer[i][f].view_device(), 
                                                    Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, ivar);
