@@ -3,6 +3,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import h5py
+import sys
 
 from param import *
 
@@ -11,10 +12,9 @@ print(" Advection test : sinusoide")
 print("********************************")
 
 # Solution solver 
-print("Enter file path :")
-file_path = input()
+filename = sys.argv[1]
 
-with h5py.File(str(file_path), 'r') as f : 
+with h5py.File(str(filename), 'r') as f : 
     print(f.keys())
     rho = f['rho'][:, 0, 0]
 dx = L / len(rho)
