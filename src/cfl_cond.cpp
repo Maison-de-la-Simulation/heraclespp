@@ -14,17 +14,16 @@ double time_step(
     thermodynamics::PerfectGas const& eos)
 {
     double ax = 0;
-    for (int k=0; k<rho.extent_int(2); k++)
-    {
-        for (int j=0; j<rho.extent_int(1); j++)
-        {
-            for (int i=0; i<rho.extent_int(0); i++)
-            {
-                double const sound = eos.compute_speed_of_sound(rho(i,j,k),P(i,j,k));
-                double const difference = std::fabs(u(i,j,k)) + sound;
-                ax = std::fmax(difference, ax);
-            }
-        }
-    }
+    Kokkos::parallel_reduce(
+            "time_step",
+            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
+            {0, 0, 0},
+            {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)}),
+            KOKKOS_LAMBDA(int i, int j, int k, double& local_ax) {
+                double const sound = eos.compute_speed_of_sound(rho(i, j, k), P(i, j, k));
+                double const difference = std::fabs(u(i, j, k)) + sound;
+                local_ax = std::fmax(difference, local_ax);
+            },
+            Kokkos::Max<double>(ax));
     return cfl / (ax / dx);
 }
