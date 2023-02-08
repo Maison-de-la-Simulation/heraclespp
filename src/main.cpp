@@ -88,11 +88,11 @@ int main(int argc, char** argv)
     std::unique_ptr<IGodunovScheme> godunov_scheme
             = factory_godunov_scheme(riemann_solver, eos, dx);
 
-    Kokkos::View<double*> nodes_x0("nodes_x0", grid.Nx_local_wg[0]); // Nodes for x0
+    Kokkos::View<double*> nodes_x0("nodes_x0", grid.Nx_local_wg[0] + 1); // Nodes for x0
 
     Kokkos::parallel_for(
     "InitialisationNodes",
-    Kokkos::RangePolicy<>(0, grid.Nx_local_wg[0]),
+    Kokkos::RangePolicy<>(0, nodes_x0.extent_int(0)),
     KOKKOS_LAMBDA(int i)
     {
         nodes_x0(i) = (i - grid.Nghost) * dx; // Position of the left interface
