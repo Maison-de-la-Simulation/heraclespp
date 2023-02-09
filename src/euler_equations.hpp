@@ -24,12 +24,14 @@ struct EulerPrim
     double pressure;
 };
 
-inline double compute_volumic_kinetic_energy(EulerCons const& cons) noexcept
+KOKKOS_INLINE_FUNCTION
+double compute_volumic_kinetic_energy(EulerCons const& cons) noexcept
 {
     return 0.5 * cons.momentum * cons.momentum / cons.density;
 }
 
-inline double compute_volumic_kinetic_energy(EulerPrim const& prim) noexcept
+KOKKOS_INLINE_FUNCTION
+double compute_volumic_kinetic_energy(EulerPrim const& prim) noexcept
 {
     return 0.5 * prim.density * prim.velocity * prim.velocity;
 }
@@ -38,7 +40,8 @@ inline double compute_volumic_kinetic_energy(EulerPrim const& prim) noexcept
 //! @param[in] prim Primitive state
 //! @param[in] eos Equation of state
 //! @return flux
-inline EulerFlux compute_flux(EulerPrim const& prim, thermodynamics::PerfectGas const& eos) noexcept
+KOKKOS_INLINE_FUNCTION
+EulerFlux compute_flux(EulerPrim const& prim, thermodynamics::PerfectGas const& eos) noexcept
 {
     EulerFlux flux;
     double const volumic_total_energy
@@ -54,7 +57,8 @@ inline EulerFlux compute_flux(EulerPrim const& prim, thermodynamics::PerfectGas 
 //! @param[in] cons Conservative state
 //! @param[in] eos Equation of state
 //! @return flux
-inline EulerFlux compute_flux(EulerCons const& cons, thermodynamics::PerfectGas const& eos) noexcept
+KOKKOS_INLINE_FUNCTION
+EulerFlux compute_flux(EulerCons const& cons, thermodynamics::PerfectGas const& eos) noexcept
 {
     EulerFlux flux;
     double const volumic_internal_energy = cons.energy - compute_volumic_kinetic_energy(cons);
@@ -66,7 +70,8 @@ inline EulerFlux compute_flux(EulerCons const& cons, thermodynamics::PerfectGas 
     return flux;
 }
 
-inline EulerPrim to_prim(EulerCons const& cons, thermodynamics::PerfectGas const& eos) noexcept
+KOKKOS_INLINE_FUNCTION
+EulerPrim to_prim(EulerCons const& cons, thermodynamics::PerfectGas const& eos) noexcept
 {
     EulerPrim prim;
     prim.density = cons.density;
@@ -77,7 +82,8 @@ inline EulerPrim to_prim(EulerCons const& cons, thermodynamics::PerfectGas const
     return prim;
 }
 
-inline EulerCons to_cons(EulerPrim const& prim, thermodynamics::PerfectGas const& eos) noexcept
+KOKKOS_INLINE_FUNCTION
+EulerCons to_cons(EulerPrim const& prim, thermodynamics::PerfectGas const& eos) noexcept
 {
     EulerCons cons;
     cons.density = prim.density;

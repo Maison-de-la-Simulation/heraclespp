@@ -6,6 +6,8 @@
 
 #include <string_view>
 
+#include <Kokkos_Core.hpp>
+
 //! The null slope limiter.
 class Null
 {
@@ -15,6 +17,7 @@ public:
     //! @param[in] diffR float (U_{i+1}^{n} - U_{i}^{n}) / dx
     //! @param[in] diffL float (U_{i}^{n} - U_{i-1}^{n}) / dx
     //! @return slope
+    KOKKOS_INLINE_FUNCTION
     double operator()([[maybe_unused]] double const diffR, [[maybe_unused]] double const diffL)
             const
     {
@@ -32,6 +35,7 @@ public:
     //! @param[in] diffR float (U_{i+1}^{n} - U_{i}^{n}) / dx
     //! @param[in] diffL float (U_{i}^{n} - U_{i-1}^{n}) / dx
     //! @return slope
+    KOKKOS_INLINE_FUNCTION
     double operator()(double const diffR, double const diffL) const
     {
         if (diffL * diffR > 0)
@@ -54,6 +58,7 @@ public:
     //! @param[in] diffR float (U_{i+1}^{n} - U_{i}^{n}) / dx
     //! @param[in] diffL float (U_{i}^{n} - U_{i-1}^{n}) / dx
     //! @return slope
+    KOKKOS_INLINE_FUNCTION
     double operator()(double const diffR, double const diffL) const
     {
         if (diffL * diffR > 0)
@@ -75,6 +80,7 @@ public:
     //! @param[in] diffR float (U_{i+1}^{n} - U_{i}^{n}) / dx
     //! @param[in] diffL float (U_{i}^{n} - U_{i-1}^{n}) / dx
     //! @return slope
+    KOKKOS_INLINE_FUNCTION
     double operator()(double const diffR, double const diffL) const
     {
         if (diffL * diffR > 0)
