@@ -95,7 +95,7 @@ int main(int argc, char** argv)
     Kokkos::RangePolicy<>(0, nodes_x0.extent_int(0)),
     KOKKOS_LAMBDA(int i)
     {
-        nodes_x0(i) = (i - grid.Nghost) * dx; // Position of the left interface
+        nodes_x0(i) = (i - grid.Nghost[0]) * dx; // Position of the left interface
     });
 
     Kokkos::View<double***> rho("rho", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]); // Density
@@ -182,7 +182,7 @@ int main(int argc, char** argv)
                 E_new,
                 dt);
 
-        boundary_construction->execute(rho_new, rhou_new, E_new, grid.Nghost);
+        boundary_construction->execute(rho_new, rhou_new, E_new, grid.Nghost[0]);
 
         ConvConsPrimArray(u, P, rho_new, rhou_new, E_new, eos); //Conversion des variables conservatives en primitives
         Kokkos::deep_copy(rho, rho_new);

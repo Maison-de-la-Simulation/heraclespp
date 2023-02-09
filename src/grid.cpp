@@ -8,8 +8,10 @@
 Grid::Grid(INIReader reader)
  {
     Ndim     = 3 ; 
-    Nghost   = 2 ; 
-    
+    Nghost[0]   = 2 ; 
+    Nghost[1]   = 2 ; 
+    Nghost[2]   = 2 ; 
+
     Nx_glob_ng[0] = reader.GetInteger("Grid", "Nx_glob", 0); // Cell number
     Nx_glob_ng[1] = reader.GetInteger("Grid", "Ny_glob", 0); // Cell number
     Nx_glob_ng[2] = reader.GetInteger("Grid", "Nz_glob", 0); // Cell number
@@ -99,7 +101,7 @@ void Grid::MPI_Decomp()
         {
             Nx_local_ng[i]+=1;
         }  
-        Nx_local_wg[i] = Nx_local_ng[i] + 2*Nghost;                         ;
+        Nx_local_wg[i] = Nx_local_ng[i] + 2*Nghost[i];                         ;
     }
     
     for(int i=0; i<Ndim; i++)
@@ -142,7 +144,7 @@ void Grid::print_grid()
     if(mpiRank==0)
     {
         prinf_info("Ndim", Ndim);
-        prinf_info("Nghost", Nghost);
+        prinf_info("Nghost", Nghost[0]);
         prinf_info("Ncpu", Ncpu);
 
         prinf_info("Ncpu_x[0]", Ncpu_x[0]);

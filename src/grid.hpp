@@ -40,11 +40,11 @@ private:
   
 public :
     int Ndim; // Number of dimension of the run 1-3 (default = 1)
-    int Nghost; // Number of ghost cells (default = 2)
+    std::array<int, 3> Nghost;    // Number of ghost cells in each direction (default is 2)
 
     std::array<int, 3> Nx_glob_ng;    // Total number of cells in each directions (excluding ghost)
     std::array<int, 3> Nx_local_ng;    // Number of cells on the local MPI process (excluding ghost)
-    std::array<int, 3> Nx_local_wg;    // Number of cells on the local MPI process (excluding ghost)
+    std::array<int, 3> Nx_local_wg;    // Number of cells on the local MPI process (including ghost)
     std::array<int, 3> NBlock;     // number of sub-blocks (default (1,1,1))
     std::array<int, 3> Nx_block;   // Maximum size of sub-block, including ghost
     std::array<std::array<int, 2>,3> cornerPosition; // Position of corner in the global grid (no ghost)

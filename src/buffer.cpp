@@ -7,7 +7,7 @@
 Buffer::Buffer(Grid *grid, int nvar)
 {
     
-    Nghost = grid->Nghost;
+    Nghost = grid->Nghost[0];
     
     for(int f=0; f<2; f++)
     {

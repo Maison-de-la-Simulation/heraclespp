@@ -3,8 +3,9 @@
 #include <pdi.h>
 #include <mpi.h>
 
-void init_write(int max_iter, int frequency, int ghost)
+void init_write(int max_iter, int frequency, std::array<int,3> Nghost)
 {
+    int ghost = Nghost[0] ;
     PDI_multi_expose("init_PDI",
                     "max_iter", &max_iter, PDI_OUT,
                     "frequency", &frequency, PDI_OUT,
