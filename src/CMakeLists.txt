@@ -6,7 +6,8 @@ add_executable(nova++ main.cpp
                       cfl_cond.cpp 
                       mpi_scope_guard.cpp 
                       grid.cpp
-                      buffer.cpp)
+                      buffer.cpp
+                      range.cpp)
 
 target_compile_features(nova++ PUBLIC cxx_std_17)
 
