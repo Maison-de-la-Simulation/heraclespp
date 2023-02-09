@@ -45,18 +45,18 @@ int main(int argc, char** argv)
 
     Grid grid(reader);
 
-    // // a small test
-    Buffer send_buffer(&grid, 3);
-    Buffer recv_buffer(&grid, 3);
+    // // // a small test
+    // Buffer send_buffer(&grid, 3);
+    // Buffer recv_buffer(&grid, 3);
 
-    Kokkos::View<double***> rho3d("rho3D", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
-    Kokkos::deep_copy(rho3d, 1.0);
-    copyToBuffer(rho3d, &send_buffer, 0);
+    // Kokkos::View<double***> rho3d("rho3D", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
+    // Kokkos::deep_copy(rho3d, 1.0);
+    // copyToBuffer(rho3d, &send_buffer, 0);
 
-    exchangeBuffer(&send_buffer, &recv_buffer, &grid);
-    Kokkos::deep_copy(rho3d, 2.0);
-    copyFromBuffer(rho3d, &recv_buffer, 0);
-    // // end of a small test
+    // exchangeBuffer(&send_buffer, &recv_buffer, &grid);
+    // Kokkos::deep_copy(rho3d, 2.0);
+    // copyFromBuffer(rho3d, &recv_buffer, 0);
+    // // // end of a small test
 
     double const timeout = reader.GetReal("Run", "timeout", 0.2);
     int const max_iter = reader.GetInteger("Output", "max_iter", 10000);
@@ -104,15 +104,15 @@ int main(int argc, char** argv)
     Kokkos::View<double***> u("u", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]); // Speed
     Kokkos::View<double***> P("P", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]); // Pressure
     
-    Kokkos::View<double***, Kokkos::HostSpace> rho_host
+    Kokkos::View<double***>::HostMirror rho_host
             = Kokkos::create_mirror_view(rho); // Density always on host
-    Kokkos::View<double***, Kokkos::HostSpace> rhou_host
+    Kokkos::View<double***>::HostMirror rhou_host
             = Kokkos::create_mirror_view(rhou); // Momentum always on host
-    Kokkos::View<double***, Kokkos::HostSpace> E_host
+    Kokkos::View<double***>::HostMirror E_host
             = Kokkos::create_mirror_view(E); // Energy always on host
-    Kokkos::View<double***, Kokkos::HostSpace> u_host
+    Kokkos::View<double***>::HostMirror u_host
             = Kokkos::create_mirror_view(u); // Speedalways on host
-    Kokkos::View<double***, Kokkos::HostSpace> P_host
+    Kokkos::View<double***>::HostMirror P_host
             = Kokkos::create_mirror_view(P); // Pressure always on host
 
     Kokkos::View<double***> rhoL("rhoL", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]);
@@ -144,7 +144,7 @@ int main(int argc, char** argv)
     int iter = 0;
     bool should_exit = false;
 
-    write(iter, grid.Nx_glob_ng.data(), t, rho.data(), u.data(), P.data());
+    write(iter, grid.Nx_glob_ng.data(), t, rho_host.data(), u_host.data(), P_host.data());
 
     while (!should_exit && t < timeout && iter < max_iter)
     {
@@ -233,7 +233,10 @@ int main(int argc, char** argv)
 
         if(make_output)
         {
-            write(iter, grid.Nx_glob_ng.data(), t, rho.data(), u.data(), P.data());
+            Kokkos::deep_copy(rho_host, rho);
+            Kokkos::deep_copy(u_host, u);
+            Kokkos::deep_copy(P_host, P);
+            write(iter, grid.Nx_glob_ng.data(), t, rho_host.data(), u_host.data(), P_host.data());
         }
     }
 

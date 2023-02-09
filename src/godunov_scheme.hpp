@@ -24,6 +24,7 @@ public:
     //! @param[in] uR speed right
     //! @param[in] PR pressure right
     //! @return intercell EulerFlux
+    KOKKOS_INLINE_FUNCTION
     EulerFlux operator()(
             EulerCons const& consL,
             EulerCons const& consR,
@@ -35,8 +36,8 @@ public:
         double const cL = eos.compute_speed_of_sound(primL.density, primL.pressure);
         double const cR = eos.compute_speed_of_sound(primR.density, primR.pressure);
 
-        double const wsL = std::min(primL.velocity - cL, primR.velocity - cR);
-        double const wsR = std::max(primL.velocity + cL, primR.velocity + cR);
+        double const wsL = std::fmin(primL.velocity - cL, primR.velocity - cR);
+        double const wsR = std::fmax(primL.velocity + cL, primR.velocity + cR);
 
         EulerFlux const fluxL = compute_flux(primL, eos);
         EulerFlux const fluxR = compute_flux(primR, eos);
@@ -70,6 +71,7 @@ public:
         return EulerFlux {};
     }
 
+    KOKKOS_INLINE_FUNCTION
     static double FluxHLL(
             double const UL,
             double const UR,
@@ -164,7 +166,7 @@ public:
                 Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
                         {2, 0, 0},
                         {density.extent(0) - 2, density.extent(1), density.extent(2)}),
-                KOKKOS_LAMBDA(int i, int j, int k) {
+                KOKKOS_CLASS_LAMBDA(int i, int j, int k) {
                     EulerCons consR_im1jk;
                     consR_im1jk.density = densityR(i - 1, j, k);
                     consR_im1jk.momentum = momentumR(i - 1, j, k);

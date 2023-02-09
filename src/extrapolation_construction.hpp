@@ -81,7 +81,7 @@ public :
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
         {1, 0, 0},
         {rho_left.extent(0) - 1, rho_left.extent(1), rho_left.extent(2)}),
-        KOKKOS_LAMBDA(int i, int j, int k)
+        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
             EulerPrim prim_left;
             prim_left.density = rho_left(i, j, k);

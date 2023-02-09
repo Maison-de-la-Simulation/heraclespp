@@ -49,7 +49,7 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
         {0, 0, 0},
         {rho.extent(0), rho.extent(1), rho.extent(2)}),
-        KOKKOS_LAMBDA(int i, int j, int k)
+        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
         if((nodes_x0(i) + nodes_x0(i+1)) / 2 <= 0.5)
         {
@@ -88,7 +88,7 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
         {0, 0, 0},
         {rho.extent(0), rho.extent(1), rho.extent(2)}),
-        KOKKOS_LAMBDA(int i, int j, int k)
+        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
             rho(i, j, k) = 1 * std::exp(- 15 * std::pow(1. / 2  - (nodes_x0(i) + nodes_x0(i+1)) / 2, 2));
             u(i, j, k) = 1;
@@ -118,7 +118,7 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
         {0, 0, 0},
         {rho.extent(0), rho.extent(1), rho.extent(2)}),
-        KOKKOS_LAMBDA(int i, int j, int k)
+        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
         if ( (nodes_x0(i) + nodes_x0(i+1)) / 2 <= 0.3)
         {

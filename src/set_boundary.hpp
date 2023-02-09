@@ -51,7 +51,7 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
         {0, 0, 0},
         {nghost_cell, rho.extent_int(1), rho.extent_int(2)}),
-        KOKKOS_LAMBDA(int i, int j, int k)
+        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
             rho(i, j, k) = rho(2, j, k);
             rho(size_x+2+i, j, k) = rho(size_x+1, j, k);
@@ -88,7 +88,7 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
         {0, 0, 0},
         {nghost_cell, rho.extent_int(1), rho.extent_int(2)}),
-        KOKKOS_LAMBDA(int i, int j, int k)
+        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
     {
         rho(i, j, k) = rho(size_x+i, j, k);    
         rho(size_x+2+i, j, k) = rho(2+i, j, k);
@@ -125,7 +125,7 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
         {0, 0, 0},
         {nghost_cell, rho.extent_int(1), rho.extent_int(2)}),
-        KOKKOS_LAMBDA(int i, int j, int k)
+        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
     {
         rho(i, j, k) = rho(3-i, j, k);    
         rho(size_x+2+i, j, k) = rho(size_x+1, j, k);

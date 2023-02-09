@@ -73,7 +73,7 @@ public:
                 Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
                         {1, 0, 0},
                         {var.extent(0) - 1, var.extent(1), var.extent(2)}),
-                KOKKOS_LAMBDA(int i, int j, int k) {
+                KOKKOS_CLASS_LAMBDA(int i, int j, int k) {
                     double const slope_var = m_slope_limiter(
                             (var(i + 1, j, k) - var(i, j, k)) / m_dx,
                             (var(i, j, k) - var(i - 1, j, k)) / m_dx);
@@ -103,7 +103,7 @@ public:
                 Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
                         {1, 0, 0},
                         {var.extent(0) - 1, var.extent(1), var.extent(2)}),
-                KOKKOS_LAMBDA(int i, int j, int k) {
+                KOKKOS_CLASS_LAMBDA(int i, int j, int k) {
                     varL(i, j, k) = var(i, j, k);
                     varR(i, j, k) = var(i, j, k);
                 });
