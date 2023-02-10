@@ -12,7 +12,6 @@
 
 #include "array_conversion.hpp"
 #include "initialisation_problem.hpp"
-#include "float_conversion.hpp"
 #include "io.hpp"
 #include "face_reconstruction.hpp"
 #include "coordinate_system.hpp"
