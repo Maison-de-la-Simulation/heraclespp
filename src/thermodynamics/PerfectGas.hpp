@@ -33,7 +33,7 @@ public:
     //! @param[in] gamma Adiabatic index of the perfect gas.
     //! @param[in] mmw Mean molecular weight of the perfect gas.
     //!
-    PerfectGas(double gamma, double mmw) noexcept;
+    PerfectGas(double gamma, double mmw);
 
     //!
     //! @fn PerfectGas(const PerfectGas& rhs)
