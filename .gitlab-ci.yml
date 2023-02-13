@@ -24,7 +24,7 @@ stages:          # List of stages for jobs, and their order of execution
 build-job:       # This job runs in the build stage, which runs first.
   stage: build
   only: [ main, merge_requests ]
-  image: ghcr.io/pdidev/ubuntu/bionic/openmpi/all:27272e0
+  image: ghcr.io/pdidev/spack/oldest/gcc/openmpi/all:27272e0
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
   script:
