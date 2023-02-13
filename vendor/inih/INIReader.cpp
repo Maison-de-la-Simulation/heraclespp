@@ -9,6 +9,7 @@
 #include <algorithm>  // for transform
 #include <cctype>     // for tolower
 #include <iostream>
+#include <limits>
 #include <string>
 #include <utility>    // for pair
 #include "ini.h"      // for ini_parse
