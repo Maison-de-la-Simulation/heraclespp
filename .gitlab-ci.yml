@@ -29,6 +29,8 @@ build-job:       # This job runs in the build stage, which runs first.
     GIT_SUBMODULE_STRATEGY: recursive
   script:
     - echo "Compiling the code..."
+    - mkdir build
+    - cd build
     - cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="-Wall -Wextra -pedantic" -DKokkos_ENABLE_DEPRECATED_CODE_3=OFF -DKokkos_ENABLE_DEBUG=ON -DKokkos_ENABLE_DEBUG_DUALVIEW_MODIFY_CHECK=ON -DKokkos_ENABLE_DEBUG_BOUNDS_CHECK=ON -DKokkos_ENABLE_COMPILER_WARNINGS=ON ..
     - make
     - echo "Compile complete."
