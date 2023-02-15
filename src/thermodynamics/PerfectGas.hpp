@@ -116,6 +116,12 @@ public:
     {
         return std::sqrt(m_gamma * pressure / density);
     }
+
+    KOKKOS_FORCEINLINE_FUNCTION
+    static bool is_valid(double const density, double const pressure) noexcept
+    {
+        return std::isfinite(density) && density > 0 && std::isfinite(pressure) && pressure > 0;
+    }
 };
 
 } // namespace thermodynamics

@@ -63,7 +63,9 @@ public:
     {
         if (diffL * diffR > 0)
         {
-            return 1. / ((1. / diffL) + (1. / diffR));
+            double const ratio = diffR / diffL;
+            double const minmod = 2 * std::fmin(1., ratio) / (1 + ratio);
+            return minmod * (diffL + diffR) / 2;
         }
 
         return 0;

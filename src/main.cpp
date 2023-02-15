@@ -61,7 +61,7 @@ int main(int argc, char** argv)
     int const max_iter = reader.GetInteger("Output", "max_iter", 10000);
     int const output_frequency = reader.GetInteger("Output", "frequency", 10);
 
-    thermodynamics::PerfectGas eos(reader.GetReal("PerfectGas", "gamma", 1.4), 0.0);
+    thermodynamics::PerfectGas eos(reader.GetReal("PerfectGas", "gamma", 1.4), 1.0);
 
     double const dx = 1. / grid.Nx_glob_ng[0];
     double const cfl = 0.4;
