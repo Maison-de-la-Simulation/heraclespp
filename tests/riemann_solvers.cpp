@@ -4,25 +4,45 @@
 
 #include <godunov_scheme.hpp>
 
-TEST(RiemannSolver, Consistency)
+template <class RiemannSolver>
+class RiemannSolverFixture : public ::testing::Test
 {
-    HLL const riemann_solver;
+public:
+    RiemannSolver m_riemann_solver;
+
+    RiemannSolverFixture() = default;
+
+    RiemannSolverFixture(RiemannSolverFixture const& rhs) = default;
+
+    RiemannSolverFixture(RiemannSolverFixture&& rhs) noexcept = default;
+
+    ~RiemannSolverFixture() override = default;
+
+    RiemannSolverFixture& operator=(RiemannSolverFixture const& rhs) = default;
+
+    RiemannSolverFixture& operator=(RiemannSolverFixture&& rhs) noexcept = default;
+};
+
+using RiemannSolvers = ::testing::Types<HLL>;
+TYPED_TEST_SUITE(RiemannSolverFixture, RiemannSolvers);
+
+TYPED_TEST(RiemannSolverFixture, Consistency)
+{
     thermodynamics::PerfectGas const eos(1.4, 1.);
     EulerPrim prim;
     prim.density = 2.;
     prim.velocity = 3.;
     prim.pressure = 10.;
     EulerCons const cons = to_cons(prim, eos);
-    EulerFlux const numerical_flux = riemann_solver(cons, cons, eos);
+    EulerFlux const numerical_flux = this->m_riemann_solver(cons, cons, eos);
     EulerFlux const physical_flux = compute_flux(cons, eos);
     EXPECT_DOUBLE_EQ(numerical_flux.density, physical_flux.density);
     EXPECT_DOUBLE_EQ(numerical_flux.momentum, physical_flux.momentum);
     EXPECT_DOUBLE_EQ(numerical_flux.energy, physical_flux.energy);
 }
 
-TEST(RiemannSolver, Symmetry)
+TYPED_TEST(RiemannSolverFixture, Symmetry)
 {
-    HLL const riemann_solver;
     thermodynamics::PerfectGas const eos(1.4, 1.);
     EulerPrim prim_left;
     prim_left.density = 2.;
@@ -34,11 +54,11 @@ TEST(RiemannSolver, Symmetry)
     prim_right.pressure = 5.5;
     EulerCons cons_left = to_cons(prim_left, eos);
     EulerCons cons_right = to_cons(prim_right, eos);
-    EulerFlux const flux1 = riemann_solver(cons_left, cons_right, eos);
+    EulerFlux const flux1 = this->m_riemann_solver(cons_left, cons_right, eos);
     std::swap(cons_left, cons_right);
     cons_left.momentum = -cons_left.momentum;
     cons_right.momentum = -cons_right.momentum;
-    EulerFlux const flux2 = riemann_solver(cons_left, cons_right, eos);
+    EulerFlux const flux2 = this->m_riemann_solver(cons_left, cons_right, eos);
     EXPECT_DOUBLE_EQ(flux1.density, -flux2.density);
     EXPECT_DOUBLE_EQ(flux1.momentum, flux2.momentum);
     EXPECT_DOUBLE_EQ(flux1.energy, -flux2.energy);
