@@ -84,7 +84,7 @@ int main(int argc, char** argv)
 
     Kokkos::View<double*> nodes_x0("nodes_x0", grid.Nx_local_wg[0]+1); // Nodes for x0
 
-    int offset = grid.mpi_rank_cart[0]*grid.Nx_local_ng[0] - grid.Nghost[0];
+    int offset = grid.range.Corner_min[0] - grid.Nghost[0];
     Kokkos::parallel_for("InitialisationNodes",
                          Kokkos::RangePolicy<>(0, nodes_x0.extent(0)),
                          KOKKOS_LAMBDA(int i)
@@ -120,7 +120,8 @@ int main(int argc, char** argv)
     Kokkos::View<double***>  E_new("Enew",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
 
     initialisation->execute(rho, u, P, nodes_x0);
-  
+    write_pdi(888, 0, rho.data(), u.data(), P.data());  
+
     ConvPrimtoConsArray(rhou, E, rho, u, P, eos);
 
     Kokkos::deep_copy(rho_host, rho);
