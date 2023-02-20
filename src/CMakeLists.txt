@@ -6,6 +6,7 @@ add_library(libnova++ array_conversion.cpp
                       mpi_scope_guard.cpp
                       grid.cpp
                       buffer.cpp
+                      exchange.cpp
                       range.cpp)
 target_include_directories(libnova++ INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 

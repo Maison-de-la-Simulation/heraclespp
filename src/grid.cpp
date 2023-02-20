@@ -2,26 +2,32 @@
  * @file grid.cpp
  * Grid class implementation
  */
-
 #include "grid.hpp"
+#include "ndim.hpp"
 
 Grid::Grid(INIReader reader)
- {
-    Ndim     = 3 ; 
-    Nghost[0]   = 2 ; 
-    Nghost[1]   = 2 ; 
-    Nghost[2]   = 2 ; 
-
+{
+    Ndim = ndim;
+    
     Nx_glob_ng[0] = reader.GetInteger("Grid", "Nx_glob", 0); // Cell number
     Nx_glob_ng[1] = reader.GetInteger("Grid", "Ny_glob", 0); // Cell number
     Nx_glob_ng[2] = reader.GetInteger("Grid", "Nz_glob", 0); // Cell number
 
+    Nghost[0] = reader.GetInteger("Grid", "Ng_x", 2); // Ghost cell depth
+    Nghost[1] = reader.GetInteger("Grid", "Ng_y", 0); // Ghost cell depth
+    Nghost[2] = reader.GetInteger("Grid", "Ng_z", 0); // Ghost cell depth
+
+    Ncpu_x[0] = reader.GetInteger("Grid", "Ncpu_x", 0); // number of procs, default 0=>defined by MPI
+    Ncpu_x[1] = reader.GetInteger("Grid", "Ncpu_y", 1); // number of procs
+    Ncpu_x[2] = reader.GetInteger("Grid", "Ncpu_z", 1); // number of procs
 
     //!    Type of boundary conditions possibilities are : 
     //!    "Internal", "Periodic", "Reflexive", NullGradient", UserDefined", "Null" (undefined) 
     Nx_local_ng      = Nx_glob_ng ; // default for a single MPI process
 
     MPI_Decomp();
+    // range.Compute_range(cornerMin.data(), cornerMax.data(), Nghost.data());
+    range.fill_range(Ndim, Nghost.data());
 
     grid_type = reader.Get("Grid", "type", "");
 
@@ -75,26 +81,24 @@ void Grid::MPI_Decomp()
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
 
     Ncpu = mpi_size;
-    std::array<int, 3> Ncpu_x_tmp={0,0,0};
-    MPI_Dims_create(Ncpu, Ndim, Ncpu_x_tmp.data());
-    
-    for(int i=0; i<Ndim; i++)
-    {
-        Ncpu_x[i] = 0;
-        if(Ncpu_x_tmp[i]>=Nx_glob_ng[i])
-        {
-            Ncpu_x[i] = Nx_glob_ng[i];
-        }
-    }
-    
-    MPI_Dims_create(Ncpu, Ndim, Ncpu_x.data());
+    // std::array<int, 3> Ncpu_x_tmp={0,0,0};
+    // MPI_Dims_create(Ncpu, Ndim, Ncpu_x_tmp.data());
+
+    // for(int i=0; i<Ndim; i++)
+    // {
+    //     if(Ncpu_x_tmp[i]>=Nx_glob_ng[i])
+    //     {
+    //         Ncpu_x[i] = 1+Nx_glob_ng[i]/10 ; // don't decompose if less than 10 cells
+    //     }
+    // }
+    MPI_Dims_create(Ncpu, 3, Ncpu_x.data());
 
     std::array<int, 3> periodic = {1,1,1};
 
-    MPI_Cart_create(MPI_COMM_WORLD, Ndim, Ncpu_x.data(), periodic.data(), 1, &comm_cart);
-    MPI_Cart_coords(comm_cart, mpi_rank, Ndim, mpi_rank_cart.data());
+    MPI_Cart_create(MPI_COMM_WORLD, 3, Ncpu_x.data(), periodic.data(), 0, &comm_cart);
+    MPI_Cart_coords(comm_cart, mpi_rank, 3, mpi_rank_cart.data());
 
-    for(int i=0; i<Ndim; i++)
+    for(int i=0; i<3; i++)
     {
         Nx_local_ng[i] = Nx_glob_ng[i]/Ncpu_x[i];
         if(mpi_rank_cart[i]<Nx_glob_ng[i]%Ncpu_x[i])
@@ -104,14 +108,17 @@ void Grid::MPI_Decomp()
         Nx_local_wg[i] = Nx_local_ng[i] + 2*Nghost[i];                         ;
     }
     
-    for(int i=0; i<Ndim; i++)
+    std::array<int, 3> remain_dims= {false, false, false};
+    MPI_Comm comm_cart_1d[3];
+    for(int i=0; i<3; i++)
     {
-        cornerPosition[i][0] = mpi_rank_cart[i]*Nx_glob_ng[i]/Ncpu_x[i];
-        if(mpi_rank_cart[i]>=Nx_glob_ng[i]%Ncpu_x[i])
-        {
-            cornerPosition[i][0]+=1;
-        }
-        cornerPosition[i][1] = cornerPosition[i][0] + Nx_local_ng[i]-1;
+        remain_dims[i]=true;
+        range.Corner_min[i] = 0;
+        MPI_Cart_sub(comm_cart, remain_dims.data(), &comm_cart_1d[i]);
+        MPI_Exscan(&Nx_local_ng[i], &range.Corner_min[i], 1, MPI_INT, MPI_SUM, comm_cart_1d[i]);
+        range.Corner_max[i] = range.Corner_min[i]+Nx_local_ng[i]-1;
+        
+        remain_dims[i]=false;
     }
     
     int tmp_coord[3];
@@ -138,13 +145,13 @@ void Grid::MPI_Decomp()
 
 void Grid::print_grid()
 {
-    int mpiRank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &mpiRank);
-
-    if(mpiRank==0)
+    if(mpi_rank==0)
     {
         prinf_info("Ndim", Ndim);
-        prinf_info("Nghost", Nghost[0]);
+        prinf_info("Nghost[0]", Nghost[0]);
+        prinf_info("Nghost[1]", Nghost[1]);
+        prinf_info("Nghost[2]", Nghost[2]);
+        
         prinf_info("Ncpu", Ncpu);
 
         prinf_info("Ncpu_x[0]", Ncpu_x[0]);
@@ -171,12 +178,12 @@ void Grid::print_grid()
         prinf_info("Nx_block[1]", Nx_block[1]);
         prinf_info("Nx_block[2]", Nx_block[2]);
 
-        prinf_info("Corner_min[0]", cornerPosition[0][0]);
-        prinf_info("Corner_min[1]", cornerPosition[1][0]);
-        prinf_info("Corner_min[2]", cornerPosition[2][0]);
+        prinf_info("Corner_min[0]", range.Corner_min[0]);
+        prinf_info("Corner_min[1]", range.Corner_min[1]);
+        prinf_info("Corner_min[2]", range.Corner_min[2]);
 
-        prinf_info("Corner_max[0]", cornerPosition[0][1]);
-        prinf_info("Corner_max[1]", cornerPosition[1][1]);
-        prinf_info("Corner_max[2]", cornerPosition[2][1]);
+        prinf_info("Corner_max[0]", range.Corner_max[0]);
+        prinf_info("Corner_max[1]", range.Corner_max[1]);
+        prinf_info("Corner_max[2]", range.Corner_max[2]);
     }
 }

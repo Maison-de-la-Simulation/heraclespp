@@ -14,16 +14,15 @@
 #include "initialisation_problem.hpp"
 #include "io.hpp"
 #include "face_reconstruction.hpp"
-#include "coordinate_system.hpp"
 #include "cfl_cond.hpp"
 #include "grid.hpp"
 #include "set_boundary.hpp"
+#include "euler_equations.hpp"
 #include "extrapolation_construction.hpp"
 #include "PerfectGas.hpp"
 #include "godunov_scheme.hpp"
 #include "mpi_scope_guard.hpp"
-#include "buffer.hpp"
-
+#include "exchange.hpp"
 #include <pdi.h>
 
 int main(int argc, char** argv)
@@ -36,196 +35,157 @@ int main(int argc, char** argv)
 
     Kokkos::ScopeGuard guard;
     MpiScopeGuard mpi_guard;
-    
+
     INIReader reader(argv[1]);
 
     PC_tree_t conf = PC_parse_path(argv[2]);
     PDI_init(PC_get(conf, ".pdi"));
 
     Grid grid(reader);
+    grid.print_grid();
 
-    // // // a small test
-    // Buffer send_buffer(&grid, 3);
-    // Buffer recv_buffer(&grid, 3);
-
-    // Kokkos::View<double***> rho3d("rho3D", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
-    // Kokkos::deep_copy(rho3d, 1.0);
-    // copyToBuffer(rho3d, &send_buffer, 0);
-
-    // exchangeBuffer(&send_buffer, &recv_buffer, &grid);
-    // Kokkos::deep_copy(rho3d, 2.0);
-    // copyFromBuffer(rho3d, &recv_buffer, 0);
-    // // // end of a small test
+    Buffer sendbuf(grid.Nghost.data(), grid.Nx_local_ng.data(), 6);
+    Buffer recvbuf(grid.Nghost.data(), grid.Nx_local_ng.data(), 6);
 
     double const timeout = reader.GetReal("Run", "timeout", 0.2);
+    double const cfl = reader.GetReal("Run", "clf", 0.4);
+
     int const max_iter = reader.GetInteger("Output", "max_iter", 10000);
     int const output_frequency = reader.GetInteger("Output", "frequency", 10);
 
     thermodynamics::PerfectGas eos(reader.GetReal("PerfectGas", "gamma", 1.4), 1.0);
 
-    double const dx = 1. / grid.Nx_glob_ng[0];
-    double const cfl = 0.4;
+    Kokkos::View<double*>array_dx("array_dx", 3); //Space step array 
+    array_dx(0) = 1. / grid.Nx_glob_ng[0];
+    array_dx(1) = 1. / grid.Nx_glob_ng[1];
+    array_dx(2) = 1. / grid.Nx_glob_ng[2];
 
-    init_write(max_iter, output_frequency, grid.Nghost);
+    write_pdi_init(max_iter, output_frequency, &grid);
+    
 
     std::string const initialisation_problem = reader.Get("Problem", "type", "ShockTube");
     std::unique_ptr<IInitialisationProblem> initialisation
             = factory_initialisation(initialisation_problem);
 
-    std::string const reconstruction_type = reader.Get("hydro", "reconstruction", "Minmod");
+    std::string const reconstruction_type = reader.Get("Hydro", "reconstruction", "Minmod");
     std::unique_ptr<IFaceReconstruction> face_reconstruction
-            = factory_face_reconstruction(reconstruction_type, dx);
+            = factory_face_reconstruction(reconstruction_type);
 
     std::unique_ptr<IExtrapolationValues> extrapolation_construction
             = std::make_unique<ExtrapolationCalculation>();
 
-    std::string const boundary_condition_type = reader.Get("hydro", "boundary", "NullGradient");
+    std::string const boundary_condition_type = reader.Get("Hydro", "boundary", "NullGradient");
     std::unique_ptr<IBoundaryCondition> boundary_construction
             = factory_boundary_construction(boundary_condition_type);
     
-    std::string const riemann_solver = reader.Get("hydro", "riemann_solver", "HLL");
+    std::string const riemann_solver = reader.Get("Hydro", "riemann_solver", "HLL");
     std::unique_ptr<IGodunovScheme> godunov_scheme
-            = factory_godunov_scheme(riemann_solver, eos, dx);
+            = factory_godunov_scheme(riemann_solver, eos);
 
-    Kokkos::View<double*> nodes_x0("nodes_x0", grid.Nx_local_wg[0] + 1); // Nodes for x0
+    Kokkos::View<double*> nodes_x0("nodes_x0", grid.Nx_local_wg[0]+1); // Nodes for x0
 
-    Kokkos::parallel_for(
-    "InitialisationNodes",
-    Kokkos::RangePolicy<>(0, nodes_x0.extent_int(0)),
-    KOKKOS_LAMBDA(int i)
+    int offset = grid.mpi_rank_cart[0]*grid.Nx_local_ng[0] - grid.Nghost[0];
+    Kokkos::parallel_for("InitialisationNodes",
+                         Kokkos::RangePolicy<>(0, nodes_x0.extent(0)),
+                         KOKKOS_LAMBDA(int i)
     {
-        nodes_x0(i) = (i - grid.Nghost[0]) * dx; // Position of the left interface
+        nodes_x0(i) = (i +offset) * array_dx(0) ; // Position of the left interface
     });
 
-    Kokkos::View<double***> rho("rho", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]); // Density
-    Kokkos::View<double***> rhou("rhou", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]); // Momentum
-    Kokkos::View<double***> E("E", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]); // Energy
-    Kokkos::View<double***> u("u", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]); // Speed
-    Kokkos::View<double***> P("P", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]); // Pressure
+    Kokkos::View<double***>  rho("rho",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Density
+    Kokkos::View<double****> rhou("rhou", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim); // Momentum
+    Kokkos::View<double***>  E("E",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Energy
+    Kokkos::View<double****> u("u",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim); // Speed
+    Kokkos::View<double***>  P("P",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Pressure
     
-    Kokkos::View<double***>::HostMirror rho_host
-            = Kokkos::create_mirror_view(rho); // Density always on host
-    Kokkos::View<double***>::HostMirror rhou_host
-            = Kokkos::create_mirror_view(rhou); // Momentum always on host
-    Kokkos::View<double***>::HostMirror E_host
-            = Kokkos::create_mirror_view(E); // Energy always on host
-    Kokkos::View<double***>::HostMirror u_host
-            = Kokkos::create_mirror_view(u); // Speedalways on host
-    Kokkos::View<double***>::HostMirror P_host
-            = Kokkos::create_mirror_view(P); // Pressure always on host
+    Kokkos::View<double***> ::HostMirror rho_host
+                            = Kokkos::create_mirror_view(rho); // Density always on host
+    Kokkos::View<double****>::HostMirror rhou_host
+                            = Kokkos::create_mirror_view(rhou); // Momentum always on host
+    Kokkos::View<double***> ::HostMirror E_host
+                            = Kokkos::create_mirror_view(E); // Energy always on host
+    Kokkos::View<double****>::HostMirror u_host
+                            = Kokkos::create_mirror_view(u); // Speedalways on host
+    Kokkos::View<double***> ::HostMirror P_host
+                            = Kokkos::create_mirror_view(P); // Pressure always on host
 
-    Kokkos::View<double***> rhoL("rhoL", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]);
-    Kokkos::View<double***> uL("uL", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]);
-    Kokkos::View<double***> PL("PL", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]);
-    Kokkos::View<double***> rhoR("rhoR", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]);
-    Kokkos::View<double***> uR("uR", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]);
-    Kokkos::View<double***> PR("PR", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]);
-    Kokkos::View<double***> rhouL("rhouL", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]);
-    Kokkos::View<double***> EL("EL", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]);
-    Kokkos::View<double***> rhouR("rhouR", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]);
-    Kokkos::View<double***> ER("ER", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]);
+    Kokkos::View<double*****>  rho_rec("rho_rec",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim);
+    Kokkos::View<double******> rhou_rec("rhou_rec", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim, ndim);
+    Kokkos::View<double*****>  E_rec("E_rec",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim);
+    Kokkos::View<double******> u_rec("u_rec",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim, ndim);
+    Kokkos::View<double*****>  P_rec("P_rec",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim);
 
-    Kokkos::View<double***> rho_new("rhonew", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]);
-    Kokkos::View<double***> rhou_new("rhounew", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]);
-    Kokkos::View<double***> E_new("Enew", grid.Nx_local_wg[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]);
+    Kokkos::View<double***>  rho_new("rhonew",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
+    Kokkos::View<double****> rhou_new("rhounew", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim);
+    Kokkos::View<double***>  E_new("Enew",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
 
     initialisation->execute(rho, u, P, nodes_x0);
-    
-    ConvPrimConsArray(rhou, E, rho, u, P, eos); // Initialisation conservative variables (rho, rhou, E)
-    
+  
+    ConvPrimtoConsArray(rhou, E, rho, u, P, eos);
+
     Kokkos::deep_copy(rho_host, rho);
     Kokkos::deep_copy(u_host, u);
     Kokkos::deep_copy(P_host, P);
     Kokkos::deep_copy(rhou_host, rhou);
     Kokkos::deep_copy(E_host, E);
-    
+
     double t = 0;
     int iter = 0;
-    bool should_exit = false;
+    bool should_exit = false; 
 
-    write(iter, grid.Nx_glob_ng.data(), t, rho_host.data(), u_host.data(), P_host.data());
+    write_pdi(iter, t, rho_host.data(), u_host.data(), P_host.data());
 
     while (!should_exit && t < timeout && iter < max_iter)
     {
-        double dt = time_step(cfl, rho, u, P, dx, dx, dx, eos);
-
+        double dt = time_step(cfl, rho, u, P, array_dx, eos);
         bool const make_output = should_output(iter, output_frequency, max_iter, t, dt, timeout);
-        
+
         if ((t + dt) > timeout)
         {
             dt = timeout - t;
             should_exit = true;
         }
 
-        face_reconstruction->execute(rho, rhoL, rhoR); // Calcul des pentes
-        face_reconstruction->execute(u, uL, uR);
-        face_reconstruction->execute(P, PL, PR);
+        face_reconstruction->execute(rho, rho_rec, array_dx);
+        face_reconstruction->execute(P, P_rec, array_dx);
+        for(int idim = 0; idim < ndim ; ++idim)
+        {
+            auto u_less_dim = Kokkos::subview(u, Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, idim);
+            auto u_rec_less_dim = Kokkos::subview(u_rec, Kokkos::ALL, Kokkos::ALL, 
+                                    Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, idim);
+            face_reconstruction->execute(u_less_dim, u_rec_less_dim, array_dx);
+        }
 
-        ConvPrimConsArray(rhouL, EL, rhoL, uL, PL, eos); // Conversion en variables conservatives
-        ConvPrimConsArray(rhouR, ER, rhoR, uR, PR, eos);
+        for(int idim = 0; idim < ndim ; ++idim)
+            for (int n = 0; n < 2; ++n)
+            {
+                auto rhou_rec_less_dim = Kokkos::subview(rhou_rec, Kokkos::ALL, Kokkos::ALL, 
+                                                    Kokkos::ALL, n, idim, Kokkos::ALL);
+                auto E_rec_less_dim = Kokkos::subview(E_rec, Kokkos::ALL, Kokkos::ALL, 
+                                                    Kokkos::ALL, n, idim);
+                auto rho_rec_less_dim = Kokkos::subview(rho_rec, Kokkos::ALL, Kokkos::ALL, 
+                                                    Kokkos::ALL, n, idim);
+                auto u_rec_less_dim = Kokkos::subview(u_rec, Kokkos::ALL, Kokkos::ALL, 
+                                                    Kokkos::ALL, n, idim, Kokkos::ALL);
+                auto P_rec_less_dim = Kokkos::subview(P_rec, Kokkos::ALL, Kokkos::ALL, 
+                                                    Kokkos::ALL, n, idim);
+                ConvPrimtoConsArray(rhou_rec_less_dim, E_rec_less_dim, rho_rec_less_dim, 
+                                u_rec_less_dim, P_rec_less_dim, eos);
+            }
 
-        extrapolation_construction->execute(rhoL, uL, PL, rhoR, uR, PR, rhouL, EL, rhouR, ER, eos, dt, dx);
-    
-        godunov_scheme->execute(
-                rho,
-                rhou,
-                E,
-                rhoL,
-                rhouL,
-                EL,
-                rhoR,
-                rhouR,
-                ER,
-                rho_new,
-                rhou_new,
-                E_new,
-                dt);
+        extrapolation_construction->execute(rhou_rec, E_rec, rho_rec, u_rec, P_rec,
+                                        eos, array_dx, dt);
 
-        boundary_construction->execute(rho_new, rhou_new, E_new, grid.Nghost[0]);
+        godunov_scheme->execute(rho, rhou, E, rho_rec, rhou_rec, E_rec, 
+                                rho_new, rhou_new, E_new, array_dx, dt);
 
-        ConvConsPrimArray(u, P, rho_new, rhou_new, E_new, eos); //Conversion des variables conservatives en primitives
+        innerExchangeMPI(rho_new, rhou_new, E_new, grid.Nghost.data(), &(grid.comm_cart), grid.NeighborRank, &sendbuf, &recvbuf);
+        boundary_construction->outerExchange(rho_new, rhou_new, E_new, &grid);
+
+        ConvConstoPrimArray(u, P, rho_new, rhou_new, E_new, eos);
         Kokkos::deep_copy(rho, rho_new);
         Kokkos::deep_copy(rhou, rhou_new);
         Kokkos::deep_copy(E, E_new);
-
-        // {
-        // // start border exchange
-        // Kokkos::View<double *> s_buf_left("s_buf_l", grid.Nghost);
-        // Kokkos::View<double *> s_buf_right("s_buf_r", grid.Nghost);
-        // Kokkos::View<double *> r_buf_left("r_buf_l", grid.Nghost);
-        // Kokkos::View<double *> r_buf_right("r_buf_r", grid.Nghost);
-
-        // Kokkos::parallel_for(grid.Nghost, KOKKOS_LAMBDA (int i) 
-        // { 
-        //     s_buf_left(i) = rho(i+grid.Nghost,1,1);
-        //     s_buf_right(i) = rho(i+grid.Nx_local_wg[0]-2*grid.Nghost, 1, 1);
-        // });
-
-        // MPI_Status mpi_status;    
-        // int left_neighbor, right_neighbor;
-        
-        // MPI_Cart_shift(grid.comm_cart, 0, -1, &right_neighbor, &left_neighbor);
-        // //send to left, recv from right
-        // MPI_Sendrecv(s_buf_left.data(), 2, MPI_DOUBLE,
-        //              left_neighbor, 99,
-        //              r_buf_right.data(), 2, MPI_DOUBLE,
-        //              right_neighbor, 99,
-        //              MPI_COMM_WORLD, &mpi_status);
-
-        // //send to right, recv from left
-        // MPI_Sendrecv(s_buf_right.data(), 2, MPI_DOUBLE,
-        //              right_neighbor, 99,
-        //              r_buf_left.data(), 2, MPI_DOUBLE,
-        //              left_neighbor, 99,
-        //              MPI_COMM_WORLD, &mpi_status);
-
-        // Kokkos::parallel_for(grid.Nghost, KOKKOS_LAMBDA (int i) 
-        // { 
-        //     rho(i,1,1) = r_buf_left(i);
-        //     rho(i+grid.Nx_local_wg[0]-grid.Nghost, 1, 1) = r_buf_right(i);
-        // });
-        // // end border exchange
-        // }
 
         t = t + dt;
         iter++;
@@ -235,24 +195,14 @@ int main(int argc, char** argv)
             Kokkos::deep_copy(rho_host, rho);
             Kokkos::deep_copy(u_host, u);
             Kokkos::deep_copy(P_host, P);
-            write(iter, grid.Nx_glob_ng.data(), t, rho_host.data(), u_host.data(), P_host.data());
+            write_pdi(iter, t, rho_host.data(), u_host.data(), P_host.data());
         }
     }
 
     std::printf("Final time = %f and number of iterations = %d  \n", t, iter);
 
-    Kokkos::parallel_for(
-    Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-    {0, 0, 0},
-    {rho.extent(0), rho.extent(1), rho.extent(2)}),
-    KOKKOS_LAMBDA(int i, int j, int k)
-    {
-        std::printf("%f %f %f \n", rho(i, j, k), u(i, j, k), P(i, j, k));
-    });
-    
     PDI_finalize();
     PC_tree_destroy(&conf);
-
-    std::printf("%s\n", "---Fin du programme---");
+    std::printf("%s\n", "--- End ---");
     return 0;
 }
