@@ -3,53 +3,68 @@
 #include <Kokkos_Core.hpp>
 #include <PerfectGas.hpp>
 
+#include "kronecker.hpp"
+#include "ndim.hpp"
+
 struct EulerCons
 {
     double density;
-    double momentum;
+    std::array<double, ndim> momentum;
     double energy;
 };
 
 struct EulerFlux
 {
     double density;
-    double momentum;
+    std::array<double, ndim> momentum;
     double energy;
 };
 
 struct EulerPrim
 {
     double density;
-    double velocity;
+    std::array<double, ndim> velocity;
     double pressure;
 };
 
 KOKKOS_INLINE_FUNCTION
 double compute_volumic_kinetic_energy(EulerCons const& cons) noexcept
 {
-    return 0.5 * cons.momentum * cons.momentum / cons.density;
+    double norm_momentum = 0;
+    for (int idim = 0; idim < ndim; ++idim)
+    {
+        norm_momentum += cons.momentum[idim] * cons.momentum[idim]; 
+    }
+    return 0.5 * norm_momentum / cons.density;
 }
 
 KOKKOS_INLINE_FUNCTION
 double compute_volumic_kinetic_energy(EulerPrim const& prim) noexcept
 {
-    return 0.5 * prim.density * prim.velocity * prim.velocity;
+    double norm_velocity = 0;
+    for (int idim = 0; idim < ndim; ++idim)
+    {
+        norm_velocity += prim.velocity[idim] * prim.velocity[idim];
+    }
+    return 0.5 * prim.density * norm_velocity;
 }
 
 //! Flux formula
 //! @param[in] prim Primitive state
 //! @param[in] eos Equation of state
 //! @return flux
-KOKKOS_INLINE_FUNCTION
-EulerFlux compute_flux(EulerPrim const& prim, thermodynamics::PerfectGas const& eos) noexcept
+inline EulerFlux compute_flux(EulerPrim const& prim, int locdim, thermodynamics::PerfectGas const& eos) noexcept
 {
     EulerFlux flux;
     double const volumic_total_energy
-            = compute_volumic_kinetic_energy(prim)
-              + eos.compute_volumic_internal_energy(prim.density, prim.pressure);
-    flux.density = prim.density * prim.velocity;
-    flux.momentum = prim.density * prim.velocity * prim.velocity + prim.pressure;
-    flux.energy = prim.velocity * (volumic_total_energy + prim.pressure);
+        = compute_volumic_kinetic_energy(prim)
+        + eos.compute_volumic_internal_energy(prim.density, prim.pressure);
+    flux.density = prim.density * prim.velocity[locdim];
+    for (int idim = 0; idim < ndim; ++idim)
+    {
+        flux.momentum[idim] = prim.density * prim.velocity[locdim] * prim.velocity[idim] + prim.pressure * kron(idim, locdim);
+    }
+    flux.energy = prim.velocity[locdim] * (volumic_total_energy + prim.pressure);
     return flux;
 }
 
@@ -57,15 +72,17 @@ EulerFlux compute_flux(EulerPrim const& prim, thermodynamics::PerfectGas const& 
 //! @param[in] cons Conservative state
 //! @param[in] eos Equation of state
 //! @return flux
-KOKKOS_INLINE_FUNCTION
-EulerFlux compute_flux(EulerCons const& cons, thermodynamics::PerfectGas const& eos) noexcept
+inline EulerFlux compute_flux(EulerCons const& cons, int locdim, thermodynamics::PerfectGas const& eos) noexcept
 {
     EulerFlux flux;
     double const volumic_internal_energy = cons.energy - compute_volumic_kinetic_energy(cons);
     double const pressure = eos.compute_pressure(cons.density, volumic_internal_energy);
-    double const velocity = cons.momentum / cons.density;
+    double const velocity = cons.momentum[locdim] / cons.density;
     flux.density = velocity * cons.density;
-    flux.momentum = velocity * cons.momentum + pressure;
+    for (int idim = 0; idim < ndim; ++idim)
+    {
+        flux.momentum[idim] = cons.momentum[locdim] * cons.momentum[idim]  / cons.density + pressure * kron(idim, locdim);
+    }    
     flux.energy = velocity * (cons.energy + pressure);
     return flux;
 }
@@ -75,7 +92,10 @@ EulerPrim to_prim(EulerCons const& cons, thermodynamics::PerfectGas const& eos) 
 {
     EulerPrim prim;
     prim.density = cons.density;
-    prim.velocity = cons.momentum / cons.density;
+    for (int idim = 0; idim < ndim; ++idim)
+    {
+        prim.velocity[idim] = cons.momentum[idim] / cons.density;
+    }
     prim.pressure = eos.compute_pressure(
             cons.density,
             cons.energy - compute_volumic_kinetic_energy(cons));
@@ -87,7 +107,10 @@ EulerCons to_cons(EulerPrim const& prim, thermodynamics::PerfectGas const& eos) 
 {
     EulerCons cons;
     cons.density = prim.density;
-    cons.momentum = prim.density * prim.velocity;
+    for (int idim = 0; idim < ndim; ++idim)
+    {
+        cons.momentum[idim] = prim.density * prim.velocity[idim];
+    }
     cons.energy = eos.compute_volumic_internal_energy(prim.density, prim.pressure)
                   + compute_volumic_kinetic_energy(prim);
     return cons;

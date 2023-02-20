@@ -6,7 +6,7 @@ TEST(NullSlopeLimiter, Zero)
 {
     double const diffR = 68.9;
     double const diffL = 37.65;
-    Null const slope;
+    Constant const slope;
     EXPECT_EQ(slope(diffR, diffL), 0.);
 }
 

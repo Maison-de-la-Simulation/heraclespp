@@ -10,6 +10,8 @@
 #include <Kokkos_Core.hpp>
 
 #include "slope_limiters.hpp"
+#include "kronecker.hpp"
+#include "euler_equations.hpp"
 
 class IFaceReconstruction
 {
@@ -30,10 +32,10 @@ public:
     //! @param[out] varL left edge reconstruction values
     //! @param[out] varR right edge reconstruction values
     virtual void execute(
-            Kokkos::View<const double***> var,
-            Kokkos::View<double***> varL,
-            Kokkos::View<double***> varR) const
-            = 0;
+        Kokkos::View<const double***, Kokkos::LayoutStride> var,
+        Kokkos::View<double*****, Kokkos::LayoutStride> var_rec,
+        Kokkos::View<const double*> dx) const
+        = 0;
 };
 
 template <class SlopeLimiter>
@@ -46,92 +48,91 @@ class LimitedLinearReconstruction : public IFaceReconstruction
 private:
     SlopeLimiter m_slope_limiter;
 
-    double m_dx;
-    double m_half_dx;
-
 public:
-    LimitedLinearReconstruction(SlopeLimiter const& slope_limiter, double const dx)
+    LimitedLinearReconstruction(SlopeLimiter const& slope_limiter)
         : m_slope_limiter(slope_limiter)
-        , m_dx(dx)
-        , m_half_dx(dx / 2)
     {
     }
 
     void execute(
-            Kokkos::View<const double***> const var,
-            Kokkos::View<double***> const varL,
-            Kokkos::View<double***> const varR) const final
+        Kokkos::View<const double***, Kokkos::LayoutStride> var,
+        Kokkos::View<double*****, Kokkos::LayoutStride> var_rec,
+        Kokkos::View<const double*> dx) const final
     {
-        assert(var.extent(0) == varL.extent(0));
-        assert(varL.extent(0) == varR.extent(0));
-        assert(var.extent(1) == varL.extent(1));
-        assert(varL.extent(1) == varR.extent(1));
-        assert(var.extent(2) == varL.extent(2));
-        assert(varL.extent(2) == varR.extent(2));
-        Kokkos::parallel_for(
-                "LimitedLinearFaceReconstruction",
-                Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-                        {1, 0, 0},
-                        {var.extent(0) - 1, var.extent(1), var.extent(2)}),
-                KOKKOS_CLASS_LAMBDA(int i, int j, int k) {
-                    double const slope_var = m_slope_limiter(
-                            (var(i + 1, j, k) - var(i, j, k)) / m_dx,
-                            (var(i, j, k) - var(i - 1, j, k)) / m_dx);
-                    varL(i, j, k) = var(i, j, k) - m_half_dx * slope_var;
-                    varR(i, j, k) = var(i, j, k) + m_half_dx * slope_var;
-                });
-    }
-};
+        assert(var.extent(0) == var_rec.extent(0));
+        assert(var.extent(1) == var_rec.extent(1));
+        assert(var.extent(2) == var_rec.extent(2));
+        {   
+            int istart = 1; // Default = 1D
+            int jstart = 0;
+            int kstart = 0;
+            int iend = var.extent(0) - 1;
+            int jend = 1;
+            int kend = 1;
+            
+            if (ndim == 2) // 2D
+            {
+                jstart = 1;
+                jend = var.extent(1) - 1;
+            }
+            if (ndim == 3) // 3D
+            {
+                jstart = 1;
+                kstart = 1;
+                jend = var.extent(1) - 1;
+                kend = var.extent(2) - 1;
+            }
+            
+            Kokkos::parallel_for(
+            "LimitedLinearFaceReconstruction",
+            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
+            {istart, jstart, kstart},
+            {iend, jend, kend}),
+            KOKKOS_CLASS_LAMBDA(int i, int j, int k) 
+            {
+                for (int idim = 0; idim < ndim; ++idim)
+                {
+                    int i_m = i - kron(idim, 0); // i - 1
+                    int i_p = i + kron(idim, 0); // i + 1
+                    int j_m = j - kron(idim, 1);
+                    int j_p = j + kron(idim, 1);
+                    int k_m = k - kron(idim, 2);
+                    int k_p = k + kron(idim, 2);
 
-class ConstantReconstruction : public IFaceReconstruction
-{
-public:
-    void execute(
-            Kokkos::View<const double***> const var,
-            Kokkos::View<double***> const varL,
-            Kokkos::View<double***> const varR) const final
-    {
-        assert(var.extent(0) == varL.extent(0));
-        assert(varL.extent(0) == varR.extent(0));
-        assert(var.extent(1) == varL.extent(1));
-        assert(varL.extent(1) == varR.extent(1));
-        assert(var.extent(2) == varL.extent(2));
-        assert(varL.extent(2) == varR.extent(2));
+                    double const slope = m_slope_limiter(
+                        (var(i_p, j_p, k_p) - var(i, j, k)) / dx(idim),
+                        (var(i, j, k) - var(i_m, j_m, k_m)) / dx(idim));
 
-        Kokkos::parallel_for(
-                "ConstantReconstruction",
-                Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-                        {1, 0, 0},
-                        {var.extent(0) - 1, var.extent(1), var.extent(2)}),
-                KOKKOS_CLASS_LAMBDA(int i, int j, int k) {
-                    varL(i, j, k) = var(i, j, k);
-                    varR(i, j, k) = var(i, j, k);
-                });
+                    var_rec(i, j, k, 0, idim) =  var(i, j, k) - (dx(idim) / 2) * slope;
+                    var_rec(i, j, k, 1, idim) =  var(i, j, k) + (dx(idim) / 2) * slope;
+                } 
+            });
+        } 
     }
 };
 
 inline std::unique_ptr<IFaceReconstruction> factory_face_reconstruction(
-        std::string const& label,
-        double dx)
+        std::string const& label)
 {
-    if (label == "Constant")
+    if (label == Constant::s_label)
     {
-        return std::make_unique<ConstantReconstruction>();
+        //return std::make_unique<ConstantReconstruction>();
+        return std::make_unique<LimitedLinearReconstruction<Constant>>(Constant());
     }
 
     if (label == VanLeer::s_label)
     {
-        return std::make_unique<LimitedLinearReconstruction<VanLeer>>(VanLeer(), dx);
+        return std::make_unique<LimitedLinearReconstruction<VanLeer>>(VanLeer());
     }
 
     if (label == Minmod::s_label)
     {
-        return std::make_unique<LimitedLinearReconstruction<Minmod>>(Minmod(), dx);
+        return std::make_unique<LimitedLinearReconstruction<Minmod>>(Minmod());
     }
 
     if (label == VanAlbada::s_label)
     {
-        return std::make_unique<LimitedLinearReconstruction<VanAlbada>>(VanAlbada(), dx);
+        return std::make_unique<LimitedLinearReconstruction<VanAlbada>>(VanAlbada());
     }
 
     throw std::runtime_error("Unknown reconstruction algorithm: " + label + ".");

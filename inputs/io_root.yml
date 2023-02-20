@@ -1,22 +1,23 @@
 pdi:
   metadata:
-    nx: int #globle ng
-    ny: int
-    nz: int
     max_iter: int
     frequency: int
     iter: int
-    ghost_depth: int
     time_out: double
     current_time: double
     mpi_rank: int
     mpi_size: int
+    nx_glob_ng: {type: array, subtype: int, size: 3}
+    nx_local_ng: {type: array, subtype: int, size: 3}
+    nx_local_wg: {type: array, subtype: int, size: 3}
+    n_ghost: {type: array, subtype: int, size: 3}
+    start: {type: array, subtype: int, size: 3}
 
 
-  data:
-    rho: { type: array, subtype: double, size: ['$nx/$mpi_size+2*$ghost_depth', '$ny', '$nz'] }
-    u: { type: array, subtype: double, size: ['$nx/$mpi_size+2*$ghost_depth', '$ny', '$nz'] }
-    P: { type: array, subtype: double, size: ['$nx/$mpi_size+2*$ghost_depth', '$ny', '$nz'] }
+  data: # this describe the data that will be send by each proc
+    rho: { type: array, subtype: double, size: ['$nx_local_wg[0]', '$nx_local_wg[1]', '$nx_local_wg[2]' ] }
+    u:   { type: array, subtype: double, size: ['$nx_local_wg[0]', '$nx_local_wg[1]', '$nx_local_wg[2]' ] }
+    P:   { type: array, subtype: double, size: ['$nx_local_wg[0]', '$nx_local_wg[1]', '$nx_local_wg[2]' ] }
 
   plugins:
     mpi:
@@ -25,30 +26,30 @@ pdi:
         collision_policy: write_into
         communicator: '$MPI_COMM_WORLD'
         on_event: write_file
-        datasets:
-          rho: {type: array, subtype: double, size: ['$nx', '$ny', '$nz'] }
-          u: {type: array, subtype: double, size: ['$nx', '$ny', '$nz'] }
-          P: {type: array, subtype: double, size: ['$nx', '$ny', '$nz'] }
+        datasets: # this is the global data size (data in the final h5 fil)
+          rho: {type: array, subtype: double, size: ['$nx_glob_ng[0]', '$nx_glob_ng[1]', '$nx_glob_ng[2]' ] }
+          u:   {type: array, subtype: double, size: ['$nx_glob_ng[0]', '$nx_glob_ng[1]', '$nx_glob_ng[2]' ] }
+          P:   {type: array, subtype: double, size: ['$nx_glob_ng[0]', '$nx_glob_ng[1]', '$nx_glob_ng[2]' ] }
         write:
           rho:
             memory_selection:
-              size: ['$nx/$mpi_size', '$ny', '$nz']
-              start: ['$ghost_depth', 0, 0]
+              size: ['$nx_local_ng[0]', '$nx_local_ng[1]', '$nx_local_ng[2]'] # size of data to be extracted from the proc
+              start: ['$n_ghost[0]', '$n_ghost[1]', '$n_ghost[2]']            # starting position of data to be extracted from the proc
             dataset_selection:
-              size: ['$nx/$mpi_size', '$ny', '$nz']
-              start: ['$mpi_rank*$nx/$mpi_size', 0, 0]
+              size: ['$nx_local_ng[0]', '$nx_local_ng[1]', '$nx_local_ng[2]'] # size of data to be put in the final h5 file
+              start: [ '$start[0]', '$start[1]', '$start[2]']                 # position of the data in the global index
           u:
             memory_selection:
-              size: ['$nx/$mpi_size', '$ny', '$nz']
-              start: ['$ghost_depth', 0, 0]
+              size: ['$nx_local_ng[0]', '$nx_local_ng[1]', '$nx_local_ng[2]']
+              start: ['$n_ghost[0]', '$n_ghost[1]', '$n_ghost[2]']
             dataset_selection:
-              size: ['$nx/$mpi_size', '$ny', '$nz']
-              start: ['$mpi_rank*$nx/$mpi_size', 0, 0]
+              size: ['$nx_local_ng[0]', '$nx_local_ng[1]', '$nx_local_ng[2]']
+              start: [ '$start[0]', '$start[1]', '$start[2]']
           P:
             memory_selection:
-              size: ['$nx/$mpi_size', '$ny', '$nz']
-              start: ['$ghost_depth', 0, 0]
+              size: ['$nx_local_ng[0]', '$nx_local_ng[1]', '$nx_local_ng[2]']
+              start: ['$n_ghost[0]', '$n_ghost[1]', '$n_ghost[2]']
             dataset_selection:
-              size: ['$nx/$mpi_size', '$ny', '$nz']
-              start: ['$mpi_rank*$nx/$mpi_size', 0, 0]
+              size: ['$nx_local_ng[0]', '$nx_local_ng[1]', '$nx_local_ng[2]']
+              start: [ '$start[0]', '$start[1]', '$start[2]']
     # trace:

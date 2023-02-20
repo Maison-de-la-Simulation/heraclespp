@@ -12,7 +12,7 @@
 #include <inih/INIReader.hpp>
 #include <mpi.h>
 #include <iomanip>
-
+#include "range.hpp"
 
 template<class T>
 inline
@@ -31,13 +31,10 @@ public :
 
 private:
     void MPI_Decomp();
-    // void Domain_partitioning();
     void init_grid_recti();
     void init_grid_irrecti();
     void init_grid_other();
 
-    
-  
 public :
     int Ndim; // Number of dimension of the run 1-3 (default = 1)
     std::array<int, 3> Nghost;    // Number of ghost cells in each direction (default is 2)
@@ -46,8 +43,7 @@ public :
     std::array<int, 3> Nx_local_ng;    // Number of cells on the local MPI process (excluding ghost)
     std::array<int, 3> Nx_local_wg;    // Number of cells on the local MPI process (including ghost)
     std::array<int, 3> NBlock;     // number of sub-blocks (default (1,1,1))
-    std::array<int, 3> Nx_block;   // Maximum size of sub-block, including ghost
-    std::array<std::array<int, 2>,3> cornerPosition; // Position of corner in the global grid (no ghost)
+    std::array<int, 3> Nx_block;   // Maximum size of sub-block, including ghos
 
     std::array<std::array<std::array<int, 3>, 3>, 3> NeighborRank;
     std::array<int,3> Ncpu_x;
@@ -57,6 +53,8 @@ public :
     int mpi_rank;
     int mpi_size;
     std::array<int, 3> mpi_rank_cart;
+
+    Range range;
 
 private:
     std::string grid_type;

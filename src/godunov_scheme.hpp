@@ -17,17 +17,13 @@ class HLL
 {
 public:
     //! HLL solver
-    //! @param[in] rhoL density left
-    //! @param[in] uL speed left
-    //! @param[in] PL pressure left
-    //! @param[in] rhoR density right
-    //! @param[in] uR speed right
-    //! @param[in] PR pressure right
+    //! @param[in] 
     //! @return intercell EulerFlux
     KOKKOS_INLINE_FUNCTION
     EulerFlux operator()(
             EulerCons const& consL,
             EulerCons const& consR,
+            int locdim,
             thermodynamics::PerfectGas const& eos) const noexcept
     {
         EulerPrim const primL = to_prim(consL, eos);
@@ -36,11 +32,11 @@ public:
         double const cL = eos.compute_speed_of_sound(primL.density, primL.pressure);
         double const cR = eos.compute_speed_of_sound(primR.density, primR.pressure);
 
-        double const wsL = std::fmin(primL.velocity - cL, primR.velocity - cR);
-        double const wsR = std::fmax(primL.velocity + cL, primR.velocity + cR);
+        double const wsL = std::fmin(primL.velocity[locdim] - cL, primR.velocity[locdim] - cR);
+        double const wsR = std::fmax(primL.velocity[locdim] + cL, primR.velocity[locdim] + cR);
 
-        EulerFlux const fluxL = compute_flux(primL, eos);
-        EulerFlux const fluxR = compute_flux(primR, eos);
+        EulerFlux const fluxL = compute_flux(primL, locdim, eos);
+        EulerFlux const fluxR = compute_flux(primR, locdim, eos);
 
         if (wsL >= 0)
         {
@@ -52,13 +48,16 @@ public:
             EulerFlux flux;
             flux.density
                     = FluxHLL(consL.density, consR.density, fluxL.density, fluxR.density, wsL, wsR);
-            flux.momentum = FluxHLL(
-                    consL.momentum,
-                    consR.momentum,
-                    fluxL.momentum,
-                    fluxR.momentum,
+            for (int idim = 0; idim < ndim; ++idim)
+            {
+                flux.momentum[idim] = FluxHLL(
+                    consL.momentum[idim],
+                    consR.momentum[idim],
+                    fluxL.momentum[idim],
+                    fluxR.momentum[idim],
                     wsL,
                     wsR);
+            }
             flux.energy = FluxHLL(consL.energy, consR.energy, fluxL.energy, fluxR.energy, wsL, wsR);
             return flux;
         }
@@ -100,18 +99,16 @@ public:
     IGodunovScheme& operator=(IGodunovScheme&& x) noexcept = default;
 
     virtual void execute(
-            Kokkos::View<const double***> density,
-            Kokkos::View<const double***> momentum,
-            Kokkos::View<const double***> energy,
-            Kokkos::View<const double***> densityL,
-            Kokkos::View<const double***> momentumL,
-            Kokkos::View<const double***> energyL,
-            Kokkos::View<const double***> densityR,
-            Kokkos::View<const double***> momentumR,
-            Kokkos::View<const double***> energyR,
-            Kokkos::View<double***> density_new,
-            Kokkos::View<double***> momentum_new,
-            Kokkos::View<double***> energy_new,
+            Kokkos::View<const double***> rho,
+            Kokkos::View<const double****> rhou,
+            Kokkos::View<const double***> E,
+            Kokkos::View<const double*****> rho_rec,
+            Kokkos::View<const double******> rhou_rec,
+            Kokkos::View<const double*****> E_rec,
+            Kokkos::View<double***> rho_new,
+            Kokkos::View<double****> rhou_new,
+            Kokkos::View<double***> E_new,
+            Kokkos::View<const double*> dx,
             double dt) const
             = 0;
 };
@@ -125,85 +122,130 @@ class RiemannBasedGodunovScheme : public IGodunovScheme
                     RiemannSolver,
                     EulerCons,
                     EulerCons,
+                    int,
                     thermodynamics::PerfectGas>,
             "Incompatible Riemann solver.");
 
     RiemannSolver m_riemann_solver;
 
     thermodynamics::PerfectGas m_eos;
-
-    double m_dx;
-
 public:
     RiemannBasedGodunovScheme(
             RiemannSolver const& riemann_solver,
-            thermodynamics::PerfectGas const& eos,
-            double const dx)
+            thermodynamics::PerfectGas const& eos)
         : m_riemann_solver(riemann_solver)
         , m_eos(eos)
-        , m_dx(dx)
     {
     }
 
     void execute(
-            Kokkos::View<const double***> const density,
-            Kokkos::View<const double***> const momentum,
-            Kokkos::View<const double***> const energy,
-            Kokkos::View<const double***> const densityL,
-            Kokkos::View<const double***> const momentumL,
-            Kokkos::View<const double***> const energyL,
-            Kokkos::View<const double***> const densityR,
-            Kokkos::View<const double***> const momentumR,
-            Kokkos::View<const double***> const energyR,
-            Kokkos::View<double***> const density_new,
-            Kokkos::View<double***> const momentum_new,
-            Kokkos::View<double***> const energy_new,
+            Kokkos::View<const double***> const rho,
+            Kokkos::View<const double****> const rhou,
+            Kokkos::View<const double***> const E,
+            Kokkos::View<const double*****> const rho_rec,
+            Kokkos::View<const double******> const rhou_rec,
+            Kokkos::View<const double*****> const E_rec,
+            Kokkos::View<double***> const rho_new,
+            Kokkos::View<double****> const rhou_new,
+            Kokkos::View<double***> const E_new,
+            Kokkos::View<const double*> dx,
             double dt) const final
     {
-        double dtodx = dt / m_dx;
+        int istart = 2; // Default = 1D
+        int jstart = 0;
+        int kstart = 0;
+        int iend = rho.extent(0) - 2;
+        int jend = 1;
+        int kend = 1;
+            
+        if (ndim == 2) // 2D
+        {
+            jstart = 2;
+            jend = rho.extent(1) - 2;
+        }
+        if (ndim == 3) // 3D
+        {
+            jstart = 2;
+            kstart = 2;
+            jend = rho.extent(1) - 2;
+            kend = rho.extent(2) - 2;
+        }
+
         Kokkos::parallel_for(
-                "RiemannBasedGodunovScheme",
-                Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-                        {2, 0, 0},
-                        {density.extent(0) - 2, density.extent(1), density.extent(2)}),
-                KOKKOS_CLASS_LAMBDA(int i, int j, int k) {
-                    EulerCons consR_im1jk;
-                    consR_im1jk.density = densityR(i - 1, j, k);
-                    consR_im1jk.momentum = momentumR(i - 1, j, k);
-                    consR_im1jk.energy = energyR(i - 1, j, k);
-                    EulerCons consL_ijk;
-                    consL_ijk.density = densityL(i, j, k);
-                    consL_ijk.momentum = momentumL(i, j, k);
-                    consL_ijk.energy = energyL(i, j, k);
-                    EulerFlux const FluxL = m_riemann_solver(consR_im1jk, consL_ijk, m_eos);
+        "RiemannBasedGodunovScheme",
+        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
+        {istart, jstart, kstart},
+        {iend, jend, kend}),
+        KOKKOS_CLASS_LAMBDA(int i, int j, int k) {
 
-                    EulerCons consR_ijk;
-                    consR_ijk.density = densityR(i, j, k);
-                    consR_ijk.momentum = momentumR(i, j, k);
-                    consR_ijk.energy = energyR(i, j, k);
-                    EulerCons consL_ip1jk;
-                    consL_ip1jk.density = densityL(i + 1, j, k);
-                    consL_ip1jk.momentum = momentumL(i + 1, j, k);
-                    consL_ip1jk.energy = energyL(i + 1, j, k);
-                    EulerFlux const FluxR = m_riemann_solver(consR_ijk, consL_ip1jk, m_eos);
+            rho_new(i, j, k) = rho(i, j, k);
+            E_new(i, j, k) = E(i, j, k);
+            for (int idim = 0; idim < ndim; ++idim)
+            {
+                rhou_new(i, j, k, idim) = rhou(i, j, k, idim);
+            }
+            for (int idim = 0; idim < ndim; ++idim)
+            {
+                int i_m = i - kron(idim, 0); // i - 1
+                int i_p = i + kron(idim, 0); // i + 1
+                int j_m = j - kron(idim, 1);
+                int j_p = j + kron(idim, 1);
+                int k_m = k - kron(idim, 2);
+                int k_p = k + kron(idim, 2);
 
-                    density_new(i, j, k)
-                            = density(i, j, k) + dtodx * (FluxL.density - FluxR.density);
-                    momentum_new(i, j, k)
-                            = momentum(i, j, k) + dtodx * (FluxL.momentum - FluxR.momentum);
-                    energy_new(i, j, k) = energy(i, j, k) + dtodx * (FluxL.energy - FluxR.energy);
-                });
+                EulerCons minus_oneR; // Right, back, top (i,j,k) -1
+                minus_oneR.density = rho_rec(i_m, j_m, k_m, 1, idim);
+                for (int idr = 0; idr < ndim; ++idr)
+                {
+                    minus_oneR.momentum[idr] = rhou_rec(i_m, j_m, k_m, 1, idim, idr);
+                }
+                minus_oneR.energy = E_rec(i_m, j_m, k_m, 1, idim);
+                EulerCons var_L; // Left, front, down (i,j,k)
+                var_L.density = rho_rec(i, j, k, 0, idim);
+                for (int idr = 0; idr < ndim; ++idr)
+                {
+                    var_L.momentum[idr] = rhou_rec(i, j, k, 0, idim, idr);
+                }
+                var_L.energy = E_rec(i, j, k, 0, idim);
+                EulerFlux const FluxL = m_riemann_solver(minus_oneR, var_L, idim, m_eos);
+
+                EulerCons var_R; // Right, back, top (i,j,k)
+                var_R.density = rho_rec(i, j, k, 1, idim);
+                for (int idr = 0; idr < ndim; ++idr)
+                {
+                    var_R.momentum[idr] = rhou_rec(i, j, k, 1, idim, idr);
+                }
+                var_R.energy = E_rec(i, j, k, 1, idim);
+                EulerCons plus_oneL; // Left, front, down (i,j,k) + 1
+                plus_oneL.density = rho_rec(i_p, j_p, k_p, 0, idim);
+                for (int idr = 0; idr < ndim; ++idr)
+                {
+                    plus_oneL.momentum[idr] = rhou_rec(i_p, j_p, k_p, 0, idim, idr);
+                }
+                plus_oneL.energy = E_rec(i_p, j_p, k_p, 0, idim);
+                EulerFlux const FluxR = m_riemann_solver(var_R, plus_oneL, idim, m_eos);
+
+                double dtodx = dt / dx(idim);
+
+                rho_new(i, j, k) += dtodx * (FluxL.density - FluxR.density);
+                //rhou_new(i, j, k, idim) = rhou(i, j, k, idim);
+                for (int idr = 0; idr < ndim; ++idr)
+                {
+                    rhou_new(i, j, k, idr) += dtodx * (FluxL.momentum[idr] - FluxR.momentum[idr]);
+                }
+                E_new(i, j, k) += dtodx * (FluxL.energy - FluxR.energy); 
+            }
+        });
     }
 };
 
 inline std::unique_ptr<IGodunovScheme> factory_godunov_scheme(
         std::string const& riemann_solver,
-        thermodynamics::PerfectGas const& eos,
-        double const dx)
+        thermodynamics::PerfectGas const& eos)
 {
     if (riemann_solver == "HLL")
     {
-        return std::make_unique<RiemannBasedGodunovScheme<HLL>>(HLL(), eos, dx);
+        return std::make_unique<RiemannBasedGodunovScheme<HLL>>(HLL(), eos);
     }
 
     throw std::runtime_error("Invalid riemann solver: " + riemann_solver + ".");

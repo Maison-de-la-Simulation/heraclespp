@@ -3,30 +3,29 @@
 #include <pdi.h>
 #include <mpi.h>
 
-void init_write(int max_iter, int frequency, std::array<int,3> Nghost)
+void write_pdi_init(int max_iter, int frequency, Grid *grid)
 {
-    int ghost = Nghost[0] ;
+    int mpi_rank = grid->mpi_rank;
+    int mpi_size = grid->mpi_size;
+
     PDI_multi_expose("init_PDI",
                     "max_iter", &max_iter, PDI_OUT,
                     "frequency", &frequency, PDI_OUT,
-                    "ghost_depth", &ghost, PDI_OUT,
+                    "mpi_rank", &mpi_rank, PDI_OUT,
+                    "mpi_size", &mpi_size, PDI_OUT,
+                    "n_ghost", grid->Nghost.data(), PDI_OUT,
+                    "nx_glob_ng", grid->Nx_glob_ng.data(), PDI_OUT,
+                    "nx_local_ng", grid->Nx_local_ng.data(), PDI_OUT,
+                    "nx_local_wg", grid->Nx_local_wg.data(), PDI_OUT,
+                    "start", grid->range.Corner_min.data(), PDI_OUT,
                     NULL);
 }
 
-void write(int iter, int* nx, double current, void * rho, void *u, void *P)
+void write_pdi(int iter, double t, void * rho, void *u, void *P)
 {
-    int mpi_rank, mpi_size;
-    MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
-    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
-
     PDI_multi_expose("write_file",
-                    "mpi_rank", &mpi_rank, PDI_OUT,
-                    "mpi_size", &mpi_size, PDI_OUT,
-                    "nx", nx + 0, PDI_OUT,
-                    "ny", nx + 1, PDI_OUT,
-                    "nz", nx + 2, PDI_OUT,
-                    "current_time", &current, PDI_OUT,
                     "iter", &iter, PDI_OUT,
+                    "current_time", &t, PDI_OUT, 
                     "rho", rho, PDI_OUT,
                     "u", u, PDI_OUT,
                     "P", P, PDI_OUT,
@@ -35,6 +34,5 @@ void write(int iter, int* nx, double current, void * rho, void *u, void *P)
 
 bool should_output(int iter, int freq, int iter_max, double current, double dt, double time_out)
 {
-    bool result = (iter>=iter_max) || (iter%freq==0) || (current+dt>=time_out);
-    return result;
+    return (iter>=iter_max) || (iter%freq==0) || (current+dt>=time_out);
 }

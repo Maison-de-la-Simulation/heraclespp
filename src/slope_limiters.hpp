@@ -9,10 +9,10 @@
 #include <Kokkos_Core.hpp>
 
 //! The null slope limiter.
-class Null
+class Constant
 {
 public:
-    static constexpr std::string_view s_label = "Null";
+    static constexpr std::string_view s_label = "Constant";
 
     //! @param[in] diffR float (U_{i+1}^{n} - U_{i}^{n}) / dx
     //! @param[in] diffL float (U_{i}^{n} - U_{i-1}^{n}) / dx

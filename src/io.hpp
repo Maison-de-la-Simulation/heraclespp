@@ -4,11 +4,11 @@
  */
 #pragma once
 
-# include <array>
+#include <array>
+#include "grid.hpp"
 
 bool should_output(int iter, int freq, int iter_max, double current, double dt, double time_out);
 
-void init_write(int max_iter, int frequency, std::array<int,3> Nghost);
+void write_pdi_init(int max_iter, int frequency, Grid *grid);
 
-void write(int iter, int* nx, double current, void * rho, void *u, void *P);
-
+void write_pdi(int iter, double t, void * rho, void *u, void *P);
