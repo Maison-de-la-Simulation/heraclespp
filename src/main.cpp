@@ -120,7 +120,6 @@ int main(int argc, char** argv)
     Kokkos::View<double***>  E_new("Enew",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
 
     initialisation->execute(rho, u, P, nodes_x0);
-    write_pdi(888, 0, rho.data(), u.data(), P.data());  
 
     ConvPrimtoConsArray(rhou, E, rho, u, P, eos);
 
