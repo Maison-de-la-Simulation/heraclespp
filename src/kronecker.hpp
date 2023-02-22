@@ -3,6 +3,9 @@
 //!
 #pragma once
 
+#include <Kokkos_Core.hpp>
+
+KOKKOS_INLINE_FUNCTION
 constexpr int kron(
     int a, 
     int b) noexcept

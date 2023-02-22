@@ -53,7 +53,8 @@ double compute_volumic_kinetic_energy(EulerPrim const& prim) noexcept
 //! @param[in] prim Primitive state
 //! @param[in] eos Equation of state
 //! @return flux
-inline EulerFlux compute_flux(EulerPrim const& prim, int locdim, thermodynamics::PerfectGas const& eos) noexcept
+KOKKOS_INLINE_FUNCTION
+EulerFlux compute_flux(EulerPrim const& prim, int locdim, thermodynamics::PerfectGas const& eos) noexcept
 {
     EulerFlux flux;
     double const volumic_total_energy
@@ -72,7 +73,8 @@ inline EulerFlux compute_flux(EulerPrim const& prim, int locdim, thermodynamics:
 //! @param[in] cons Conservative state
 //! @param[in] eos Equation of state
 //! @return flux
-inline EulerFlux compute_flux(EulerCons const& cons, int locdim, thermodynamics::PerfectGas const& eos) noexcept
+KOKKOS_INLINE_FUNCTION
+EulerFlux compute_flux(EulerCons const& cons, int locdim, thermodynamics::PerfectGas const& eos) noexcept
 {
     EulerFlux flux;
     double const volumic_internal_energy = cons.energy - compute_volumic_kinetic_energy(cons);
