@@ -6,6 +6,7 @@ stages:          # List of stages for jobs, and their order of execution
   - deploy
 
 build-job:       # This job runs in the build stage, which runs first.
+  only: [ main, merge_requests ]
   stage: build
   needs: []
   variables:
@@ -24,6 +25,7 @@ build-job:       # This job runs in the build stage, which runs first.
       - opt/pdi
 
 unit-test-job:   # This job runs in the test stage.
+  only: [ main, merge_requests ]
   stage: test    # It only starts when the job in the build stage completes successfully.
   needs: ["build-job"]
   script:
@@ -35,6 +37,7 @@ unit-test-job:   # This job runs in the test stage.
       junit: build/tests.xml
 
 lint-test-job:   # This job also runs in the test stage.
+  only: [ main, merge_requests ]
   stage: test    # It can run at the same time as unit-test-job (in parallel).
   needs: []
   script:
