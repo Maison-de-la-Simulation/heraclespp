@@ -1,5 +1,9 @@
 image: ghcr.io/pdidev/spack/latest/gcc/openmpi/all
 
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+  GIT_SUBMODULE_DEPTH: 1
+
 stages:          # List of stages for jobs, and their order of execution
   - build
   - test
@@ -9,8 +13,6 @@ build-job:       # This job runs in the build stage, which runs first.
   only: [ main, merge_requests ]
   stage: build
   needs: []
-  variables:
-    GIT_SUBMODULE_STRATEGY: recursive
   script:
     - cmake -DCMAKE_INSTALL_PREFIX=opt/pdi -DUSE_HDF5=SYSTEM -DBUILD_HDF5_PARALLEL=ON -DUSE_yaml=EMBEDDED -DUSE_paraconf=EMBEDDED -DBUILD_SHARED_LIBS=ON -DBUILD_FORTRAN=OFF -DBUILD_BENCHMARKING=OFF -DBUILD_SET_VALUE_PLUGIN=OFF -DBUILD_SERIALIZE_PLUGIN=OFF -DBUILD_TESTING=OFF -DBUILD_DECL_NETCDF_PLUGIN=OFF -DBUILD_USER_CODE_PLUGIN=OFF -S vendor/pdi -B build_pdi
     - cmake --build build_pdi --parallel 4
