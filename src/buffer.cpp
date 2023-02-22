@@ -36,11 +36,4 @@ Buffer::Buffer(std::array<int, 3> const & ng,
             }
         }
     }
-    
-    for (int i=0; i<3; i++)
-    {
-        faceBufferSize[i] = faceBuffer[i][0].h_view.size();
-        edgeBufferSize[i] = edgeBuffer[i][0].h_view.size();
-    }
-    cornerBufferSize = Nghost[0]*Nghost[1]*Nghost[2]*nvar;
 }

@@ -127,10 +127,7 @@ namespace {
     {
         std::array<int, 3> ng = buffer.Nghost;
  
-        if(ng[0] || ng[1] || ng[2])
-        {
-            return;
-        }
+        if(ng[0] || ng[1] || ng[2]) { return; }
  
         int lim0 = view.extent(0)-2*ng[0];
         int lim1 = view.extent(1)-2*ng[1];
@@ -324,10 +321,7 @@ namespace {
         int lim1 = view.extent(1)-2*ng[1];
         int lim2 = view.extent(2)-2*ng[2];  
 
-        if(ng[0] || ng[1] || ng[2])
-        {
-            return;
-        }   
+        if(ng[0] || ng[1] || ng[2]) { return; }   
 
         //corner(0,0,0)
         memcopy_BtoV(view, std::make_pair(0, ng[0]), 
@@ -511,13 +505,10 @@ namespace {
 
     void exchangeBuffer_corners(Buffer & send_buffer, Buffer & recv_buffer, std::array<int, 3> const & ng, MPI_Comm const & comm_cart, std::array<std::array<std::array<int, 3>, 3>, 3> const & nrank) 
     {    
-        int dst, src, count;
-        count = send_buffer.cornerBufferSize;   
+        if(ng[0] || ng[1] || ng[2]) { return; }   
 
-        if(ng[0] || ng[1] || ng[2])
-        {
-            return;
-        }   
+        int dst, src, count;
+        count = send_buffer.cornerBuffer[0][0].h_view.size();   
 
         //corner[0][0] <=> corner[1][3]
         dst = nrank[0][0][0];
@@ -564,10 +555,10 @@ namespace {
     void exchangeBuffer_edges(Buffer & send_buffer, Buffer & recv_buffer, std::array<int, 3> const & ng, MPI_Comm const & comm_cart, std::array<std::array<std::array<int, 3>, 3>, 3> const & nrank)   
     {    
         int dst, src, count;
-        count = send_buffer.edgeBufferSize[0];
 
         if(ng[1] && ng[2])
         {
+            count = send_buffer.edgeBuffer[0][0].h_view.size();
             dst = nrank[1][0][0];
             src = nrank[1][2][2];
             MPI_Sendrecv(send_buffer.edgeBuffer[0][0].h_view.data(), count, MPI_DOUBLE, dst, 0,
@@ -589,7 +580,7 @@ namespace {
 
         if(ng[0] && ng[2])
         {
-            count = send_buffer.edgeBufferSize[1];
+            count = send_buffer.edgeBuffer[1][0].h_view.size();
             dst = nrank[0][1][0];
             src = nrank[2][1][2];
             MPI_Sendrecv(send_buffer.edgeBuffer[1][0].h_view.data(), count, MPI_DOUBLE, dst, 1,
@@ -611,7 +602,7 @@ namespace {
 
         if(ng[0] && ng[1])
         {
-            count = send_buffer.edgeBufferSize[2];
+            count = send_buffer.edgeBuffer[2][0].h_view.size();
             dst = nrank[0][0][1];
             src = nrank[2][2][1];
             MPI_Sendrecv(send_buffer.edgeBuffer[2][0].h_view.data(), count, MPI_DOUBLE, dst, 2,
@@ -640,7 +631,7 @@ namespace {
             if(ng[i])
             {
                 MPI_Cart_shift(comm_cart, i, -1, &src, &dst);
-                count = send_buffer.faceBufferSize[i];
+                count = send_buffer.faceBuffer[i][0].h_view.size();
                 //send to left, recv from right
                 MPI_Sendrecv(send_buffer.faceBuffer[i][0].h_view.data(), count, MPI_DOUBLE, dst, i,
                              recv_buffer.faceBuffer[i][1].h_view.data(), count, MPI_DOUBLE, src, i,

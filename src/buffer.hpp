@@ -19,9 +19,6 @@ public :
     std::array<std::array<Kokkos::DualView<double ****>,4>,3> edgeBuffer;
     std::array<std::array<Kokkos::DualView<double ****>,4>,2> cornerBuffer;
 
-    std::array<int, 3> faceBufferSize;
-    std::array<int, 3> edgeBufferSize;
-    int                cornerBufferSize;
 public :
     //!
     //! @fn Constructs buffer used for border exchange
