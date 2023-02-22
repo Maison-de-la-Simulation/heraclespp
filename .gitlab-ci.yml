@@ -1,6 +1,7 @@
 image: ghcr.io/pdidev/spack/latest/gcc/openmpi/all
 
 variables:
+  GIT_STRATEGY: clone
   GIT_SUBMODULE_STRATEGY: recursive
   GIT_SUBMODULE_DEPTH: 1
 
