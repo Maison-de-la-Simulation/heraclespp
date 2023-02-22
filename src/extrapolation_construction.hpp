@@ -115,15 +115,19 @@ public :
                 EulerFlux flux_plus_one = compute_flux(plus_one, idim, eos);
 
                 double dto2dx = dt / (2 * dx(idim));
-                rho(i, j, k, 0, idim) += dto2dx * (flux_minus_one.density - flux_plus_one.density);
-                rho(i, j, k, 1, idim) += dto2dx * (flux_minus_one.density - flux_plus_one.density);
-                for (int idr = 0; idr < ndim; ++idr)
+
+                for (int ipos = 0; ipos < ndim; ++ipos)
                 {
-                    rhou(i, j, k, 0, idim, idr) += dto2dx * (flux_minus_one.momentum[idr] - flux_plus_one.momentum[idr]);
-                    rhou(i, j, k, 1, idim, idr) += dto2dx * (flux_minus_one.momentum[idr] - flux_plus_one.momentum[idr]);
+                    rho(i, j, k, 0, ipos) += dto2dx * (flux_minus_one.density - flux_plus_one.density);
+                    rho(i, j, k, 1, ipos) += dto2dx * (flux_minus_one.density - flux_plus_one.density);
+                    for (int idr = 0; idr < ndim; ++idr)
+                    {
+                        rhou(i, j, k, 0, ipos, idr) += dto2dx * (flux_minus_one.momentum[idr] - flux_plus_one.momentum[idr]);
+                        rhou(i, j, k, 1, ipos, idr) += dto2dx * (flux_minus_one.momentum[idr] - flux_plus_one.momentum[idr]);
+                    }
+                    E(i, j, k, 0, ipos) += dto2dx * (flux_minus_one.energy - flux_plus_one.energy);
+                    E(i, j, k, 1, ipos) += dto2dx * (flux_minus_one.energy - flux_plus_one.energy);
                 }
-                E(i, j, k, 0, idim) += dto2dx * (flux_minus_one.energy - flux_plus_one.energy);
-                E(i, j, k, 1, idim) += dto2dx * (flux_minus_one.energy - flux_plus_one.energy);
             }
         });   
     }
