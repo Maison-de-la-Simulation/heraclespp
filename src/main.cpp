@@ -44,8 +44,8 @@ int main(int argc, char** argv)
     Grid grid(reader);
     grid.print_grid();
 
-    Buffer sendbuf(grid.Nghost.data(), grid.Nx_local_ng.data(), 6);
-    Buffer recvbuf(grid.Nghost.data(), grid.Nx_local_ng.data(), 6);
+    Buffer sendbuf(grid.Nghost, grid.Nx_local_ng, 3+ndim);
+    Buffer recvbuf(grid.Nghost, grid.Nx_local_ng, 3+ndim);
 
     double const timeout = reader.GetReal("Run", "timeout", 0.2);
     double const cfl = reader.GetReal("Run", "clf", 0.4);
@@ -60,7 +60,7 @@ int main(int argc, char** argv)
     array_dx(1) = 1. / grid.Nx_glob_ng[1];
     array_dx(2) = 1. / grid.Nx_glob_ng[2];
 
-    write_pdi_init(max_iter, output_frequency, &grid);
+    write_pdi_init(max_iter, output_frequency, grid);
     
 
     std::string const initialisation_problem = reader.Get("Problem", "type", "ShockTube");
@@ -179,8 +179,8 @@ int main(int argc, char** argv)
         godunov_scheme->execute(rho, rhou, E, rho_rec, rhou_rec, E_rec, 
                                 rho_new, rhou_new, E_new, array_dx, dt);
 
-        innerExchangeMPI(rho_new, rhou_new, E_new, grid.Nghost.data(), &(grid.comm_cart), grid.NeighborRank, &sendbuf, &recvbuf);
-        boundary_construction->outerExchange(rho_new, rhou_new, E_new, &grid);
+        innerExchangeMPI(rho_new, rhou_new, E_new, grid.Nghost, grid.comm_cart, grid.NeighborRank, sendbuf, recvbuf);
+        boundary_construction->outerExchange(rho_new, rhou_new, E_new, grid);
 
         ConvConstoPrimArray(u, P, rho_new, rhou_new, E_new, eos);
         Kokkos::deep_copy(rho, rho_new);

@@ -28,5 +28,5 @@ public :
     //! @brief Allocates buffer of type Kokkos::DualView.
     //! @param[in] nvar Number of variables needed for border exchanged.
     //!
-    Buffer(int *ng, int *nx_local_ng, int nvar);
+    Buffer(std::array<int, 3> ng, std::array<int, 3> nx_local_ng, int nvar);
 };

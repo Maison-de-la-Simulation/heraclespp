@@ -7,7 +7,7 @@
 
 #include "range.hpp"
 
-void Range::fill_range(int ndim, int* Nghost ) 
+void Range::fill_range(int ndim, std::array<int, 3> const & Nghost)
 {
     for (int idim = 0; idim < ndim; ++idim)
     {

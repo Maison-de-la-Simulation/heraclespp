@@ -37,8 +37,8 @@ private:
 
 public :
     int Ndim; // Number of dimension of the run 1-3 (default = 1)
+    int Ng;
     std::array<int, 3> Nghost;    // Number of ghost cells in each direction (default is 2)
-
     std::array<int, 3> Nx_glob_ng;    // Total number of cells in each directions (excluding ghost)
     std::array<int, 3> Nx_local_ng;    // Number of cells on the local MPI process (excluding ghost)
     std::array<int, 3> Nx_local_wg;    // Number of cells on the local MPI process (including ghost)
@@ -52,11 +52,12 @@ public :
     MPI_Comm comm_cart;
     int mpi_rank;
     int mpi_size;
-    std::array<int, 3> mpi_rank_cart;
+    std::array<int, 3> mpi_rank_cart = {0,0,0};
 
     Range range;
+    std::array<std::array<bool, 2>,3> is_border;
 
 private:
-    std::string grid_type;
+    std::string grid_type; // (ir)regular or other
     std::string grid_coords_name[3];    
 };
