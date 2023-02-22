@@ -4,12 +4,12 @@ image:
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
-stages:          # List of stages for jobs, and their order of execution
+stages:
   - build
   - test
   - deploy
 
-build-job:serial:       # This job runs in the build stage, which runs first.
+build-job:serial:
   only: [ main, merge_requests ]
   stage: build
   needs: []
@@ -37,9 +37,9 @@ build-job:hip:
     - cmake -DCMAKE_BUILD_TYPE=None -DCMAKE_CXX_COMPILER=hipcc -DBUILD_TESTING=OFF -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="-Wall -Wextra -pedantic" -DKokkos_ENABLE_HIP=ON -DKokkos_ARCH_VEGA90A=ON -DKokkos_ENABLE_DEPRECATED_CODE_3=OFF -DKokkos_ENABLE_DEBUG=ON -DKokkos_ENABLE_DEBUG_DUALVIEW_MODIFY_CHECK=ON -DKokkos_ENABLE_DEBUG_BOUNDS_CHECK=ON -DKokkos_ENABLE_COMPILER_WARNINGS=ON -S . -B build
     - cmake --build build
 
-unit-test-job:   # This job runs in the test stage.
+unit-test-job:
   only: [ main, merge_requests ]
-  stage: test    # It only starts when the job in the build stage completes successfully.
+  stage: test
   needs: ["build-job:serial"]
   script:
     - ctest --test-dir build --output-on-failure --timeout 5 --output-junit tests.xml
@@ -48,9 +48,9 @@ unit-test-job:   # This job runs in the test stage.
     reports:
       junit: build/tests.xml
 
-lint-test-job:   # This job also runs in the test stage.
+lint-test-job:
   only: [ main, merge_requests ]
-  stage: test    # It can run at the same time as unit-test-job (in parallel).
+  stage: test
   needs: []
   script:
     - echo "Linting code... This will take about 10 seconds."
