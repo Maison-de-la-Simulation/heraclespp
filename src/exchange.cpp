@@ -7,10 +7,10 @@
 namespace {
 
     template<std::size_t n, size_t m>
-    void modifyDtoH(std::array<std::array<Kokkos::DualView<double****>,n>,m> buffer_element);   
+    void modifyDtoH(std::array<std::array<Kokkos::DualView<double****>,n>,m> & buffer_element);   
 
     template<std::size_t n, size_t m>
-    void modifyHtoD(std::array<std::array<Kokkos::DualView<double****>,n>,m> buffer_element);   
+    void modifyHtoD(std::array<std::array<Kokkos::DualView<double****>,n>,m> & buffer_element);   
 
     //! Update buffer from device data before border exchange
     //! @param[in] view Variable field device data
@@ -44,7 +44,7 @@ namespace {
     //! @param[in] view Variable field device data
     //! @param[in] recv_buffer Buffer used to receive border value
     //! @param[in] ivar index of variable field
-    void copyFromBuffer(Kokkos::View<double***, Kokkos::LayoutStride> view, Buffer const & recv_buffer, int const ivar); 
+    void copyFromBuffer(Kokkos::View<double***, Kokkos::LayoutStride> view, Buffer & recv_buffer, int const ivar); 
     
 
     //! Update device data from face buffer after border exchange
@@ -495,7 +495,7 @@ namespace {
         }
     }
 
-    void copyFromBuffer(Kokkos::View<double***, Kokkos::LayoutStride> view, Buffer const & buffer, int const ivar)   
+    void copyFromBuffer(Kokkos::View<double***, Kokkos::LayoutStride> view, Buffer & buffer, int const ivar)   
     {
         modifyHtoD(buffer.faceBuffer);
         copyFromBuffer_faces(view, buffer, ivar);  
@@ -664,7 +664,7 @@ namespace {
     
 
     template<std::size_t n, std::size_t m>
-    void modifyDtoH(std::array<std::array<Kokkos::DualView<double****>, n >, m > buffer_element)
+    void modifyDtoH(std::array<std::array<Kokkos::DualView<double****>, n >, m > & buffer_element)
     {
         for(size_t i=0; i<m; i++)
         {
@@ -677,7 +677,7 @@ namespace {
     }   
 
     template<std::size_t n, std::size_t m>
-    void modifyHtoD(std::array<std::array<Kokkos::DualView<double****>,n>,m> buffer_element)
+    void modifyHtoD(std::array<std::array<Kokkos::DualView<double****>,n>,m> & buffer_element)
     {
         for(size_t i=0; i<m; i++)
         {
