@@ -2,7 +2,6 @@ image:
   name: ghcr.io/maison-de-la-simulation/nova:latest
 
 variables:
-  GIT_STRATEGY: clone
   GIT_SUBMODULE_STRATEGY: recursive
 
 stages:          # List of stages for jobs, and their order of execution
