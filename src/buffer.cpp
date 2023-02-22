@@ -4,7 +4,9 @@
  */
 #include "buffer.hpp"
 
-Buffer::Buffer(int *ng, int *nx_local_ng, int nvar)
+Buffer::Buffer(std::array<int, 3> const ng, 
+               std::array<int, 3> const nx_local_ng, 
+               int const nvar)
 {    
     Nghost[0] = ng[0];
     Nghost[1] = ng[1];

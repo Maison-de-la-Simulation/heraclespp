@@ -23,7 +23,7 @@ public:
     virtual void outerExchange(Kokkos::View<double***> rho,
                                Kokkos::View<double****> rhou,
                                Kokkos::View<double***> E,
-                               Grid *grid) const = 0;
+                               Grid const & grid) const = 0;
 
 };
 
@@ -34,7 +34,7 @@ public:
     void outerExchange(Kokkos::View<double***> rho,
                        Kokkos::View<double****> rhou,
                        Kokkos::View<double***> E,
-                       Grid *grid) const final
+                       Grid const & grid) const final
     {
         assert(rho.extent(0) == rhou.extent(0));
         assert(rhou.extent(0) == E.extent(0));
@@ -45,9 +45,9 @@ public:
 
         int ng=0;
         int size_x=0;
-        if(grid->mpi_rank_cart[0]==0)
+        if(grid.is_border[0][0])
         {
-            ng = grid->Nghost[0];
+            ng = grid.Nghost[0];
             Kokkos::parallel_for("NullGradient_implementation",
                                  Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
                                  {0, 0, 0},
@@ -62,9 +62,9 @@ public:
                 E(i, j, k) = E(ng, j, k);
             });
         }
-        if(grid->mpi_rank_cart[0] == grid->Ncpu_x[0]-1)
+        if(grid.is_border[0][1])
         {
-            ng = grid->Nghost[0];
+            ng = grid.Nghost[0];
             size_x = rho.extent(0)-1;
             Kokkos::parallel_for("NullGradient_implementation",
                                  Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
@@ -80,10 +80,10 @@ public:
                 E(size_x-i, j, k) = E(size_x-ng, j, k);
             });
         }
-        if(grid->Ndim>=2)
+        if(grid.Ndim>=2)
         {
-            ng = grid->Nghost[1];
-            if(grid->mpi_rank_cart[1]==0)
+            ng = grid.Nghost[1];
+            if(grid.is_border[1][0])
             {
                 Kokkos::parallel_for("NullGradient_implementation",
                                      Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
@@ -99,7 +99,7 @@ public:
                     E(i, j, k) = E(i, ng, k);
                 });
             }
-            if(grid->mpi_rank_cart[1] == grid->Ncpu_x[1]-1)
+            if(grid.is_border[1][1])
             {
                 size_x = rho.extent(1)-1;
                 Kokkos::parallel_for("NullGradient_implementation",
@@ -117,10 +117,10 @@ public:
                 });
             } 
         }
-        if(grid->Ndim==3)
+        if(grid.Ndim==3)
         {
-            ng = grid->Nghost[2];
-            if(grid->mpi_rank_cart[1]==0)
+            ng = grid.Nghost[2];
+            if(grid.is_border[2][0])
             {
                 Kokkos::parallel_for("NullGradient_implementation",
                                  Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
@@ -137,7 +137,7 @@ public:
                     E(i, j, k) = E(i, j, ng);
                 });
             }
-            if(grid->mpi_rank_cart[2] == grid->Ncpu_x[2]-1)
+            if(grid.is_border[2][1])
             {
                 size_x = rho.extent(2)-1;
                 Kokkos::parallel_for("NullGradient_implementation",
@@ -165,7 +165,7 @@ public:
     void outerExchange([[maybe_unused]]Kokkos::View<double***> rho,
                        [[maybe_unused]]Kokkos::View<double****> rhou,
                        [[maybe_unused]]Kokkos::View<double***> E,
-                       [[maybe_unused]]Grid *grid) const final
+                       [[maybe_unused]]Grid const & grid) const final
     {
         // do nothing
     }
@@ -179,12 +179,12 @@ public:
     void outerExchange(Kokkos::View<double***> rho,
                        Kokkos::View<double****> rhou,
                        Kokkos::View<double***> E,
-                       Grid *grid) const final
+                       Grid const & grid) const final
     {
         int ng=0;
-        if(grid->mpi_rank_cart[0]==0)
+        if(grid.is_border[0][0])
         {
-            ng = grid->Nghost[0];
+            ng = grid.Nghost[0];
             Kokkos::parallel_for("Reflexive_implementation",
                                  Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
                                  {0, 0, 0},
@@ -199,7 +199,7 @@ public:
                 E(i, j, k) = E(2*ng-1-i, j, k);
             });
         }
-        if(grid->mpi_rank_cart[0] == grid->Ncpu_x[0]-1)
+        if(grid.is_border[0][1])
         {
             int offset=2*(rho.extent(0)-ng)-1;
             Kokkos::parallel_for("Reflexive_implementation",
@@ -216,10 +216,10 @@ public:
                 E(i, j, k) = E(offset-i, j, k);
             });
         }
-        if(grid->Ndim>=2)
+        if(grid.Ndim>=2)
         {
-            ng = grid->Nghost[1];
-            if(grid->mpi_rank_cart[1]==0)
+            ng = grid.Nghost[1];
+            if(grid.is_border[1][0])
             {
                 Kokkos::parallel_for("Reflexive_implementation",
                                      Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
@@ -235,7 +235,7 @@ public:
                     E(i, j, k) = E(i, 2*ng-1-j, k);
                 });
             }
-            if(grid->mpi_rank_cart[1] == grid->Ncpu_x[1]-1)
+            if(grid.is_border[1][1])
             {
                 int offset=2*(rho.extent(1)-ng)-1;
                 Kokkos::parallel_for("Reflexive_implementation",
@@ -253,10 +253,10 @@ public:
                 });
             }
         }
-        if(grid->Ndim==3)
+        if(grid.Ndim==3)
         {
-            ng = grid->Nghost[2];
-            if(grid->mpi_rank_cart[2]==0)
+            ng = grid.Nghost[2];
+            if(grid.is_border[2][0])
             {
                 Kokkos::parallel_for("Reflexive_implementation",
                                      Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
@@ -272,7 +272,7 @@ public:
                     E(i, j, k) = E(i, j, 2*ng-1-k);
                 });
             }
-            if(grid->mpi_rank_cart[2] == grid->Ncpu_x[2]-1)
+            if(grid.is_border[2][1])
             {
                 int offset=2*(rho.extent(2)-ng)-1;
                 Kokkos::parallel_for("Reflexive_implementation",

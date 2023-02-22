@@ -8,14 +8,17 @@
 Grid::Grid(INIReader reader)
 {
     Ndim = ndim;
-    
+    Ng = reader.GetInteger("Grid", "Nghost", 2); // Ghost cell depth
+
     Nx_glob_ng[0] = reader.GetInteger("Grid", "Nx_glob", 0); // Cell number
     Nx_glob_ng[1] = reader.GetInteger("Grid", "Ny_glob", 0); // Cell number
     Nx_glob_ng[2] = reader.GetInteger("Grid", "Nz_glob", 0); // Cell number
 
-    Nghost[0] = reader.GetInteger("Grid", "Ng_x", 2); // Ghost cell depth
-    Nghost[1] = reader.GetInteger("Grid", "Ng_y", 0); // Ghost cell depth
-    Nghost[2] = reader.GetInteger("Grid", "Ng_z", 0); // Ghost cell depth
+    Nghost = {0,0,0};
+    for (int n=0; n<ndim; n++)
+    {
+        Nghost[n] = Ng;
+    }
 
     Ncpu_x[0] = reader.GetInteger("Grid", "Ncpu_x", 0); // number of procs, default 0=>defined by MPI
     Ncpu_x[1] = reader.GetInteger("Grid", "Ncpu_y", 1); // number of procs
@@ -26,8 +29,7 @@ Grid::Grid(INIReader reader)
     Nx_local_ng      = Nx_glob_ng ; // default for a single MPI process
 
     MPI_Decomp();
-    // range.Compute_range(cornerMin.data(), cornerMax.data(), Nghost.data());
-    range.fill_range(Ndim, Nghost.data());
+    range.fill_range(Ndim, Nghost);
 
     grid_type = reader.Get("Grid", "type", "");
 
@@ -48,26 +50,17 @@ Grid::Grid(INIReader reader)
 
  void Grid::init_grid_recti()
  {
-    // std::cout<<"init_grid_recti"<<std::endl;
-    grid_coords_name[0] = "coord_X";
-    grid_coords_name[1] = "coord_Y";
-    grid_coords_name[2] = "coord_Z";
+    // additional codes for regular rectiliner grid geometry
  }
 
 void Grid::init_grid_irrecti()
  {
-    // std::cout<<"init_grid_irrecti"<<std::endl;
-    grid_coords_name[0] = "coord_X";
-    grid_coords_name[1] = "coord_Y";
-    grid_coords_name[2] = "coord_Z";
+    // additional codes for irregular rectiliner grid geometry
  }
 
 void Grid::init_grid_other()
  {
-    // std::cout<<"init_grid_other"<<std::endl;
-    grid_coords_name[0] = "coord_R";
-    grid_coords_name[1] = "coord_theta";
-    grid_coords_name[2] = "coord_Z";
+    // additional codes for other type of grid's geometry
  }
 
 /* ****************************************************************
@@ -141,6 +134,15 @@ void Grid::MPI_Decomp()
     NBlock[2] = 1   ; // Default is no sub-block 
 
     Nx_block = Nx_local_wg ;
+
+    for(int i=0; i<3; i++)
+    {
+        is_border[i][0] = false;
+        is_border[i][1] = false;
+    
+        if(mpi_rank_cart[i] == 0)           is_border[i][0] = true;
+        if(mpi_rank_cart[i] == Ncpu_x[i]-1) is_border[i][1] = true;
+    }
 }
 
 void Grid::print_grid()
