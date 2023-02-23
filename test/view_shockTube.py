@@ -3,10 +3,22 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import h5py
-import sys
+from argparse import ArgumentParser
+from pathlib import Path
 
 from param import *
 from shockTube_exact import CI, ExactShockTube
+
+parser = ArgumentParser(description="Plot shock tube.")
+parser.add_argument('filename',
+                    type=Path,
+                    help='Input filename')
+parser.add_argument('-o', '--output',
+                    required=False,
+                    default=None,
+                    type=Path,
+                    help='Output file to generate')
+args = parser.parse_args()
 
 # Condition for pressure > 0
 if (g4 * (c0l + c0r)) < (u0r - u0l) :
@@ -26,9 +38,7 @@ rho_exact, u_exact, P_exact, e_exact = ExactShockTube(x_exact, inter, var_int0l,
 print('Final time shock tube problem = ', timeout, 's')
 
 # Solution solver
-filename = sys.argv[1]
-
-with h5py.File(str(filename), 'r') as f :
+with h5py.File(str(args.input), 'r') as f :
     print(f.keys())
     rho = f['rho'][:, 0, 0]
     u = f['u'][:, 0, 0]
@@ -74,4 +84,7 @@ plt.ylabel('Internal energy'); plt.xlabel('Position')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
 plt.legend()
-plt.show()
+if args.output is None:
+    plt.show()
+else:
+    plt.savefig(args.output)
