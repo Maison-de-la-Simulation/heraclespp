@@ -13,6 +13,7 @@
 #include <mpi.h>
 #include <iomanip>
 #include "range.hpp"
+#include "ndim.hpp"
 
 template<class T>
 inline
@@ -26,6 +27,8 @@ void prinf_info(std::string var_name, T var_value)
 class Grid
 {
 public :
+    static constexpr int Ndim = ndim;
+
     explicit Grid(INIReader const& reader);
     void print_grid() const;
 
@@ -33,7 +36,6 @@ private:
     void MPI_Decomp();
 
 public :
-    int Ndim; // Number of dimension of the run 1-3 (default = 1)
     int Ng;
     std::array<int, 3> Nghost;    // Number of ghost cells in each direction (default is 2)
     std::array<int, 3> Nx_glob_ng;    // Total number of cells in each directions (excluding ghost)

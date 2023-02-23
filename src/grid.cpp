@@ -3,11 +3,9 @@
  * Grid class implementation
  */
 #include "grid.hpp"
-#include "ndim.hpp"
 
 Grid::Grid(INIReader const& reader)
-    : Ndim(ndim)
-    , Ng(reader.GetInteger("Grid", "Nghost", 2))
+    : Ng(reader.GetInteger("Grid", "Nghost", 2))
     , Nghost {0, 0, 0}
     , Ncpu_x {1, 1, 1}
     , mpi_rank_cart {0, 0, 0}
@@ -16,7 +14,7 @@ Grid::Grid(INIReader const& reader)
     Nx_glob_ng[1] = reader.GetInteger("Grid", "Ny_glob", 0); // Cell number
     Nx_glob_ng[2] = reader.GetInteger("Grid", "Nz_glob", 0); // Cell number
 
-    for (int idim = 0; idim < ndim; idim++)
+    for (int idim = 0; idim < Ndim; idim++)
     {
         Nghost[idim] = Ng;
     }
@@ -45,8 +43,8 @@ void Grid::MPI_Decomp()
 
     Ncpu = mpi_size;
 
-    MPI_Dims_create(Ncpu, ndim, Ncpu_x.data());
-    for(int n=ndim; n<3; n++)
+    MPI_Dims_create(Ncpu, Ndim, Ncpu_x.data());
+    for(int n=Ndim; n<3; n++)
     {
         Ncpu_x[n] = 1;
     }
