@@ -248,7 +248,7 @@ namespace {
         {
             //edge[2][0] : corner(0,0,0)<->corner(0,0,1)
             memcopy_VtoB(view, std::make_pair(ng[0], 2*ng[0]), 
-                               std::make_pair(ng[1], lim1+ng[1]),
+                               std::make_pair(ng[1], 2*ng[1]),
                                std::make_pair(ng[2], lim2+ng[2]), 
                                buffer.edgeBuffer[2][0].d_view, ivar);
 
@@ -438,7 +438,7 @@ namespace {
             //edge[2][0] : corner(0,0,0)<->corner(0,0,1)  
             memcopy_BtoV(view, std::make_pair(0, ng[0]),
                                std::make_pair(0, ng[1]),
-                               std::make_pair(ng[2], lim2+2*ng[2]),
+                               std::make_pair(ng[2], lim2+ng[2]),
                                buffer.edgeBuffer[2][0].d_view, ivar);
 
             //edge[2][1] : corner(1,0,0)<->corner(1,0,1)
