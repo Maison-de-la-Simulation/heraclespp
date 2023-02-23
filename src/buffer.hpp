@@ -20,6 +20,8 @@ public :
     std::array<std::array<Kokkos::DualView<double ****>,4>,2> cornerBuffer;
 
 public :
+    Buffer() = default;
+
     //!
     //! @fn Constructs buffer used for border exchange
     //! @brief Allocates buffer of type Kokkos::DualView.
@@ -28,6 +30,4 @@ public :
     Buffer(std::array<int, 3> const & ng,
            std::array<int, 3> const & nx_local_ng,
            int nvar);
-
-    Buffer() = default;
 };

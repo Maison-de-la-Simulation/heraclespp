@@ -32,8 +32,9 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    Kokkos::ScopeGuard guard;
     MpiScopeGuard mpi_guard;
+
+    Kokkos::ScopeGuard guard;
 
     INIReader reader(argv[1]);
 
@@ -52,11 +53,9 @@ int main(int argc, char** argv)
     thermodynamics::PerfectGas eos(reader.GetReal("PerfectGas", "gamma", 1.4), 1.0);
 
     Kokkos::View<double*> array_dx("array_dx", 3); //Space step array
-    Kokkos::parallel_for(1, KOKKOS_LAMBDA(int i)
+    Kokkos::parallel_for(3, KOKKOS_LAMBDA(int i)
     {
-        array_dx(0) = 1. / grid.Nx_glob_ng[0];
-        array_dx(1) = 1. / grid.Nx_glob_ng[1];
-        array_dx(2) = 1. / grid.Nx_glob_ng[2];
+        array_dx(i) = 1. / grid.Nx_glob_ng[i];
     });
 
     write_pdi_init(max_iter, output_frequency, grid);

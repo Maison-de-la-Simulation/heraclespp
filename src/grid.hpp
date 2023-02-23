@@ -26,7 +26,7 @@ void prinf_info(std::string var_name, T var_value)
 class Grid
 {
 public :
-    Grid(INIReader reader);
+    explicit Grid(INIReader const& reader);
     void print_grid();
 
 private:
@@ -46,13 +46,13 @@ public :
     std::array<int, 3> Nx_block;   // Maximum size of sub-block, including ghos
 
     std::array<std::array<std::array<int, 3>, 3>, 3> NeighborRank;
-    std::array<int,3> Ncpu_x = {1,1,1};
+    std::array<int,3> Ncpu_x;
     int Ncpu;
 
     MPI_Comm comm_cart;
     int mpi_rank;
     int mpi_size;
-    std::array<int, 3> mpi_rank_cart = {0,0,0};
+    std::array<int, 3> mpi_rank_cart;
 
     Range range;
     std::array<std::array<bool, 2>,3> is_border;

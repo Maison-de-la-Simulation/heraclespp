@@ -5,7 +5,7 @@
 #include "grid.hpp"
 #include "ndim.hpp"
 
-Grid::Grid(INIReader reader)
+Grid::Grid(INIReader const& reader) : Ncpu_x {1, 1, 1}, mpi_rank_cart {0, 0, 0}
 {
     Ndim = ndim;
     Ng = reader.GetInteger("Grid", "Nghost", 2); // Ghost cell depth
@@ -45,7 +45,7 @@ Grid::Grid(INIReader reader)
     {
         init_grid_other();
     }
- }
+}
 
 
  void Grid::init_grid_recti()
