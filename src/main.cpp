@@ -45,7 +45,7 @@ int main(int argc, char** argv)
     grid.print_grid();
 
     double const timeout = reader.GetReal("Run", "timeout", 0.2);
-    double const cfl = reader.GetReal("Run", "clf", 0.4);
+    double const cfl = reader.GetReal("Run", "cfl", 0.4);
 
     int const max_iter = reader.GetInteger("Output", "max_iter", 10000);
     int const output_frequency = reader.GetInteger("Output", "frequency", 10);
