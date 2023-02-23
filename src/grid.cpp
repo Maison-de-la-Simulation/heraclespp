@@ -5,19 +5,20 @@
 #include "grid.hpp"
 #include "ndim.hpp"
 
-Grid::Grid(INIReader const& reader) : Ncpu_x {1, 1, 1}, mpi_rank_cart {0, 0, 0}
+Grid::Grid(INIReader const& reader)
+    : Ndim(ndim)
+    , Ng(reader.GetInteger("Grid", "Nghost", 2))
+    , Nghost {0, 0, 0}
+    , Ncpu_x {1, 1, 1}
+    , mpi_rank_cart {0, 0, 0}
 {
-    Ndim = ndim;
-    Ng = reader.GetInteger("Grid", "Nghost", 2); // Ghost cell depth
-
     Nx_glob_ng[0] = reader.GetInteger("Grid", "Nx_glob", 0); // Cell number
     Nx_glob_ng[1] = reader.GetInteger("Grid", "Ny_glob", 0); // Cell number
     Nx_glob_ng[2] = reader.GetInteger("Grid", "Nz_glob", 0); // Cell number
 
-    Nghost = {0,0,0};
-    for (int n=0; n<ndim; n++)
+    for (int idim = 0; idim < ndim; idim++)
     {
-        Nghost[n] = Ng;
+        Nghost[idim] = Ng;
     }
 
     Ncpu_x[0] = reader.GetInteger("Grid", "Ncpu_x", 0); // number of procs, default 0=>defined by MPI
@@ -30,38 +31,7 @@ Grid::Grid(INIReader const& reader) : Ncpu_x {1, 1, 1}, mpi_rank_cart {0, 0, 0}
 
     MPI_Decomp();
     range.fill_range(Ndim, Nghost);
-
-    grid_type = reader.Get("Grid", "type", "");
-
-    if(grid_type == "rectilinear")
-    {
-        init_grid_recti();
-    }
-    else if (grid_type == "irregular rectilinear")
-    {
-        init_grid_irrecti();
-    }
-    else
-    {
-        init_grid_other();
-    }
 }
-
-
- void Grid::init_grid_recti()
- {
-    // additional codes for regular rectiliner grid geometry
- }
-
-void Grid::init_grid_irrecti()
- {
-    // additional codes for irregular rectiliner grid geometry
- }
-
-void Grid::init_grid_other()
- {
-    // additional codes for other type of grid's geometry
- }
 
 /* ****************************************************************
 This routine distribute the cpu over the various direction in an optimum way
@@ -139,7 +109,7 @@ void Grid::MPI_Decomp()
     }
 }
 
-void Grid::print_grid()
+void Grid::print_grid() const
 {
     if(mpi_rank==0)
     {

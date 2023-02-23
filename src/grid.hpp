@@ -27,13 +27,10 @@ class Grid
 {
 public :
     explicit Grid(INIReader const& reader);
-    void print_grid();
+    void print_grid() const;
 
 private:
     void MPI_Decomp();
-    void init_grid_recti();
-    void init_grid_irrecti();
-    void init_grid_other();
 
 public :
     int Ndim; // Number of dimension of the run 1-3 (default = 1)
@@ -56,8 +53,4 @@ public :
 
     Range range;
     std::array<std::array<bool, 2>,3> is_border;
-
-private:
-    std::string grid_type; // (ir)regular or other
-    std::string grid_coords_name[3];    
 };

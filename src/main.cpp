@@ -32,16 +32,16 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    MpiScopeGuard mpi_guard;
+    MpiScopeGuard const mpi_guard;
 
-    Kokkos::ScopeGuard guard;
+    Kokkos::ScopeGuard const guard;
 
-    INIReader reader(argv[1]);
+    INIReader const reader(argv[1]);
 
     PC_tree_t conf = PC_parse_path(argv[2]);
     PDI_init(PC_get(conf, ".pdi"));
 
-    Grid grid(reader);
+    Grid const grid(reader);
     grid.print_grid();
 
     double const timeout = reader.GetReal("Run", "timeout", 0.2);
@@ -50,7 +50,7 @@ int main(int argc, char** argv)
     int const max_iter = reader.GetInteger("Output", "max_iter", 10000);
     int const output_frequency = reader.GetInteger("Output", "frequency", 10);
 
-    thermodynamics::PerfectGas eos(reader.GetReal("PerfectGas", "gamma", 1.4), 1.0);
+    thermodynamics::PerfectGas const eos(reader.GetReal("PerfectGas", "gamma", 1.4), 1.0);
 
     Kokkos::View<double*> array_dx("array_dx", 3); //Space step array
     Kokkos::parallel_for(3, KOKKOS_LAMBDA(int i)
