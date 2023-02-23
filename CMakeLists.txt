@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(nova++ LANGUAGES CXX)
+project(Nova++ LANGUAGES CXX)
+
+set(Novapp_NDIM "" CACHE STRING "Choose the dimension, options are: 1;2;3")
+set_property(CACHE Novapp_NDIM PROPERTY STRINGS "1;2;3")
+if("${Novapp_NDIM}" STREQUAL "")
+  message(FATAL_ERROR "Novapp_NDIM is not defined")
+endif()
 
 include(CTest)
 

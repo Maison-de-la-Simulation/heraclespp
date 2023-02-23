@@ -12,17 +12,23 @@ TEST(Conversions, PrimToCons)
     thermodynamics::PerfectGas const eos(2, 1);
     EulerPrim prim;
     prim.density = 2;
-    prim.velocity = {-1};
+    for (int idim = 0; idim < ndim; ++idim)
+    {
+        prim.velocity[idim] = -1;
+    }
     prim.pressure = 10;
     Kokkos::View<double***> rho_view("rho", n, n, n);
-    Kokkos::View<double****> u_view("u", n, n, n, 1);
+    Kokkos::View<double****> u_view("u", n, n, n, ndim);
     Kokkos::View<double***> P_view("P", n, n, n);
 
     Kokkos::deep_copy(rho_view, prim.density);
-    Kokkos::deep_copy(u_view, prim.velocity[0]);
+    for (int idim = 0; idim < ndim; ++idim)
+    {
+        Kokkos::deep_copy(u_view, prim.velocity[idim]);
+    }
     Kokkos::deep_copy(P_view, prim.pressure);
 
-    Kokkos::DualView<double****> rhou_view("rhou", n, n, n, 1);
+    Kokkos::DualView<double****> rhou_view("rhou", n, n, n, ndim);
     Kokkos::DualView<double***> E_view("E", n, n, n);
     ConvPrimtoConsArray(rhou_view.view_device(), E_view.view_device(), rho_view, u_view, P_view, eos);
     rhou_view.modify_device();
@@ -39,7 +45,10 @@ TEST(Conversions, PrimToCons)
         {
             for (int i = 0; i < n; ++i)
             {
-                EXPECT_DOUBLE_EQ(rhou_host(i, j, k, 0), cons.momentum[0]);
+                for ( int idim = 0; idim < ndim; ++idim )
+                {
+                    EXPECT_DOUBLE_EQ(rhou_host(i, j, k, idim), cons.momentum[idim]);
+                }
                 EXPECT_DOUBLE_EQ(E_host(i, j, k), cons.energy);
             }
         }
@@ -52,17 +61,23 @@ TEST(Conversions, ConsToPrim)
     thermodynamics::PerfectGas const eos(2, 1);
     EulerCons cons;
     cons.density = 2;
-    cons.momentum = {-2};
+    for (int idim = 0; idim < ndim; ++idim)
+    {
+        cons.momentum[idim] = -2;
+    }
     cons.energy = 10;
     Kokkos::View<double***> rho_view("rho", n, n, n);
-    Kokkos::View<double****> rhou_view("rhou", n, n, n, 1);
+    Kokkos::View<double****> rhou_view("rhou", n, n, n, ndim);
     Kokkos::View<double***> E_view("E", n, n, n);
 
     Kokkos::deep_copy(rho_view, cons.density);
-    Kokkos::deep_copy(rhou_view, cons.momentum[0]);
+    for (int idim = 0; idim < ndim; ++idim)
+    {
+        Kokkos::deep_copy(rhou_view, cons.momentum[idim]);
+    }
     Kokkos::deep_copy(E_view, cons.energy);
 
-    Kokkos::DualView<double****> u_view("u", n, n, n, 1);
+    Kokkos::DualView<double****> u_view("u", n, n, n, ndim);
     Kokkos::DualView<double***> P_view("P", n, n, n);
     ConvConstoPrimArray(u_view.view_device(), P_view.view_device(), rho_view, rhou_view, E_view, eos);
     u_view.modify_device();
@@ -79,7 +94,10 @@ TEST(Conversions, ConsToPrim)
         {
             for (int i = 0; i < n; ++i)
             {
-                EXPECT_DOUBLE_EQ(u_host(i, j, k, 0), prim.velocity[0]);
+                for (int idim = 0; idim < ndim; ++idim)
+                {
+                    EXPECT_DOUBLE_EQ(u_host(i, j, k, idim), prim.velocity[idim]);
+                }
                 EXPECT_DOUBLE_EQ(P_host(i, j, k), prim.pressure);
             }
         }
