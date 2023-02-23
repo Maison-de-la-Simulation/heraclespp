@@ -21,8 +21,8 @@ Grid::Grid(INIReader reader)
     }
 
     Ncpu_x[0] = reader.GetInteger("Grid", "Ncpu_x", 0); // number of procs, default 0=>defined by MPI
-    Ncpu_x[1] = reader.GetInteger("Grid", "Ncpu_y", 1); // number of procs
-    Ncpu_x[2] = reader.GetInteger("Grid", "Ncpu_z", 1); // number of procs
+    Ncpu_x[1] = reader.GetInteger("Grid", "Ncpu_y", 0); // number of procs
+    Ncpu_x[2] = reader.GetInteger("Grid", "Ncpu_z", 0); // number of procs
 
     //!    Type of boundary conditions possibilities are : 
     //!    "Internal", "Periodic", "Reflexive", NullGradient", UserDefined", "Null" (undefined) 
@@ -74,18 +74,12 @@ void Grid::MPI_Decomp()
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
 
     Ncpu = mpi_size;
-    // std::array<int, 3> Ncpu_x_tmp={0,0,0};
-    // MPI_Dims_create(Ncpu, Ndim, Ncpu_x_tmp.data());
 
-    // for(int i=0; i<Ndim; i++)
-    // {
-    //     if(Ncpu_x_tmp[i]>=Nx_glob_ng[i])
-    //     {
-    //         Ncpu_x[i] = 1+Nx_glob_ng[i]/10 ; // don't decompose if less than 10 cells
-    //     }
-    // }
-    MPI_Dims_create(Ncpu, 3, Ncpu_x.data());
-
+    MPI_Dims_create(Ncpu, ndim, Ncpu_x.data());
+    for(int n=ndim; n<3; n++)
+    {
+        Ncpu_x[n] = 1;
+    }
     std::array<int, 3> periodic = {1,1,1};
 
     MPI_Cart_create(MPI_COMM_WORLD, 3, Ncpu_x.data(), periodic.data(), 0, &comm_cart);

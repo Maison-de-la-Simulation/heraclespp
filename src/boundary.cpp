@@ -2,7 +2,13 @@
  * @file exchange.cpp
  * Holo exchange implementation
  */
-#include "exchange.hpp"
+#include <cmath>
+#include <array>
+#include <string>
+#include <Kokkos_Core.hpp>
+#include <Kokkos_DualView.hpp>
+#include <mpi.h>
+#include "boundary.hpp"
 
 namespace {
 
@@ -96,31 +102,25 @@ namespace {
     void exchangeBuffer_corners(Buffer & send_buffer, Buffer & recv_buffer, std::array<int, 3> const & ng, MPI_Comm const & comm_cart, std::array<std::array<std::array<int, 3>, 3>, 3> const & nrank);    
     
     void memcopy_VtoB(Kokkos::View<double***, Kokkos::LayoutStride> const view,
-                  std::pair<int, int> lim0,
-                  std::pair<int, int> lim1,
-                  std::pair<int, int> lim2,
-                  Kokkos::View<double****> buffer_type_element,
-                  int ivar)
+                      Kokkos::pair<int, int> lim0,
+                      Kokkos::pair<int, int> lim1,
+                      Kokkos::pair<int, int> lim2,
+                      Kokkos::View<double****> buffer_type_element,
+                      int ivar)
     {        
-        Kokkos::deep_copy(Kokkos::subview(buffer_type_element, 
-                                          Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, ivar),
-                          Kokkos::subview(view, Kokkos::pair(lim0.first, lim0.second),
-                                                Kokkos::pair(lim1.first, lim1.second),
-                                                Kokkos::pair(lim2.first, lim2.second)));
+        Kokkos::deep_copy(Kokkos::subview(buffer_type_element, Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, ivar),
+                  Kokkos::subview(view, lim0, lim1, lim2));
     }
 
     void memcopy_BtoV(Kokkos::View<double***, Kokkos::LayoutStride> const view,
-                  std::pair<int, int> lim0,
-                  std::pair<int, int> lim1,
-                  std::pair<int, int> lim2,
-                  Kokkos::View<double****> buffer_type_element,
-                  int ivar)
+                      Kokkos::pair<int, int> lim0,
+                      Kokkos::pair<int, int> lim1,
+                      Kokkos::pair<int, int> lim2,
+                      Kokkos::View<double****> buffer_type_element,
+                      int ivar)
     {        
-        Kokkos::deep_copy(Kokkos::subview(view, Kokkos::pair(lim0.first, lim0.second),
-                                                Kokkos::pair(lim1.first, lim1.second),
-                                                Kokkos::pair(lim2.first, lim2.second)),
-                          Kokkos::subview(buffer_type_element, 
-                                          Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, ivar));
+        Kokkos::deep_copy(Kokkos::subview(view, lim0, lim1, lim2),
+                  Kokkos::subview(buffer_type_element, Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, ivar));
     }
 
     void copyToBuffer_corners(Kokkos::View<double***, Kokkos::LayoutStride> const view, Buffer & buffer, int const ivar) 
@@ -134,51 +134,51 @@ namespace {
         int lim2 = view.extent(2)-2*ng[2];
         
         //corner(0,0,0)
-        memcopy_VtoB(view, std::make_pair(ng[0], 2*ng[0]), 
-                           std::make_pair(ng[1], 2*ng[1]),
-                           std::make_pair(ng[2], 2*ng[2]), 
+        memcopy_VtoB(view, Kokkos::pair(ng[0], 2*ng[0]), 
+                           Kokkos::pair(ng[1], 2*ng[1]),
+                           Kokkos::pair(ng[2], 2*ng[2]), 
                            buffer.cornerBuffer[0][0].d_view, ivar);
 
         //corner(1,0,0)
-        memcopy_VtoB(view, std::make_pair(lim0, lim0+ng[0]), 
-                           std::make_pair(ng[1], 2*ng[1]),
-                           std::make_pair(ng[2], 2*ng[2]), 
+        memcopy_VtoB(view, Kokkos::pair(lim0, lim0+ng[0]), 
+                           Kokkos::pair(ng[1], 2*ng[1]),
+                           Kokkos::pair(ng[2], 2*ng[2]), 
                            buffer.cornerBuffer[0][1].d_view, ivar);
         
         //corner(0,1,0)
-        memcopy_VtoB(view, std::make_pair(ng[0], 2*ng[0]), 
-                           std::make_pair(lim1, lim1+ng[1]),
-                           std::make_pair(ng[2], 2*ng[2]), 
+        memcopy_VtoB(view, Kokkos::pair(ng[0], 2*ng[0]), 
+                           Kokkos::pair(lim1, lim1+ng[1]),
+                           Kokkos::pair(ng[2], 2*ng[2]), 
                            buffer.cornerBuffer[0][2].d_view, ivar);
 
         //corner(1,1,0)
-        memcopy_VtoB(view, std::make_pair(lim0, lim0+ng[0]), 
-                           std::make_pair(lim1, lim1+ng[1]),
-                           std::make_pair(ng[2], 2*ng[2]), 
+        memcopy_VtoB(view, Kokkos::pair(lim0, lim0+ng[0]), 
+                           Kokkos::pair(lim1, lim1+ng[1]),
+                           Kokkos::pair(ng[2], 2*ng[2]), 
                            buffer.cornerBuffer[0][3].d_view, ivar);
 
         //corner(0,0,1)
-        memcopy_VtoB(view, std::make_pair(ng[0], 2*ng[0]), 
-                           std::make_pair(ng[1], 2*ng[1]),
-                           std::make_pair(lim2, lim2+ng[2]), 
+        memcopy_VtoB(view, Kokkos::pair(ng[0], 2*ng[0]), 
+                           Kokkos::pair(ng[1], 2*ng[1]),
+                           Kokkos::pair(lim2, lim2+ng[2]), 
                            buffer.cornerBuffer[1][0].d_view, ivar);
 
         //corner(1,0,1)
-        memcopy_VtoB(view, std::make_pair(lim0, lim0+ng[0]), 
-                           std::make_pair(ng[1], 2*ng[1]),
-                           std::make_pair(lim2, lim2+ng[2]), 
+        memcopy_VtoB(view, Kokkos::pair(lim0, lim0+ng[0]), 
+                           Kokkos::pair(ng[1], 2*ng[1]),
+                           Kokkos::pair(lim2, lim2+ng[2]), 
                            buffer.cornerBuffer[1][1].d_view, ivar);
 
         //corner(0,1,1)
-        memcopy_VtoB(view, std::make_pair(ng[0], 2*ng[0]), 
-                           std::make_pair(lim1, lim1+ng[1]),
-                           std::make_pair(lim2, lim2+ng[2]), 
+        memcopy_VtoB(view, Kokkos::pair(ng[0], 2*ng[0]), 
+                           Kokkos::pair(lim1, lim1+ng[1]),
+                           Kokkos::pair(lim2, lim2+ng[2]), 
                            buffer.cornerBuffer[1][2].d_view, ivar);
 
         //corner(1,1,1)
-        memcopy_VtoB(view, std::make_pair(lim0, lim0+ng[0]), 
-                           std::make_pair(lim1, lim1+ng[1]),
-                           std::make_pair(lim2, lim2+ng[2]), 
+        memcopy_VtoB(view, Kokkos::pair(lim0, lim0+ng[0]), 
+                           Kokkos::pair(lim1, lim1+ng[1]),
+                           Kokkos::pair(lim2, lim2+ng[2]), 
                            buffer.cornerBuffer[1][3].d_view, ivar);
     }
 
@@ -193,81 +193,81 @@ namespace {
         if(ng[1] && ng[2])
         {
             //edge[0][0] : corner(0,0,0)<->corner(1,0,0)
-            memcopy_VtoB(view, std::make_pair(ng[0], lim0+ng[0]), 
-                               std::make_pair(ng[1], 2*ng[1]),
-                               std::make_pair(ng[2], 2*ng[2]), 
+            memcopy_VtoB(view, Kokkos::pair(ng[0], lim0+ng[0]), 
+                               Kokkos::pair(ng[1], 2*ng[1]),
+                               Kokkos::pair(ng[2], 2*ng[2]), 
                                buffer.edgeBuffer[0][0].d_view, ivar);
 
             //edge[0][1] : corner(0,1,0)<->corner(1,1,0)
-            memcopy_VtoB(view, std::make_pair(ng[0], lim0+ng[0]), 
-                               std::make_pair(lim1, lim1+ng[1]),
-                               std::make_pair(ng[2], 2*ng[2]), 
+            memcopy_VtoB(view, Kokkos::pair(ng[0], lim0+ng[0]), 
+                               Kokkos::pair(lim1, lim1+ng[1]),
+                               Kokkos::pair(ng[2], 2*ng[2]), 
                                buffer.edgeBuffer[0][1].d_view, ivar);
 
             //edge[0][2] : corner(0,0,1)<->corner(1,0,1)
-            memcopy_VtoB(view, std::make_pair(ng[0], lim0+ng[0]), 
-                               std::make_pair(ng[1], 2*ng[1]),
-                               std::make_pair(lim2, lim2+ng[2]), 
+            memcopy_VtoB(view, Kokkos::pair(ng[0], lim0+ng[0]), 
+                               Kokkos::pair(ng[1], 2*ng[1]),
+                               Kokkos::pair(lim2, lim2+ng[2]), 
                                buffer.edgeBuffer[0][2].d_view, ivar);
 
             //edge[0][3] : corner(0,1,1)<->corner(1,1,1)
-            memcopy_VtoB(view, std::make_pair(ng[0], lim0+ng[0]), 
-                               std::make_pair(lim1, lim1+ng[1]),
-                               std::make_pair(lim2, lim2+ng[2]), 
+            memcopy_VtoB(view, Kokkos::pair(ng[0], lim0+ng[0]), 
+                               Kokkos::pair(lim1, lim1+ng[1]),
+                               Kokkos::pair(lim2, lim2+ng[2]), 
                                buffer.edgeBuffer[0][3].d_view, ivar);
         }
 
         if(ng[0] && ng[2])
         {
             //edge[1][0] : corner(0,0,0)<->corner(0,1,0)
-            memcopy_VtoB(view, std::make_pair(ng[0], 2*ng[0]), 
-                               std::make_pair(ng[1], lim1+ng[1]),
-                               std::make_pair(ng[2], 2*ng[2]), 
+            memcopy_VtoB(view, Kokkos::pair(ng[0], 2*ng[0]), 
+                               Kokkos::pair(ng[1], lim1+ng[1]),
+                               Kokkos::pair(ng[2], 2*ng[2]), 
                                buffer.edgeBuffer[1][0].d_view, ivar);
 
             //edge[1][1] : corner(1,0,0)<->corner(1,1,0)
-            memcopy_VtoB(view, std::make_pair(lim0, lim0+ng[0]), 
-                               std::make_pair(ng[1], lim1+ng[1]),
-                               std::make_pair(ng[2], 2*ng[2]), 
+            memcopy_VtoB(view, Kokkos::pair(lim0, lim0+ng[0]), 
+                               Kokkos::pair(ng[1], lim1+ng[1]),
+                               Kokkos::pair(ng[2], 2*ng[2]), 
                                buffer.edgeBuffer[1][1].d_view, ivar);
 
             //edge[1][2] : corner(0,0,1)<->corner(0,1,1)
-            memcopy_VtoB(view, std::make_pair(ng[0], 2*ng[0]), 
-                               std::make_pair(ng[1], lim1+ng[1]),
-                               std::make_pair(lim2, lim2+ng[2]), 
+            memcopy_VtoB(view, Kokkos::pair(ng[0], 2*ng[0]), 
+                               Kokkos::pair(ng[1], lim1+ng[1]),
+                               Kokkos::pair(lim2, lim2+ng[2]), 
                                buffer.edgeBuffer[1][2].d_view, ivar);
 
             //edge[1][3] : corner(1,0,1)<->corner(1,1,1)
-            memcopy_VtoB(view, std::make_pair(lim0, lim0+ng[0]), 
-                               std::make_pair(ng[1], lim1+ng[1]),
-                               std::make_pair(lim2, lim2+ng[2]), 
+            memcopy_VtoB(view, Kokkos::pair(lim0, lim0+ng[0]), 
+                               Kokkos::pair(ng[1], lim1+ng[1]),
+                               Kokkos::pair(lim2, lim2+ng[2]), 
                                buffer.edgeBuffer[1][3].d_view, ivar);
         }
 
         if(ng[0] && ng[1])
         {
             //edge[2][0] : corner(0,0,0)<->corner(0,0,1)
-            memcopy_VtoB(view, std::make_pair(ng[0], 2*ng[0]), 
-                               std::make_pair(ng[1], 2*ng[1]),
-                               std::make_pair(ng[2], lim2+ng[2]), 
+            memcopy_VtoB(view, Kokkos::pair(ng[0], 2*ng[0]), 
+                               Kokkos::pair(ng[1], 2*ng[1]),
+                               Kokkos::pair(ng[2], lim2+ng[2]), 
                                buffer.edgeBuffer[2][0].d_view, ivar);
 
             //edge[2][1] : corner(1,0,0)<->corner(1,0,1)
-            memcopy_VtoB(view, std::make_pair(lim0, lim0+ng[0]), 
-                               std::make_pair(ng[1], 2*ng[1]),
-                               std::make_pair(ng[2], lim2+ng[2]), 
+            memcopy_VtoB(view, Kokkos::pair(lim0, lim0+ng[0]), 
+                               Kokkos::pair(ng[1], 2*ng[1]),
+                               Kokkos::pair(ng[2], lim2+ng[2]), 
                                buffer.edgeBuffer[2][1].d_view, ivar);
 
             //edge[2][2] : corner(0,1,0)<->corner(0,1,1)
-            memcopy_VtoB(view, std::make_pair(ng[0], 2*ng[0]), 
-                               std::make_pair(lim1, lim1+ng[1]),
-                               std::make_pair(ng[2], lim2+ng[2]), 
+            memcopy_VtoB(view, Kokkos::pair(ng[0], 2*ng[0]), 
+                               Kokkos::pair(lim1, lim1+ng[1]),
+                               Kokkos::pair(ng[2], lim2+ng[2]), 
                                buffer.edgeBuffer[2][2].d_view, ivar);
 
             //edge[2][3] : corner(1,1,0)<->corner(1,1,1)
-            memcopy_VtoB(view, std::make_pair(lim0, lim0+ng[0]), 
-                               std::make_pair(lim1, lim1+ng[1]),
-                               std::make_pair(ng[2], lim2+ng[2]), 
+            memcopy_VtoB(view, Kokkos::pair(lim0, lim0+ng[0]), 
+                               Kokkos::pair(lim1, lim1+ng[1]),
+                               Kokkos::pair(ng[2], lim2+ng[2]), 
                                buffer.edgeBuffer[2][3].d_view, ivar);
         }
     }   
@@ -291,16 +291,16 @@ namespace {
                     if(i==1) { Ystart = (f==0? ng[1]:lim1); Yend = (f==0?2*ng[1]:lim1+ng[1]); }
                     if(i==2) { Zstart = (f==0? ng[2]:lim2); Zend = (f==0?2*ng[2]:lim2+ng[2]); }
 
-                    memcopy_VtoB(view, std::make_pair(Xstart, Xend), 
-                                       std::make_pair(Ystart, Yend),
-                                       std::make_pair(Zstart, Zend), 
+                    memcopy_VtoB(view, Kokkos::pair(Xstart, Xend), 
+                                       Kokkos::pair(Ystart, Yend),
+                                       Kokkos::pair(Zstart, Zend), 
                                        buffer.faceBuffer[i][f].d_view, ivar);
                 }
             }
         }
     }
 
-    void copyToBuffer(Kokkos::View<double***, Kokkos::LayoutStride> view, Buffer &buffer, int const ivar) 
+    void copyToBuffer(Kokkos::View<double***, Kokkos::LayoutStride> view, Buffer & buffer, int const ivar) 
     {
         copyToBuffer_faces(view, buffer, ivar);  
         modifyDtoH(buffer.faceBuffer);  
@@ -324,51 +324,51 @@ namespace {
         if(ng[0] || ng[1] || ng[2]) { return; }   
 
         //corner(0,0,0)
-        memcopy_BtoV(view, std::make_pair(0, ng[0]), 
-                           std::make_pair(0, ng[1]),
-                           std::make_pair(0, ng[2]), 
+        memcopy_BtoV(view, Kokkos::pair(0, ng[0]), 
+                           Kokkos::pair(0, ng[1]),
+                           Kokkos::pair(0, ng[2]), 
                            buffer.cornerBuffer[0][0].d_view, ivar);
 
         //corner(1,0,0)  
-        memcopy_BtoV(view, std::make_pair(lim0+ng[0], lim0+2*ng[0]), 
-                           std::make_pair(0, ng[1]),
-                           std::make_pair(0, ng[2]), 
+        memcopy_BtoV(view, Kokkos::pair(lim0+ng[0], lim0+2*ng[0]), 
+                           Kokkos::pair(0, ng[1]),
+                           Kokkos::pair(0, ng[2]), 
                            buffer.cornerBuffer[0][1].d_view, ivar);
 
         //corner(0,1,0)  
-        memcopy_BtoV(view, std::make_pair(0, ng[0]), 
-                           std::make_pair(lim1+ng[1], lim1+2*ng[1]),
-                           std::make_pair(0, ng[2]), 
+        memcopy_BtoV(view, Kokkos::pair(0, ng[0]), 
+                           Kokkos::pair(lim1+ng[1], lim1+2*ng[1]),
+                           Kokkos::pair(0, ng[2]), 
                            buffer.cornerBuffer[0][2].d_view, ivar);   
 
         //corner(1,1,0)  
-        memcopy_BtoV(view, std::make_pair(lim0+ng[0], lim0+2*ng[0]), 
-                           std::make_pair(lim1+ng[1], lim1+2*ng[1]),
-                           std::make_pair(0, ng[2]), 
+        memcopy_BtoV(view, Kokkos::pair(lim0+ng[0], lim0+2*ng[0]), 
+                           Kokkos::pair(lim1+ng[1], lim1+2*ng[1]),
+                           Kokkos::pair(0, ng[2]), 
                            buffer.cornerBuffer[0][3].d_view, ivar);   
 
         //corner(0,0,1) 
-        memcopy_BtoV(view, std::make_pair(0, ng[0]), 
-                           std::make_pair(0, ng[1]),
-                           std::make_pair(lim2+ng[2], lim2+2*ng[2]), 
+        memcopy_BtoV(view, Kokkos::pair(0, ng[0]), 
+                           Kokkos::pair(0, ng[1]),
+                           Kokkos::pair(lim2+ng[2], lim2+2*ng[2]), 
                            buffer.cornerBuffer[1][0].d_view, ivar);
 
         //corner(1,0,1)   
-        memcopy_BtoV(view, std::make_pair(lim0+ng[0], lim0+2*ng[0]), 
-                           std::make_pair(0, ng[1]),
-                           std::make_pair(lim2+ng[2], lim2+2*ng[2]), 
+        memcopy_BtoV(view, Kokkos::pair(lim0+ng[0], lim0+2*ng[0]), 
+                           Kokkos::pair(0, ng[1]),
+                           Kokkos::pair(lim2+ng[2], lim2+2*ng[2]), 
                            buffer.cornerBuffer[1][1].d_view, ivar);
 
         //corner(0,1,1)
-        memcopy_BtoV(view, std::make_pair(0, ng[0]), 
-                           std::make_pair(lim1+ng[1], lim1+2*ng[1]),
-                           std::make_pair(lim2+ng[2], lim2+2*ng[2]),
+        memcopy_BtoV(view, Kokkos::pair(0, ng[0]), 
+                           Kokkos::pair(lim1+ng[1], lim1+2*ng[1]),
+                           Kokkos::pair(lim2+ng[2], lim2+2*ng[2]),
                            buffer.cornerBuffer[1][2].d_view, ivar);
 
         //corner(1,1,1)
-        memcopy_BtoV(view, std::make_pair(lim0+ng[0], lim0+2*ng[0]), 
-                           std::make_pair(lim1+ng[1], lim1+2*ng[1]),
-                           std::make_pair(lim2+ng[2], lim2+2*ng[2]), 
+        memcopy_BtoV(view, Kokkos::pair(lim0+ng[0], lim0+2*ng[0]), 
+                           Kokkos::pair(lim1+ng[1], lim1+2*ng[1]),
+                           Kokkos::pair(lim2+ng[2], lim2+2*ng[2]), 
                            buffer.cornerBuffer[1][3].d_view, ivar);
     }   
 
@@ -382,81 +382,81 @@ namespace {
         if(ng[1] && ng[2])
         {
             //edge[0][0] : corner(0,0,0)<->corner(1,0,0)
-            memcopy_BtoV(view, std::make_pair(ng[0], lim0+ng[0]), 
-                               std::make_pair(0, ng[1]),
-                               std::make_pair(0, ng[2]), 
+            memcopy_BtoV(view, Kokkos::pair(ng[0], lim0+ng[0]), 
+                               Kokkos::pair(0, ng[1]),
+                               Kokkos::pair(0, ng[2]), 
                                buffer.edgeBuffer[0][0].d_view, ivar);
 
             //edge[0][1] : corner(0,1,0)<->corner(1,1,0)
-            memcopy_BtoV(view, std::make_pair(ng[0], lim0+ng[0]), 
-                               std::make_pair(lim1+ng[1], lim1+2*ng[1]),
-                               std::make_pair(0, ng[2]), 
+            memcopy_BtoV(view, Kokkos::pair(ng[0], lim0+ng[0]), 
+                               Kokkos::pair(lim1+ng[1], lim1+2*ng[1]),
+                               Kokkos::pair(0, ng[2]), 
                                buffer.edgeBuffer[0][1].d_view, ivar);    
 
             //edge[0][2] : corner(0,0,1)<->corner(1,0,1)
-            memcopy_BtoV(view, std::make_pair(ng[0], lim0+ng[0]), 
-                               std::make_pair(0, ng[1]),
-                               std::make_pair(lim2+ng[2], lim2+2*ng[2]), 
+            memcopy_BtoV(view, Kokkos::pair(ng[0], lim0+ng[0]), 
+                               Kokkos::pair(0, ng[1]),
+                               Kokkos::pair(lim2+ng[2], lim2+2*ng[2]), 
                                buffer.edgeBuffer[0][2].d_view, ivar);
 
             //edge[0][3] : corner(0,1,1)<->corner(1,1,1)
-            memcopy_BtoV(view, std::make_pair(ng[0], lim0+ng[0]), 
-                               std::make_pair(lim1+ng[1], lim1+2*ng[1]),
-                               std::make_pair(lim2+ng[2], lim2+2*ng[2]), 
+            memcopy_BtoV(view, Kokkos::pair(ng[0], lim0+ng[0]), 
+                               Kokkos::pair(lim1+ng[1], lim1+2*ng[1]),
+                               Kokkos::pair(lim2+ng[2], lim2+2*ng[2]), 
                                buffer.edgeBuffer[0][3].d_view, ivar);
         }   
 
         if(ng[0] && ng[2])
         {
             //edge[1][0] : corner(0,0,0)<->corner(0,1,0)    
-            memcopy_BtoV(view, std::make_pair(0, ng[0]), 
-                               std::make_pair(ng[1], lim1+ng[1]),
-                               std::make_pair(0, ng[2]), 
+            memcopy_BtoV(view, Kokkos::pair(0, ng[0]), 
+                               Kokkos::pair(ng[1], lim1+ng[1]),
+                               Kokkos::pair(0, ng[2]), 
                                buffer.edgeBuffer[1][0].d_view, ivar);
 
             //edge[1][1] : corner(1,0,0)<->corner(1,1,0)
-            memcopy_BtoV(view, std::make_pair(lim0+ng[0], lim0+2*ng[0]),
-                               std::make_pair(ng[1], lim1+ng[1]),
-                               std::make_pair(0, ng[2]),
+            memcopy_BtoV(view, Kokkos::pair(lim0+ng[0], lim0+2*ng[0]),
+                               Kokkos::pair(ng[1], lim1+ng[1]),
+                               Kokkos::pair(0, ng[2]),
                                buffer.edgeBuffer[1][1].d_view, ivar);
 
             //edge[1][2] : corner(0,0,1)<->corner(0,1,1)
-            memcopy_BtoV(view, std::make_pair(0, ng[0]),
-                               std::make_pair(ng[1], lim1+ng[1]),
-                               std::make_pair(lim2+ng[2], lim2+2*ng[2]),
+            memcopy_BtoV(view, Kokkos::pair(0, ng[0]),
+                               Kokkos::pair(ng[1], lim1+ng[1]),
+                               Kokkos::pair(lim2+ng[2], lim2+2*ng[2]),
                                buffer.edgeBuffer[1][2].d_view, ivar);
 
             //edge[1][3] : corner(1,0,1)<->corner(1,1,1)
-            memcopy_BtoV(view, std::make_pair(lim0+ng[0], lim0+2*ng[0]),
-                               std::make_pair(ng[1], lim1+ng[1]),
-                               std::make_pair(lim2+ng[2], lim2+2*ng[2]),
+            memcopy_BtoV(view, Kokkos::pair(lim0+ng[0], lim0+2*ng[0]),
+                               Kokkos::pair(ng[1], lim1+ng[1]),
+                               Kokkos::pair(lim2+ng[2], lim2+2*ng[2]),
                                buffer.edgeBuffer[1][3].d_view, ivar);
-        }   
+        }
 
         if(ng[0] && ng[1])
         {
             //edge[2][0] : corner(0,0,0)<->corner(0,0,1)  
-            memcopy_BtoV(view, std::make_pair(0, ng[0]),
-                               std::make_pair(0, ng[1]),
-                               std::make_pair(ng[2], lim2+ng[2]),
+            memcopy_BtoV(view, Kokkos::pair(0, ng[0]),
+                               Kokkos::pair(0, ng[1]),
+                               Kokkos::pair(ng[2], lim2+ng[2]),
                                buffer.edgeBuffer[2][0].d_view, ivar);
 
             //edge[2][1] : corner(1,0,0)<->corner(1,0,1)
-            memcopy_BtoV(view, std::make_pair(lim0+ng[0], lim0+2*ng[0]),
-                               std::make_pair(0, ng[1]),
-                               std::make_pair(ng[2], lim2+ng[2]),
+            memcopy_BtoV(view, Kokkos::pair(lim0+ng[0], lim0+2*ng[0]),
+                               Kokkos::pair(0, ng[1]),
+                               Kokkos::pair(ng[2], lim2+ng[2]),
                                buffer.edgeBuffer[2][1].d_view, ivar);
 
             //edge[2][2] : corner(0,1,0)<->corner(0,1,1)
-            memcopy_BtoV(view, std::make_pair(0, ng[0]),
-                               std::make_pair(lim1+ng[1], lim1+2*ng[1]),
-                               std::make_pair(ng[2], lim2+ng[2]),
+            memcopy_BtoV(view, Kokkos::pair(0, ng[0]),
+                               Kokkos::pair(lim1+ng[1], lim1+2*ng[1]),
+                               Kokkos::pair(ng[2], lim2+ng[2]),
                                buffer.edgeBuffer[2][2].d_view, ivar);
 
             //edge[2][3] : corner(1,1,0)<->corner(1,1,1)
-            memcopy_BtoV(view, std::make_pair(lim0+ng[0], lim0+2*ng[0]),
-                               std::make_pair(lim1+ng[1], lim1+2*ng[1]),
-                               std::make_pair(ng[2], lim2+ng[2]),
+            memcopy_BtoV(view, Kokkos::pair(lim0+ng[0], lim0+2*ng[0]),
+                               Kokkos::pair(lim1+ng[1], lim1+2*ng[1]),
+                               Kokkos::pair(ng[2], lim2+ng[2]),
                                buffer.edgeBuffer[2][3].d_view, ivar);
         }
     }
@@ -480,9 +480,9 @@ namespace {
                     if(i==1) { Ystart = f*(lim1+ng[1]); Yend = f*(lim1+ng[1])+ng[1]; }
                     if(i==2) { Zstart = f*(lim2+ng[2]); Zend = f*(lim2+ng[2])+ng[2]; }
 
-                    memcopy_BtoV(view, std::make_pair(Xstart, Xend),
-                                       std::make_pair(Ystart, Yend),
-                                       std::make_pair(Zstart, Zend),
+                    memcopy_BtoV(view, Kokkos::pair(Xstart, Xend),
+                                       Kokkos::pair(Ystart, Yend),
+                                       Kokkos::pair(Zstart, Zend),
                                        buffer.faceBuffer[i][f].d_view, ivar);
                 }
             }
@@ -681,28 +681,25 @@ namespace {
     }
 } // end of anonymous namespace
 
-
-void innerExchangeMPI(Kokkos::View<double***> rho,
-                      Kokkos::View<double****> rhou,
-                      Kokkos::View<double***> E, 
-                      std::array<int, 3> const & ng, 
-                      MPI_Comm const & comm_cart, std::array<std::array<std::array<int, 3>, 3>, 3> const & nrank,
-                      Buffer& send_buffer, Buffer& recv_buffer)
+void IBoundaryCondition::ghostExchange(Kokkos::View<double***> rho,
+                                       Kokkos::View<double****> rhou,
+                                       Kokkos::View<double***> E, 
+                                       Grid const & grid)
 {
-    copyToBuffer(rho,  send_buffer, 0);
-    copyToBuffer(E,    send_buffer, 1); 
+    copyToBuffer(rho,  sbuf, 0);
+    copyToBuffer(E,    sbuf, 1); 
     
-    for(int n=0; n<rhou.extent_int(3); n++)
+    for(int n=0; n<ndim; n++)
     {   
-        copyToBuffer(Kokkos::subview(rhou, Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, n), send_buffer, 2+n);
+        copyToBuffer(Kokkos::subview(rhou, Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, n), sbuf, 2+n);
     }
 
-    exchangeBuffer(send_buffer, recv_buffer, ng, comm_cart, nrank);
+    exchangeBuffer(sbuf, rbuf, grid.Nghost, grid.comm_cart, grid.NeighborRank);
 
-    copyFromBuffer(rho,  recv_buffer, 0);
-    copyFromBuffer(E,    recv_buffer, 1);
-    for(int n=0; n<rhou.extent_int(3); n++)
+    copyFromBuffer(rho,  rbuf, 0);
+    copyFromBuffer(E,    rbuf, 1);
+    for(int n=0; n<ndim; n++)
     {   
-        copyFromBuffer(Kokkos::subview(rhou, Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, n), recv_buffer, 2+n);
+        copyFromBuffer(Kokkos::subview(rhou, Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, n), rbuf, 2+n);
     }
 }

@@ -1,14 +1,22 @@
 //!
-//! @file set_boundary.hpp
+//! @file boundary.hpp
 //!
 #pragma once
 
 #include <Kokkos_Core.hpp>
+#include "buffer.hpp"
+#include "grid.hpp"
+#include "ndim.hpp"
 
 class IBoundaryCondition
 {
 public:
     IBoundaryCondition() = default;
+
+    IBoundaryCondition(Grid const & grid):
+    sbuf(grid.Nghost, grid.Nx_local_ng, 2+ndim),
+    rbuf(grid.Nghost, grid.Nx_local_ng, 2+ndim)
+    {};
 
     IBoundaryCondition(IBoundaryCondition const& x) = default;
 
@@ -20,18 +28,36 @@ public:
 
     IBoundaryCondition& operator=(IBoundaryCondition&& x) noexcept = default;
 
-    virtual void outerExchange(Kokkos::View<double***> rho,
+    virtual void bcUpdate(Kokkos::View<double***> rho,
                                Kokkos::View<double****> rhou,
                                Kokkos::View<double***> E,
                                Grid const & grid) const = 0;
+
+    void ghostExchange(Kokkos::View<double***> rho,
+                      Kokkos::View<double****> rhou,
+                      Kokkos::View<double***> E, 
+                      Grid const & grid);
+
+    void execute(Kokkos::View<double***> rho,
+                               Kokkos::View<double****> rhou,
+                               Kokkos::View<double***> E,
+                               Grid const & grid) 
+    {
+        ghostExchange(rho, rhou, E, grid); 
+        bcUpdate(rho, rhou, E, grid); 
+    }
+
+private:    
+    Buffer sbuf, rbuf;
 
 };
 
 class NullGradient : public IBoundaryCondition
 {
 public:
+    NullGradient(Grid const & grid) : IBoundaryCondition(grid){};
     
-    void outerExchange(Kokkos::View<double***> rho,
+    void bcUpdate(Kokkos::View<double***> rho,
                        Kokkos::View<double****> rhou,
                        Kokkos::View<double***> E,
                        Grid const & grid) const final
@@ -161,8 +187,10 @@ public:
 class PeriodicCondition : public IBoundaryCondition
 {
 public:
+
+    PeriodicCondition(Grid const & grid) : IBoundaryCondition(grid){};
     
-    void outerExchange([[maybe_unused]]Kokkos::View<double***> rho,
+    void bcUpdate([[maybe_unused]]Kokkos::View<double***> rho,
                        [[maybe_unused]]Kokkos::View<double****> rhou,
                        [[maybe_unused]]Kokkos::View<double***> E,
                        [[maybe_unused]]Grid const & grid) const final
@@ -175,8 +203,9 @@ public:
 class ReflexiveCondition : public IBoundaryCondition
 {
 public:
+    ReflexiveCondition(Grid const & grid) : IBoundaryCondition(grid){};
     
-    void outerExchange(Kokkos::View<double***> rho,
+    void bcUpdate(Kokkos::View<double***> rho,
                        Kokkos::View<double****> rhou,
                        Kokkos::View<double***> E,
                        Grid const & grid) const final
@@ -294,19 +323,20 @@ public:
 };
 
 inline std::unique_ptr<IBoundaryCondition> factory_boundary_construction(
+    Grid const & grid,
     std::string const& s)
 {
     if (s == "NullGradient")
     {
-        return std::make_unique<NullGradient>();
+        return std::make_unique<NullGradient>(grid);
     }
     if (s == "Periodic")
     {
-        return std::make_unique<PeriodicCondition>();
+        return std::make_unique<PeriodicCondition>(grid);
     }
     if (s == "Reflexive")
     {
-        return std::make_unique<ReflexiveCondition>();
+        return std::make_unique<ReflexiveCondition>(grid);
     }
 
     throw std::runtime_error("Unknown boundary condition : " + s + ".");
