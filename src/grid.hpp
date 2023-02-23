@@ -46,7 +46,7 @@ public :
     std::array<int, 3> Nx_block;   // Maximum size of sub-block, including ghos
 
     std::array<std::array<std::array<int, 3>, 3>, 3> NeighborRank;
-    std::array<int,3> Ncpu_x;
+    std::array<int,3> Ncpu_x = {1,1,1};
     int Ncpu;
 
     MPI_Comm comm_cart;

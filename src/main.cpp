@@ -16,13 +16,12 @@
 #include "face_reconstruction.hpp"
 #include "cfl_cond.hpp"
 #include "grid.hpp"
-#include "set_boundary.hpp"
+#include "boundary.hpp"
 #include "euler_equations.hpp"
 #include "extrapolation_construction.hpp"
 #include "PerfectGas.hpp"
 #include "godunov_scheme.hpp"
 #include "mpi_scope_guard.hpp"
-#include "exchange.hpp"
 #include <pdi.h>
 
 int main(int argc, char** argv)
@@ -43,9 +42,6 @@ int main(int argc, char** argv)
 
     Grid grid(reader);
     grid.print_grid();
-
-    Buffer sendbuf(grid.Nghost, grid.Nx_local_ng, 3+ndim);
-    Buffer recvbuf(grid.Nghost, grid.Nx_local_ng, 3+ndim);
 
     double const timeout = reader.GetReal("Run", "timeout", 0.2);
     double const cfl = reader.GetReal("Run", "clf", 0.4);
@@ -79,7 +75,7 @@ int main(int argc, char** argv)
 
     std::string const boundary_condition_type = reader.Get("Hydro", "boundary", "NullGradient");
     std::unique_ptr<IBoundaryCondition> boundary_construction
-            = factory_boundary_construction(boundary_condition_type);
+            = factory_boundary_construction(grid, boundary_condition_type);
     
     std::string const riemann_solver = reader.Get("Hydro", "riemann_solver", "HLL");
     std::unique_ptr<IGodunovScheme> godunov_scheme
@@ -184,8 +180,7 @@ int main(int argc, char** argv)
         godunov_scheme->execute(rho, rhou, E, rho_rec, rhou_rec, E_rec, 
                                 rho_new, rhou_new, E_new, array_dx, dt);
 
-        innerExchangeMPI(rho_new, rhou_new, E_new, grid.Nghost, grid.comm_cart, grid.NeighborRank, sendbuf, recvbuf);
-        boundary_construction->outerExchange(rho_new, rhou_new, E_new, grid);
+        boundary_construction->execute(rho_new, rhou_new, E_new, grid);
 
         ConvConstoPrimArray(u, P, rho_new, rhou_new, E_new, eos);
         Kokkos::deep_copy(rho, rho_new);

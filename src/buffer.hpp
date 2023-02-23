@@ -28,4 +28,6 @@ public :
     Buffer(std::array<int, 3> const & ng,
            std::array<int, 3> const & nx_local_ng,
            int nvar);
+
+    Buffer() = default;
 };
