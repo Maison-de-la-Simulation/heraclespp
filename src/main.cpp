@@ -156,18 +156,18 @@ int main(int argc, char** argv)
 
         for(int idim = 0; idim < ndim ; ++idim)
         {
-            for (int n = 0; n < 2; ++n)
+            for (int iside = 0; iside < 2; ++iside)
             {
                 auto rhou_rec_less_dim = Kokkos::subview(rhou_rec, Kokkos::ALL, Kokkos::ALL, 
-                                                    Kokkos::ALL, n, idim, Kokkos::ALL);
+                                                    Kokkos::ALL, iside, idim, Kokkos::ALL);
                 auto E_rec_less_dim = Kokkos::subview(E_rec, Kokkos::ALL, Kokkos::ALL, 
-                                                    Kokkos::ALL, n, idim);
+                                                    Kokkos::ALL, iside, idim);
                 auto rho_rec_less_dim = Kokkos::subview(rho_rec, Kokkos::ALL, Kokkos::ALL, 
-                                                    Kokkos::ALL, n, idim);
+                                                    Kokkos::ALL, iside, idim);
                 auto u_rec_less_dim = Kokkos::subview(u_rec, Kokkos::ALL, Kokkos::ALL, 
-                                                    Kokkos::ALL, n, idim, Kokkos::ALL);
+                                                    Kokkos::ALL, iside, idim, Kokkos::ALL);
                 auto P_rec_less_dim = Kokkos::subview(P_rec, Kokkos::ALL, Kokkos::ALL, 
-                                                    Kokkos::ALL, n, idim);
+                                                    Kokkos::ALL, iside, idim);
                 ConvPrimtoConsArray(rhou_rec_less_dim, E_rec_less_dim, rho_rec_less_dim, 
                                 u_rec_less_dim, P_rec_less_dim, eos);
             }
