@@ -38,7 +38,7 @@ rho_exact, u_exact, P_exact, e_exact = ExactShockTube(x_exact, inter, var_int0l,
 print('Final time shock tube problem = ', timeout, 's')
 
 # Solution solver
-with h5py.File(str(args.input), 'r') as f :
+with h5py.File(args.filename, 'r') as f :
     print(f.keys())
     rho = f['rho'][:, 0, 0]
     u = f['u'][:, 0, 0]
