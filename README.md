@@ -1,6 +1,6 @@
 # Nova++
 
-
+![data/shock_tube.png](https://gitlab.maisondelasimulation.fr/lrousselhard/nova/-/jobs/74200/artifacts/raw/data/shock_tube.png "Shock tube")
 
 ## Getting started
 
