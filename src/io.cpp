@@ -36,5 +36,5 @@ void write_pdi(int iter, double t, void * rho, void *u, void *P)
 
 bool should_output(int iter, int freq, int iter_max, double current, double dt, double time_out)
 {
-    return (iter>=iter_max) || (iter%freq==0) || (current+dt>=time_out);
+    return ((iter+1)>=iter_max) || ((iter+1)%freq==0) || (current+dt>=time_out);
 }

@@ -136,13 +136,13 @@ int main(int argc, char** argv)
     while (!should_exit && t < timeout && iter < max_iter)
     {
         double dt = time_step(cfl, rho, u, P, array_dx, eos);
-        bool const make_output = should_output(iter, output_frequency, max_iter, t, dt, timeout);
 
         if ((t + dt) > timeout)
         {
             dt = timeout - t;
             should_exit = true;
         }
+        bool const make_output = should_output(iter, output_frequency, max_iter, t, dt, timeout);
 
         face_reconstruction->execute(rho, rho_rec, array_dx);
         face_reconstruction->execute(P, P_rec, array_dx);
