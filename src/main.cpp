@@ -24,6 +24,7 @@
 #include "mpi_scope_guard.hpp"
 #include "ndim.hpp"
 #include <pdi.h>
+#include "range.hpp"
 #include "kronecker.hpp"
 #include "gravity_implementation.hpp"
 
@@ -163,9 +164,8 @@ int main(int argc, char** argv)
     Kokkos::View<double****> rhou_new("rhounew", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim);
     Kokkos::View<double***>  E_new("Enew",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
 
-    initialisation->execute(rho, u, P, nodes_x0, nodes_y0, g_array);
-
-    ConvPrimtoConsArray(rhou, E, rho, u, P, eos);
+    initialisation->execute(grid.range.all_ghosts(), rho, u, P, nodes_x0, nodes_y0, g_array);
+    ConvPrimtoConsArray(grid.range.all_ghosts(), rhou, E, rho, u, P, eos);
 
     Kokkos::deep_copy(rho_host, rho);
     Kokkos::deep_copy(u_host, u);
@@ -181,7 +181,7 @@ int main(int argc, char** argv)
 
     while (!should_exit && t < timeout && iter < max_iter)
     {
-        double dt = time_step(cfl, rho, u, P, array_dx, eos);
+        double dt = time_step(grid.range.all_ghosts(), cfl, rho, u, P, array_dx, eos);
 
         bool const make_output = should_output(iter, output_frequency, max_iter, t, dt, timeout);
         if ((t + dt) > timeout)
@@ -190,14 +190,14 @@ int main(int argc, char** argv)
             should_exit = true;
         }
 
-        face_reconstruction->execute(rho, rho_rec, array_dx);
-        face_reconstruction->execute(P, P_rec, array_dx);
+        face_reconstruction->execute(grid.range.with_ghosts(1), rho, rho_rec, array_dx);
+        face_reconstruction->execute(grid.range.with_ghosts(1), P, P_rec, array_dx);
         for(int idim = 0; idim < ndim ; ++idim)
         {
             auto u_less_dim = Kokkos::subview(u, Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, idim);
             auto u_rec_less_dim = Kokkos::subview(u_rec, Kokkos::ALL, Kokkos::ALL, 
                                     Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, idim);
-            face_reconstruction->execute(u_less_dim, u_rec_less_dim, array_dx);
+            face_reconstruction->execute(grid.range.with_ghosts(1), u_less_dim, u_rec_less_dim, array_dx);
         }
 
         for(int idim = 0; idim < ndim ; ++idim)
@@ -214,22 +214,22 @@ int main(int argc, char** argv)
                                                     Kokkos::ALL, iside, idim, Kokkos::ALL);
                 auto P_rec_less_dim = Kokkos::subview(P_rec, Kokkos::ALL, Kokkos::ALL, 
                                                     Kokkos::ALL, iside, idim);
-                ConvPrimtoConsArray(rhou_rec_less_dim, E_rec_less_dim, rho_rec_less_dim, 
-                                u_rec_less_dim, P_rec_less_dim, eos);
+                ConvPrimtoConsArray(grid.range.with_ghosts(1), rhou_rec_less_dim, E_rec_less_dim, rho_rec_less_dim, 
+                                    u_rec_less_dim, P_rec_less_dim, eos);
             }
         }
 
-        extrapolation_construction->execute(rhou_rec, E_rec, rho_rec, u_rec, P_rec,
+        extrapolation_construction->execute(grid.range.with_ghosts(1), rhou_rec, E_rec, rho_rec, u_rec, P_rec,
                                         eos, array_dx, dt);
 
-        godunov_scheme->execute(rho, rhou, E, rho_rec, rhou_rec, E_rec, 
+        godunov_scheme->execute(grid.range.no_ghosts(), rho, rhou, E, rho_rec, rhou_rec, E_rec, 
                                 rho_new, rhou_new, E_new, array_dx, dt);
 
         gravity_add->execute(rho, rhou, rhou_new, E_new, g_array, dt);
 
         boundary_construction->execute(rho_new, rhou_new, E_new, grid);
 
-        ConvConstoPrimArray(u, P, rho_new, rhou_new, E_new, eos);
+        ConvConstoPrimArray(grid.range.all_ghosts(), u, P, rho_new, rhou_new, E_new, eos);
         Kokkos::deep_copy(rho, rho_new);
         Kokkos::deep_copy(rhou, rhou_new);
         Kokkos::deep_copy(E, E_new);

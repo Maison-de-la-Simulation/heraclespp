@@ -7,7 +7,9 @@
 #include <PerfectGas.hpp>
 #include <math.h>
 
+#include "euler_equations.hpp"
 #include "ndim.hpp"
+#include "range.hpp"
 
 class IInitialisationProblem
 {
@@ -25,6 +27,7 @@ public:
     IInitialisationProblem& operator=(IInitialisationProblem&& x) noexcept = default;
 
     virtual void execute(
+        Range const& range,
         Kokkos::View<double***> rho,
         Kokkos::View<double****> u,
         Kokkos::View<double***> P,
@@ -38,6 +41,7 @@ class ShockTube : public IInitialisationProblem
 {
 public:
     void execute(
+        Range const& range,
         Kokkos::View<double***> const rho,
         Kokkos::View<double****> const u,
         Kokkos::View<double***> const P,
@@ -52,11 +56,10 @@ public:
         assert(rho.extent(2) == u.extent(2));
         assert(u.extent(2) == P.extent(2));
 
+        auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
         "ShockTubeInit",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-        {0, 0, 0},
-        {rho.extent(0), rho.extent(1), rho.extent(2)}),
+        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
             if((nodes_x0(i) + nodes_x0(i+1)) / 2 <= 0.5)
@@ -85,6 +88,7 @@ class AdvectionSinus : public IInitialisationProblem
 {
 public:
     void execute(
+        Range const& range,
         Kokkos::View<double***> rho,
         Kokkos::View<double****> u,
         Kokkos::View<double***> P,
@@ -99,11 +103,10 @@ public:
         assert(rho.extent(2) == u.extent(2));
         assert(u.extent(2) == P.extent(2));
 
+        auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
         "AdvectionInitSinus",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-        {0, 0, 0},
-        {rho.extent(0), rho.extent(1), rho.extent(2)}),
+        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
             rho(i, j, k) = 1 * std::exp(-15*std::pow(1./2 - (nodes_x0(i)+nodes_x0(i+1))/2, 2));
@@ -120,6 +123,7 @@ class AdvectionCrenel : public IInitialisationProblem
 {
 public:
     void execute(
+        Range const& range,
         Kokkos::View<double***> rho,
         Kokkos::View<double****> u,
         Kokkos::View<double***> P,
@@ -134,11 +138,10 @@ public:
         assert(rho.extent(2) == u.extent(2));
         assert(u.extent(2) == P.extent(2));
 
+        auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
         "AdvectionInitCrenel",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-        {0, 0, 0},
-        {rho.extent(0), rho.extent(1), rho.extent(2)}),
+        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
             if ((nodes_x0(i) + nodes_x0(i+1)) / 2 <= 0.3)
@@ -166,6 +169,7 @@ class GreshoVortex : public IInitialisationProblem
 {
 public:
     void execute(
+        Range const& range,
         Kokkos::View<double***> const rho,
         Kokkos::View<double****> const u,
         Kokkos::View<double***> const P,
@@ -182,11 +186,10 @@ public:
 
         double P0 = 5;
 
+        auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
         "GreshoVortexInit",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-        {0, 0, 0},
-        {rho.extent(0), rho.extent(1), rho.extent(2)}),
+        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
             rho(i, j, k) = 1;
@@ -226,6 +229,7 @@ class RayleighTaylor : public IInitialisationProblem
 {
 public:
     void execute(
+        Range const& range,
         Kokkos::View<double***> const rho,
         Kokkos::View<double****> const u,
         Kokkos::View<double***> const P,
@@ -247,11 +251,10 @@ public:
         double P0 = 2.5;
         double A = 0.01;
 
+        auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
         "RayleighTaylorInit",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-        {0, 0, 0},
-        {rho.extent(0), rho.extent(1), rho.extent(2)}),
+        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
             double x = nodes_x0(i);

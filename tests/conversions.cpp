@@ -1,14 +1,16 @@
 #include <gtest/gtest.h>
 
-#include <Kokkos_DualView.hpp>
 #include <Kokkos_Core.hpp>
+#include <Kokkos_DualView.hpp>
 #include <PerfectGas.hpp>
 #include <array_conversion.hpp>
 #include <euler_equations.hpp>
+#include <range.hpp>
 
 TEST(Conversions, PrimToCons)
 {
     int const n = 10;
+    Range const range({0, 0, 0}, {n, n, n}, 0);
     thermodynamics::PerfectGas const eos(2, 1);
     EulerPrim prim;
     prim.density = 2;
@@ -30,7 +32,14 @@ TEST(Conversions, PrimToCons)
 
     Kokkos::DualView<double****> rhou_view("rhou", n, n, n, ndim);
     Kokkos::DualView<double***> E_view("E", n, n, n);
-    ConvPrimtoConsArray(rhou_view.view_device(), E_view.view_device(), rho_view, u_view, P_view, eos);
+    ConvPrimtoConsArray(
+            range.all_ghosts(),
+            rhou_view.view_device(),
+            E_view.view_device(),
+            rho_view,
+            u_view,
+            P_view,
+            eos);
     rhou_view.modify_device();
     E_view.modify_device();
     rhou_view.sync_host();
@@ -45,7 +54,7 @@ TEST(Conversions, PrimToCons)
         {
             for (int i = 0; i < n; ++i)
             {
-                for ( int idim = 0; idim < ndim; ++idim )
+                for (int idim = 0; idim < ndim; ++idim)
                 {
                     EXPECT_DOUBLE_EQ(rhou_host(i, j, k, idim), cons.momentum[idim]);
                 }
@@ -58,6 +67,7 @@ TEST(Conversions, PrimToCons)
 TEST(Conversions, ConsToPrim)
 {
     int const n = 10;
+    Range const range({0, 0, 0}, {n, n, n}, 0);
     thermodynamics::PerfectGas const eos(2, 1);
     EulerCons cons;
     cons.density = 2;
@@ -79,7 +89,14 @@ TEST(Conversions, ConsToPrim)
 
     Kokkos::DualView<double****> u_view("u", n, n, n, ndim);
     Kokkos::DualView<double***> P_view("P", n, n, n);
-    ConvConstoPrimArray(u_view.view_device(), P_view.view_device(), rho_view, rhou_view, E_view, eos);
+    ConvConstoPrimArray(
+            range.all_ghosts(),
+            u_view.view_device(),
+            P_view.view_device(),
+            rho_view,
+            rhou_view,
+            E_view,
+            eos);
     u_view.modify_device();
     P_view.modify_device();
     u_view.sync_host();

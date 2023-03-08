@@ -5,6 +5,7 @@
 
 #include "euler_equations.hpp"
 #include "ndim.hpp"
+#include "range.hpp"
 
 class IExtrapolationValues
 {
@@ -22,6 +23,7 @@ public:
     IExtrapolationValues& operator=(IExtrapolationValues&& x) noexcept = default;
 
     virtual void execute(
+        Range const& range,
         Kokkos::View<double******> const rhou,
         Kokkos::View<double*****> const E,
         Kokkos::View<double*****> const rho,
@@ -37,6 +39,7 @@ class ExtrapolationCalculation : public IExtrapolationValues
 {
 public : 
     void execute(
+        Range const& range,
         Kokkos::View<double******> const rhou,
         Kokkos::View<double*****> const E,
         Kokkos::View<double*****> const rho,
@@ -68,31 +71,10 @@ public :
         assert(u.extent(4) == P.extent(4));
         assert(rhou.extent(5) == u.extent(5));
 
-        int istart = 1; // Default = 1D
-        int jstart = 0;
-        int kstart = 0;
-        int iend = rho.extent(0) - 1;
-        int jend = 1;
-        int kend = 1;
-            
-        if (ndim == 2) // 2D
-        {
-            jstart = 1;
-            jend = rho.extent(1) - 1;
-        }
-        if (ndim == 3) // 3D
-        {
-            jstart = 1;
-            kstart = 1;
-            jend = rho.extent(1) - 1;
-            kend = rho.extent(2) - 1;
-        }
-
+        auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
         "ExtrapolationCalculation",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-        {istart, jstart, kstart},
-        {iend, jend, kend}),
+        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
             for (int idim = 0; idim < ndim; ++idim)

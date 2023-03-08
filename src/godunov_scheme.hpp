@@ -12,9 +12,10 @@
 #include <PerfectGas.hpp>
 
 #include "euler_equations.hpp"
-#include "ndim.hpp"
-#include "riemann_solver.hpp"
 #include "kronecker.hpp"
+#include "ndim.hpp"
+#include "range.hpp"
+#include "riemann_solver.hpp"
 
 class IGodunovScheme
 {
@@ -32,6 +33,7 @@ public:
     IGodunovScheme& operator=(IGodunovScheme&& x) noexcept = default;
 
     virtual void execute(
+            Range const& range,
             Kokkos::View<const double***> rho,
             Kokkos::View<const double****> rhou,
             Kokkos::View<const double***> E,
@@ -72,6 +74,7 @@ public:
     }
 
     void execute(
+            Range const& range,
             Kokkos::View<const double***> const rho,
             Kokkos::View<const double****> const rhou,
             Kokkos::View<const double***> const E,
@@ -84,33 +87,11 @@ public:
             Kokkos::View<const double*> const dx,
             double dt) const final
     {
-        int istart = 2; // Default = 1D
-        int jstart = 0;
-        int kstart = 0;
-        int iend = rho.extent(0) - 2;
-        int jend = 1;
-        int kend = 1;
-            
-        if (ndim == 2) // 2D
-        {
-            jstart = 2;
-            jend = rho.extent(1) - 2;
-        }
-        if (ndim == 3) // 3D
-        {
-            jstart = 2;
-            kstart = 2;
-            jend = rho.extent(1) - 2;
-            kend = rho.extent(2) - 2;
-        }
-
+        auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
         "RiemannBasedGodunovScheme",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-        {istart, jstart, kstart},
-        {iend, jend, kend}),
-        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
-        {
+        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+        KOKKOS_CLASS_LAMBDA(int i, int j, int k) {
             rho_new(i, j, k) = rho(i, j, k);
             E_new(i, j, k) = E(i, j, k);
             for (int idim = 0; idim < ndim; ++idim)
