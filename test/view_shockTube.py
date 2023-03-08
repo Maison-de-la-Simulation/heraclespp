@@ -1,4 +1,4 @@
-# Test the shcok tube problem and compare 
+# Test the shock tube problem and compare
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -25,7 +25,7 @@ if (g4 * (c0l + c0r)) < (u0r - u0l) :
     print('Il faut inclure le vide')
 
 print("********************************")
-print(" Shock tube problem")
+print("Shock tube problem")
 print("********************************")
 
 # Initialisation
@@ -41,7 +41,7 @@ print('Final time shock tube problem = ', timeout, 's')
 with h5py.File(args.filename, 'r') as f :
     print(f.keys())
     rho = f['rho'][:, 0, 0]
-    u = f['u'][:, 0, 0]
+    u = f['u'][:, 0, 0, 0]
     P = f['P'][:, 0, 0]
 e = P / rho / (gamma - 1)
 
