@@ -11,7 +11,7 @@
 
 #include "slope_limiters.hpp"
 #include "kronecker.hpp"
-#include "euler_equations.hpp"
+#include "ndim.hpp"
 
 class IFaceReconstruction
 {

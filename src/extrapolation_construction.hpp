@@ -4,6 +4,7 @@
 #pragma once
 
 #include "euler_equations.hpp"
+#include "ndim.hpp"
 
 class IExtrapolationValues
 {

@@ -130,8 +130,8 @@ public:
                 size_x = rho.extent(1)-1;
                 Kokkos::parallel_for("NullGradient_implementation",
                                      Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-                                     {0, rho.extent_int(1)-ng, 0},
-                                     {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)}),
+                                     {0, 0, 0},
+                                     {rho.extent_int(0), ng, rho.extent_int(2)}),
                                      KOKKOS_LAMBDA(int i, int j, int k)
                 {
                     rho(i, size_x-j, k) = rho(i, size_x-ng, k);
@@ -143,6 +143,7 @@ public:
                 });
             } 
         }
+
         if(grid.Ndim==3)
         {
             ng = grid.Nghost[2];
@@ -168,8 +169,8 @@ public:
                 size_x = rho.extent(2)-1;
                 Kokkos::parallel_for("NullGradient_implementation",
                                      Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-                                     {0, 0, rho.extent_int(2)-ng},
-                                     {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)}),
+                                     {0, 0, 0},
+                                     {rho.extent_int(0), rho.extent_int(1), ng}),
                                      KOKKOS_LAMBDA(int i, int j, int k)
                 {
                     rho(i, j, size_x-k) = rho(i, j, size_x-ng);
@@ -223,7 +224,7 @@ public:
                 rho(i, j, k) = rho(2*ng-1-i, j, k);
                 for (int n=0; n<rhou.extent_int(3); n++)
                 {    
-                    rhou(i, j, k, n) = rhou(2*ng-1-i, j, k, n);
+                    rhou(i, j, k, n) = - rhou(2*ng-1-i, j, k, n);
                 }
                 E(i, j, k) = E(2*ng-1-i, j, k);
             });
@@ -259,7 +260,7 @@ public:
                     rho(i, j, k) = rho(i, 2*ng-1-j, k);
                     for (int n=0; n<rhou.extent_int(3); n++)
                     {    
-                        rhou(i, j, k, n) = rhou(i, 2*ng-1-j, k, n);
+                        rhou(i, j, k, n) = - rhou(i, 2*ng-1-j, k, n);
                     }
                     E(i, j, k) = E(i, 2*ng-1-j, k);
                 });
@@ -322,6 +323,56 @@ public:
     }
 };
 
+class xPeriodicyReflexiveCondition : public IBoundaryCondition
+{
+public:
+    
+    void bcUpdate(Kokkos::View<double***> rho,
+                  Kokkos::View<double****> rhou,
+                  Kokkos::View<double***> E,
+                  Grid const & grid) const final
+    {
+        int ng=0;
+        if(grid.Ndim>=2)
+        {
+            ng = grid.Nghost[1];
+            if(grid.is_border[1][0])
+            {
+                Kokkos::parallel_for("Reflexive_implementation",
+                                     Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
+                                     {0, 0, 0},
+                                     {rho.extent_int(0), ng, rho.extent_int(2)}),
+                                     KOKKOS_LAMBDA(int i, int j, int k)
+                {
+                    rho(i, j, k) = rho(i, 2*ng-1-j, k);
+                    for (int n=0; n<rhou.extent_int(3); n++)
+                    {    
+                        rhou(i, j, k, n) = -rhou(i, 2*ng-1-j, k, n);
+                    }
+                    E(i, j, k) = E(i, 2*ng-1-j, k);
+                });
+            }
+            if(grid.is_border[1][1])
+            {
+                int offset=2*(rho.extent(1)-ng)-1;
+                Kokkos::parallel_for("Reflexive_implementation",
+                                     Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
+                                     {0, rho.extent_int(1)-ng, 0},
+                                     {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)}),
+                                     KOKKOS_LAMBDA(int i, int j, int k)
+                {
+                    rho(i, j, k) = rho(i, offset-j, k);
+                    for (int n=0; n<rhou.extent_int(3); n++)
+                    {    
+                        rhou(i, j, k, n) = -rhou(i, offset-j, k, n);
+                    }
+                    E(i, j, k) = E(i, offset-j, k);
+                });
+            }
+        }
+    }
+};
+
 inline std::unique_ptr<IBoundaryCondition> factory_boundary_construction(
     Grid const & grid,
     std::string const& s)
@@ -337,6 +388,10 @@ inline std::unique_ptr<IBoundaryCondition> factory_boundary_construction(
     if (s == "Reflexive")
     {
         return std::make_unique<ReflexiveCondition>(grid);
+    }
+    if (s == "xPeriodicyReflexive")
+    {
+        return std::make_unique<xPeriodicyReflexiveCondition>();
     }
 
     throw std::runtime_error("Unknown boundary condition : " + s + ".");

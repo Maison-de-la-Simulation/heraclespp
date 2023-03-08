@@ -22,7 +22,10 @@
 #include "PerfectGas.hpp"
 #include "godunov_scheme.hpp"
 #include "mpi_scope_guard.hpp"
+#include "ndim.hpp"
 #include <pdi.h>
+#include "kronecker.hpp"
+#include "gravity_implementation.hpp"
 
 int main(int argc, char** argv)
 {
@@ -52,20 +55,32 @@ int main(int argc, char** argv)
 
     thermodynamics::PerfectGas const eos(reader.GetReal("PerfectGas", "gamma", 1.4), 1.0);
 
+    double const xmin = reader.GetReal("Grid", "xmin", 0.0);
+    double const xmax = reader.GetReal("Grid", "xmax", 1.0);
+    double const ymin = reader.GetReal("Grid", "ymin", 0.0);
+    double const ymax = reader.GetReal("Grid", "ymax", 1.0);
+    double const zmin = reader.GetReal("Grid", "zmin", 0.0);
+    double const zmax = reader.GetReal("Grid", "zmax", 1.0);
+
+    double const Lx = xmax - xmin;
+    double const Ly = ymax - ymin;
+    double const Lz = zmax - zmin;
+
     Kokkos::View<double*> array_dx("array_dx", 3); //Space step array
-    Kokkos::parallel_for(3, KOKKOS_LAMBDA(int i)
+    Kokkos::parallel_for(1, KOKKOS_LAMBDA(int i)
     {
-        array_dx(i) = 1. / grid.Nx_glob_ng[i];
+        array_dx(0) = Lx / grid.Nx_glob_ng[0];
+        array_dx(1) = Ly / grid.Nx_glob_ng[1];
+        array_dx(2) = Lz / grid.Nx_glob_ng[2];
     });
 
     write_pdi_init(max_iter, output_frequency, grid);
     
-
     std::string const initialisation_problem = reader.Get("Problem", "type", "ShockTube");
     std::unique_ptr<IInitialisationProblem> initialisation
             = factory_initialisation(initialisation_problem);
 
-    std::string const reconstruction_type = reader.Get("Hydro", "reconstruction", "Minmod");
+    std::string const reconstruction_type = reader.Get("Hydro", "reconstruction", "VanLeer");
     std::unique_ptr<IFaceReconstruction> face_reconstruction
             = factory_face_reconstruction(reconstruction_type);
 
@@ -80,16 +95,47 @@ int main(int argc, char** argv)
     std::unique_ptr<IGodunovScheme> godunov_scheme
             = factory_godunov_scheme(riemann_solver, eos);
 
-    Kokkos::View<double*> nodes_x0("nodes_x0", grid.Nx_local_wg[0]+1); // Nodes for x0
+    std::string const gravity = reader.Get("Gravity", "gravity", "Off");
+    std::unique_ptr<IGravity> gravity_add
+            = factory_gravity_source(gravity);
 
-    int offset = grid.range.Corner_min[0] - grid.Nghost[0];
+    double const g = reader.GetReal("Gravity", "gval", 0.0);
+    int const gdim = reader.GetInteger("Gravity", "gdim", 3);
+
+    Kokkos::View<double*> g_array("g_array", ndim);
+    for (int idim=0; idim<ndim;++idim)
+    {
+        g_array(idim) = g * kron(idim, gdim);
+    }
+
+    Kokkos::View<double*> nodes_x0("nodes_x0", grid.Nx_local_wg[0]+1); // Nodes for x0
+    Kokkos::View<double*> nodes_y0("nodes_y0", grid.Nx_local_wg[1]+1); // Nodes for y0
+    Kokkos::View<double*> nodes_z0("nodes_z0", grid.Nx_local_wg[2]+1); // Nodes for z0
+
+    int offsetx = grid.range.Corner_min[0] - grid.Nghost[0];
     Kokkos::parallel_for("InitialisationNodes",
                          Kokkos::RangePolicy<>(0, nodes_x0.extent(0)),
                          KOKKOS_LAMBDA(int i)
     {
-        nodes_x0(i) = (i +offset) * array_dx(0) ; // Position of the left interface
+        nodes_x0(i) = xmin + (i + offsetx) * array_dx(0) ; // Position of the left interface
     });
 
+    int offsety = grid.range.Corner_min[1] - grid.Nghost[1];
+    Kokkos::parallel_for("InitialisationNodes",
+                         Kokkos::RangePolicy<>(0, nodes_y0.extent(0)),
+                         KOKKOS_LAMBDA(int i)
+    {
+        nodes_y0(i) = ymin + (i + offsety) * array_dx(1) ; // Position of the left interface
+    });
+    
+    int offsetz = grid.range.Corner_min[2] - grid.Nghost[2];
+    Kokkos::parallel_for("InitialisationNodes",
+                         Kokkos::RangePolicy<>(0, nodes_z0.extent(0)),
+                         KOKKOS_LAMBDA(int i)
+    {
+        nodes_z0(i) = zmin + (i + offsetz) * array_dx(2) ; // Position of the left interface
+    });
+    
     Kokkos::View<double***>  rho("rho",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Density
     Kokkos::View<double****> rhou("rhou", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim); // Momentum
     Kokkos::View<double***>  E("E",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Energy
@@ -117,7 +163,7 @@ int main(int argc, char** argv)
     Kokkos::View<double****> rhou_new("rhounew", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim);
     Kokkos::View<double***>  E_new("Enew",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
 
-    initialisation->execute(rho, u, P, nodes_x0);
+    initialisation->execute(rho, u, P, nodes_x0, nodes_y0, g_array);
 
     ConvPrimtoConsArray(rhou, E, rho, u, P, eos);
 
@@ -178,6 +224,8 @@ int main(int argc, char** argv)
 
         godunov_scheme->execute(rho, rhou, E, rho_rec, rhou_rec, E_rec, 
                                 rho_new, rhou_new, E_new, array_dx, dt);
+
+        gravity_add->execute(rho, rhou, rhou_new, E_new, g_array, dt);
 
         boundary_construction->execute(rho_new, rhou_new, E_new, grid);
 
