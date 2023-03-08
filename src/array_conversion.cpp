@@ -3,8 +3,10 @@
 
 #include "array_conversion.hpp"
 #include "euler_equations.hpp"
+#include "range.hpp"
 
 void ConvPrimtoConsArray(
+    Range const& range,
     Kokkos::View<double****, Kokkos::LayoutStride> const rhou,
     Kokkos::View<double***, Kokkos::LayoutStride> const E,
     Kokkos::View<const double***, Kokkos::LayoutStride> const rho,
@@ -12,11 +14,10 @@ void ConvPrimtoConsArray(
     Kokkos::View<const double***, Kokkos::LayoutStride> const P,
     thermodynamics::PerfectGas const& eos)
 {
+    auto const [begin, end] = cell_range(range);
     Kokkos::parallel_for(
     "ConvPrimtoConsArray",
-    Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-    {0, 0, 0},
-    {rho.extent(0), rho.extent(1), rho.extent(2)}),
+    Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
     KOKKOS_LAMBDA(int i, int j, int k)
     {
         EulerPrim var_prim;
@@ -36,6 +37,7 @@ void ConvPrimtoConsArray(
 }
  
 void ConvConstoPrimArray(
+    Range const& range,
     Kokkos::View<double****, Kokkos::LayoutStride> const u,
     Kokkos::View<double***, Kokkos::LayoutStride> const P,
     Kokkos::View<const double***, Kokkos::LayoutStride> const rho,
@@ -43,11 +45,10 @@ void ConvConstoPrimArray(
     Kokkos::View<const double***, Kokkos::LayoutStride> const E,
     thermodynamics::PerfectGas const& eos)
 {
+    auto const [begin, end] = cell_range(range);
      Kokkos::parallel_for(
     "ConvConstoPrimArray",
-    Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-    {0, 0, 0},
-    {rho.extent(0), rho.extent(1), rho.extent(2)}),
+    Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
     KOKKOS_LAMBDA(int i, int j, int k)
     {
         EulerCons var_cons;

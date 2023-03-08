@@ -9,9 +9,10 @@
 
 #include <Kokkos_Core.hpp>
 
-#include "slope_limiters.hpp"
 #include "kronecker.hpp"
 #include "ndim.hpp"
+#include "range.hpp"
+#include "slope_limiters.hpp"
 
 class IFaceReconstruction
 {
@@ -32,6 +33,7 @@ public:
     //! @param[out] varL left edge reconstruction values
     //! @param[out] varR right edge reconstruction values
     virtual void execute(
+        Range const& range,
         Kokkos::View<const double***, Kokkos::LayoutStride> var,
         Kokkos::View<double*****, Kokkos::LayoutStride> var_rec,
         Kokkos::View<const double*> dx) const
@@ -55,6 +57,7 @@ public:
     }
 
     void execute(
+        Range const& range,
         Kokkos::View<const double***, Kokkos::LayoutStride> var,
         Kokkos::View<double*****, Kokkos::LayoutStride> var_rec,
         Kokkos::View<const double*> dx) const final
@@ -62,32 +65,10 @@ public:
         assert(var.extent(0) == var_rec.extent(0));
         assert(var.extent(1) == var_rec.extent(1));
         assert(var.extent(2) == var_rec.extent(2));
-        {   
-            int istart = 1; // Default = 1D
-            int jstart = 0;
-            int kstart = 0;
-            int iend = var.extent(0) - 1;
-            int jend = 1;
-            int kend = 1;
-            
-            if (ndim == 2) // 2D
-            {
-                jstart = 1;
-                jend = var.extent(1) - 1;
-            }
-            if (ndim == 3) // 3D
-            {
-                jstart = 1;
-                kstart = 1;
-                jend = var.extent(1) - 1;
-                kend = var.extent(2) - 1;
-            }
-            
-            Kokkos::parallel_for(
+        auto const [begin, end] = cell_range(range);
+        Kokkos::parallel_for(
             "LimitedLinearFaceReconstruction",
-            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-            {istart, jstart, kstart},
-            {iend, jend, kend}),
+            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
             KOKKOS_CLASS_LAMBDA(int i, int j, int k) 
             {
                 for (int idim = 0; idim < ndim; ++idim)
@@ -107,7 +88,6 @@ public:
                     var_rec(i, j, k, 1, idim) =  var(i, j, k) + (dx(idim) / 2) * slope;
                 } 
             });
-        } 
     }
 };
 

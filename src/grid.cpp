@@ -28,7 +28,6 @@ Grid::Grid(INIReader const& reader)
     Nx_local_ng      = Nx_glob_ng ; // default for a single MPI process
 
     MPI_Decomp();
-    range.fill_range(Ndim, Nghost);
 }
 
 /* ****************************************************************
@@ -65,16 +64,18 @@ void Grid::MPI_Decomp()
     
     std::array<int, 3> remain_dims= {false, false, false};
     MPI_Comm comm_cart_1d[3];
+    std::array<int, 3> cmin{0, 0, 0};
+    std::array<int, 3> cmax{0, 0, 0};
     for(int i=0; i<3; i++)
     {
         remain_dims[i]=true;
-        range.Corner_min[i] = 0;
         MPI_Cart_sub(comm_cart, remain_dims.data(), &comm_cart_1d[i]);
-        MPI_Exscan(&Nx_local_ng[i], &range.Corner_min[i], 1, MPI_INT, MPI_SUM, comm_cart_1d[i]);
-        range.Corner_max[i] = range.Corner_min[i]+Nx_local_ng[i]-1;
+        MPI_Exscan(&Nx_local_ng[i], &cmin[i], 1, MPI_INT, MPI_SUM, comm_cart_1d[i]);
+        cmax[i] = cmin[i]+Nx_local_ng[i];
         
         remain_dims[i]=false;
     }
+    range = Range(cmin, cmax, Ng);
     
     int tmp_coord[3];
     for(int i=-1; i<2; i++)
