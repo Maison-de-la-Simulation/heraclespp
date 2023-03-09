@@ -4,6 +4,9 @@ image:
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
+before_script:
+  - git config --global --add safe.directory /builds/lrousselhard/nova/vendor/kokkos
+
 stages:
   - build
   - test
@@ -14,7 +17,7 @@ build-job:serial:1:
   stage: build
   needs: []
   script:
-    - cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="-Wall -Wextra -pedantic" -DNovapp_NDIM=1 -DKokkos_ENABLE_DEPRECATED_CODE_3=OFF -DKokkos_ENABLE_DEBUG=ON -DKokkos_ENABLE_DEBUG_DUALVIEW_MODIFY_CHECK=ON -DKokkos_ENABLE_DEBUG_BOUNDS_CHECK=ON -DKokkos_ENABLE_COMPILER_WARNINGS=ON -S . -B build
+    - cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DCMAKE_CXX_FLAGS="-Wall -Wextra -pedantic" -DNovapp_NDIM=1 -DKokkos_ENABLE_DEPRECATED_CODE_3=OFF -DKokkos_ENABLE_DEBUG=ON -DKokkos_ENABLE_DEBUG_DUALVIEW_MODIFY_CHECK=ON -DKokkos_ENABLE_DEBUG_BOUNDS_CHECK=ON -DKokkos_ENABLE_COMPILER_WARNINGS=ON -S . -B build
     - cmake --build build
   artifacts:
     expire_in: 1h
@@ -26,7 +29,7 @@ build-job:serial:2:
   stage: build
   needs: []
   script:
-    - cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="-Wall -Wextra -pedantic" -DNovapp_NDIM=2 -DKokkos_ENABLE_DEPRECATED_CODE_3=OFF -DKokkos_ENABLE_DEBUG=ON -DKokkos_ENABLE_DEBUG_DUALVIEW_MODIFY_CHECK=ON -DKokkos_ENABLE_DEBUG_BOUNDS_CHECK=ON -DKokkos_ENABLE_COMPILER_WARNINGS=ON -S . -B build
+    - cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DCMAKE_CXX_FLAGS="-Wall -Wextra -pedantic" -DNovapp_NDIM=2 -DKokkos_ENABLE_DEPRECATED_CODE_3=OFF -DKokkos_ENABLE_DEBUG=ON -DKokkos_ENABLE_DEBUG_DUALVIEW_MODIFY_CHECK=ON -DKokkos_ENABLE_DEBUG_BOUNDS_CHECK=ON -DKokkos_ENABLE_COMPILER_WARNINGS=ON -S . -B build
     - cmake --build build
   artifacts:
     expire_in: 1h
@@ -38,7 +41,7 @@ build-job:serial:3:
   stage: build
   needs: []
   script:
-    - cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="-Wall -Wextra -pedantic" -DNovapp_NDIM=3 -DKokkos_ENABLE_DEPRECATED_CODE_3=OFF -DKokkos_ENABLE_DEBUG=ON -DKokkos_ENABLE_DEBUG_DUALVIEW_MODIFY_CHECK=ON -DKokkos_ENABLE_DEBUG_BOUNDS_CHECK=ON -DKokkos_ENABLE_COMPILER_WARNINGS=ON -S . -B build
+    - cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DCMAKE_CXX_FLAGS="-Wall -Wextra -pedantic" -DNovapp_NDIM=3 -DKokkos_ENABLE_DEPRECATED_CODE_3=OFF -DKokkos_ENABLE_DEBUG=ON -DKokkos_ENABLE_DEBUG_DUALVIEW_MODIFY_CHECK=ON -DKokkos_ENABLE_DEBUG_BOUNDS_CHECK=ON -DKokkos_ENABLE_COMPILER_WARNINGS=ON -S . -B build
     - cmake --build build
   artifacts:
     expire_in: 1h
@@ -50,7 +53,7 @@ build-job:cuda:3:
   stage: build
   needs: []
   script:
-    - cmake -DCMAKE_BUILD_TYPE=None -DCMAKE_CXX_COMPILER=$PWD/vendor/kokkos/bin/nvcc_wrapper -DBUILD_TESTING=OFF -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="-Wall -Wextra -pedantic" -DNovapp_NDIM=3 -DKokkos_ENABLE_CUDA=ON -DKokkos_ENABLE_CUDA_LAMBDA=ON -DKokkos_ENABLE_CUDA_CONSTEXPR=ON -DKokkos_ARCH_AMPERE80=ON -DKokkos_ENABLE_DEPRECATED_CODE_3=OFF -DKokkos_ENABLE_DEBUG=ON -DKokkos_ENABLE_DEBUG_DUALVIEW_MODIFY_CHECK=ON -DKokkos_ENABLE_DEBUG_BOUNDS_CHECK=ON -DKokkos_ENABLE_COMPILER_WARNINGS=ON -S . -B build
+    - cmake -DCMAKE_BUILD_TYPE=None -DCMAKE_CXX_COMPILER=$PWD/vendor/kokkos/bin/nvcc_wrapper -DBUILD_TESTING=OFF -DCMAKE_CXX_FLAGS="-Wall -Wextra -pedantic" -DNovapp_NDIM=3 -DKokkos_ENABLE_CUDA=ON -DKokkos_ENABLE_CUDA_CONSTEXPR=ON -DKokkos_ARCH_AMPERE80=ON -DKokkos_ENABLE_DEPRECATED_CODE_3=OFF -DKokkos_ENABLE_DEBUG=ON -DKokkos_ENABLE_DEBUG_DUALVIEW_MODIFY_CHECK=ON -DKokkos_ENABLE_DEBUG_BOUNDS_CHECK=ON -DKokkos_ENABLE_COMPILER_WARNINGS=ON -S . -B build
     - cmake --build build
 
 build-job:hip:3:
@@ -58,7 +61,7 @@ build-job:hip:3:
   stage: build
   needs: []
   script:
-    - cmake -DCMAKE_BUILD_TYPE=None -DCMAKE_CXX_COMPILER=hipcc -DBUILD_TESTING=OFF -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="-Wall -Wextra -pedantic" -DNovapp_NDIM=3 -DKokkos_ENABLE_HIP=ON -DKokkos_ARCH_VEGA90A=ON -DKokkos_ENABLE_DEPRECATED_CODE_3=OFF -DKokkos_ENABLE_DEBUG=ON -DKokkos_ENABLE_DEBUG_DUALVIEW_MODIFY_CHECK=ON -DKokkos_ENABLE_DEBUG_BOUNDS_CHECK=ON -DKokkos_ENABLE_COMPILER_WARNINGS=ON -S . -B build
+    - cmake -DCMAKE_BUILD_TYPE=None -DCMAKE_CXX_COMPILER=hipcc -DBUILD_TESTING=OFF -DCMAKE_CXX_FLAGS="-Wall -Wextra -pedantic" -DNovapp_NDIM=3 -DKokkos_ENABLE_HIP=ON -DKokkos_ARCH_VEGA90A=ON -DKokkos_ENABLE_DEPRECATED_CODE_3=OFF -DKokkos_ENABLE_DEBUG=ON -DKokkos_ENABLE_DEBUG_DUALVIEW_MODIFY_CHECK=ON -DKokkos_ENABLE_DEBUG_BOUNDS_CHECK=ON -DKokkos_ENABLE_COMPILER_WARNINGS=ON -S . -B build
     - cmake --build build
 
 unit-test-job:serial:1:
