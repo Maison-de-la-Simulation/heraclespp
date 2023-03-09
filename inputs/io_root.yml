@@ -31,6 +31,8 @@ pdi:
           u:   {type: array, subtype: double, size: ['$nx_glob_ng[0]', '$nx_glob_ng[1]', '$nx_glob_ng[2]', '$ndim'] }
           P:   {type: array, subtype: double, size: ['$nx_glob_ng[0]', '$nx_glob_ng[1]', '$nx_glob_ng[2]' ] }
         write:
+          iter:
+          current_time:
           rho:
             memory_selection:
               size: ['$nx_local_ng[0]', '$nx_local_ng[1]', '$nx_local_ng[2]'] # size of data to be extracted from the proc
