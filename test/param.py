@@ -4,6 +4,7 @@ import numpy as np
 
 L = 1 # Domaine lenght
 inter = 0.5 # Interface position
+nvar = 3
 
 gamma = 1.4
 
