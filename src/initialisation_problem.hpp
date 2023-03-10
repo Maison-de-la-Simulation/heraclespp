@@ -3,9 +3,10 @@
 //!
 #pragma once
 
+#include <cmath>
+
 #include <Kokkos_Core.hpp>
 #include <PerfectGas.hpp>
-#include <math.h>
 
 #include "euler_equations.hpp"
 #include "ndim.hpp"
