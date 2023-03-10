@@ -273,7 +273,7 @@ public:
                 P(i, j, k) = P0 - y * g * rho(i, j, k);
             }
             u(i, j, k, 0) = 0;
-            u(i, j, k, 1) = (A/4) * (1+std::cos(2*M_PI*x/Lx)) * (1+std::cos(2*M_PI*y/Ly));
+            u(i, j, k, 1) = (A/4) * (1+std::cos(2*Kokkos::numbers::pi*x/Lx)) * (1+std::cos(2*Kokkos::numbers::pi*y/Ly));
          });
     }
 }; 
