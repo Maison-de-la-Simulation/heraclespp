@@ -6,6 +6,7 @@
 
 #include <array>
 #include "grid.hpp"
+#include "Kokkos_shortcut.hpp"
 
 namespace novapp
 {
@@ -14,6 +15,7 @@ bool should_output(int iter, int freq, int iter_max, double current, double dt, 
 
 void write_pdi_init(int max_iter, int frequency, Grid const& grid);
 
-void write_pdi(int iter, double t, void * rho, void *u, void *P);
-
-} // namespace novapp
+void write_pdi(int iter, double t, KDV_double_3d rho, 
+                                   KDV_double_4d u,
+                                   KDV_double_3d P);
+}

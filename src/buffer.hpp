@@ -8,8 +8,8 @@
 #include <cmath>
 #include <array>
 #include <string>
-#include <Kokkos_Core.hpp>
-#include <Kokkos_DualView.hpp>
+
+#include "Kokkos_shortcut.hpp"
 
 namespace novapp
 {
@@ -18,9 +18,9 @@ class Buffer
 {
 public :
     std::array<int, 3> Nghost;
-    std::array<std::array<Kokkos::DualView<double ****>,2>,3> faceBuffer;
-    std::array<std::array<Kokkos::DualView<double ****>,4>,3> edgeBuffer;
-    std::array<std::array<Kokkos::DualView<double ****>,4>,2> cornerBuffer;
+    std::array<std::array<KDV_double_4d,2>,3> faceBuffer;
+    std::array<std::array<KDV_double_4d,4>,3> edgeBuffer;
+    std::array<std::array<KDV_double_4d,4>,2> cornerBuffer;
 
 public :
     Buffer() = default;

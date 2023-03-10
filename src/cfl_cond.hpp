@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <Kokkos_Core.hpp>
+#include "Kokkos_shortcut.hpp"
 
 namespace novapp
 {
@@ -28,10 +28,10 @@ class Range;
 [[nodiscard]] double time_step(
     Range const& range,
     double const cfl,
-    Kokkos::View<const double***> rho,
-    Kokkos::View<const double****> u,
-    Kokkos::View<const double***> P,
-    Kokkos::View<const double*> dx, 
+    KV_cdouble_3d rho,
+    KV_cdouble_4d u,
+    KV_cdouble_3d P,
+    KV_cdouble_1d dx, 
     thermodynamics::PerfectGas const& eos);
 
 } // namespace novapp

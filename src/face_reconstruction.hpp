@@ -7,12 +7,12 @@
 #include <stdexcept>
 #include <string>
 
-#include <Kokkos_Core.hpp>
-
 #include "kronecker.hpp"
 #include "ndim.hpp"
 #include "range.hpp"
 #include "slope_limiters.hpp"
+#include "Kokkos_shortcut.hpp"
+
 
 namespace novapp
 {
@@ -37,9 +37,9 @@ public:
     //! @param[out] varR right edge reconstruction values
     virtual void execute(
         Range const& range,
-        Kokkos::View<const double***, Kokkos::LayoutStride> var,
-        Kokkos::View<double*****, Kokkos::LayoutStride> var_rec,
-        Kokkos::View<const double*> dx) const
+        KV_cdouble_3d var,
+        KV_double_5d var_rec,
+        KV_cdouble_1d dx) const
         = 0;
 };
 
@@ -61,9 +61,9 @@ public:
 
     void execute(
         Range const& range,
-        Kokkos::View<const double***, Kokkos::LayoutStride> var,
-        Kokkos::View<double*****, Kokkos::LayoutStride> var_rec,
-        Kokkos::View<const double*> dx) const final
+        KV_cdouble_3d var,
+        KV_double_5d var_rec,
+        KV_cdouble_1d dx) const final
     {
         assert(var.extent(0) == var_rec.extent(0));
         assert(var.extent(1) == var_rec.extent(1));

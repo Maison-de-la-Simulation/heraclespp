@@ -24,11 +24,11 @@ public:
     IGravity& operator=(IGravity&& x) noexcept = default;
 
     virtual void execute(
-            Kokkos::View<const double***> rho,
-            Kokkos::View<const double****> rhou,
-            Kokkos::View<double****> rhou_new,
-            Kokkos::View<double***> E_new,
-            Kokkos::View<double*> g_array,
+            KV_cdouble_3d rho,
+            KV_cdouble_4d rhou,
+            KV_double_4d rhou_new,
+            KV_double_3d E_new,
+            KV_double_1d g_array,
             double const dt) const
             = 0;
 };
@@ -37,11 +37,11 @@ class GravityOn : public IGravity
 {
 public :
     virtual void execute(
-            Kokkos::View<const double***> const rho,
-            Kokkos::View<const double****> const rhou,
-            Kokkos::View<double****> const rhou_new,
-            Kokkos::View<double***> const E_new,
-            Kokkos::View<double*> g_array,
+            KV_cdouble_3d const rho,
+            KV_cdouble_4d const rhou,
+            KV_double_4d const rhou_new,
+            KV_double_3d const E_new,
+            KV_double_1d g_array,
             double const dt) const final
     {
         int istart = 2; // Default = 1D
@@ -83,11 +83,11 @@ class GravityOff : public IGravity
 {
 public :
     virtual void execute(
-            [[maybe_unused]]Kokkos::View<const double***> const rho,
-            [[maybe_unused]]Kokkos::View<const double****> const rhou,
-            [[maybe_unused]]Kokkos::View<double****> const rhou_new,
-            [[maybe_unused]]Kokkos::View<double***> const E_new,
-            [[maybe_unused]]Kokkos::View<double*> g_array,
+            [[maybe_unused]]KV_cdouble_3d const rho,
+            [[maybe_unused]]KV_cdouble_4d const rhou,
+            [[maybe_unused]]KV_double_4d const rhou_new,
+            [[maybe_unused]]KV_double_3d const E_new,
+            [[maybe_unused]]KV_double_1d g_array,
             [[maybe_unused]]double const dt) const final
     {
         // do nothing

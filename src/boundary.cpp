@@ -5,8 +5,6 @@
 #include <cmath>
 #include <array>
 #include <string>
-#include <Kokkos_Core.hpp>
-#include <Kokkos_DualView.hpp>
 #include <mpi.h>
 #include "boundary.hpp"
 
@@ -16,65 +14,65 @@ namespace novapp
 namespace {
 
     template<std::size_t n, size_t m>
-    void modifyDtoH(std::array<std::array<Kokkos::DualView<double****>,n>,m> & buffer_element);   
+    void modifyDtoH(std::array<std::array<KDV_double_4d,n>,m> & buffer_element);   
 
     template<std::size_t n, size_t m>
-    void modifyHtoD(std::array<std::array<Kokkos::DualView<double****>,n>,m> & buffer_element);   
+    void modifyHtoD(std::array<std::array<KDV_double_4d,n>,m> & buffer_element);   
 
     //! Update buffer from device data before border exchange
     //! @param[in] view Variable field device data
     //! @param[in] send_buffer Buffer used to store and later send the border value
     //! @param[in] ivar Index of input variable
-    void copyToBuffer(Kokkos::View<double***, Kokkos::LayoutStride> const view, Buffer & send_buffer, int const ivar);   
+    void copyToBuffer(KV_cdouble_3d const view, Buffer & send_buffer, int const ivar);   
     
 
     //! Update face buffer from device data before border exchange
     //! @param[in] view Variable field device data
     //! @param[in] send_buffer Buffer used to store and later send the border value
     //! @param[in] ivar Index of input variable
-    void copyToBuffer_faces(Kokkos::View<double***, Kokkos::LayoutStride> const view, Buffer & send_buffer, int const ivar); 
+    void copyToBuffer_faces(KV_cdouble_3d const view, Buffer & send_buffer, int const ivar); 
     
 
     //! Update edge buffer from device data before border exchange
     //! @param[in] view Variable field device data
     //! @param[in] send_buffer Buffer used to store and later send the border value
     //! @param[in] ivar Index of input variable
-    void copyToBuffer_edges(Kokkos::View<double***, Kokkos::LayoutStride> const view, Buffer & send_buffer, int const ivar); 
+    void copyToBuffer_edges(KV_cdouble_3d const view, Buffer & send_buffer, int const ivar); 
     
 
     //! Update corner buffer from device data before border exchange
     //! @param[in] view Variable field device data
     //! @param[in] send_buffer Buffer used to store and later send the border value
     //! @param[in] ivar Index of input variable
-    void copyToBuffer_corners(Kokkos::View<double***, Kokkos::LayoutStride> const view, Buffer & send_buffer, int const ivar);   
+    void copyToBuffer_corners(KV_cdouble_3d const view, Buffer & send_buffer, int const ivar);   
     
 
     //! Update device data from buffer after border exchange
     //! @param[in] view Variable field device data
     //! @param[in] recv_buffer Buffer used to receive border value
     //! @param[in] ivar index of variable field
-    void copyFromBuffer(Kokkos::View<double***, Kokkos::LayoutStride> view, Buffer & recv_buffer, int const ivar); 
+    void copyFromBuffer(KV_double_3d const view, Buffer & recv_buffer, int const ivar); 
     
 
     //! Update device data from face buffer after border exchange
     //! @param[in] view Variable field device data
     //! @param[in] recv_buffer Buffer used to receive border value
     //! @param[in] ivar index of variable field
-    void copyFromBuffer_faces(Kokkos::View<double***, Kokkos::LayoutStride> view, Buffer const & recv_buffer, int const ivar);   
+    void copyFromBuffer_faces(KV_double_3d const view, Buffer const & recv_buffer, int const ivar);   
     
 
     //! Update device data from edge buffer after border exchange
     //! @param[in] view Variable field device data
     //! @param[in] recv_buffer Buffer used to receive border value
     //! @param[in] ivar index of variable field
-    void copyFromBuffer_edges(Kokkos::View<double***, Kokkos::LayoutStride> view, Buffer const & recv_buffer, int const ivar);   
+    void copyFromBuffer_edges(KV_double_3d const view, Buffer const & recv_buffer, int const ivar);   
     
 
     //! Update device data from corner buffer after border exchange
     //! @param[in] view Variable field device data
     //! @param[in] recv_buffer Buffer used to receive border value
     //! @param[in] ivar index of variable field
-    void copyFromBuffer_corners(Kokkos::View<double***, Kokkos::LayoutStride> view, Buffer const & recv_buffer, int const ivar); 
+    void copyFromBuffer_corners(KV_double_3d const view, Buffer const & recv_buffer, int const ivar); 
     
 
     //! Performe the border value exchange
@@ -104,29 +102,29 @@ namespace {
     //! @param[in] grid Grid of simulation.
     void exchangeBuffer_corners(Buffer & send_buffer, Buffer & recv_buffer, std::array<int, 3> const & ng, MPI_Comm const & comm_cart, std::array<std::array<std::array<int, 3>, 3>, 3> const & nrank);    
     
-    void memcopy_VtoB(Kokkos::View<double***, Kokkos::LayoutStride> const view,
+    void memcopy_VtoB(KV_cdouble_3d const view,
                       Kokkos::pair<int, int> lim0,
                       Kokkos::pair<int, int> lim1,
                       Kokkos::pair<int, int> lim2,
-                      Kokkos::View<double****> buffer_type_element,
+                      KV_double_4d buffer_type_element,
                       int ivar)
     {        
-        Kokkos::deep_copy(Kokkos::subview(buffer_type_element, Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, ivar),
+        Kokkos::deep_copy(Kokkos::subview(buffer_type_element, ALL, ALL, ALL, ivar),
                   Kokkos::subview(view, lim0, lim1, lim2));
     }
 
-    void memcopy_BtoV(Kokkos::View<double***, Kokkos::LayoutStride> const view,
+    void memcopy_BtoV(KV_double_3d const view,
                       Kokkos::pair<int, int> lim0,
                       Kokkos::pair<int, int> lim1,
                       Kokkos::pair<int, int> lim2,
-                      Kokkos::View<double****> buffer_type_element,
+                      KV_double_4d buffer_type_element,
                       int ivar)
     {        
         Kokkos::deep_copy(Kokkos::subview(view, lim0, lim1, lim2),
-                  Kokkos::subview(buffer_type_element, Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, ivar));
+                  Kokkos::subview(buffer_type_element, ALL, ALL, ALL, ivar));
     }
 
-    void copyToBuffer_corners(Kokkos::View<double***, Kokkos::LayoutStride> const view, Buffer & buffer, int const ivar) 
+    void copyToBuffer_corners(KV_cdouble_3d const view, Buffer & buffer, int const ivar) 
     {
         std::array<int, 3> ng = buffer.Nghost;
  
@@ -185,7 +183,7 @@ namespace {
                            buffer.cornerBuffer[1][3].d_view, ivar);
     }
 
-    void copyToBuffer_edges(Kokkos::View<double***, Kokkos::LayoutStride> const view, Buffer & buffer, int const ivar)   
+    void copyToBuffer_edges(KV_cdouble_3d const view, Buffer & buffer, int const ivar)   
     {
         std::array<int, 3> ng = buffer.Nghost;
 
@@ -275,7 +273,7 @@ namespace {
         }
     }   
 
-    void copyToBuffer_faces(Kokkos::View<double***, Kokkos::LayoutStride> const view, Buffer & buffer, int const ivar)   
+    void copyToBuffer_faces(KV_cdouble_3d const view, Buffer & buffer, int const ivar)   
     {
         std::array<int, 3> ng = buffer.Nghost;
         int lim0 = view.extent(0)-2*ng[0];
@@ -303,7 +301,7 @@ namespace {
         }
     }
 
-    void copyToBuffer(Kokkos::View<double***, Kokkos::LayoutStride> view, Buffer & buffer, int const ivar) 
+    void copyToBuffer(KV_cdouble_3d const view, Buffer & buffer, int const ivar) 
     {
         copyToBuffer_faces(view, buffer, ivar);  
         modifyDtoH(buffer.faceBuffer);  
@@ -317,7 +315,7 @@ namespace {
         Kokkos::fence();
     }   
 
-    void copyFromBuffer_corners(Kokkos::View<double***, Kokkos::LayoutStride> view, Buffer const & buffer, int const ivar)   
+    void copyFromBuffer_corners(KV_double_3d const view, Buffer const & buffer, int const ivar)   
     {
         std::array<int, 3> ng = buffer.Nghost;
         int lim0 = view.extent(0)-2*ng[0];
@@ -375,7 +373,7 @@ namespace {
                            buffer.cornerBuffer[1][3].d_view, ivar);
     }   
 
-    void copyFromBuffer_edges(Kokkos::View<double***, Kokkos::LayoutStride> view, Buffer const & buffer, int const ivar) 
+    void copyFromBuffer_edges(KV_double_3d const view, Buffer const & buffer, int const ivar) 
     {
         std::array<int, 3> ng = buffer.Nghost;
         int lim0 = view.extent(0)-2*ng[0];
@@ -464,7 +462,7 @@ namespace {
         }
     }
 
-    void copyFromBuffer_faces(Kokkos::View<double***, Kokkos::LayoutStride> view, Buffer const & buffer, int const ivar) 
+    void copyFromBuffer_faces(KV_double_3d const view, Buffer const & buffer, int const ivar) 
     {
         std::array<int, 3> ng = buffer.Nghost;
         int lim0 = view.extent(0)-2*ng[0];
@@ -492,7 +490,7 @@ namespace {
         }
     }
 
-    void copyFromBuffer(Kokkos::View<double***, Kokkos::LayoutStride> view, Buffer & buffer, int const ivar)   
+    void copyFromBuffer(KV_double_3d const view, Buffer & buffer, int const ivar)   
     {
         modifyHtoD(buffer.faceBuffer);
         copyFromBuffer_faces(view, buffer, ivar);  
@@ -658,7 +656,7 @@ namespace {
     
 
     template<std::size_t n, std::size_t m>
-    void modifyDtoH(std::array<std::array<Kokkos::DualView<double****>, n >, m > & buffer_element)
+    void modifyDtoH(std::array<std::array<KDV_double_4d, n >, m > & buffer_element)
     {
         for(size_t i=0; i<m; i++)
         {
@@ -671,7 +669,7 @@ namespace {
     }   
 
     template<std::size_t n, std::size_t m>
-    void modifyHtoD(std::array<std::array<Kokkos::DualView<double****>,n>,m> & buffer_element)
+    void modifyHtoD(std::array<std::array<KDV_double_4d,n>,m> & buffer_element)
     {
         for(size_t i=0; i<m; i++)
         {
@@ -689,9 +687,10 @@ namespace {
 namespace novapp
 {
 
-void IBoundaryCondition::ghostExchange(Kokkos::View<double***> rho,
-                                       Kokkos::View<double****> rhou,
-                                       Kokkos::View<double***> E, 
+
+void IBoundaryCondition::ghostExchange(KV_double_3d rho,
+                                       KV_double_4d rhou,
+                                       KV_double_3d E, 
                                        Grid const & grid)
 {
     copyToBuffer(rho,  sbuf, 0);
@@ -699,7 +698,7 @@ void IBoundaryCondition::ghostExchange(Kokkos::View<double***> rho,
     
     for(int n=0; n<ndim; n++)
     {   
-        copyToBuffer(Kokkos::subview(rhou, Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, n), sbuf, 2+n);
+        copyToBuffer(Kokkos::subview(rhou, ALL, ALL, ALL, n), sbuf, 2+n);
     }
 
     exchangeBuffer(sbuf, rbuf, grid.Nghost, grid.comm_cart, grid.NeighborRank);
@@ -708,7 +707,7 @@ void IBoundaryCondition::ghostExchange(Kokkos::View<double***> rho,
     copyFromBuffer(E,    rbuf, 1);
     for(int n=0; n<ndim; n++)
     {   
-        copyFromBuffer(Kokkos::subview(rhou, Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, n), rbuf, 2+n);
+        copyFromBuffer(Kokkos::subview(rhou, ALL, ALL, ALL, n), rbuf, 2+n);
     }
 }
 

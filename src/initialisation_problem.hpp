@@ -11,6 +11,7 @@
 #include "euler_equations.hpp"
 #include "ndim.hpp"
 #include "range.hpp"
+#include "Kokkos_shortcut.hpp"
 
 namespace novapp
 {
@@ -32,12 +33,12 @@ public:
 
     virtual void execute(
         Range const& range,
-        Kokkos::View<double***> rho,
-        Kokkos::View<double****> u,
-        Kokkos::View<double***> P,
-        Kokkos::View<const double*> nodes_x0,
-        [[maybe_unused]] Kokkos::View<const double*> nodes_y0,
-        [[maybe_unused]]Kokkos::View<double*> g_array) const 
+        KV_double_3d rho,
+        KV_double_4d u,
+        KV_double_3d P,
+        KV_cdouble_1d nodes_x0,
+        [[maybe_unused]] KV_cdouble_1d nodes_y0,
+        [[maybe_unused]] KV_double_1d g_array) const 
         = 0;
 };
 
@@ -46,12 +47,12 @@ class ShockTube : public IInitialisationProblem
 public:
     void execute(
         Range const& range,
-        Kokkos::View<double***> const rho,
-        Kokkos::View<double****> const u,
-        Kokkos::View<double***> const P,
-        Kokkos::View<const double*> const nodes_x0,
-        [[maybe_unused]] Kokkos::View<const double*> const nodes_y0,
-        [[maybe_unused]]Kokkos::View<double*> g_array) const final
+        KV_double_3d const rho,
+        KV_double_4d const u,
+        KV_double_3d const P,
+        KV_cdouble_1d const nodes_x0,
+        [[maybe_unused]] KV_cdouble_1d const nodes_y0,
+        [[maybe_unused]] KV_double_1d g_array) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -93,12 +94,12 @@ class AdvectionSinus : public IInitialisationProblem
 public:
     void execute(
         Range const& range,
-        Kokkos::View<double***> rho,
-        Kokkos::View<double****> u,
-        Kokkos::View<double***> P,
-        Kokkos::View<const double*> const nodes_x0,
-        [[maybe_unused]] Kokkos::View<const double*> const nodes_y0,
-        [[maybe_unused]]Kokkos::View<double*> g_array) const final
+        KV_double_3d rho,
+        KV_double_4d u,
+        KV_double_3d P,
+        KV_cdouble_1d const nodes_x0,
+        [[maybe_unused]] KV_cdouble_1d const nodes_y0,
+        [[maybe_unused]] KV_double_1d g_array) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -128,12 +129,12 @@ class AdvectionCrenel : public IInitialisationProblem
 public:
     void execute(
         Range const& range,
-        Kokkos::View<double***> rho,
-        Kokkos::View<double****> u,
-        Kokkos::View<double***> P,
-        Kokkos::View<const double*> const nodes_x0,
-        [[maybe_unused]] Kokkos::View<const double*> const nodes_y0,
-        [[maybe_unused]]Kokkos::View<double*> g_array) const final
+        KV_double_3d rho,
+        KV_double_4d u,
+        KV_double_3d P,
+        KV_cdouble_1d const nodes_x0,
+        [[maybe_unused]] KV_cdouble_1d const nodes_y0,
+        [[maybe_unused]] KV_double_1d g_array) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -174,12 +175,12 @@ class GreshoVortex : public IInitialisationProblem
 public:
     void execute(
         Range const& range,
-        Kokkos::View<double***> const rho,
-        Kokkos::View<double****> const u,
-        Kokkos::View<double***> const P,
-        Kokkos::View<const double*> const nodes_x0,
-        Kokkos::View<const double*> const nodes_y0,
-        [[maybe_unused]]Kokkos::View<double*> g_array) const final
+        KV_double_3d const rho,
+        KV_double_4d const u,
+        KV_double_3d const P,
+        KV_cdouble_1d const nodes_x0,
+        KV_cdouble_1d const nodes_y0,
+        [[maybe_unused]] KV_double_1d g_array) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -234,12 +235,12 @@ class RayleighTaylor : public IInitialisationProblem
 public:
     void execute(
         Range const& range,
-        Kokkos::View<double***> const rho,
-        Kokkos::View<double****> const u,
-        Kokkos::View<double***> const P,
-        Kokkos::View<const double*> const nodes_x0,
-        Kokkos::View<const double*> const nodes_y0,
-        Kokkos::View<double*> g_array) const final
+        KV_double_3d const rho,
+        KV_double_4d const u,
+        KV_double_3d const P,
+        KV_cdouble_1d const nodes_x0,
+        KV_cdouble_1d const nodes_y0,
+        KV_double_1d g_array) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));

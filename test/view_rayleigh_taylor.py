@@ -13,10 +13,10 @@ filename = sys.argv[1]
 
 with h5py.File(str(filename), 'r') as f :
     print(f.keys())
-    rho = f['rho'][:, :, 0]
-    u_x = f['u'][:, :, 0, 0]
-    u_y = f['u'][:, :, 0, 1]
-    P = f['P'][:, :, 0]
+    rho = f['rho'][0, :, :]
+    u_x = f['u'][0, 0, :, :]
+    u_y = f['u'][1, 0, :, :]
+    P = f['P'][0, :, :]
 
 plt.figure(figsize=(10,8))
 plt.suptitle('Rayleigh Taylor instability')
