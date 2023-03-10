@@ -40,19 +40,23 @@ public :
           std::array<int, 3> const& Cmax,
           int Nghost);
 
-    Range no_ghosts() const noexcept
+    Range no_ghosts() const
     {
         return with_ghosts(0);
     }
 
-    Range all_ghosts() const noexcept
+    Range all_ghosts() const
     {
         return with_ghosts(Ng);
     }
 
-    Range with_ghosts(int const NgEff) const noexcept
+    Range with_ghosts(int const NgEff) const
     {
         Range rng(*this);
+        if (NgEff > Ng)
+        {
+            throw std::runtime_error("NgEff > Ng");
+        }
         rng.NgEff = NgEff;
         return rng;
     }
