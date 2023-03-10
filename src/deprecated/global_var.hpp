@@ -5,8 +5,6 @@
 
 #pragma once
 
-#include <cmath>
-
 struct Phys{
 int Nvit       ; // Number of velocity component (default Ndim)
 int Nvar       ; // Number of hydro/MHD variable

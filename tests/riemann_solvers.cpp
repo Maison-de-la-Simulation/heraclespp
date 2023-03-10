@@ -1,5 +1,3 @@
-#include <cmath>
-
 #include <gtest/gtest.h>
 
 #include <godunov_scheme.hpp>

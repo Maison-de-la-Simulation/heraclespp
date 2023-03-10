@@ -2,9 +2,7 @@
  * @file exchange.cpp
  * Holo exchange implementation
  */
-#include <cmath>
 #include <array>
-#include <string>
 #include <mpi.h>
 #include "boundary.hpp"
 

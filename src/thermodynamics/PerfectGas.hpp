@@ -3,8 +3,6 @@
 //!
 #pragma once
 
-#include <cmath>
-
 #include <Kokkos_Core.hpp>
 
 namespace novapp::thermodynamics
@@ -57,13 +55,13 @@ public:
     KOKKOS_FORCEINLINE_FUNCTION
     double compute_speed_of_sound(double const density, double const pressure) const noexcept
     {
-        return std::sqrt(m_gamma * pressure / density);
+        return Kokkos::sqrt(m_gamma * pressure / density);
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
     static bool is_valid(double const density, double const pressure) noexcept
     {
-        return std::isfinite(density) && density > 0 && std::isfinite(pressure) && pressure > 0;
+        return Kokkos::isfinite(density) && density > 0 && Kokkos::isfinite(pressure) && pressure > 0;
     }
 };
 
