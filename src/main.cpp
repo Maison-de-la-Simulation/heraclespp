@@ -225,10 +225,14 @@ int main(int argc, char** argv)
         }
     }
 
-    std::printf("Final time = %f and number of iterations = %d  \n", t, iter);
+    if (grid.mpi_rank == 0)
+    {
+        std::printf("Final time = %f and number of iterations = %d  \n", t, iter);
+        std::printf("--- End ---\n");
+    }
 
     PDI_finalize();
     PC_tree_destroy(&conf);
-    std::printf("%s\n", "--- End ---");
+
     return 0;
 }
