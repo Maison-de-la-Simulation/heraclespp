@@ -224,7 +224,7 @@ public:
                 rho(i, j, k) = rho(2*ng-1-i, j, k);
                 for (int n=0; n<rhou.extent_int(3); n++)
                 {    
-                    rhou(i, j, k, n) = - rhou(2*ng-1-i, j, k, n);
+                    rhou(i, j, k, n) = (n==grid.Ndim-1? -rhou(2*ng-1-i, j, k, n):rhou(2*ng-1-i, j, k, n));
                 }
                 E(i, j, k) = E(2*ng-1-i, j, k);
             });
@@ -241,7 +241,7 @@ public:
                 rho(i, j, k) = rho(offset-i, j, k);
                 for (int n=0; n<rhou.extent_int(3); n++)
                 {    
-                    rhou(i, j, k, n) = - rhou(offset-i, j, k, n);
+                    rhou(i, j, k, n) = (n==grid.Ndim-1? -rhou(offset-i, j, k, n):rhou(offset-i, j, k, n));
                 }
                 E(i, j, k) = E(offset-i, j, k);
             });
@@ -260,7 +260,7 @@ public:
                     rho(i, j, k) = rho(i, 2*ng-1-j, k);
                     for (int n=0; n<rhou.extent_int(3); n++)
                     {    
-                        rhou(i, j, k, n) = - rhou(i, 2*ng-1-j, k, n);
+                        rhou(i, j, k, n) = (n==grid.Ndim-1? -rhou(i, 2*ng-1-j, k, n):rhou(i, 2*ng-1-j, k, n));
                     }
                     E(i, j, k) = E(i, 2*ng-1-j, k);
                 });
@@ -277,7 +277,7 @@ public:
                     rho(i, j, k) = rho(i, offset-j, k);
                     for (int n=0; n<rhou.extent_int(3); n++)
                     {    
-                        rhou(i, j, k, n) = -rhou(i, offset-j, k, n);
+                        rhou(i, j, k, n) = (n==grid.Ndim-1? -rhou(i, offset-j, k, n):rhou(i, offset-j, k, n));
                     }
                     E(i, j, k) = E(i, offset-j, k);
                 });
@@ -297,7 +297,7 @@ public:
                     rho(i, j, k) = rho(i, j, 2*ng-1-k);
                     for (int n=0; n<rhou.extent_int(3); n++)
                     {    
-                        rhou(i, j, k, n) = -rhou(i, j, 2*ng-1-k, n);
+                        rhou(i, j, k, n) = (n==grid.Ndim-1? -rhou(i, j, 2*ng-1-k, n):rhou(i, j, 2*ng-1-k, n));
                     }
                     E(i, j, k) = E(i, j, 2*ng-1-k);
                 });
@@ -314,7 +314,7 @@ public:
                     rho(i, j, k) = rho(i, j, offset-k);
                     for (int n=0; n<rhou.extent_int(3); n++)
                     {    
-                        rhou(i, j, k, n) = -rhou(i, j, offset-k, n);
+                        rhou(i, j, k, n) = (n==grid.Ndim-1? -rhou(i, j, offset-k, n):rhou(i, j, offset-k, n));
                     }
                     E(i, j, k) = E(i, j, offset-k);
                 });
@@ -326,6 +326,7 @@ public:
 class xPeriodicyReflexiveCondition : public IBoundaryCondition
 {
 public:
+    xPeriodicyReflexiveCondition(Grid const & grid) : IBoundaryCondition(grid){};
     
     void bcUpdate(Kokkos::View<double***> rho,
                   Kokkos::View<double****> rhou,
@@ -347,7 +348,7 @@ public:
                     rho(i, j, k) = rho(i, 2*ng-1-j, k);
                     for (int n=0; n<rhou.extent_int(3); n++)
                     {    
-                        rhou(i, j, k, n) = -rhou(i, 2*ng-1-j, k, n);
+                        rhou(i, j, k, n) = (n==grid.Ndim-1? -rhou(i, 2*ng-1-j, k, n):rhou(i, 2*ng-1-j, k, n));
                     }
                     E(i, j, k) = E(i, 2*ng-1-j, k);
                 });
@@ -364,7 +365,7 @@ public:
                     rho(i, j, k) = rho(i, offset-j, k);
                     for (int n=0; n<rhou.extent_int(3); n++)
                     {    
-                        rhou(i, j, k, n) = -rhou(i, offset-j, k, n);
+                        rhou(i, j, k, n) = (n==grid.Ndim-1? -rhou(i, offset-j, k, n):rhou(i, offset-j, k, n));
                     }
                     E(i, j, k) = E(i, offset-j, k);
                 });
@@ -391,7 +392,7 @@ inline std::unique_ptr<IBoundaryCondition> factory_boundary_construction(
     }
     if (s == "xPeriodicyReflexive")
     {
-        return std::make_unique<xPeriodicyReflexiveCondition>();
+        return std::make_unique<xPeriodicyReflexiveCondition>(grid);
     }
 
     throw std::runtime_error("Unknown boundary condition : " + s + ".");
