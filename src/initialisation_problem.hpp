@@ -11,6 +11,9 @@
 #include "ndim.hpp"
 #include "range.hpp"
 
+namespace novapp
+{
+
 class IInitialisationProblem
 {
 public:
@@ -300,3 +303,5 @@ inline std::unique_ptr<IInitialisationProblem> factory_initialisation(
     }
     throw std::runtime_error("Unknown problem for initialisation : " + problem + ".");
 }
+
+} // namespace novapp

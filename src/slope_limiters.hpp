@@ -8,6 +8,9 @@
 
 #include <Kokkos_Core.hpp>
 
+namespace novapp
+{
+
 //! The null slope limiter.
 class Constant
 {
@@ -94,3 +97,5 @@ public:
         return 0;
     }
 };
+
+} // namespace novapp

@@ -8,6 +8,9 @@
 #include <map>
 #include <string>
 
+namespace novapp
+{
+
 enum system_choice_enum
 {
     Cartesian = 0,
@@ -23,3 +26,5 @@ inline system_choice_enum GetenumIndex(std::string const& label)
             {"Spherical", Spherical}};
     return string2choice.at(label);
 }
+
+} // namespace novapp

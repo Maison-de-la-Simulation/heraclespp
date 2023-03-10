@@ -1,6 +1,9 @@
 
 #include "mpi_scope_guard.hpp"
 
+namespace novapp
+{
+
 MpiScopeGuard::MpiScopeGuard() noexcept
 {
     MPI_Init(nullptr, nullptr);
@@ -15,3 +18,5 @@ MpiScopeGuard::~MpiScopeGuard() noexcept
 {
     MPI_Finalize();
 }
+
+} // namespace novapp

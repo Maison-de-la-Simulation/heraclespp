@@ -4,6 +4,9 @@
  */
 #include "grid.hpp"
 
+namespace novapp
+{
+
 Grid::Grid(INIReader const& reader)
     : Ng(reader.GetInteger("Grid", "Nghost", 2))
     , Nghost {0, 0, 0}
@@ -152,3 +155,5 @@ void Grid::print_grid() const
         prinf_info("Corner_max[2]", range.Corner_max[2]);
     }
 }
+
+} // namespace novapp

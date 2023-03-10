@@ -5,9 +5,11 @@
  * 
  * */
 #pragma once
+
 #include <cmath>
 
-namespace Units{
+namespace novapp::units
+{
     constexpr double Pi      = M_PI    ;
     constexpr double four_Pi = 4 * Pi  ;
 
@@ -60,4 +62,5 @@ namespace Units{
     constexpr double Pascal  =  1.000000e+00 * kg/metre      /(seconde*seconde) ;
     constexpr double Joule   =  1.000000e+00 * kg*metre*metre/(seconde*seconde) ;
     constexpr double H0      =  7.200000e+01 * kms/Mpc ;
-}
+
+} // namespace novapp::units

@@ -3,6 +3,9 @@
 #include <pdi.h>
 #include <mpi.h>
 
+namespace novapp
+{
+
 void write_pdi_init(int max_iter, int frequency, Grid const& grid)
 {
     int mpi_rank = grid.mpi_rank;
@@ -38,3 +41,5 @@ bool should_output(int iter, int freq, int iter_max, double current, double dt, 
 {
     return ((iter+1)>=iter_max) || ((iter+1)%freq==0) || (current+dt>=time_out);
 }
+
+} // namespace novapp

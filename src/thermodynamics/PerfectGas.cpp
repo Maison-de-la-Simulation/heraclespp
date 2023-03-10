@@ -1,6 +1,6 @@
 #include "PerfectGas.hpp"
 
-namespace thermodynamics
+namespace novapp::thermodynamics
 {
 
 PerfectGas::PerfectGas(double const gamma, double const mmw)
@@ -20,4 +20,4 @@ PerfectGas::PerfectGas(double const gamma, double const mmw)
     }
 }
 
-} // namespace thermodynamics
+} // namespace novapp::thermodynamics

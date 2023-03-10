@@ -28,6 +28,8 @@
 #include "kronecker.hpp"
 #include "gravity_implementation.hpp"
 
+using namespace novapp;
+
 int main(int argc, char** argv)
 {
     if (argc < 3)
