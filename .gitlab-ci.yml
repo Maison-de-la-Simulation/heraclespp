@@ -23,6 +23,7 @@ build-job:serial:1:
     expire_in: 1h
     paths:
       - build
+      - bin
 
 build-job:serial:2:
   only: [ main, merge_requests ]
@@ -35,6 +36,7 @@ build-job:serial:2:
     expire_in: 1h
     paths:
       - build
+      - bin
 
 build-job:serial:3:
   only: [ main, merge_requests ]
@@ -47,6 +49,7 @@ build-job:serial:3:
     expire_in: 1h
     paths:
       - build
+      - bin
 
 build-job:cuda:3:
   only: [ main, merge_requests ]
@@ -96,6 +99,13 @@ unit-test-job:serial:3:
     when: always
     reports:
       junit: build/tests.xml
+
+convergence-advection-sinusoide-test-job:serial:1:
+  only: [ main, merge_requests ]
+  stage: test
+  needs: ["build-job:serial:1"]
+  script:
+    - ./test/run_convergence_advection_sinusoide.sh
 
 lint-test-job:
   only: [ main, merge_requests ]
