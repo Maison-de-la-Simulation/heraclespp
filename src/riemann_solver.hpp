@@ -3,6 +3,13 @@
 //!
 #pragma once
 
+#include <cmath>
+
+#include <Kokkos_Core.hpp>
+#include <PerfectGas.hpp>
+
+#include "euler_equations.hpp"
+
 namespace novapp
 {
 
