@@ -4,6 +4,9 @@
  */
 #include "buffer.hpp"
 
+namespace novapp
+{
+
 Buffer::Buffer(std::array<int, 3> const & ng, 
                std::array<int, 3> const & nx_local_ng, 
                int const nvar)
@@ -37,3 +40,5 @@ Buffer::Buffer(std::array<int, 3> const & ng,
         }
     }
 }
+
+} // namespace novapp

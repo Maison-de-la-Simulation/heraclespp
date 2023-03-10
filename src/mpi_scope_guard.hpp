@@ -5,6 +5,9 @@
 #pragma once
 #include <mpi.h>
 
+namespace novapp
+{
+
 class MpiScopeGuard
 {
 public:
@@ -22,3 +25,5 @@ public:
 
     MpiScopeGuard& operator=(MpiScopeGuard&& rhs) noexcept = delete;
 };
+
+} // namespace novapp

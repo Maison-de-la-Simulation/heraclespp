@@ -3,6 +3,9 @@
 //!
 #pragma once
 
+namespace novapp
+{
+
 class HLL
 {
 public:
@@ -72,3 +75,5 @@ public:
         return (wsR * FL - wsL * FR + wsL * wsR * (UR - UL)) / (wsR - wsL);
     }
 };
+
+} // namespace novapp

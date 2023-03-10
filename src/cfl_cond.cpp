@@ -7,6 +7,9 @@
 #include "euler_equations.hpp"
 #include "range.hpp"
 
+namespace novapp
+{
+
 double time_step(
     Range const& range,
     double const cfl,
@@ -36,3 +39,5 @@ double time_step(
     MPI_Allreduce(MPI_IN_PLACE, &result, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
     return result;
 }
+
+} // namespace novapp

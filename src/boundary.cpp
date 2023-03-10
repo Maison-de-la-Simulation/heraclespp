@@ -10,6 +10,9 @@
 #include <mpi.h>
 #include "boundary.hpp"
 
+namespace novapp
+{
+
 namespace {
 
     template<std::size_t n, size_t m>
@@ -681,6 +684,11 @@ namespace {
     }
 } // end of anonymous namespace
 
+} // namespace novapp
+
+namespace novapp
+{
+
 void IBoundaryCondition::ghostExchange(Kokkos::View<double***> rho,
                                        Kokkos::View<double****> rhou,
                                        Kokkos::View<double***> E, 
@@ -703,3 +711,5 @@ void IBoundaryCondition::ghostExchange(Kokkos::View<double***> rho,
         copyFromBuffer(Kokkos::subview(rhou, Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, n), rbuf, 2+n);
     }
 }
+
+} // namespace novapp

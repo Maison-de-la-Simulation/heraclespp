@@ -6,7 +6,7 @@ TEST(NullSlopeLimiter, Zero)
 {
     double const diffR = 68.9;
     double const diffL = 37.65;
-    Constant const slope;
+    novapp::Constant const slope;
     EXPECT_EQ(slope(diffR, diffL), 0.);
 }
 
@@ -29,7 +29,7 @@ public:
     SlopeLimiterFixture& operator=(SlopeLimiterFixture&& rhs) noexcept = default;
 };
 
-using SlopeLimiters = ::testing::Types<Minmod, VanAlbada, VanLeer>;
+using SlopeLimiters = ::testing::Types<novapp::Minmod, novapp::VanAlbada, novapp::VanLeer>;
 TYPED_TEST_SUITE(SlopeLimiterFixture, SlopeLimiters);
 
 TYPED_TEST(SlopeLimiterFixture, NullOnOppositeSign)

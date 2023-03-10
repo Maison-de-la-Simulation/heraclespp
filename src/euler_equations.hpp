@@ -6,6 +6,9 @@
 #include "kronecker.hpp"
 #include "ndim.hpp"
 
+namespace novapp
+{
+
 struct EulerCons
 {
     double density;
@@ -125,3 +128,5 @@ EulerCons to_cons(EulerPrim const& prim, thermodynamics::PerfectGas const& eos) 
                   + compute_volumic_kinetic_energy(prim);
     return cons;
 }
+
+} // namespace novapp

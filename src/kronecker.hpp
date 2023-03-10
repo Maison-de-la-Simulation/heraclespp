@@ -5,6 +5,9 @@
 
 #include <Kokkos_Core.hpp>
 
+namespace novapp
+{
+
 KOKKOS_INLINE_FUNCTION
 constexpr int kron(int a, int b) noexcept
 {
@@ -15,3 +18,5 @@ constexpr int kron(int a, int b) noexcept
 
     return 0;
 }
+
+} // namespace novapp

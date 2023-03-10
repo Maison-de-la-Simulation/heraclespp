@@ -7,6 +7,9 @@
 #include "ndim.hpp"
 #include "range.hpp"
 
+namespace novapp
+{
+
 class IExtrapolationValues
 {
 public:
@@ -115,3 +118,5 @@ public :
         });   
     }
 };
+
+} // namespace novapp

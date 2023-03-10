@@ -8,6 +8,9 @@
 #include "ndim.hpp"
 #include "range.hpp"
 
+namespace novapp
+{
+
 Range::Range(std::array<int, 3> const& Cmin, std::array<int, 3> const& Cmax, int Ng)
     : Corner_min(Cmin)
     , Corner_max(Cmax)
@@ -74,3 +77,5 @@ Range::Range(std::array<int, 3> const& Cmin, std::array<int, 3> const& Cmax, int
         Nf_max_2g[idim] = Nf_max_0g[idim];
     }
 }
+
+} // namespace novapp

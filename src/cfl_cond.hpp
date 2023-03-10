@@ -7,6 +7,9 @@
 
 #include <Kokkos_Core.hpp>
 
+namespace novapp
+{
+
 namespace thermodynamics
 {
 
@@ -30,3 +33,5 @@ class Range;
     Kokkos::View<const double***> P,
     Kokkos::View<const double*> dx, 
     thermodynamics::PerfectGas const& eos);
+
+} // namespace novapp
