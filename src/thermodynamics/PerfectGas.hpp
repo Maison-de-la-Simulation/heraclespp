@@ -7,7 +7,7 @@
 
 #include <Kokkos_Core.hpp>
 
-namespace thermodynamics
+namespace novapp::thermodynamics
 {
 
 class PerfectGas
@@ -67,4 +67,4 @@ public:
     }
 };
 
-} // namespace thermodynamics
+} // namespace novapp::thermodynamics

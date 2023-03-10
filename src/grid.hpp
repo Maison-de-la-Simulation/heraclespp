@@ -15,6 +15,9 @@
 #include "range.hpp"
 #include "ndim.hpp"
 
+namespace novapp
+{
+
 template<class T>
 inline
 void prinf_info(std::string var_name, T var_value)
@@ -56,3 +59,5 @@ public :
     Range range;
     std::array<std::array<bool, 2>,3> is_border;
 };
+
+} // namespace novapp

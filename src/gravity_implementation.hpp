@@ -5,6 +5,9 @@
 
 #include "ndim.hpp"
 
+namespace novapp
+{
+
 class IGravity
 {
 public:
@@ -104,3 +107,5 @@ inline std::unique_ptr<IGravity> factory_gravity_source(
     }
     throw std::runtime_error("Invalid gravity: " + gravity + ".");
 }
+
+} // namespace novapp

@@ -11,6 +11,9 @@
 #include <Kokkos_Core.hpp>
 #include <Kokkos_DualView.hpp>
 
+namespace novapp
+{
+
 class Buffer
 {
 public :
@@ -31,3 +34,5 @@ public :
            std::array<int, 3> const & nx_local_ng,
            int nvar);
 };
+
+} // namespace novapp

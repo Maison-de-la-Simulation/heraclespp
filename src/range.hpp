@@ -11,6 +11,9 @@
 
 #include "ndim.hpp"
 
+namespace novapp
+{
+
 class Range
 {
 public :
@@ -73,3 +76,5 @@ inline std::array<Kokkos::Array<int, 3>, 2> cell_range(Range const& range)
 
     return std::array<Kokkos::Array<int, 3>, 2> {begin, end};
 }
+
+} // namespace novapp

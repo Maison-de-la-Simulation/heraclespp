@@ -5,6 +5,9 @@
 #include "euler_equations.hpp"
 #include "range.hpp"
 
+namespace novapp
+{
+
 void ConvPrimtoConsArray(
     Range const& range,
     Kokkos::View<double****, Kokkos::LayoutStride> const rhou,
@@ -66,3 +69,5 @@ void ConvConstoPrimArray(
         }
     });   
 }
+
+} // namespace novapp

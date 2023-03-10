@@ -17,6 +17,9 @@
 #include "range.hpp"
 #include "riemann_solver.hpp"
 
+namespace novapp
+{
+
 class IGodunovScheme
 {
 public:
@@ -171,3 +174,5 @@ inline std::unique_ptr<IGodunovScheme> factory_godunov_scheme(
     }
     throw std::runtime_error("Invalid riemann solver: " + riemann_solver + ".");
 }
+
+} // namespace novapp

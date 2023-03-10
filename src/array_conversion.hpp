@@ -6,6 +6,9 @@
 
 #include <Kokkos_Core.hpp>
 
+namespace novapp
+{
+
 namespace thermodynamics
 {
 
@@ -46,3 +49,5 @@ void ConvConstoPrimArray(
     Kokkos::View<const double****, Kokkos::LayoutStride> const rhou,
     Kokkos::View<const double***, Kokkos::LayoutStride> const E,
     thermodynamics::PerfectGas const& eos);
+
+} // namespace novapp

@@ -8,6 +8,9 @@
 #include "grid.hpp"
 #include "ndim.hpp"
 
+namespace novapp
+{
+
 class IBoundaryCondition
 {
 public:
@@ -397,3 +400,5 @@ inline std::unique_ptr<IBoundaryCondition> factory_boundary_construction(
 
     throw std::runtime_error("Unknown boundary condition : " + s + ".");
 }
+
+} // namespace novapp
