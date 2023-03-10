@@ -6,13 +6,10 @@
  * */
 #pragma once
 
-#include <cmath>
+#include <Kokkos_Core.hpp>
 
 namespace novapp::units
 {
-    constexpr double Pi      = M_PI    ;
-    constexpr double four_Pi = 4 * Pi  ;
-
 // code units in SI (kg / metre / seconde) 
     constexpr double unitM = 1.0E+00 ; // Mass unit in kg
     constexpr double unitL = 1.0E+00 ; // Length unit in meter
@@ -39,12 +36,12 @@ namespace novapp::units
     constexpr double hplanck =  6.626200e-27 * erg*seconde ;
     constexpr double kb      =  1.380620e-16 * erg/degre ;
     constexpr double uma     =  1.660531e-24 * gramme ;
-    constexpr double a_R     = (8.0*(Pi*Pi*Pi*Pi*Pi)*(kb*kb*kb*kb))/(15.0*(hplanck*hplanck*hplanck)*(c2*c)) ;
+    constexpr double a_R     = (8.0*(Kokkos::numbers::pi*Kokkos::numbers::pi*Kokkos::numbers::pi*Kokkos::numbers::pi*Kokkos::numbers::pi)*(kb*kb*kb*kb))/(15.0*(hplanck*hplanck*hplanck)*(c2*c)) ;
     constexpr double Lsol    =  3.826800e+33 * erg/seconde ;
     constexpr double Msol    =  1.989100e+33 * gramme ;
     constexpr double Rsol    =  6.959900e+10 * centimetre ; 
     constexpr double pc      =  3.085678e+18 * centimetre ;
-    constexpr double mu0     =  4.000000e+00 * Pi * gauss*gauss * centimetre * seconde*seconde / gramme ;
+    constexpr double mu0     =  4.000000e+00 * Kokkos::numbers::pi * gauss*gauss * centimetre * seconde*seconde / gramme ;
     constexpr double au      =  1.495980e+13 * centimetre ;
   
 // useful units
