@@ -210,7 +210,7 @@ public:
                 u(i, j, k, 1) = u_theta * std::cos(theta);
             }
             
-            else if ((r >= 0.2) & (r < 0.4))
+            else if ((r >= 0.2) && (r < 0.4))
             {
                 P(i, j, k) = P0 + 12.5 * r * r + 4 - 20 * r + 4 * std::log(5 * r);
                 u_theta = 2 - 5 * r;
