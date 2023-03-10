@@ -3,8 +3,6 @@
 //!
 #pragma once
 
-#include <cmath>
-
 #include <Kokkos_Core.hpp>
 #include <PerfectGas.hpp>
 
@@ -32,8 +30,8 @@ public:
         double const cL = eos.compute_speed_of_sound(primL.density, primL.pressure);
         double const cR = eos.compute_speed_of_sound(primR.density, primR.pressure);
 
-        double const wsL = std::fmin(primL.velocity[locdim] - cL, primR.velocity[locdim] - cR);
-        double const wsR = std::fmax(primL.velocity[locdim] + cL, primR.velocity[locdim] + cR);
+        double const wsL = Kokkos::fmin(primL.velocity[locdim] - cL, primR.velocity[locdim] - cR);
+        double const wsR = Kokkos::fmax(primL.velocity[locdim] + cL, primR.velocity[locdim] + cR);
 
         EulerFlux const fluxL = compute_flux(primL, locdim, eos);
         EulerFlux const fluxR = compute_flux(primR, locdim, eos);

@@ -3,8 +3,6 @@
 //!
 #pragma once
 
-#include <cmath>
-
 #include <Kokkos_Core.hpp>
 #include <PerfectGas.hpp>
 
@@ -114,7 +112,7 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            rho(i, j, k) = 1 * std::exp(-15*std::pow(1./2 - (nodes_x0(i)+nodes_x0(i+1))/2, 2));
+            rho(i, j, k) = 1 * Kokkos::exp(-15*Kokkos::pow(1./2 - (nodes_x0(i)+nodes_x0(i+1))/2, 2));
             P(i, j, k) = 0.1;
             for (int idim = 0; idim < ndim; ++idim)
             {
@@ -200,27 +198,27 @@ public:
             rho(i, j, k) = 1;
             double x = nodes_x0(i);
             double y = nodes_y0(j);
-            double r = std::sqrt(x * x + y * y);
-            double theta = std::atan2(y, x);
+            double r = Kokkos::sqrt(x * x + y * y);
+            double theta = Kokkos::atan2(y, x);
             double u_theta;
             if (r < 0.2)
             {
                 P(i, j, k) = P0 + 12.5 * r * r;
                 u_theta = 5 * r;
-                u(i, j, k, 0) = - u_theta * std::sin(theta);
-                u(i, j, k, 1) = u_theta * std::cos(theta);
+                u(i, j, k, 0) = - u_theta * Kokkos::sin(theta);
+                u(i, j, k, 1) = u_theta * Kokkos::cos(theta);
             }
             
             else if ((r >= 0.2) && (r < 0.4))
             {
-                P(i, j, k) = P0 + 12.5 * r * r + 4 - 20 * r + 4 * std::log(5 * r);
+                P(i, j, k) = P0 + 12.5 * r * r + 4 - 20 * r + 4 * Kokkos::log(5 * r);
                 u_theta = 2 - 5 * r;
-                u(i, j, k, 0) = - u_theta * std::sin(theta);
-                u(i, j, k, 1) = u_theta * std::cos(theta);
+                u(i, j, k, 0) = - u_theta * Kokkos::sin(theta);
+                u(i, j, k, 1) = u_theta * Kokkos::cos(theta);
             }
             else
             {
-                P(i, j, k) = P0 - 2 + 4 * std::log(2);
+                P(i, j, k) = P0 - 2 + 4 * Kokkos::log(2);
                 for (int idim = 0; idim < ndim; ++idim)
                 {
                     u(i, j, k, idim) = 0;
@@ -275,7 +273,7 @@ public:
                 P(i, j, k) = P0 - y * g * rho(i, j, k);
             }
             u(i, j, k, 0) = 0;
-            u(i, j, k, 1) = (A/4) * (1+std::cos(2*Kokkos::numbers::pi*x/Lx)) * (1+std::cos(2*Kokkos::numbers::pi*y/Ly));
+            u(i, j, k, 1) = (A/4) * (1+Kokkos::cos(2*Kokkos::numbers::pi*x/Lx)) * (1+Kokkos::cos(2*Kokkos::numbers::pi*y/Ly));
          });
     }
 }; 
