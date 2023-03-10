@@ -8,8 +8,6 @@
 
 #include <inih/INIReader.hpp>
 
-#include <Kokkos_Core.hpp>
-
 #include "array_conversion.hpp"
 #include "initialisation_problem.hpp"
 #include "io.hpp"
@@ -27,6 +25,7 @@
 #include "range.hpp"
 #include "kronecker.hpp"
 #include "gravity_implementation.hpp"
+#include "Kokkos_shortcut.hpp"
 
 using namespace novapp;
 
@@ -69,7 +68,7 @@ int main(int argc, char** argv)
     double const Ly = ymax - ymin;
     double const Lz = zmax - zmin;
 
-    Kokkos::View<double*> array_dx("array_dx", 3); //Space step array
+    KV_double_1d array_dx("array_dx", 3); //Space step array
     Kokkos::parallel_for(1, KOKKOS_LAMBDA(int i)
     {
         array_dx(0) = Lx / grid.Nx_glob_ng[0];
@@ -105,15 +104,15 @@ int main(int argc, char** argv)
     double const g = reader.GetReal("Gravity", "gval", 0.0);
     int const gdim = reader.GetInteger("Gravity", "gdim", 3);
 
-    Kokkos::View<double*> g_array("g_array", ndim);
+    KV_double_1d g_array("g_array", ndim);
     for (int idim=0; idim<ndim;++idim)
     {
         g_array(idim) = g * kron(idim, gdim);
     }
 
-    Kokkos::View<double*> nodes_x0("nodes_x0", grid.Nx_local_wg[0]+1); // Nodes for x0
-    Kokkos::View<double*> nodes_y0("nodes_y0", grid.Nx_local_wg[1]+1); // Nodes for y0
-    Kokkos::View<double*> nodes_z0("nodes_z0", grid.Nx_local_wg[2]+1); // Nodes for z0
+    KV_double_1d nodes_x0("nodes_x0", grid.Nx_local_wg[0]+1); // Nodes for x0
+    KV_double_1d nodes_y0("nodes_y0", grid.Nx_local_wg[1]+1); // Nodes for y0
+    KV_double_1d nodes_z0("nodes_z0", grid.Nx_local_wg[2]+1); // Nodes for z0
 
     int offsetx = grid.range.Corner_min[0] - grid.Nghost[0];
     Kokkos::parallel_for("InitialisationNodes",
@@ -138,53 +137,35 @@ int main(int argc, char** argv)
     {
         nodes_z0(i) = zmin + (i + offsetz) * array_dx(2) ; // Position of the left interface
     });
-    
-    Kokkos::View<double***>  rho("rho",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Density
-    Kokkos::View<double****> rhou("rhou", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim); // Momentum
-    Kokkos::View<double***>  E("E",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Energy
-    Kokkos::View<double****> u("u",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim); // Speed
-    Kokkos::View<double***>  P("P",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Pressure
-    
-    Kokkos::View<double***> ::HostMirror rho_host
-                            = Kokkos::create_mirror_view(rho); // Density always on host
-    Kokkos::View<double****>::HostMirror rhou_host
-                            = Kokkos::create_mirror_view(rhou); // Momentum always on host
-    Kokkos::View<double***> ::HostMirror E_host
-                            = Kokkos::create_mirror_view(E); // Energy always on host
-    Kokkos::View<double****>::HostMirror u_host
-                            = Kokkos::create_mirror_view(u); // Speedalways on host
-    Kokkos::View<double***> ::HostMirror P_host
-                            = Kokkos::create_mirror_view(P); // Pressure always on host
 
-    Kokkos::View<double*****>  rho_rec("rho_rec",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim);
-    Kokkos::View<double******> rhou_rec("rhou_rec", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim, ndim);
-    Kokkos::View<double*****>  E_rec("E_rec",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim);
-    Kokkos::View<double******> u_rec("u_rec",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim, ndim);
-    Kokkos::View<double*****>  P_rec("P_rec",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim);
+    KDV_double_3d rho("rho",  grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Density
+    KDV_double_4d u("u",      grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim); // Speed
+    KDV_double_3d P("P",      grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Pressure
+    KV_double_4d rhou("rhou", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim); // Momentum
+    KV_double_3d E("E",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Energy
 
-    Kokkos::View<double***>  rho_new("rhonew",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
-    Kokkos::View<double****> rhou_new("rhounew", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim);
-    Kokkos::View<double***>  E_new("Enew",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
+    KV_double_5d rho_rec("rho_rec",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim);
+    KV_double_6d rhou_rec("rhou_rec", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim, ndim);
+    KV_double_5d E_rec("E_rec",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim);
+    KV_double_6d u_rec("u_rec",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim, ndim);
+    KV_double_5d P_rec("P_rec",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim);
 
-    initialisation->execute(grid.range.all_ghosts(), rho, u, P, nodes_x0, nodes_y0, g_array);
-    ConvPrimtoConsArray(grid.range.all_ghosts(), rhou, E, rho, u, P, eos);
+    KV_double_3d rho_new("rhonew",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
+    KV_double_4d rhou_new("rhounew", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim);
+    KV_double_3d E_new("Enew",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
 
-    Kokkos::deep_copy(rho_host, rho);
-    Kokkos::deep_copy(u_host, u);
-    Kokkos::deep_copy(P_host, P);
-    Kokkos::deep_copy(rhou_host, rhou);
-    Kokkos::deep_copy(E_host, E);
+    initialisation->execute(grid.range.all_ghosts(), rho.d_view, u.d_view, P.d_view, nodes_x0, nodes_y0, g_array);
+    ConvPrimtoConsArray(grid.range.all_ghosts(), rhou, E, rho.d_view, u.d_view, P.d_view, eos);
 
     double t = 0;
     int iter = 0;
     bool should_exit = false; 
 
-    write_pdi(iter, t, rho_host.data(), u_host.data(), P_host.data());
+    write_pdi(iter, t, rho, u, P);
 
     while (!should_exit && t < timeout && iter < max_iter)
     {
-        double dt = time_step(grid.range.all_ghosts(), cfl, rho, u, P, array_dx, eos);
-
+        double dt = time_step(grid.range.all_ghosts(), cfl, rho.d_view, u.d_view, P.d_view, array_dx, eos);
         bool const make_output = should_output(iter, output_frequency, max_iter, t, dt, timeout);
         if ((t + dt) > timeout)
         {
@@ -192,13 +173,12 @@ int main(int argc, char** argv)
             should_exit = true;
         }
 
-        face_reconstruction->execute(grid.range.with_ghosts(1), rho, rho_rec, array_dx);
-        face_reconstruction->execute(grid.range.with_ghosts(1), P, P_rec, array_dx);
+        face_reconstruction->execute(grid.range.with_ghosts(1), rho.d_view, rho_rec, array_dx);
+        face_reconstruction->execute(grid.range.with_ghosts(1), P.d_view, P_rec, array_dx);
         for(int idim = 0; idim < ndim ; ++idim)
         {
-            auto u_less_dim = Kokkos::subview(u, Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, idim);
-            auto u_rec_less_dim = Kokkos::subview(u_rec, Kokkos::ALL, Kokkos::ALL, 
-                                    Kokkos::ALL, Kokkos::ALL, Kokkos::ALL, idim);
+            auto u_less_dim = Kokkos::subview(u.d_view, ALL, ALL, ALL, idim);
+            auto u_rec_less_dim = Kokkos::subview(u_rec, ALL, ALL, ALL, ALL, ALL, idim);
             face_reconstruction->execute(grid.range.with_ghosts(1), u_less_dim, u_rec_less_dim, array_dx);
         }
 
@@ -206,45 +186,42 @@ int main(int argc, char** argv)
         {
             for (int iside = 0; iside < 2; ++iside)
             {
-                auto rhou_rec_less_dim = Kokkos::subview(rhou_rec, Kokkos::ALL, Kokkos::ALL, 
-                                                    Kokkos::ALL, iside, idim, Kokkos::ALL);
-                auto E_rec_less_dim = Kokkos::subview(E_rec, Kokkos::ALL, Kokkos::ALL, 
-                                                    Kokkos::ALL, iside, idim);
-                auto rho_rec_less_dim = Kokkos::subview(rho_rec, Kokkos::ALL, Kokkos::ALL, 
-                                                    Kokkos::ALL, iside, idim);
-                auto u_rec_less_dim = Kokkos::subview(u_rec, Kokkos::ALL, Kokkos::ALL, 
-                                                    Kokkos::ALL, iside, idim, Kokkos::ALL);
-                auto P_rec_less_dim = Kokkos::subview(P_rec, Kokkos::ALL, Kokkos::ALL, 
-                                                    Kokkos::ALL, iside, idim);
+                auto rhou_rec_less_dim = Kokkos::subview(rhou_rec, ALL, ALL, ALL, iside, idim, ALL);
+                auto E_rec_less_dim    = Kokkos::subview(E_rec,    ALL, ALL, ALL, iside, idim);
+                auto rho_rec_less_dim  = Kokkos::subview(rho_rec,  ALL, ALL, ALL, iside, idim);
+                auto u_rec_less_dim    = Kokkos::subview(u_rec,    ALL, ALL, ALL, iside, idim, ALL);
+                auto P_rec_less_dim    = Kokkos::subview(P_rec,    ALL, ALL, ALL, iside, idim);
+                
                 ConvPrimtoConsArray(grid.range.with_ghosts(1), rhou_rec_less_dim, E_rec_less_dim, rho_rec_less_dim, 
-                                    u_rec_less_dim, P_rec_less_dim, eos);
+                                        u_rec_less_dim, P_rec_less_dim, eos);
             }
         }
 
         extrapolation_construction->execute(grid.range.with_ghosts(1), rhou_rec, E_rec, rho_rec, u_rec, P_rec,
-                                        eos, array_dx, dt);
+                                            eos, array_dx, dt);
 
-        godunov_scheme->execute(grid.range.no_ghosts(), rho, rhou, E, rho_rec, rhou_rec, E_rec, 
+        godunov_scheme->execute(grid.range.no_ghosts(), rho.d_view, rhou, E, rho_rec, rhou_rec, E_rec, 
                                 rho_new, rhou_new, E_new, array_dx, dt);
 
-        gravity_add->execute(rho, rhou, rhou_new, E_new, g_array, dt);
+        gravity_add->execute(rho.d_view, rhou, rhou_new, E_new, g_array, dt);
 
         boundary_construction->execute(rho_new, rhou_new, E_new, grid);
 
-        ConvConstoPrimArray(grid.range.all_ghosts(), u, P, rho_new, rhou_new, E_new, eos);
-        Kokkos::deep_copy(rho, rho_new);
+        ConvConstoPrimArray(grid.range.all_ghosts(), u.d_view, P.d_view, rho_new, rhou_new, E_new, eos);
+        Kokkos::deep_copy(rho.d_view, rho_new);
         Kokkos::deep_copy(rhou, rhou_new);
         Kokkos::deep_copy(E, E_new);
+        
+        rho.modify_device();
+        u.modify_device();
+        P.modify_device();
 
         t = t + dt;
         iter++;
 
         if(make_output)
         {
-            Kokkos::deep_copy(rho_host, rho);
-            Kokkos::deep_copy(u_host, u);
-            Kokkos::deep_copy(P_host, P);
-            write_pdi(iter, t, rho_host.data(), u_host.data(), P_host.data());
+            write_pdi(iter, t, rho, u, P);
         }
     }
 

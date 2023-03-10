@@ -1,10 +1,8 @@
-#include <Kokkos_Core.hpp>
 #include <PerfectGas.hpp>
 
 #include "array_conversion.hpp"
 #include "euler_equations.hpp"
 #include "range.hpp"
-
 namespace novapp
 {
 
@@ -41,11 +39,11 @@ void ConvPrimtoConsArray(
  
 void ConvConstoPrimArray(
     Range const& range,
-    Kokkos::View<double****, Kokkos::LayoutStride> const u,
-    Kokkos::View<double***, Kokkos::LayoutStride> const P,
-    Kokkos::View<const double***, Kokkos::LayoutStride> const rho,
-    Kokkos::View<const double****, Kokkos::LayoutStride> const rhou,
-    Kokkos::View<const double***, Kokkos::LayoutStride> const E,
+    KV_double_4d const u,
+    KV_double_3d const P,
+    KV_cdouble_3d const rho,
+    KV_cdouble_4d const rhou,
+    KV_cdouble_3d const E,
     thermodynamics::PerfectGas const& eos)
 {
     auto const [begin, end] = cell_range(range);

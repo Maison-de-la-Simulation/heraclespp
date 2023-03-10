@@ -16,7 +16,7 @@ filename = sys.argv[1]
 
 with h5py.File(str(filename), 'r') as f : 
     print(f.keys())
-    rho = f['rho'][:, 0, 0]
+    rho = f['rho'][0, 0, :]
 dx = L / len(rho)
 x = np.zeros(len(rho))
 for i in range(0, len(rho)):

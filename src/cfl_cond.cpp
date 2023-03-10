@@ -1,8 +1,5 @@
 #include <mpi.h>
-
-#include <Kokkos_Core.hpp>
 #include <PerfectGas.hpp>
-
 #include "cfl_cond.hpp"
 #include "euler_equations.hpp"
 #include "range.hpp"
@@ -13,10 +10,10 @@ namespace novapp
 double time_step(
     Range const& range,
     double const cfl,
-    Kokkos::View<const double***> rho,
-    Kokkos::View<const double****> u,
-    Kokkos::View<const double***> P,
-    Kokkos::View<const double*> dx, 
+    KV_cdouble_3d rho,
+    KV_cdouble_4d u,
+    KV_cdouble_3d P,
+    KV_cdouble_1d dx, 
     thermodynamics::PerfectGas const& eos)
 {
     double inverse_dt = 0;

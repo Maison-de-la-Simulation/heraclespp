@@ -8,7 +8,6 @@
 #include <string>
 #include <string_view>
 
-#include <Kokkos_Core.hpp>
 #include <PerfectGas.hpp>
 
 #include "euler_equations.hpp"
@@ -16,6 +15,7 @@
 #include "ndim.hpp"
 #include "range.hpp"
 #include "riemann_solver.hpp"
+#include "Kokkos_shortcut.hpp"
 
 namespace novapp
 {
@@ -37,16 +37,16 @@ public:
 
     virtual void execute(
             Range const& range,
-            Kokkos::View<const double***> rho,
-            Kokkos::View<const double****> rhou,
-            Kokkos::View<const double***> E,
-            Kokkos::View<const double*****> rho_rec,
-            Kokkos::View<const double******> rhou_rec,
-            Kokkos::View<const double*****> E_rec,
-            Kokkos::View<double***> rho_new,
-            Kokkos::View<double****> rhou_new,
-            Kokkos::View<double***> E_new,
-            Kokkos::View<const double*> dx,
+            KV_cdouble_3d rho,
+            KV_cdouble_4d rhou,
+            KV_cdouble_3d E,
+            KV_cdouble_5d rho_rec,
+            KV_cdouble_6d rhou_rec,
+            KV_cdouble_5d E_rec,
+            KV_double_3d rho_new,
+            KV_double_4d rhou_new,
+            KV_double_3d E_new,
+            KV_cdouble_1d dx,
             double dt) const
             = 0;
 };
@@ -78,16 +78,16 @@ public:
 
     void execute(
             Range const& range,
-            Kokkos::View<const double***> const rho,
-            Kokkos::View<const double****> const rhou,
-            Kokkos::View<const double***> const E,
-            Kokkos::View<const double*****> const rho_rec,
-            Kokkos::View<const double******> const rhou_rec,
-            Kokkos::View<const double*****> const E_rec,
-            Kokkos::View<double***> const rho_new,
-            Kokkos::View<double****> const rhou_new,
-            Kokkos::View<double***> const E_new,
-            Kokkos::View<const double*> const dx,
+            KV_cdouble_3d const rho,
+            KV_cdouble_4d const rhou,
+            KV_cdouble_3d const E,
+            KV_cdouble_5d const rho_rec,
+            KV_cdouble_6d const rhou_rec,
+            KV_cdouble_5d const E_rec,
+            KV_double_3d const rho_new,
+            KV_double_4d const rhou_new,
+            KV_double_3d const E_new,
+            KV_cdouble_1d const dx,
             double dt) const final
     {
         auto const [begin, end] = cell_range(range);

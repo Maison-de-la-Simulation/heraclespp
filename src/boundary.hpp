@@ -3,7 +3,7 @@
 //!
 #pragma once
 
-#include <Kokkos_Core.hpp>
+#include "Kokkos_shortcut.hpp"
 #include "buffer.hpp"
 #include "grid.hpp"
 #include "ndim.hpp"
@@ -31,20 +31,20 @@ public:
 
     IBoundaryCondition& operator=(IBoundaryCondition&& x) noexcept = default;
 
-    virtual void bcUpdate(Kokkos::View<double***> rho,
-                               Kokkos::View<double****> rhou,
-                               Kokkos::View<double***> E,
-                               Grid const & grid) const = 0;
+    virtual void bcUpdate(KV_double_3d rho,
+                          KV_double_4d rhou,
+                          KV_double_3d E,
+                          Grid const & grid) const = 0;
 
-    void ghostExchange(Kokkos::View<double***> rho,
-                      Kokkos::View<double****> rhou,
-                      Kokkos::View<double***> E, 
-                      Grid const & grid);
+    void ghostExchange(KV_double_3d rho,
+                       KV_double_4d rhou,
+                       KV_double_3d E, 
+                       Grid const & grid);
 
-    void execute(Kokkos::View<double***> rho,
-                               Kokkos::View<double****> rhou,
-                               Kokkos::View<double***> E,
-                               Grid const & grid) 
+    void execute(KV_double_3d rho,
+                 KV_double_4d rhou,
+                 KV_double_3d E,
+                 Grid const & grid) 
     {
         ghostExchange(rho, rhou, E, grid); 
         bcUpdate(rho, rhou, E, grid); 
@@ -60,10 +60,10 @@ class NullGradient : public IBoundaryCondition
 public:
     NullGradient(Grid const & grid) : IBoundaryCondition(grid){};
     
-    void bcUpdate(Kokkos::View<double***> rho,
-                       Kokkos::View<double****> rhou,
-                       Kokkos::View<double***> E,
-                       Grid const & grid) const final
+    void bcUpdate(KV_double_3d rho,
+                  KV_double_4d rhou,
+                  KV_double_3d E,
+                  Grid const & grid) const final
     {
         assert(rho.extent(0) == rhou.extent(0));
         assert(rhou.extent(0) == E.extent(0));
@@ -194,10 +194,10 @@ public:
 
     PeriodicCondition(Grid const & grid) : IBoundaryCondition(grid){};
     
-    void bcUpdate([[maybe_unused]]Kokkos::View<double***> rho,
-                       [[maybe_unused]]Kokkos::View<double****> rhou,
-                       [[maybe_unused]]Kokkos::View<double***> E,
-                       [[maybe_unused]]Grid const & grid) const final
+    void bcUpdate([[maybe_unused]]KV_double_3d rho,
+                  [[maybe_unused]]KV_double_4d rhou,
+                  [[maybe_unused]]KV_double_3d E,
+                  [[maybe_unused]]Grid const & grid) const final
     {
         // do nothing
     }
@@ -209,10 +209,10 @@ class ReflexiveCondition : public IBoundaryCondition
 public:
     ReflexiveCondition(Grid const & grid) : IBoundaryCondition(grid){};
     
-    void bcUpdate(Kokkos::View<double***> rho,
-                       Kokkos::View<double****> rhou,
-                       Kokkos::View<double***> E,
-                       Grid const & grid) const final
+    void bcUpdate(KV_double_3d rho,
+                  KV_double_4d rhou,
+                  KV_double_3d E,
+                  Grid const & grid) const final
     {
         int ng=0;
         if(grid.is_border[0][0])
@@ -229,6 +229,7 @@ public:
                 {    
                     rhou(i, j, k, n) = (n==grid.Ndim-1? -rhou(2*ng-1-i, j, k, n):rhou(2*ng-1-i, j, k, n));
                 }
+
                 E(i, j, k) = E(2*ng-1-i, j, k);
             });
         }
@@ -302,6 +303,9 @@ public:
                     {    
                         rhou(i, j, k, n) = (n==grid.Ndim-1? -rhou(i, j, 2*ng-1-k, n):rhou(i, j, 2*ng-1-k, n));
                     }
+                    rhou(i, j, k, 0) = rhou(i, j, 2*ng-1-k, 0);
+                    rhou(i, j, k, 1) = rhou(i, j, 2*ng-1-k, 1);
+                    rhou(i, j, k, 2) = -rhou(i, j, 2*ng-1-k, 2);
                     E(i, j, k) = E(i, j, 2*ng-1-k);
                 });
             }
@@ -331,9 +335,9 @@ class xPeriodicyReflexiveCondition : public IBoundaryCondition
 public:
     xPeriodicyReflexiveCondition(Grid const & grid) : IBoundaryCondition(grid){};
     
-    void bcUpdate(Kokkos::View<double***> rho,
-                  Kokkos::View<double****> rhou,
-                  Kokkos::View<double***> E,
+    void bcUpdate(KV_double_3d rho,
+                  KV_double_4d rhou,
+                  KV_double_3d E,
                   Grid const & grid) const final
     {
         int ng=0;

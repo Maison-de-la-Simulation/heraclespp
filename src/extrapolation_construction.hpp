@@ -27,13 +27,13 @@ public:
 
     virtual void execute(
         Range const& range,
-        Kokkos::View<double******> const rhou,
-        Kokkos::View<double*****> const E,
-        Kokkos::View<double*****> const rho,
-        Kokkos::View<const double******> const u,
-        Kokkos::View<const double*****> const P,
+        KV_double_6d const rhou,
+        KV_double_5d const E,
+        KV_double_5d const rho,
+        KV_cdouble_6d const u,
+        KV_cdouble_5d const P,
         thermodynamics::PerfectGas const& eos,
-        Kokkos::View<const double*> dx,
+        KV_cdouble_1d dx,
         double const dt) const 
         = 0;
 };
@@ -43,13 +43,13 @@ class ExtrapolationCalculation : public IExtrapolationValues
 public : 
     void execute(
         Range const& range,
-        Kokkos::View<double******> const rhou,
-        Kokkos::View<double*****> const E,
-        Kokkos::View<double*****> const rho,
-        Kokkos::View<const double******> const u,
-        Kokkos::View<const double*****> const P,
+        KV_double_6d const rhou,
+        KV_double_5d const E,
+        KV_double_5d const rho,
+        KV_cdouble_6d const u,
+        KV_cdouble_5d const P,
         thermodynamics::PerfectGas const& eos,
-        Kokkos::View<const double*> dx,
+        KV_cdouble_1d dx,
         double const dt) const final
     {
         assert(rhou.extent(0) == E.extent(0));

@@ -13,12 +13,12 @@ filename = sys.argv[1]
 
 with h5py.File(str(filename), 'r') as f :
     print(f.keys())
-    rho = f['rho'][:, 0, 0]
-    u_x = f['u'][:, :, 0, 0]
-    u_y = f['u'][:, :, 0, 1]
-    P_x = f['P'][:, 0, 0]
+    rho = f['rho'][0, 0, 0]
+    u_x = f['u'][0, 0, :, :]
+    u_y = f['u'][1, 0, :, :]
+    P_x = f['P'][0, 0, :]
     P_y = f['P'][0, :, 0]
-    Pr = f['P'][:, :, 0]
+    Pr = f['P'][0, :, :]
     
 dx = 1 / len(P_x)
 dy = 1 / len(P_y)
