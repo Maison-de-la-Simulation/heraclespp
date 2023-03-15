@@ -203,7 +203,7 @@ int main(int argc, char** argv)
         godunov_scheme->execute(grid.range.no_ghosts(), rho.d_view, rhou, E, rho_rec, rhou_rec, E_rec, 
                                 rho_new, rhou_new, E_new, array_dx, dt);
 
-        gravity_add->execute(rho.d_view, rhou, rhou_new, E_new, g_array, dt);
+        gravity_add->execute(grid.range.no_ghosts(), rho.d_view, rhou, rhou_new, E_new, g_array, dt);
 
         boundary_construction->execute(rho_new, rhou_new, E_new, grid);
 

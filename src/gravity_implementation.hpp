@@ -3,7 +3,9 @@
 //!
 #pragma once
 
+#include "Kokkos_shortcut.hpp"
 #include "ndim.hpp"
+#include "range.hpp"
 
 namespace novapp
 {
@@ -24,50 +26,32 @@ public:
     IGravity& operator=(IGravity&& x) noexcept = default;
 
     virtual void execute(
+            Range const& range,
             KV_cdouble_3d rho,
             KV_cdouble_4d rhou,
             KV_double_4d rhou_new,
             KV_double_3d E_new,
             KV_double_1d g_array,
-            double const dt) const
+            double dt) const
             = 0;
 };
 
 class GravityOn : public IGravity
 {
 public :
-    virtual void execute(
+    void execute(
+            Range const& range,
             KV_cdouble_3d const rho,
             KV_cdouble_4d const rhou,
             KV_double_4d const rhou_new,
             KV_double_3d const E_new,
-            KV_double_1d g_array,
+            KV_double_1d const g_array,
             double const dt) const final
     {
-        int istart = 2; // Default = 1D
-        int jstart = 0;
-        int kstart = 0;
-        int iend = rho.extent(0) - 2;
-        int jend = 1;
-        int kend = 1;
-            
-        if (ndim == 2) // 2D
-        {
-            jstart = 2;
-            jend = rho.extent(1) - 2;
-        }
-        if (ndim == 3) // 3D
-        {
-            jstart = 2;
-            kstart = 2;
-            jend = rho.extent(1) - 2;
-            kend = rho.extent(2) - 2;
-        }
+        auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
         "GravityOn_implementation",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-        {istart, jstart, kstart},
-        {iend, jend, kend}),
+        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
             for (int idim = 0; idim < ndim; ++idim)
@@ -82,12 +66,13 @@ public :
 class GravityOff : public IGravity
 {
 public :
-    virtual void execute(
+    void execute(
+            [[maybe_unused]]Range const& range,
             [[maybe_unused]]KV_cdouble_3d const rho,
             [[maybe_unused]]KV_cdouble_4d const rhou,
             [[maybe_unused]]KV_double_4d const rhou_new,
             [[maybe_unused]]KV_double_3d const E_new,
-            [[maybe_unused]]KV_double_1d g_array,
+            [[maybe_unused]]KV_double_1d const g_array,
             [[maybe_unused]]double const dt) const final
     {
         // do nothing
