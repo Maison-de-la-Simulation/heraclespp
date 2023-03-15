@@ -77,7 +77,7 @@ int main(int argc, char** argv)
     });
 
     write_pdi_init(max_iter, output_frequency, grid);
-    
+
     std::string const initialisation_problem = reader.Get("Problem", "type", "ShockTube");
     std::unique_ptr<IInitialisationProblem> initialisation
             = factory_initialisation(initialisation_problem);
@@ -92,7 +92,7 @@ int main(int argc, char** argv)
     std::string const boundary_condition_type = reader.Get("Hydro", "boundary", "NullGradient");
     std::unique_ptr<IBoundaryCondition> boundary_construction
             = factory_boundary_construction(grid, boundary_condition_type);
-    
+
     std::string const riemann_solver = reader.Get("Hydro", "riemann_solver", "HLL");
     std::unique_ptr<IGodunovScheme> godunov_scheme
             = factory_godunov_scheme(riemann_solver, eos);
@@ -129,7 +129,7 @@ int main(int argc, char** argv)
     {
         nodes_y0(i) = ymin + (i + offsety) * array_dx(1) ; // Position of the left interface
     });
-    
+
     int offsetz = grid.range.Corner_min[2] - grid.Nghost[2];
     Kokkos::parallel_for("InitialisationNodes",
                          Kokkos::RangePolicy<>(0, nodes_z0.extent(0)),
@@ -159,7 +159,7 @@ int main(int argc, char** argv)
 
     double t = 0;
     int iter = 0;
-    bool should_exit = false; 
+    bool should_exit = false;
 
     write_pdi(iter, t, rho, u, P, E);
 
@@ -191,8 +191,8 @@ int main(int argc, char** argv)
                 auto rho_rec_less_dim  = Kokkos::subview(rho_rec,  ALL, ALL, ALL, iside, idim);
                 auto u_rec_less_dim    = Kokkos::subview(u_rec,    ALL, ALL, ALL, iside, idim, ALL);
                 auto P_rec_less_dim    = Kokkos::subview(P_rec,    ALL, ALL, ALL, iside, idim);
-                
-                conv_prim_to_cons(grid.range.with_ghosts(1), rhou_rec_less_dim, E_rec_less_dim, rho_rec_less_dim, 
+
+                conv_prim_to_cons(grid.range.with_ghosts(1), rhou_rec_less_dim, E_rec_less_dim, rho_rec_less_dim,
                                         u_rec_less_dim, P_rec_less_dim, eos);
             }
         }
@@ -200,7 +200,7 @@ int main(int argc, char** argv)
         extrapolation_construction->execute(grid.range.with_ghosts(1), rhou_rec, E_rec, rho_rec, u_rec, P_rec,
                                             eos, array_dx, dt);
 
-        godunov_scheme->execute(grid.range.no_ghosts(), rho.d_view, rhou.d_view, E.d_view, rho_rec, rhou_rec, E_rec, 
+        godunov_scheme->execute(grid.range.no_ghosts(), rho.d_view, rhou.d_view, E.d_view, rho_rec, rhou_rec, E_rec,
                                 rho_new, rhou_new, E_new, array_dx, dt);
 
         gravity_add->execute(grid.range.no_ghosts(), rho.d_view, rhou.d_view, rhou_new, E_new, g_array, dt);
@@ -211,7 +211,7 @@ int main(int argc, char** argv)
         Kokkos::deep_copy(rho.d_view, rho_new);
         Kokkos::deep_copy(rhou.d_view, rhou_new);
         Kokkos::deep_copy(E.d_view, E_new);
-        
+
         rho.modify_device();
         u.modify_device();
         P.modify_device();
