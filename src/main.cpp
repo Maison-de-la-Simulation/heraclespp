@@ -155,7 +155,7 @@ int main(int argc, char** argv)
     KV_double_3d E_new("Enew",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
 
     initialisation->execute(grid.range.all_ghosts(), rho.d_view, u.d_view, P.d_view, nodes_x0, nodes_y0, g_array);
-    ConvPrimtoConsArray(grid.range.all_ghosts(), rhou, E, rho.d_view, u.d_view, P.d_view, eos);
+    conv_prim_to_cons(grid.range.all_ghosts(), rhou, E, rho.d_view, u.d_view, P.d_view, eos);
 
     double t = 0;
     int iter = 0;
@@ -192,7 +192,7 @@ int main(int argc, char** argv)
                 auto u_rec_less_dim    = Kokkos::subview(u_rec,    ALL, ALL, ALL, iside, idim, ALL);
                 auto P_rec_less_dim    = Kokkos::subview(P_rec,    ALL, ALL, ALL, iside, idim);
                 
-                ConvPrimtoConsArray(grid.range.with_ghosts(1), rhou_rec_less_dim, E_rec_less_dim, rho_rec_less_dim, 
+                conv_prim_to_cons(grid.range.with_ghosts(1), rhou_rec_less_dim, E_rec_less_dim, rho_rec_less_dim, 
                                         u_rec_less_dim, P_rec_less_dim, eos);
             }
         }
@@ -207,7 +207,7 @@ int main(int argc, char** argv)
 
         boundary_construction->execute(rho_new, rhou_new, E_new, grid);
 
-        ConvConstoPrimArray(grid.range.all_ghosts(), u.d_view, P.d_view, rho_new, rhou_new, E_new, eos);
+        conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho_new, rhou_new, E_new, eos);
         Kokkos::deep_copy(rho.d_view, rho_new);
         Kokkos::deep_copy(rhou, rhou_new);
         Kokkos::deep_copy(E, E_new);

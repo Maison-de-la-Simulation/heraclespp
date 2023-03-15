@@ -32,7 +32,7 @@ TEST(Conversions, PrimToCons)
 
     Kokkos::DualView<double****, Kokkos::LayoutLeft> rhou_view("rhou", n, n, n, novapp::ndim);
     Kokkos::DualView<double***, Kokkos::LayoutLeft> E_view("E", n, n, n);
-    ConvPrimtoConsArray(
+    conv_prim_to_cons(
             range.all_ghosts(),
             rhou_view.view_device(),
             E_view.view_device(),
@@ -89,7 +89,7 @@ TEST(Conversions, ConsToPrim)
 
     Kokkos::DualView<double****, Kokkos::LayoutLeft> u_view("u", n, n, n, novapp::ndim);
     Kokkos::DualView<double***, Kokkos::LayoutLeft> P_view("P", n, n, n);
-    ConvConstoPrimArray(
+    conv_cons_to_prim(
             range.all_ghosts(),
             u_view.view_device(),
             P_view.view_device(),

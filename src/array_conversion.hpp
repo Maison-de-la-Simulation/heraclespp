@@ -25,7 +25,7 @@ class Range;
 //! @param[in] u speed array 3D
 //! @param[in] P pressure array 3D
 //! @param[in] eos equation of state
-void ConvPrimtoConsArray(
+void conv_prim_to_cons(
     Range const& range,
     Kokkos::View<double****, Kokkos::LayoutStride> const rhou,
     Kokkos::View<double***, Kokkos::LayoutStride> const E,
@@ -42,7 +42,7 @@ void ConvPrimtoConsArray(
 //! @param[in] u speed array 3D
 //! @param[in] P pressure array 3D
 //! @param[in] eos equation of state
-void ConvConstoPrimArray(
+void conv_cons_to_prim(
     Range const& range,
     KV_double_4d const u,
     KV_double_3d const P,

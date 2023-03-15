@@ -6,7 +6,7 @@
 namespace novapp
 {
 
-void ConvPrimtoConsArray(
+void conv_prim_to_cons(
     Range const& range,
     Kokkos::View<double****, Kokkos::LayoutStride> const rhou,
     Kokkos::View<double***, Kokkos::LayoutStride> const E,
@@ -37,7 +37,7 @@ void ConvPrimtoConsArray(
     });
 }
  
-void ConvConstoPrimArray(
+void conv_cons_to_prim(
     Range const& range,
     KV_double_4d const u,
     KV_double_3d const P,
