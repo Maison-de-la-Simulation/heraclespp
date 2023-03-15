@@ -69,7 +69,7 @@ int main(int argc, char** argv)
     double const Lz = zmax - zmin;
 
     KV_double_1d array_dx("array_dx", 3); //Space step array
-    Kokkos::parallel_for(1, KOKKOS_LAMBDA(int i)
+    Kokkos::parallel_for(1, KOKKOS_LAMBDA([[maybe_unused]] int i)
     {
         array_dx(0) = Lx / grid.Nx_glob_ng[0];
         array_dx(1) = Ly / grid.Nx_glob_ng[1];
