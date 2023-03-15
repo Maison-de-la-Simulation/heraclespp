@@ -138,11 +138,11 @@ int main(int argc, char** argv)
         nodes_z0(i) = zmin + (i + offsetz) * array_dx(2) ; // Position of the left interface
     });
 
-    KDV_double_3d rho("rho",  grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Density
-    KDV_double_4d u("u",      grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim); // Speed
-    KDV_double_3d P("P",      grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Pressure
-    KV_double_4d rhou("rhou", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim); // Momentum
-    KV_double_3d E("E",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Energy
+    KDV_double_3d rho("rho",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Density
+    KDV_double_4d u("u",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim); // Speed
+    KDV_double_3d P("P",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Pressure
+    KDV_double_4d rhou("rhou", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim); // Momentum
+    KDV_double_3d E("E",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Energy
 
     KV_double_5d rho_rec("rho_rec",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim);
     KV_double_6d rhou_rec("rhou_rec", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim, ndim);
@@ -155,13 +155,13 @@ int main(int argc, char** argv)
     KV_double_3d E_new("Enew",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
 
     initialisation->execute(grid.range.all_ghosts(), rho.d_view, u.d_view, P.d_view, nodes_x0, nodes_y0, g_array);
-    conv_prim_to_cons(grid.range.all_ghosts(), rhou, E, rho.d_view, u.d_view, P.d_view, eos);
+    conv_prim_to_cons(grid.range.all_ghosts(), rhou.d_view, E.d_view, rho.d_view, u.d_view, P.d_view, eos);
 
     double t = 0;
     int iter = 0;
     bool should_exit = false; 
 
-    write_pdi(iter, t, rho, u, P);
+    write_pdi(iter, t, rho, u, P, E);
 
     while (!should_exit && t < timeout && iter < max_iter)
     {
@@ -200,28 +200,30 @@ int main(int argc, char** argv)
         extrapolation_construction->execute(grid.range.with_ghosts(1), rhou_rec, E_rec, rho_rec, u_rec, P_rec,
                                             eos, array_dx, dt);
 
-        godunov_scheme->execute(grid.range.no_ghosts(), rho.d_view, rhou, E, rho_rec, rhou_rec, E_rec, 
+        godunov_scheme->execute(grid.range.no_ghosts(), rho.d_view, rhou.d_view, E.d_view, rho_rec, rhou_rec, E_rec, 
                                 rho_new, rhou_new, E_new, array_dx, dt);
 
-        gravity_add->execute(grid.range.no_ghosts(), rho.d_view, rhou, rhou_new, E_new, g_array, dt);
+        gravity_add->execute(grid.range.no_ghosts(), rho.d_view, rhou.d_view, rhou_new, E_new, g_array, dt);
 
         boundary_construction->execute(rho_new, rhou_new, E_new, grid);
 
         conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho_new, rhou_new, E_new, eos);
         Kokkos::deep_copy(rho.d_view, rho_new);
-        Kokkos::deep_copy(rhou, rhou_new);
-        Kokkos::deep_copy(E, E_new);
+        Kokkos::deep_copy(rhou.d_view, rhou_new);
+        Kokkos::deep_copy(E.d_view, E_new);
         
         rho.modify_device();
         u.modify_device();
         P.modify_device();
+        E.modify_device();
+        rhou.modify_device();
 
         t += dt;
         iter++;
 
         if(make_output)
         {
-            write_pdi(iter, t, rho, u, P);
+            write_pdi(iter, t, rho, u, P, E);
         }
     }
 
