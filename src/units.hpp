@@ -1,9 +1,8 @@
-/**
- * @file units.hpp
- *  
- * Define code units and useful constants and units.
- * 
- * */
+//!
+//! @file units.hpp
+//! Define code units and useful constants and units.
+//!
+
 #pragma once
 
 #include <Kokkos_Core.hpp>

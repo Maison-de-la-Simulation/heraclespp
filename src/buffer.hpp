@@ -1,7 +1,7 @@
-/**
- * @file buffer.hpp
- * buffer class declaration
- */
+//!
+//! @file buffer.hpp
+//! buffer class declaration
+//!
 
 #pragma once
 

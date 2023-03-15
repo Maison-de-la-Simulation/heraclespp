@@ -1,6 +1,7 @@
 //!
 //! @file godunov_scheme.hpp
 //!
+
 #pragma once
 
 #include <memory>

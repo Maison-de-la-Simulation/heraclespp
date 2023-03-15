@@ -1,6 +1,7 @@
 //!
 //! @file gravity_implementation.hpp
 //!
+
 #pragma once
 
 #include "Kokkos_shortcut.hpp"

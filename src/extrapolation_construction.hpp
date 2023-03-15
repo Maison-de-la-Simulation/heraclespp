@@ -1,6 +1,7 @@
 //!
 //! @file extrapolation_construction.hpp
 //!
+
 #pragma once
 
 #include "euler_equations.hpp"

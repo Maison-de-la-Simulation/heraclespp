@@ -1,6 +1,7 @@
 //!
 //! @file face_reconstruction.hpp
 //!
+
 #pragma once
 
 #include <memory>

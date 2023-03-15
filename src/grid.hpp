@@ -1,10 +1,11 @@
+//!
+//! @file grid.hpp
+//! Grid class declaration
+//!
 
-/**
- * @file grid.hpp
- * Grid class declaration
- */
 #pragma once
-#include <iostream> 
+
+#include <iostream>
 #include <array>
 #include <string>
 #include <Kokkos_Core.hpp>

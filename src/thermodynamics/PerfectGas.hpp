@@ -1,6 +1,7 @@
 //!
 //! @file PerfectGas.hpp
 //!
+
 #pragma once
 
 #include <Kokkos_Core.hpp>

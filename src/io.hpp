@@ -1,7 +1,8 @@
-/**
- * @file io.hpp
- * PDI output functions
- */
+//!
+//! @file io.hpp
+//! PDI output functions
+//!
+
 #pragma once
 
 #include <array>

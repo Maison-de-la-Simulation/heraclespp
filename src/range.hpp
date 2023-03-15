@@ -1,8 +1,8 @@
+//!
+//! @file range.hpp
+//! Grid class declaration
+//!
 
-/**
- * @file range.hpp
- * Grid class declaration
- */
 #pragma once
 
 #include <array>

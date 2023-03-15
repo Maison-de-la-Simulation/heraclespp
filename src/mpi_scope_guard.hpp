@@ -1,8 +1,10 @@
-/**
- * @file mpi_scope_guard.hpp
- * MPI initialization
- */
+//!
+//! @file mpi_scope_guard.hpp
+//! MPI initialization
+//!
+
 #pragma once
+
 #include <mpi.h>
 
 namespace novapp

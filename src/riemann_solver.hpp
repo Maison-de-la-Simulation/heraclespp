@@ -1,6 +1,7 @@
 //!
 //! @file riemann_solver.hpp
 //!
+
 #pragma once
 
 #include <Kokkos_Core.hpp>

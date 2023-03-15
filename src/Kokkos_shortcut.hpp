@@ -1,3 +1,9 @@
+//!
+//! @file Kokkos_shortcut.hpp
+//!
+
+#pragma once
+
 #include <Kokkos_Core.hpp>
 #include <Kokkos_DualView.hpp>
 

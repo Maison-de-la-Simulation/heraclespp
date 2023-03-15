@@ -1,3 +1,7 @@
+//!
+//! @file euler_equations.hpp
+//!
+
 #pragma once
 
 #include <Kokkos_Core.hpp>

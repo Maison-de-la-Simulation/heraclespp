@@ -1,7 +1,8 @@
-/**
- * @file array_conversion.hpp
- * General fonctions
- */
+//!
+//! @file array_conversion.hpp
+//! General fonctions
+//!
+
 #pragma once
 
 #include "Kokkos_shortcut.hpp"

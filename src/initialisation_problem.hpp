@@ -1,6 +1,7 @@
 //!
 //! @file initialisation_problem.hpp
 //!
+
 #pragma once
 
 #include <Kokkos_Core.hpp>

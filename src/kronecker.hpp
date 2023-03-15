@@ -1,6 +1,7 @@
 //!
 //! @file kronecker.hpp
 //!
+
 #pragma once
 
 #include <Kokkos_Core.hpp>

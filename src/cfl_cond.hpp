@@ -1,7 +1,7 @@
-/**
- * @file cfl_cond.hpp
- * CFL condition
- */
+//!
+//! @file cfl_cond.hpp
+//! CFL condition
+//!
 
 #pragma once
 
