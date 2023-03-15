@@ -105,10 +105,10 @@ int main(int argc, char** argv)
     int const gdim = reader.GetInteger("Gravity", "gdim", 3);
 
     KV_double_1d g_array("g_array", ndim);
-    for (int idim=0; idim<ndim;++idim)
+    Kokkos::parallel_for(ndim, KOKKOS_LAMBDA(int idim)
     {
         g_array(idim) = g * kron(idim, gdim);
-    }
+    });
 
     KV_double_1d nodes_x0("nodes_x0", grid.Nx_local_wg[0]+1); // Nodes for x0
     KV_double_1d nodes_y0("nodes_y0", grid.Nx_local_wg[1]+1); // Nodes for y0
