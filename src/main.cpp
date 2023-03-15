@@ -216,7 +216,7 @@ int main(int argc, char** argv)
         u.modify_device();
         P.modify_device();
 
-        t = t + dt;
+        t += dt;
         iter++;
 
         if(make_output)
