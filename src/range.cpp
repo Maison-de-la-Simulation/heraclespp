@@ -3,6 +3,7 @@
  * Geom class implementation
  */
 
+#include <iostream>
 #include <stdexcept>
 
 #include "ndim.hpp"
@@ -76,6 +77,19 @@ Range::Range(std::array<int, 3> const& Cmin, std::array<int, 3> const& Cmax, int
         Nf_min_2g[idim] = Nf_min_0g[idim];
         Nf_max_2g[idim] = Nf_max_0g[idim];
     }
+}
+
+std::ostream& operator<<(std::ostream& os, Range const& rng)
+{
+    for (int idim = 0; idim < 3; ++idim)
+    {
+        os << "[" << rng.Corner_min[idim] << "," << rng.Corner_max[idim] << "[";
+        if (idim != 2)
+        {
+            os << "x";
+        }
+    }
+    return os;
 }
 
 } // namespace novapp

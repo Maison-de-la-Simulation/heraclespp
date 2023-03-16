@@ -6,6 +6,7 @@
 #pragma once
 
 #include <array>
+#include <iosfwd>
 
 #include <Kokkos_Core.hpp>
 
@@ -61,6 +62,8 @@ public :
         return rng;
     }
 };
+
+std::ostream& operator<<(std::ostream& os, Range const& rng);
 
 inline std::array<Kokkos::Array<int, 3>, 2> cell_range(Range const& range)
 {
