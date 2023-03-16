@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "Kokkos_shortcut.hpp"
 #include "euler_equations.hpp"
 #include "ndim.hpp"
 #include "range.hpp"
