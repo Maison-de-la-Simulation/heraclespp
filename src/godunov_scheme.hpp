@@ -104,12 +104,8 @@ public:
             }
             for (int idim = 0; idim < ndim; ++idim)
             {
-                int i_m = i - kron(idim, 0); // i - 1
-                int i_p = i + kron(idim, 0); // i + 1
-                int j_m = j - kron(idim, 1);
-                int j_p = j + kron(idim, 1);
-                int k_m = k - kron(idim, 2);
-                int k_p = k + kron(idim, 2);
+                auto const [i_m, j_m, k_m] = lindex(idim, i, j, k); // i - 1
+                auto const [i_p, j_p, k_p] = rindex(idim, i, j, k); // i + 1
 
                 EulerCons minus_oneR; // Right, back, top (i,j,k) - 1
                 minus_oneR.density = rho_rec(i_m, j_m, k_m, 1, idim);
