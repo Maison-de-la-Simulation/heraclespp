@@ -20,4 +20,16 @@ constexpr int kron(int a, int b) noexcept
     return 0;
 }
 
+KOKKOS_INLINE_FUNCTION
+constexpr Kokkos::Array<int, 3> lindex(int a, int i0, int i1, int i2) noexcept
+{
+    return Kokkos::Array<int, 3> {i0 - kron(a, 0), i1 - kron(a, 1), i2 - kron(a, 2)};
+}
+
+KOKKOS_INLINE_FUNCTION
+constexpr Kokkos::Array<int, 3> rindex(int a, int i0, int i1, int i2) noexcept
+{
+    return Kokkos::Array<int, 3> {i0 + kron(a, 0), i1 + kron(a, 1), i2 + kron(a, 2)};
+}
+
 } // namespace novapp
