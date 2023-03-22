@@ -16,7 +16,7 @@
 #include "grid.hpp"
 #include "boundary.hpp"
 #include "euler_equations.hpp"
-#include "extrapolation_construction.hpp"
+#include "hydro_reconstruction.hpp"
 #include "PerfectGas.hpp"
 #include "godunov_scheme.hpp"
 #include "mpi_scope_guard.hpp"
@@ -86,9 +86,6 @@ int main(int argc, char** argv)
     std::unique_ptr<IFaceReconstruction> face_reconstruction
             = factory_face_reconstruction(reconstruction_type);
 
-    std::unique_ptr<IExtrapolationValues> extrapolation_construction
-            = std::make_unique<ExtrapolationCalculation>();
-
     std::string const boundary_condition_type = reader.Get("Hydro", "boundary", "NullGradient");
     std::unique_ptr<IBoundaryCondition> boundary_construction
             = factory_boundary_construction(grid, boundary_condition_type);
@@ -157,6 +154,9 @@ int main(int argc, char** argv)
     initialisation->execute(grid.range.all_ghosts(), rho.d_view, u.d_view, P.d_view, nodes_x0, nodes_y0, g_array);
     conv_prim_to_cons(grid.range.all_ghosts(), rhou.d_view, E.d_view, rho.d_view, u.d_view, P.d_view, eos);
 
+    std::unique_ptr<IHydroReconstruction> reconstruction = std::make_unique<
+            MUSCLHancockHydroReconstruction>(std::move(face_reconstruction), P_rec, u_rec);
+
     double t = 0;
     int iter = 0;
     bool should_exit = false;
@@ -173,32 +173,7 @@ int main(int argc, char** argv)
             should_exit = true;
         }
 
-        face_reconstruction->execute(grid.range.with_ghosts(1), rho.d_view, rho_rec, array_dx);
-        face_reconstruction->execute(grid.range.with_ghosts(1), P.d_view, P_rec, array_dx);
-        for(int idim = 0; idim < ndim ; ++idim)
-        {
-            auto u_less_dim = Kokkos::subview(u.d_view, ALL, ALL, ALL, idim);
-            auto u_rec_less_dim = Kokkos::subview(u_rec, ALL, ALL, ALL, ALL, ALL, idim);
-            face_reconstruction->execute(grid.range.with_ghosts(1), u_less_dim, u_rec_less_dim, array_dx);
-        }
-
-        for(int idim = 0; idim < ndim ; ++idim)
-        {
-            for (int iside = 0; iside < 2; ++iside)
-            {
-                auto rhou_rec_less_dim = Kokkos::subview(rhou_rec, ALL, ALL, ALL, iside, idim, ALL);
-                auto E_rec_less_dim    = Kokkos::subview(E_rec,    ALL, ALL, ALL, iside, idim);
-                auto rho_rec_less_dim  = Kokkos::subview(rho_rec,  ALL, ALL, ALL, iside, idim);
-                auto u_rec_less_dim    = Kokkos::subview(u_rec,    ALL, ALL, ALL, iside, idim, ALL);
-                auto P_rec_less_dim    = Kokkos::subview(P_rec,    ALL, ALL, ALL, iside, idim);
-
-                conv_prim_to_cons(grid.range.with_ghosts(1), rhou_rec_less_dim, E_rec_less_dim, rho_rec_less_dim,
-                                        u_rec_less_dim, P_rec_less_dim, eos);
-            }
-        }
-
-        extrapolation_construction->execute(grid.range.with_ghosts(1), rhou_rec, E_rec, rho_rec, u_rec, P_rec,
-                                            eos, array_dx, dt);
+        reconstruction->execute(grid.range.with_ghosts(1), rho_rec, rhou_rec, E_rec, rho.d_view, u.d_view, P.d_view, eos, array_dx, dt);
 
         godunov_scheme->execute(grid.range.no_ghosts(), rho.d_view, rhou.d_view, E.d_view, rho_rec, rhou_rec, E_rec,
                                 rho_new, rhou_new, E_new, array_dx, dt);
