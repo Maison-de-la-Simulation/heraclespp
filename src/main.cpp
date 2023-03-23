@@ -216,7 +216,10 @@ int main(int argc, char** argv)
     std::unique_ptr<IHydroReconstruction> reconstruction = std::make_unique<
             MUSCLHancockHydroReconstruction>(std::move(face_reconstruction), P_rec, u_rec);
 
-    write_pdi(iter, t, rho, u, P, E);
+    if (output_frequency > 0)
+    {
+        write_pdi(iter, t, rho, u, P, E);
+    }
 
     while (!should_exit && t < timeout && iter < max_iter)
     {
