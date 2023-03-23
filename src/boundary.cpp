@@ -686,10 +686,10 @@ namespace novapp
 {
 
 
-void IBoundaryCondition::ghostExchange(KV_double_3d rho,
-                                       KV_double_4d rhou,
-                                       KV_double_3d E, 
-                                       Grid const & grid)
+void IBoundaryCondition::ghostFill(KV_double_3d rho,
+                                   KV_double_4d rhou,
+                                   KV_double_3d E, 
+                                   Grid const & grid)
 {
     copyToBuffer(rho,  sbuf, 0);
     copyToBuffer(E,    sbuf, 1); 

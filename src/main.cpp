@@ -78,6 +78,35 @@ int main(int argc, char** argv)
 
     write_pdi_init(max_iter, output_frequency, grid);
 
+    std::array<std::unique_ptr<IBoundaryCondition>, ndim*2> boundary_construction_array;
+    std::array<std::string, 3> bc_dir = {"_X", "_Y", "_Z"};
+    std::array<std::string, 3> bc_face = {"_left", "_right"};
+
+    std::string bc_choice;
+    std::string bc_choice_dir;
+    std::array<std::string, ndim*2> bc_choice_face;
+    
+    bc_choice = reader.Get("Boundary Condition", "BC", "");
+    for(int idim=0; idim<ndim; idim++)
+    {
+        bc_choice_dir = reader.Get("Boundary Condition", "BC"+bc_dir[idim], bc_choice);
+        bc_choice_face[idim*2] = reader.Get("Boundary Condition", "BC"+bc_dir[idim]+bc_face[0], bc_choice_dir);
+        bc_choice_face[idim*2+1] = reader.Get("Boundary Condition", "BC"+bc_dir[idim]+bc_face[1], bc_choice_dir);
+    }
+
+    for(int idim=0; idim<ndim; idim++)
+    {
+        if(bc_choice_face[idim*2].empty() || bc_choice_face[idim*2+1].empty()) 
+        {
+            throw std::runtime_error("boundary condition not defined for dim "+bc_dir[idim]);
+        }
+        for(int iface=0; iface<2; iface++)
+        {
+            if(!(grid.is_border[idim][iface])) {bc_choice_face[idim*2+iface] = "Periodic";}
+            boundary_construction_array[idim*2+iface] = factory_boundary_construction(grid, bc_choice_face[idim*2+iface], idim, iface);
+        }
+    }
+    
     std::string const initialisation_problem = reader.Get("Problem", "type", "ShockTube");
     std::unique_ptr<IInitialisationProblem> initialisation
             = factory_initialisation(initialisation_problem);
@@ -85,10 +114,6 @@ int main(int argc, char** argv)
     std::string const reconstruction_type = reader.Get("Hydro", "reconstruction", "VanLeer");
     std::unique_ptr<IFaceReconstruction> face_reconstruction
             = factory_face_reconstruction(reconstruction_type);
-
-    std::string const boundary_condition_type = reader.Get("Hydro", "boundary", "NullGradient");
-    std::unique_ptr<IBoundaryCondition> boundary_construction
-            = factory_boundary_construction(grid, boundary_condition_type);
 
     std::string const riemann_solver = reader.Get("Hydro", "riemann_solver", "HLL");
     std::unique_ptr<IGodunovScheme> godunov_scheme
@@ -151,15 +176,45 @@ int main(int argc, char** argv)
     KV_double_4d rhou_new("rhounew", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim);
     KV_double_3d E_new("Enew",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
 
-    initialisation->execute(grid.range.all_ghosts(), rho.d_view, u.d_view, P.d_view, nodes_x0, nodes_y0, g_array);
-    conv_prim_to_cons(grid.range.all_ghosts(), rhou.d_view, E.d_view, rho.d_view, u.d_view, P.d_view, eos);
-
-    std::unique_ptr<IHydroReconstruction> reconstruction = std::make_unique<
-            MUSCLHancockHydroReconstruction>(std::move(face_reconstruction), P_rec, u_rec);
 
     double t = 0;
     int iter = 0;
     bool should_exit = false;
+
+    if(reader.GetBoolean("Problem", "restart", false))
+    {
+        std::string const restart_file = reader.Get("Problem", "restart_file", "restart.h5");
+        
+        read_pdi(restart_file, rho, u, P, t, iter); // read data into host view
+        
+        rho.sync_device();
+        u.sync_device();
+        P.sync_device();
+        
+        if(grid.mpi_rank==0) 
+        {
+            std::cout<<std::endl<< std::left << std::setw(80) << std::setfill('*') << "*"<<std::endl;
+            std::cout<<"read from file "<<restart_file<<std::endl;
+            std::cout<<"starting at time "<<t<<" ( ~ "<<100*t/timeout<<"%)"
+                     <<", with iteration "<<iter<<std::endl<<std::endl;
+        }
+    }
+    else
+    {
+        initialisation->execute(grid.range.no_ghosts(), rho.d_view, u.d_view, P.d_view, nodes_x0, nodes_y0, g_array);
+    }
+    conv_prim_to_cons(grid.range.no_ghosts(), rhou.d_view, E.d_view, rho.d_view, u.d_view, P.d_view, eos);
+    
+    boundary_construction_array[0]->ghostFill(rho.d_view, rhou.d_view, E.d_view, grid);
+    for (int ibc=0; ibc<ndim*2; ibc++)
+    {
+        boundary_construction_array[ibc]->execute(rho.d_view, rhou.d_view, E.d_view, grid);
+    }
+    
+    conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho.d_view, rhou.d_view, E.d_view, eos);
+
+    std::unique_ptr<IHydroReconstruction> reconstruction = std::make_unique<
+            MUSCLHancockHydroReconstruction>(std::move(face_reconstruction), P_rec, u_rec);
 
     write_pdi(iter, t, rho, u, P, E);
 
@@ -180,7 +235,11 @@ int main(int argc, char** argv)
 
         gravity_add->execute(grid.range.no_ghosts(), rho.d_view, rhou.d_view, rhou_new, E_new, g_array, dt);
 
-        boundary_construction->execute(rho_new, rhou_new, E_new, grid);
+        boundary_construction_array[0]->ghostFill(rho_new, rhou_new, E_new, grid);
+        for ( std::unique_ptr<IBoundaryCondition> const& boundary_construction : boundary_construction_array )
+        {
+            boundary_construction->execute(rho_new, rhou_new, E_new, grid);
+        }
 
         conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho_new, rhou_new, E_new, eos);
         Kokkos::deep_copy(rho.d_view, rho_new);

@@ -47,7 +47,38 @@ void write_pdi(int iter, double t, KDV_double_3d rho,
 
 bool should_output(int iter, int freq, int iter_max, double current, double dt, double time_out)
 {
-    return ((iter+1)>=iter_max) || ((iter+1)%freq==0) || (current+dt>=time_out);
+    bool result = ((iter+1)>=iter_max) || ((iter+1)%freq==0) || (current+dt>=time_out);
+    int mpi_rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
+    if(result && (mpi_rank==0))
+    {
+        std::cout<< std::left << std::setw(80) << std::setfill('*') << "*"<<std::endl;
+        std::cout<<"current iteration "<<iter+1<<" : "<<std::endl;
+        std::cout<<"current time = "<<current<<" ( ~ "<< 100*(current)/time_out <<"%)"<<std::endl<<std::endl ;
+    }
+
+    return result;
+}
+
+void read_pdi(std::string restart_file,
+              KDV_double_3d rho,
+              KDV_double_4d u,
+              KDV_double_3d P,
+              double &t, int &iter)
+{
+    int filename_size = restart_file.size();
+    PDI_multi_expose("read_file",
+                    "restart_filename_size", &filename_size, PDI_INOUT,
+                    "restart_filename", restart_file.data(), PDI_INOUT,
+                    "iter", &iter, PDI_INOUT,
+                    "current_time", &t, PDI_INOUT, 
+                    "rho", rho.h_view.data(), PDI_INOUT,
+                    "u", u.h_view.data(), PDI_INOUT,
+                    "P", P.h_view.data(), PDI_INOUT,
+                    NULL);
+    rho.modify_host();
+    u.modify_host();
+    P.modify_host();
 }
 
 } // namespace novapp
