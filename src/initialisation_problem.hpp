@@ -196,12 +196,12 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            rho(i, j, k) = 1;
             double x = nodes_x0(i);
             double y = nodes_y0(j);
             double r = Kokkos::sqrt(x * x + y * y);
             double theta = Kokkos::atan2(y, x);
             double u_theta;
+            rho(i, j, k) = 1;
             if (r < 0.2)
             {
                 P(i, j, k) = P0 + 12.5 * r * r;
@@ -250,7 +250,7 @@ public:
 
         int ng = 4;
         double Lx = nodes_x0(rho.extent(0)-ng) - nodes_x0(0);
-        double Ly = nodes_y0(rho.extent(1)-ng) - nodes_y0(0);; // à revoir
+        double Ly = nodes_y0(rho.extent(1)-ng) - nodes_y0(0); // à revoir
         double g = g_array(1);
         double P0 = 2.5;
         double A = 0.01;
@@ -277,7 +277,102 @@ public:
             u(i, j, k, 1) = (A/4) * (1+Kokkos::cos(2*Kokkos::numbers::pi*x/Lx)) * (1+Kokkos::cos(2*Kokkos::numbers::pi*y/Ly));
          });
     }
-}; 
+};
+
+class SedovBlastWave2D : public IInitialisationProblem
+{
+public:
+    void execute(
+        Range const& range,
+        KV_double_3d const rho,
+        KV_double_4d const u,
+        KV_double_3d const P,
+        KV_cdouble_1d const nodes_x0,
+        KV_cdouble_1d const nodes_y0,
+        [[maybe_unused]]KV_double_1d g_array) const final
+    {
+        assert(rho.extent(0) == u.extent(0));
+        assert(u.extent(0) == P.extent(0));
+        assert(rho.extent(1) == u.extent(1));
+        assert(u.extent(1) == P.extent(1));
+        assert(rho.extent(2) == u.extent(2));
+        assert(u.extent(2) == P.extent(2));
+
+        double gamma = 1.6666666666666667;
+        double dx = nodes_x0(1) - nodes_x0(0);
+        double dy = nodes_y0(1) - nodes_y0(0);
+        double dv = dx * dy;
+        double E0 = 1E-12;
+        double Eperturb = 1E5;
+
+        auto const [begin, end] = cell_range(range);
+        Kokkos::parallel_for(
+        "SedovBlastWaveInit",
+        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
+        {
+            double x = nodes_x0(i);
+            double y = nodes_y0(j);
+            double r = Kokkos::sqrt(x * x + y * y);
+
+            rho(i, j, k) = 1;
+            for (int idim = 0; idim < ndim; ++idim)
+            {
+                u(i, j, k, idim) = 1;
+            }
+            if (r < 0.025)
+            {
+                P(i, j, k) = Eperturb * (gamma - 1) / dv;
+            }
+            else
+            {
+                P(i, j, k) = E0 * (gamma - 1) / dv;
+            } 
+        });
+    }
+};
+
+class SedovBlastWave1D : public IInitialisationProblem
+{
+public:
+    void execute(
+        Range const& range,
+        KV_double_3d const rho,
+        KV_double_4d const u,
+        KV_double_3d const P,
+        KV_cdouble_1d const nodes_x0,
+        [[maybe_unused]]KV_cdouble_1d const nodes_y0,
+        [[maybe_unused]]KV_double_1d g_array) const final
+    {
+        assert(rho.extent(0) == u.extent(0));
+        assert(u.extent(0) == P.extent(0));
+        assert(rho.extent(1) == u.extent(1));
+        assert(u.extent(1) == P.extent(1));
+        assert(rho.extent(2) == u.extent(2));
+        assert(u.extent(2) == P.extent(2));
+
+        double gamma = 1.6666666666666667;
+        double dx = nodes_x0(1) - nodes_x0(0);
+        double dv = dx;
+        double E0 = 1E-12;
+        double Eperturb = 1;
+
+        auto const [begin, end] = cell_range(range);
+        Kokkos::parallel_for(
+        "SedovBlastWaveInit",
+        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
+        {
+            rho(i, j, k) = 1;
+            for (int idim = 0; idim < ndim; ++idim)
+            {
+                u(i, j, k, idim) = 0;
+            }
+            P(i, j, k) = E0 * (gamma - 1) / dv;
+            P(2, j, k) = Eperturb * (gamma - 1) /  dv;
+        });
+    }
+};
 
 inline std::unique_ptr<IInitialisationProblem> factory_initialisation(
     std::string const& problem)
@@ -302,6 +397,14 @@ inline std::unique_ptr<IInitialisationProblem> factory_initialisation(
     {
         return std::make_unique<RayleighTaylor>();
     }
+    if (problem == "Sedov2d")
+    {
+        return std::make_unique<SedovBlastWave2D>();
+    } 
+    if (problem == "Sedov1d")
+    {
+        return std::make_unique<SedovBlastWave1D>();
+    }    
     throw std::runtime_error("Unknown problem for initialisation : " + problem + ".");
 }
 

@@ -7,7 +7,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 
 from param import *
-from shockTube_exact import CI, ExactShockTube
+from exact_shockTube import CI, ExactShockTube
 
 parser = ArgumentParser(description="Plot shock tube.")
 parser.add_argument('filename',
@@ -64,7 +64,7 @@ plt.subplot(222)
 plt.plot(x_exact, tab_u0, '--', label='t=0')
 plt.plot(x_exact, u_exact, label='Exact')
 plt.plot(x, u, label='Solver')
-plt.ylabel('Speed'); plt.xlabel('Position')
+plt.ylabel('Velocity'); plt.xlabel('Position')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
 plt.legend()
@@ -72,7 +72,7 @@ plt.subplot(223)
 plt.plot(x_exact, tab_P0,'--', label='t=0')
 plt.plot(x_exact, P_exact, label='Exact')
 plt.plot(x, P, label='Solver')
-plt.ylabel('pressure'); plt.xlabel('Position')
+plt.ylabel('Pressure'); plt.xlabel('Position')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
 plt.legend()
