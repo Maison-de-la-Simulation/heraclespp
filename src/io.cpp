@@ -47,7 +47,7 @@ void write_pdi(int iter, double t, KDV_double_3d rho,
 
 bool should_output(int iter, int freq, int iter_max, double current, double dt, double time_out)
 {
-    bool result = ((iter+1)>=iter_max) || ((iter+1)%freq==0) || (current+dt>=time_out);
+    bool result = (freq > 0) && (((iter+1)>=iter_max) || ((iter+1)%freq==0) || (current+dt>=time_out));
     int mpi_rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
     if(result && (mpi_rank==0))
