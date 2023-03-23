@@ -39,7 +39,7 @@ def Error(filename):
     exact = ExactSolution(N)
     return np.sum((exact - solver)**2) * (1 / N)
 
-err100 = Error('example/ad_sin.h5')
+#err100 = Error('example/ad_sin.h5')
 err200 = Error('example/ad_sin_200p.h5')
 err300 = Error('example/ad_sin_300p.h5')
 err400 = Error('example/ad_sin_400p.h5')
@@ -49,9 +49,9 @@ err700 = Error('example/ad_sin_700p.h5')
 err800 = Error('example/ad_sin_800p.h5')
 err900 = Error('example/ad_sin_900p.h5')
 err1000 = Error('example/ad_sin_1000p.h5')
-val_error = np.array([err100, err200, err300, err400, err500, err600, err700, err800, err900, err1000])
+val_error = np.array([err200, err300, err400, err500, err600, err700, err800, err900, err1000])
 
-points = np.array([100, 200, 300, 400, 500, 600, 700, 800, 900, 1_000])
+points = np.array([200, 300, 400, 500, 600, 700, 800, 900, 1_000])
 dx = 1 / points
 
 plt.figure(figsize=(10,8))

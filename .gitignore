@@ -79,6 +79,15 @@ flycheck_*.el
 
 ## VScode
 ############################
-
 .vscode
 
+##
+
+.DS_Store
+src/.DS_Store
+test/.DS_Store
+test/__pycache__/
+
+Doxyfile
+
+vendor/install_pdi/

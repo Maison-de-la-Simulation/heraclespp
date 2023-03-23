@@ -382,6 +382,56 @@ public:
     }
 };
 
+class xLeftReflexivexRightNullGradientCondition : public IBoundaryCondition
+{
+public:
+    xLeftReflexivexRightNullGradientCondition(Grid const & grid) : IBoundaryCondition(grid){};
+    
+    void bcUpdate(KV_double_3d rho,
+                  KV_double_4d rhou,
+                  KV_double_3d E,
+                  Grid const & grid) const final
+    {
+        int ng=0;
+        int size_x=0;
+        if(grid.is_border[0][0])
+        {
+            ng = grid.Nghost[0];
+            Kokkos::parallel_for("Reflexive_implementation",
+                                 Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
+                                 {0, 0, 0},
+                                 {ng, rho.extent_int(1), rho.extent_int(2)}),
+                                 KOKKOS_LAMBDA(int i, int j, int k)
+            {
+                rho(i, j, k) = rho(2*ng-1-i, j, k);
+                for (int n=0; n<rhou.extent_int(3); n++)
+                {    
+                    rhou(i, j, k, n) = (n==grid.Ndim-1? -rhou(2*ng-1-i, j, k, n):rhou(2*ng-1-i, j, k, n));
+                }
+                E(i, j, k) = E(2*ng-1-i, j, k);
+            });
+        }
+        if(grid.is_border[0][1])
+        {
+            ng = grid.Nghost[0];
+            size_x = rho.extent(0)-1;
+            Kokkos::parallel_for("NullGradient_implementation",
+                                 Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
+                                 {0, 0, 0},
+                                 {ng, rho.extent_int(1), rho.extent_int(2)}),
+                                 KOKKOS_LAMBDA(int i, int j, int k)
+            {
+                rho(size_x-i, j, k) = rho(size_x-ng, j, k);
+                for (int n=0; n<rhou.extent_int(3); n++)
+                {
+                    rhou(size_x-i, j, k, n) = rhou(size_x-ng, j, k, n);
+                }
+                E(size_x-i, j, k) = E(size_x-ng, j, k);
+            });
+        }
+    }
+};    
+
 inline std::unique_ptr<IBoundaryCondition> factory_boundary_construction(
     Grid const & grid,
     std::string const& s)
@@ -402,7 +452,10 @@ inline std::unique_ptr<IBoundaryCondition> factory_boundary_construction(
     {
         return std::make_unique<xPeriodicyReflexiveCondition>(grid);
     }
-
+    if (s == "xLeftReflexivexRightNullGradient")
+    {
+        return std::make_unique<xLeftReflexivexRightNullGradientCondition>(grid);
+    }
     throw std::runtime_error("Unknown boundary condition : " + s + ".");
 }
 

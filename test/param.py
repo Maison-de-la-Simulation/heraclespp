@@ -40,7 +40,6 @@ c0r = np.sqrt(gamma * P0r / rho0r)
 var_int0r = np.array([rho0r, u0r, P0r, c0r])
 
 ## -------- Advection
-
 nx = 100
 dx_ad = L / nx
 nface = nx + 1
@@ -62,3 +61,4 @@ for i in range(nface):
         rho0_ad_cre[i] = 1
     else :
         rho0_ad_cre[i]= 2
+
