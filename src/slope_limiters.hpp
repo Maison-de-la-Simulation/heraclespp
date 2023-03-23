@@ -68,7 +68,7 @@ public:
         if (diffL * diffR > 0)
         {
             double const ratio = diffR / diffL;
-            double const minmod = 2 * std::fmin(1., ratio) / (1 + ratio);
+            double const minmod = 2 * Kokkos::fmin(1., ratio) / (1 + ratio);
             return minmod * (diffL + diffR) / 2;
         }
 

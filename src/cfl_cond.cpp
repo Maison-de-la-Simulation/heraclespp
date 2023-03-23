@@ -27,9 +27,9 @@ double time_step(
         double dt_loc_inverse = 0;
         for(int idim = 0; idim < ndim; idim++)
         {
-            dt_loc_inverse += (std::fabs(u(i, j, k, idim)) + sound) / dx(idim);
+            dt_loc_inverse += (Kokkos::fabs(u(i, j, k, idim)) + sound) / dx(idim);
         }
-        local_a = std::fmax(dt_loc_inverse, local_a);
+        local_a = Kokkos::fmax(dt_loc_inverse, local_a);
     },
     Kokkos::Max<double>(inverse_dt));
     double result =  cfl * 1 / inverse_dt;
