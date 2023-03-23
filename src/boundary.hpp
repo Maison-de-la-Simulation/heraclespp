@@ -55,9 +55,14 @@ public:
 
 class NullGradient : public IBoundaryCondition
 {
+    std::string m_label;
+
 public:
     NullGradient(Grid const & grid, int idim, int iface)
-    : IBoundaryCondition(grid, idim, iface){};
+        : IBoundaryCondition(grid, idim, iface)
+        , m_label("NullGradient_" + std::to_string(idim) + "_" + std::to_string(iface))
+    {
+    }
     
     void execute(KV_double_3d rho,
                   KV_double_4d rhou,
@@ -71,117 +76,30 @@ public:
         assert(rho.extent(2) == rhou.extent(2));
         assert(rhou.extent(2) == E.extent(2));
 
-        if(bc_idim == 0)
+        Kokkos::Array<int, 3> begin {0, 0, 0};
+        Kokkos::Array<int, 3> end {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)};
+
+        int const ng = grid.Nghost[bc_idim];
+        if (bc_iface == 1)
         {
-            int ng = grid.Nghost[0];
-            if(bc_iface==0)
-            {
-                Kokkos::parallel_for("NullGradient_X_left",
-                                     Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-                                     {0, 0, 0},
-                                     {ng, rho.extent_int(1), rho.extent_int(2)}),
-                                     KOKKOS_LAMBDA(int i, int j, int k)
-                {
-                    rho(i, j, k) = rho(ng, j, k);
-                    for (int n=0; n<rhou.extent_int(3); n++)
-                    {
-                        rhou(i, j, k, n) = rhou(ng, j, k, n);
-                    }
-                    E(i, j, k) = E(ng, j, k);
-                });
-            }
-            else
-            {
-                int offset = rho.extent_int(0)-ng-1;
-                Kokkos::parallel_for("NullGradient_X_right",
-                                     Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-                                     {rho.extent_int(0)-ng, 0, 0},
-                                     {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)}),
-                                     KOKKOS_LAMBDA(int i, int j, int k)
-                {
-                    rho(i, j, k) = rho(offset, j, k);
-                    for (int n=0; n<rhou.extent_int(3); n++)
-                    {
-                        rhou(i, j, k, n) = rhou(offset, j, k, n);
-                    }
-                    E(i, j, k) = E(offset, j, k);
-                });
-            }
+            begin[bc_idim] = rho.extent_int(bc_idim) - ng;
         }
-        else if(bc_idim == 1)
-        {
-            int ng = grid.Nghost[1];
-            if(bc_iface==0)
-            {
-                Kokkos::parallel_for("NullGradient_Y_left",
-                                     Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-                                     {0, 0, 0},
-                                     {rho.extent_int(0), ng, rho.extent_int(2)}),
-                                     KOKKOS_LAMBDA(int i, int j, int k)
-                {
-                    rho(i, j, k) = rho(i, ng, k);
-                    for (int n=0; n<rhou.extent_int(3); n++)
+        end[bc_idim] = begin[bc_idim] + ng;
+
+        int const offset = bc_iface == 0 ? end[bc_idim] : begin[bc_idim] - 1;
+        Kokkos::parallel_for(
+                m_label,
+                Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+                KOKKOS_LAMBDA(int i, int j, int k) {
+                    Kokkos::Array<int, 3> offsets {i, j, k};
+                    offsets[bc_idim] = offset;
+                    rho(i, j, k) = rho(offsets[0], offsets[1], offsets[2]);
+                    for (int n = 0; n < rhou.extent_int(3); n++)
                     {
-                        rhou(i, j, k, n) = rhou(i, ng, k, n);
+                        rhou(i, j, k, n) = rhou(offsets[0], offsets[1], offsets[2], n);
                     }
-                    E(i, j, k) = E(i, ng, k);
+                    E(i, j, k) = E(offsets[0], offsets[1], offsets[2]);
                 });
-            }
-            else
-            {
-                int offset = rho.extent_int(1)-ng-1;
-                Kokkos::parallel_for("NullGradient_Y_right",
-                                     Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-                                     {0, rho.extent_int(1)-ng, 0},
-                                     {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)}),
-                                     KOKKOS_LAMBDA(int i, int j, int k)
-                {
-                    rho(i, j, k) = rho(i, offset, k);
-                    for (int n=0; n<rhou.extent_int(3); n++)
-                    {
-                        rhou(i, j, k, n) = rhou(i, offset, k, n);
-                    }
-                    E(i, j, k) = E(i, offset, k);
-                });
-            }
-        }
-        else // bc_idim == 2
-        {
-            int ng = grid.Nghost[2];
-            if(bc_iface==0)
-            {
-                Kokkos::parallel_for("NullGradient_Z_left",
-                                     Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-                                     {0, 0, 0},
-                                     {rho.extent_int(0), rho.extent_int(1), ng}),
-                                     KOKKOS_LAMBDA(int i, int j, int k)
-                {
-                    rho(i, j, k) = rho(i, j, ng);
-                    for (int n=0; n<rhou.extent_int(3); n++)
-                    {
-                        rhou(i, j, k, n) = rhou(i, j, ng, n);
-                    }
-                    E(i, j, k) = E(i, j, ng);
-                });
-            }
-            else
-            {
-                int offset = rho.extent_int(2)-ng-1;
-                Kokkos::parallel_for("NullGradient_Z_right",
-                                     Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-                                     {0, 0, rho.extent_int(2)-ng},
-                                     {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)}),
-                                     KOKKOS_LAMBDA(int i, int j, int k)
-                {
-                    rho(i, j, k) = rho(i, j, offset);
-                    for (int n=0; n<rhou.extent_int(3); n++)
-                    {
-                        rhou(i, j, k, n) = rhou(i, j, offset, n);
-                    }
-                    E(i, j, k) = E(i, j, offset);
-                });
-            }
-        }
     }
 };
 
@@ -206,130 +124,45 @@ public:
 
 class ReflexiveCondition : public IBoundaryCondition
 {
+    std::string m_label;
+
 public:
     ReflexiveCondition(Grid const & grid, int idim, int iface)
-    : IBoundaryCondition(grid, idim, iface){};
+        : IBoundaryCondition(grid, idim, iface)
+        , m_label("Reflexive_" + std::to_string(idim) + "_" + std::to_string(iface))
+    {
+    }
 
     void execute(KV_double_3d rho,
                   KV_double_4d rhou,
                   KV_double_3d E,
                   Grid const & grid) const final
     {
-        if(bc_idim==0)
-        {
-            int ng = grid.Nghost[0];
-            if(bc_iface==0)
-            {
-                Kokkos::parallel_for("Reflexive_X_left",
-                                 Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-                                 {0, 0, 0},
-                                 {ng, rho.extent_int(1), rho.extent_int(2)}),
-                                 KOKKOS_LAMBDA(int i, int j, int k)
-                {
-                    rho(i, j, k) = rho(2*ng-1-i, j, k);
-                    for (int n=0; n<rhou.extent_int(3); n++)
-                    {    
-                        rhou(i, j, k, n) = (n==0? -rhou(2*ng-1-i, j, k, n):rhou(2*ng-1-i, j, k, n));
-                    }
+        Kokkos::Array<int, 3> begin {0, 0, 0};
+        Kokkos::Array<int, 3> end {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)};
 
-                    E(i, j, k) = E(2*ng-1-i, j, k);
-                });
-            }
-            else
-            {
-                int offset=2*(rho.extent(0)-ng)-1;
-                Kokkos::parallel_for("Reflexive_X_right",
-                                     Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-                                     {rho.extent_int(0)-ng, 0, 0},
-                                     {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)}),
-                                     KOKKOS_LAMBDA(int i, int j, int k)
-                {
-                    rho(i, j, k) = rho(offset-i, j, k);
-                    for (int n=0; n<rhou.extent_int(3); n++)
-                    {    
-                        rhou(i, j, k, n) = (n==0? -rhou(offset-i, j, k, n):rhou(offset-i, j, k, n));
-                    }
-                    E(i, j, k) = E(offset-i, j, k);
-                });
-            }
-        }
-        else if(bc_idim==1)
+        int const ng = grid.Nghost[bc_idim];
+        if (bc_iface == 1)
         {
-            int ng = grid.Nghost[1];
-            if(bc_iface==0)
-            {
-                Kokkos::parallel_for("Reflexive_Y_left",
-                                     Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-                                     {0, 0, 0},
-                                     {rho.extent_int(0), ng, rho.extent_int(2)}),
-                                     KOKKOS_LAMBDA(int i, int j, int k)
-                {
-                    rho(i, j, k) = rho(i, 2*ng-1-j, k);
-                    for (int n=0; n<rhou.extent_int(3); n++)
-                    {    
-                        rhou(i, j, k, n) = (n==1? -rhou(i, 2*ng-1-j, k, n):rhou(i, 2*ng-1-j, k, n));
-                    }
-                    E(i, j, k) = E(i, 2*ng-1-j, k);
-                });
-            }
-            else
-            {
-                int offset=2*(rho.extent(1)-ng)-1;
-                Kokkos::parallel_for("Reflexive_Y_right",
-                                     Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-                                     {0, rho.extent_int(1)-ng, 0},
-                                     {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)}),
-                                     KOKKOS_LAMBDA(int i, int j, int k)
-                {
-                    rho(i, j, k) = rho(i, offset-j, k);
-                    for (int n=0; n<rhou.extent_int(3); n++)
-                    {    
-                        rhou(i, j, k, n) = (n==1? -rhou(i, offset-j, k, n):rhou(i, offset-j, k, n));
-                    }
-                    E(i, j, k) = E(i, offset-j, k);
-                });
-            }
+            begin[bc_idim] = rho.extent_int(bc_idim) - ng;
         }
-        else
-        {
-            int ng = grid.Nghost[2];
-            if(bc_iface==0)
-            {
-                Kokkos::parallel_for("Reflexive_Z_left",
-                                     Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-                                     {0, 0, 0},
-                                     {rho.extent_int(0), rho.extent_int(1), ng}),
-                                     KOKKOS_LAMBDA(int i, int j, int k)
-                {
-                    rho(i, j, k) = rho(i, j, 2*ng-1-k);
-                    for (int n=0; n<rhou.extent_int(3); n++)
-                    {    
-                        rhou(i, j, k, n) = (n==2? -rhou(i, j, 2*ng-1-k, n):rhou(i, j, 2*ng-1-k, n));
+        end[bc_idim] = begin[bc_idim] + ng;
+
+        int const mirror = bc_iface == 0 ? (2 * ng - 1) : (2 * (rho.extent(bc_idim) - ng) - 1);
+        Kokkos::parallel_for(
+                m_label,
+                Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+                KOKKOS_LAMBDA(int i, int j, int k) {
+                    Kokkos::Array<int, 3> offsets {i, j, k};
+                    offsets[bc_idim] = mirror - offsets[bc_idim];
+                    rho(i, j, k) = rho(offsets[0], offsets[1], offsets[2]);
+                    for (int n = 0; n < rhou.extent_int(3); n++)
+                    {
+                        rhou(i, j, k, n) = rhou(offsets[0], offsets[1], offsets[2], n);
                     }
-                    rhou(i, j, k, 0) = rhou(i, j, 2*ng-1-k, 0);
-                    rhou(i, j, k, 1) = rhou(i, j, 2*ng-1-k, 1);
-                    rhou(i, j, k, 2) = -rhou(i, j, 2*ng-1-k, 2);
-                    E(i, j, k) = E(i, j, 2*ng-1-k);
+                    rhou(i, j, k, bc_idim) = -rhou(i, j, k, bc_idim);
+                    E(i, j, k) = E(offsets[0], offsets[1], offsets[2]);
                 });
-            }
-            else
-            {
-                int offset=2*(rho.extent(2)-ng)-1;
-                Kokkos::parallel_for("Reflexive_Z_right",
-                                     Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-                                     {0, 0, rho.extent_int(2)-ng},
-                                     {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)}),
-                                     KOKKOS_LAMBDA(int i, int j, int k)
-                {
-                    rho(i, j, k) = rho(i, j, offset-k);
-                    for (int n=0; n<rhou.extent_int(3); n++)
-                    {    
-                        rhou(i, j, k, n) = (n==2? -rhou(i, j, offset-k, n):rhou(i, j, offset-k, n));
-                    }
-                    E(i, j, k) = E(i, j, offset-k);
-                });
-            }
-        }
     }
 };
 
