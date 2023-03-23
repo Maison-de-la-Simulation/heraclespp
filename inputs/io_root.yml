@@ -13,6 +13,8 @@ pdi:
     nx_local_wg: {type: array, subtype: int, size: 3}
     n_ghost: {type: array, subtype: int, size: 3}
     start: {type: array, subtype: int, size: 3}
+    restart_filename_size: int
+    restart_filename: { type: array, subtype: char, size: $restart_filename_size }
 
   data: # this describe the data that will be send by each proc
     u:   { type: array, subtype: double, size: ['$ndim', '$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]'] }
@@ -63,5 +65,31 @@ pdi:
             dataset_selection:
               size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
               start: [ '$start[2]', '$start[1]', '$start[0]']
-    # trace:
-
+      
+      - file: ${restart_filename}
+        on_event: read_file
+        communicator: '${MPI_COMM_WORLD}'
+        read:
+          iter:
+          current_time:
+          rho:
+            memory_selection:
+              size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]'] # size of data to be extracted from the proc
+              start: ['$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']            # starting position of data to be extracted from the proc
+            dataset_selection:
+              size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]'] # size of data to be put in the final h5 file
+              start: [ '$start[2]', '$start[1]', '$start[0]']                 # position of the data in the global index
+          u:
+            memory_selection:
+              size: ['$ndim', '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
+              start: [0, '$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']
+            dataset_selection:
+              size: ['$ndim', '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
+              start: [ 0, '$start[2]', '$start[1]', '$start[0]']
+          P:
+            memory_selection:
+              size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
+              start: ['$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']
+            dataset_selection:
+              size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
+              start: [ '$start[2]', '$start[1]', '$start[0]']

@@ -20,4 +20,12 @@ void write_pdi(int iter, double t, KDV_double_3d rho,
                                    KDV_double_4d u,
                                    KDV_double_3d P,
                                    KDV_double_3d E);
+
+void read_pdi(std::string restart_file,
+              KDV_double_3d rho,
+              KDV_double_4d u,
+              KDV_double_3d P,
+              double& t,
+              int& iter);
+
 }
