@@ -206,9 +206,9 @@ int main(int argc, char** argv)
     conv_prim_to_cons(grid.range.no_ghosts(), rhou.d_view, E.d_view, rho.d_view, u.d_view, P.d_view, eos);
     
     boundary_construction_array[0]->ghostFill(rho.d_view, rhou.d_view, E.d_view, grid);
-    for (int ibc=0; ibc<ndim*2; ibc++)
+    for ( std::unique_ptr<IBoundaryCondition> const& boundary_construction : boundary_construction_array )
     {
-        boundary_construction_array[ibc]->execute(rho.d_view, rhou.d_view, E.d_view, grid);
+        boundary_construction->execute(rho.d_view, rhou.d_view, E.d_view, grid);
     }
     
     conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho.d_view, rhou.d_view, E.d_view, eos);
