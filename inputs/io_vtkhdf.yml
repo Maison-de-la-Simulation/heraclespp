@@ -1,14 +1,18 @@
 pdi:
   metadata:
-    nx: int #globle ng
+    ndim: int
     max_iter: int
     frequency: int
     iter: int
-    ghost_depth: int
     time_out: double
     current_time: double
     mpi_rank: int
     mpi_size: int
+    nx_glob_ng: {type: array, subtype: int, size: 3}
+    nx_local_ng: {type: array, subtype: int, size: 3}
+    nx_local_wg: {type: array, subtype: int, size: 3}
+    n_ghost: {type: array, subtype: int, size: 3}
+    start: {type: array, subtype: int, size: 3}
     version: { type: array, subtype: int64, size: 2 }
     whole_extents: { type: array, subtype: int64, size: 6 }
     direction: { type: array, subtype: int64, size: 9 }
@@ -16,23 +20,22 @@ pdi:
     origin: { type: array, subtype: double, size: 3 }
     type: { type: array, subtype: char, size: 9 }
 
-
   data:
-    rho: { type: array, subtype: double, size: ['$nx/$mpi_size+2*$ghost_depth'] }
-    u: { type: array, subtype: double, size: ['$nx/$mpi_size+2*$ghost_depth'] }
-    P: { type: array, subtype: double, size: ['$nx/$mpi_size+2*$ghost_depth'] }
+    u:   { type: array, subtype: double, size: ['$ndim', '$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]'] }
+    rho: { type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]' ] }
+    P:   { type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]' ] }
 
   plugins:
     mpi:
     decl_hdf5:
-      - file: test_${iter}.hdf
+      - file: test_${iter:08}.hdf
         collision_policy: write_into
         communicator: '$MPI_COMM_WORLD'
         on_event: write_file
         datasets:
-          /VTKHDF/CellData/rho: {type: array, subtype: double, size: [1, 1, '$nx'] }
-          /VTKHDF/CellData/u: {type: array, subtype: double, size: [1, 1, '$nx'] }
-          /VTKHDF/CellData/P: {type: array, subtype: double, size: [1, 1, '$nx'] }
+          /VTKHDF/CellData/rho: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
+          /VTKHDF/CellData/u: {type: array, subtype: double, size: ['$ndim', '$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
+          /VTKHDF/CellData/P: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
         write:
           direction:
             attribute: VTKHDF#Direction
@@ -44,30 +47,30 @@ pdi:
             attribute: VTKHDF#Type
           version:
             attribute: VTKHDF#Version
-          whole_extent:
+          whole_extents:
             attribute: VTKHDF#WholeExtent
           rho:
             dataset: /VTKHDF/CellData/rho
             memory_selection:
-              size: ['$nx/$mpi_size']
-              start: ['$ghost_depth']
+              size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
+              start: ['$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']
             dataset_selection:
-              size: [1, 1, '$nx/$mpi_size']
-              start: [0, 0, '$mpi_rank*$nx/$mpi_size']
+              size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
+              start: [ '$start[2]', '$start[1]', '$start[0]']
           u:
             dataset: /VTKHDF/CellData/u
             memory_selection:
-              size: ['$nx/$mpi_size']
-              start: ['$ghost_depth']
+              size: ['$ndim', '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
+              start: [0, '$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']
             dataset_selection:
-              size: [1, 1, '$nx/$mpi_size']
-              start: [0, 0, '$mpi_rank*$nx/$mpi_size']
+              size: ['$ndim', '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
+              start: [ 0, '$start[2]', '$start[1]', '$start[0]']
           P:
             dataset: /VTKHDF/CellData/P
             memory_selection:
-              size: ['$nx/$mpi_size']
-              start: ['$ghost_depth']
+              size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
+              start: ['$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']
             dataset_selection:
-              size: [1, 1, '$nx/$mpi_size']
-              start: [0, 0, '$mpi_rank*$nx/$mpi_size']
+              size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
+              start: [ '$start[2]', '$start[1]', '$start[0]']
     # trace:
