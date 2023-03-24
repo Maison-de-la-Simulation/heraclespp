@@ -312,9 +312,6 @@ public:
         assert(u.extent(2) == P.extent(2));
 
         double gamma = eos.compute_adiabatic_index();
-        double dx = dx_array(0);
-        double dy = dx_array(1);
-        double dv = dx * dy;
         double E0 = 1E-12;
         double Eperturb = 1E5;
 
@@ -324,6 +321,7 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
+            double dv = dx_array(0) * dx_array(1);
             double x = x0(i);
             double y = y0(j);
             double r = Kokkos::sqrt(x * x + y * y);
@@ -367,8 +365,6 @@ public:
         assert(u.extent(2) == P.extent(2));
 
         double gamma = eos.compute_adiabatic_index();
-        double dx = dx_array(0);
-        double dv = dx;
         double E0 = 1E-12;
         double Eperturb = 1;
 
@@ -378,6 +374,7 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
+            double dv = dx_array(0);
             rho(i, j, k) = 1;
             for (int idim = 0; idim < ndim; ++idim)
             {

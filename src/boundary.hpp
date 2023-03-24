@@ -90,7 +90,7 @@ public:
         Kokkos::parallel_for(
                 m_label,
                 Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-                KOKKOS_LAMBDA(int i, int j, int k) {
+                KOKKOS_CLASS_LAMBDA(int i, int j, int k) {
                     Kokkos::Array<int, 3> offsets {i, j, k};
                     offsets[bc_idim] = offset;
                     rho(i, j, k) = rho(offsets[0], offsets[1], offsets[2]);
@@ -152,7 +152,7 @@ public:
         Kokkos::parallel_for(
                 m_label,
                 Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-                KOKKOS_LAMBDA(int i, int j, int k) {
+                KOKKOS_CLASS_LAMBDA(int i, int j, int k) {
                     Kokkos::Array<int, 3> offsets {i, j, k};
                     offsets[bc_idim] = mirror - offsets[bc_idim];
                     rho(i, j, k) = rho(offsets[0], offsets[1], offsets[2]);
