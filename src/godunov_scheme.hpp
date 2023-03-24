@@ -48,6 +48,7 @@ public:
             KV_double_4d rhou_new,
             KV_double_3d E_new,
             KV_cdouble_1d dx,
+            KV_cdouble_1d g,
             double dt) const
             = 0;
 };
@@ -89,6 +90,7 @@ public:
             KV_double_4d const rhou_new,
             KV_double_3d const E_new,
             KV_cdouble_1d const dx,
+            KV_cdouble_1d const g,
             double dt) const final
     {
         auto const [begin, end] = cell_range(range);
@@ -148,14 +150,12 @@ public:
                 }
                 E_new(i, j, k) += dtodx * (FluxL.energy - FluxR.energy);
 
-                // gravity ? interface
-                /* rho_new(i, j, k) += dtodx * (FluxL.density - FluxR.density);
+                // gravity
                 for (int idr = 0; idr < ndim; ++idr)
                 {
-                    rhou_new(i, j, k, idr) += dtodx * (FluxL.momentum[idr] - FluxR.momentum[idr]);
+                    rhou_new(i, j, k, idr) += dt * g(idr) * rho(i, j, k);
+                    E_new(i, j, k) += dt * g(idr) * rhou(i, j, k, idr);
                 }
-                rhou_new(i, j, k, idim) += - dt * kron(idim,1) * 0.1 * rho(i, j, k);
-                E_new(i, j, k) += dtodx * (FluxL.energy - FluxR.energy) - dt * kron(idim,1) * 0.1 * rhou(i, j, k, idim); */
             }
         });
     }

@@ -39,6 +39,7 @@ public:
             KV_cdouble_3d P,
             thermodynamics::PerfectGas const& eos,
             KV_cdouble_1d dx,
+            KV_cdouble_1d g,
             double const dt) const
             = 0;
 };
@@ -73,6 +74,7 @@ public:
             KV_cdouble_3d const P,
             thermodynamics::PerfectGas const& eos,
             KV_cdouble_1d dx,
+            KV_cdouble_1d g,
             double const dt) const final
     {
         m_face_reconstruction->execute(range, rho, rho_rec, dx);
@@ -102,46 +104,64 @@ public:
         }
 
         auto const [begin, end] = cell_range(range);
+
+        //intermediate array
+        KV_double_5d rho_rec_old = Kokkos::subview(rho_rec, ALL, ALL, ALL, ALL, ALL);
+        KV_double_6d rhou_rec_old = Kokkos::subview(rhou_rec, ALL, ALL, ALL, ALL,ALL, ALL);
+
         Kokkos::parallel_for(
-            "HancockExtrapolation",
-            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-            KOKKOS_CLASS_LAMBDA(int i, int j, int k) {
-                for (int idim = 0; idim < ndim; ++idim)
+        "HancockExtrapolation",
+        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+        KOKKOS_CLASS_LAMBDA(int i, int j, int k) 
+        {
+            for (int idim = 0; idim < ndim; ++idim)
+            {
+                EulerPrim minus_one; // Left, front, bottom
+                minus_one.density = rho_rec(i, j, k, 0, idim);
+                for (int idr = 0; idr < ndim; ++idr)
                 {
-                    EulerPrim minus_one; // Left, front, bottom
-                    minus_one.density = rho_rec(i, j, k, 0, idim);
+                    minus_one.velocity[idr] = m_u_rec(i, j, k, 0, idim, idr);
+                }
+                minus_one.pressure = m_P_rec(i, j, k, 0, idim);
+                EulerFlux flux_minus_one = compute_flux(minus_one, idim, eos);
+
+                EulerPrim plus_one; // Right, back, top
+                plus_one.density = rho_rec(i, j, k, 1, idim);
+                for (int idr = 0; idr < ndim; ++idr)
+                {
+                    plus_one.velocity[idr] = m_u_rec(i, j, k, 1, idim, idr);
+                }
+                plus_one.pressure = m_P_rec(i, j, k, 1, idim);
+                EulerFlux flux_plus_one = compute_flux(plus_one, idim, eos);
+
+                double dto2dx = dt / (2 * dx(idim));
+
+                for (int ipos = 0; ipos < ndim; ++ipos)
+                {
+                    rho_rec(i, j, k, 0, ipos) += dto2dx * (flux_minus_one.density - flux_plus_one.density);
+                    rho_rec(i, j, k, 1, ipos) += dto2dx * (flux_minus_one.density - flux_plus_one.density);
                     for (int idr = 0; idr < ndim; ++idr)
                     {
-                        minus_one.velocity[idr] = m_u_rec(i, j, k, 0, idim, idr);
+                        rhou_rec(i, j, k, 0, ipos, idr) += dto2dx * (flux_minus_one.momentum[idr] - flux_plus_one.momentum[idr]);
+                        rhou_rec(i, j, k, 1, ipos, idr) += dto2dx * (flux_minus_one.momentum[idr] - flux_plus_one.momentum[idr]);
                     }
-                    minus_one.pressure = m_P_rec(i, j, k, 0, idim);
-                    EulerFlux flux_minus_one = compute_flux(minus_one, idim, eos);
+                    E_rec(i, j, k, 0, ipos) += dto2dx * (flux_minus_one.energy - flux_plus_one.energy);
+                    E_rec(i, j, k, 1, ipos) += dto2dx * (flux_minus_one.energy - flux_plus_one.energy);
+                }
 
-                    EulerPrim plus_one; // Right, back, top
-                    plus_one.density = rho_rec(i, j, k, 1, idim);
+                // gravity
+                for (int ipos = 0; ipos < ndim; ++ipos)
+                {
                     for (int idr = 0; idr < ndim; ++idr)
                     {
-                        plus_one.velocity[idr] = m_u_rec(i, j, k, 1, idim, idr);
-                    }
-                    plus_one.pressure = m_P_rec(i, j, k, 1, idim);
-                    EulerFlux flux_plus_one = compute_flux(plus_one, idim, eos);
-
-                    double dto2dx = dt / (2 * dx(idim));
-
-                    for (int ipos = 0; ipos < ndim; ++ipos)
-                    {
-                        rho_rec(i, j, k, 0, ipos) += dto2dx * (flux_minus_one.density - flux_plus_one.density);
-                        rho_rec(i, j, k, 1, ipos) += dto2dx * (flux_minus_one.density - flux_plus_one.density);
-                        for (int idr = 0; idr < ndim; ++idr)
-                        {
-                            rhou_rec(i, j, k, 0, ipos, idr) += dto2dx * (flux_minus_one.momentum[idr] - flux_plus_one.momentum[idr]);
-                            rhou_rec(i, j, k, 1, ipos, idr) += dto2dx * (flux_minus_one.momentum[idr] - flux_plus_one.momentum[idr]);
-                        }
-                        E_rec(i, j, k, 0, ipos) += dto2dx * (flux_minus_one.energy - flux_plus_one.energy);
-                        E_rec(i, j, k, 1, ipos) += dto2dx * (flux_minus_one.energy - flux_plus_one.energy);
+                        rhou_rec(i, j, k, 0, ipos, idr) += dt * g(idr) * rho_rec_old(i, j, k, 0, ipos);
+                        rhou_rec(i, j, k, 1, ipos, idr) += dt * g(idr) * rho_rec_old(i, j, k, 1, ipos);
+                        E_rec(i, j, k, 0, ipos) += dt * g(idr) * rhou_rec_old(i, j, k, 0, ipos, idr);
+                        E_rec(i, j, k, 1, ipos) += dt * g(idr) * rhou_rec_old(i, j, k, 1, ipos, idr);
                     }
                 }
-            });
+            }
+        });
     }
 };
 
