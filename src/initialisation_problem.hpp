@@ -35,9 +35,11 @@ public:
         KV_double_3d rho,
         KV_double_4d u,
         KV_double_3d P,
-        KV_cdouble_1d nodes_x0,
-        [[maybe_unused]] KV_cdouble_1d nodes_y0,
-        [[maybe_unused]] KV_double_1d g_array) const 
+        KV_cdouble_1d x0,
+        [[maybe_unused]] KV_cdouble_1d y0,
+        [[maybe_unused]] KV_double_1d dx_array,
+        [[maybe_unused]] KV_double_1d g,
+        [[maybe_unused]] thermodynamics::PerfectGas const& eos) const 
         = 0;
 };
 
@@ -49,9 +51,11 @@ public:
         KV_double_3d const rho,
         KV_double_4d const u,
         KV_double_3d const P,
-        KV_cdouble_1d const nodes_x0,
-        [[maybe_unused]] KV_cdouble_1d const nodes_y0,
-        [[maybe_unused]] KV_double_1d g_array) const final
+        KV_cdouble_1d const x0,
+        [[maybe_unused]] KV_cdouble_1d const y0,
+        [[maybe_unused]] KV_double_1d dx_array,
+        [[maybe_unused]] KV_double_1d g,
+        [[maybe_unused]] thermodynamics::PerfectGas const& eos) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -66,7 +70,7 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            if((nodes_x0(i) + nodes_x0(i+1)) / 2 <= 0.5)
+            if((x0(i) + x0(i+1)) / 2 <= 0.5)
             {
                 rho(i, j, k) = 1;
                 P(i, j, k) = 1;
@@ -96,9 +100,11 @@ public:
         KV_double_3d rho,
         KV_double_4d u,
         KV_double_3d P,
-        KV_cdouble_1d const nodes_x0,
-        [[maybe_unused]] KV_cdouble_1d const nodes_y0,
-        [[maybe_unused]] KV_double_1d g_array) const final
+        KV_cdouble_1d const x0,
+        [[maybe_unused]] KV_cdouble_1d const y0,
+        [[maybe_unused]] KV_double_1d dx_array,
+        [[maybe_unused]] KV_double_1d g,
+        [[maybe_unused]] thermodynamics::PerfectGas const& eos) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -113,7 +119,7 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            rho(i, j, k) = 1 * Kokkos::exp(-15*Kokkos::pow(1./2 - (nodes_x0(i)+nodes_x0(i+1))/2, 2));
+            rho(i, j, k) = 1 * Kokkos::exp(-15*Kokkos::pow(1./2 - (x0(i)+x0(i+1))/2, 2));
             P(i, j, k) = 0.1;
             for (int idim = 0; idim < ndim; ++idim)
             {
@@ -131,9 +137,11 @@ public:
         KV_double_3d rho,
         KV_double_4d u,
         KV_double_3d P,
-        KV_cdouble_1d const nodes_x0,
-        [[maybe_unused]] KV_cdouble_1d const nodes_y0,
-        [[maybe_unused]] KV_double_1d g_array) const final
+        KV_cdouble_1d const x0,
+        [[maybe_unused]] KV_cdouble_1d const y0,
+        [[maybe_unused]] KV_double_1d dx_array,
+        [[maybe_unused]] KV_double_1d g,
+        [[maybe_unused]] thermodynamics::PerfectGas const& eos) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -148,11 +156,11 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            if ((nodes_x0(i) + nodes_x0(i+1)) / 2 <= 0.3)
+            if ((x0(i) + x0(i+1)) / 2 <= 0.3)
             {
                 rho(i, j, k) = 1;
             }
-            else if ((nodes_x0(i) + nodes_x0(i+1)) / 2 >= 0.7)
+            else if ((x0(i) + x0(i+1)) / 2 >= 0.7)
             {
                 rho(i, j, k) = 1;
             }
@@ -177,9 +185,11 @@ public:
         KV_double_3d const rho,
         KV_double_4d const u,
         KV_double_3d const P,
-        KV_cdouble_1d const nodes_x0,
-        KV_cdouble_1d const nodes_y0,
-        [[maybe_unused]] KV_double_1d g_array) const final
+        KV_cdouble_1d const x0,
+        KV_cdouble_1d const y0,
+        [[maybe_unused]] KV_double_1d dx_array,
+        [[maybe_unused]] KV_double_1d g,
+        [[maybe_unused]] thermodynamics::PerfectGas const& eos) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -196,8 +206,8 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            double x = nodes_x0(i);
-            double y = nodes_y0(j);
+            double x = x0(i);
+            double y = y0(j);
             double r = Kokkos::sqrt(x * x + y * y);
             double theta = Kokkos::atan2(y, x);
             double u_theta;
@@ -237,9 +247,11 @@ public:
         KV_double_3d const rho,
         KV_double_4d const u,
         KV_double_3d const P,
-        KV_cdouble_1d const nodes_x0,
-        KV_cdouble_1d const nodes_y0,
-        KV_double_1d g_array) const final
+        KV_cdouble_1d const x0,
+        KV_cdouble_1d const y0,
+        [[maybe_unused]] KV_double_1d dx_array,
+        KV_double_1d g,
+        [[maybe_unused]] thermodynamics::PerfectGas const& eos) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -249,9 +261,9 @@ public:
         assert(u.extent(2) == P.extent(2));
 
         int ng = 4;
-        double Lx = nodes_x0(rho.extent(0)-ng) - nodes_x0(0);
-        double Ly = nodes_y0(rho.extent(1)-ng) - nodes_y0(0); // à revoir
-        double g = g_array(1);
+        double Lx = x0(rho.extent(0)-ng) - x0(0);
+        double Ly = y0(rho.extent(1)-ng) - y0(0); // à revoir
+        double gval = g(1);
         double P0 = 2.5;
         double A = 0.01;
 
@@ -261,8 +273,8 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            double x = nodes_x0(i);
-            double y = nodes_y0(j);
+            double x = x0(i);
+            double y = y0(j);
             if (y >= 0)
             {
                 rho(i, j, k) = 2;
@@ -271,7 +283,7 @@ public:
             {
                 rho(i, j, k) = 1;
             }
-            P(i, j, k) = P0 + rho(i, j, k) * g * y;
+            P(i, j, k) = P0 + rho(i, j, k) * gval * y;
             u(i, j, k, 0) = 0;
             u(i, j, k, 1) = (A/4) * (1+Kokkos::cos(2*Kokkos::numbers::pi*x/Lx)) * (1+Kokkos::cos(2*Kokkos::numbers::pi*y/Ly));
          });
@@ -286,9 +298,11 @@ public:
         KV_double_3d const rho,
         KV_double_4d const u,
         KV_double_3d const P,
-        KV_cdouble_1d const nodes_x0,
-        KV_cdouble_1d const nodes_y0,
-        [[maybe_unused]]KV_double_1d g_array) const final
+        KV_cdouble_1d const x0,
+        KV_cdouble_1d const y0,
+        KV_double_1d dx_array,
+        [[maybe_unused]] KV_double_1d g,
+        thermodynamics::PerfectGas const& eos) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -297,9 +311,9 @@ public:
         assert(rho.extent(2) == u.extent(2));
         assert(u.extent(2) == P.extent(2));
 
-        double gamma = 1.6666666666666667;
-        double dx = nodes_x0(1) - nodes_x0(0);
-        double dy = nodes_y0(1) - nodes_y0(0);
+        double gamma = eos.compute_adiabatic_index();
+        double dx = dx_array(0);
+        double dy = dx_array(1);
         double dv = dx * dy;
         double E0 = 1E-12;
         double Eperturb = 1E5;
@@ -310,8 +324,8 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            double x = nodes_x0(i);
-            double y = nodes_y0(j);
+            double x = x0(i);
+            double y = y0(j);
             double r = Kokkos::sqrt(x * x + y * y);
 
             rho(i, j, k) = 1;
@@ -339,9 +353,11 @@ public:
         KV_double_3d const rho,
         KV_double_4d const u,
         KV_double_3d const P,
-        KV_cdouble_1d const nodes_x0,
-        [[maybe_unused]]KV_cdouble_1d const nodes_y0,
-        [[maybe_unused]]KV_double_1d g_array) const final
+        [[maybe_unused]] KV_cdouble_1d const x0,
+        [[maybe_unused]] KV_cdouble_1d const y0,
+        KV_double_1d dx_array,
+        [[maybe_unused]] KV_double_1d g,
+        thermodynamics::PerfectGas const& eos) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -350,8 +366,8 @@ public:
         assert(rho.extent(2) == u.extent(2));
         assert(u.extent(2) == P.extent(2));
 
-        double gamma = 1.6666666666666667;
-        double dx = nodes_x0(1) - nodes_x0(0);
+        double gamma = eos.compute_adiabatic_index();
+        double dx = dx_array(0);
         double dv = dx;
         double E0 = 1E-12;
         double Eperturb = 1;

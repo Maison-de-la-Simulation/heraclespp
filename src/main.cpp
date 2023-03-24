@@ -199,7 +199,7 @@ int main(int argc, char** argv)
     }
     else
     {
-        initialisation->execute(grid.range.no_ghosts(), rho.d_view, u.d_view, P.d_view, nodes_x0, nodes_y0, g_array);
+        initialisation->execute(grid.range.no_ghosts(), rho.d_view, u.d_view, P.d_view, nodes_x0, nodes_y0, dx_array, g_array, eos);
     }
     conv_prim_to_cons(grid.range.no_ghosts(), rhou.d_view, E.d_view, rho.d_view, u.d_view, P.d_view, eos);
     
