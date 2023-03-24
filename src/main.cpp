@@ -24,7 +24,6 @@
 #include <pdi.h>
 #include "range.hpp"
 #include "kronecker.hpp"
-#include "gravity_implementation.hpp"
 #include "Kokkos_shortcut.hpp"
 
 using namespace novapp;
@@ -68,12 +67,12 @@ int main(int argc, char** argv)
     double const Ly = ymax - ymin;
     double const Lz = zmax - zmin;
 
-    KV_double_1d array_dx("array_dx", 3); //Space step array
+    KV_double_1d dx_array("dx_array", 3); //Space step array
     Kokkos::parallel_for(1, KOKKOS_LAMBDA([[maybe_unused]] int i)
     {
-        array_dx(0) = Lx / grid.Nx_glob_ng[0];
-        array_dx(1) = Ly / grid.Nx_glob_ng[1];
-        array_dx(2) = Lz / grid.Nx_glob_ng[2];
+        dx_array(0) = Lx / grid.Nx_glob_ng[0];
+        dx_array(1) = Ly / grid.Nx_glob_ng[1];
+        dx_array(2) = Lz / grid.Nx_glob_ng[2];
     });
 
     write_pdi_init(max_iter, output_frequency, grid);
@@ -119,17 +118,16 @@ int main(int argc, char** argv)
     std::unique_ptr<IGodunovScheme> godunov_scheme
             = factory_godunov_scheme(riemann_solver, eos);
 
-    std::string const gravity = reader.Get("Gravity", "gravity", "Off");
-    std::unique_ptr<IGravity> gravity_add
-            = factory_gravity_source(gravity);
+    const double gx = reader.GetReal("Gravity", "gx", 0.0);
+    const double gy = reader.GetReal("Gravity", "gy", 0.0);
+    const double gz = reader.GetReal("Gravity", "gz", 0.0);
 
-    double const g = reader.GetReal("Gravity", "gval", 0.0);
-    int const gdim = reader.GetInteger("Gravity", "gdim", 3);
-
-    KV_double_1d g_array("g_array", ndim);
-    Kokkos::parallel_for(ndim, KOKKOS_LAMBDA(int idim)
+    KV_double_1d g_array("g_array", 3);
+    Kokkos::parallel_for(1, KOKKOS_LAMBDA([[maybe_unused]] int i)
     {
-        g_array(idim) = g * kron(idim, gdim);
+        g_array(0) = gx;
+        g_array(1) = gy;
+        g_array(2) = gz;
     });
 
     KV_double_1d nodes_x0("nodes_x0", grid.Nx_local_wg[0]+1); // Nodes for x0
@@ -141,7 +139,7 @@ int main(int argc, char** argv)
                          Kokkos::RangePolicy<>(0, nodes_x0.extent(0)),
                          KOKKOS_LAMBDA(int i)
     {
-        nodes_x0(i) = xmin + (i + offsetx) * array_dx(0) ; // Position of the left interface
+        nodes_x0(i) = xmin + (i + offsetx) * dx_array(0) ; // Position of the left interface
     });
 
     int offsety = grid.range.Corner_min[1] - grid.Nghost[1];
@@ -149,7 +147,7 @@ int main(int argc, char** argv)
                          Kokkos::RangePolicy<>(0, nodes_y0.extent(0)),
                          KOKKOS_LAMBDA(int i)
     {
-        nodes_y0(i) = ymin + (i + offsety) * array_dx(1) ; // Position of the left interface
+        nodes_y0(i) = ymin + (i + offsety) * dx_array(1) ; // Position of the left interface
     });
 
     int offsetz = grid.range.Corner_min[2] - grid.Nghost[2];
@@ -157,7 +155,7 @@ int main(int argc, char** argv)
                          Kokkos::RangePolicy<>(0, nodes_z0.extent(0)),
                          KOKKOS_LAMBDA(int i)
     {
-        nodes_z0(i) = zmin + (i + offsetz) * array_dx(2) ; // Position of the left interface
+        nodes_z0(i) = zmin + (i + offsetz) * dx_array(2) ; // Position of the left interface
     });
 
     KDV_double_3d rho("rho",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Density
@@ -223,7 +221,7 @@ int main(int argc, char** argv)
 
     while (!should_exit && t < timeout && iter < max_iter)
     {
-        double dt = time_step(grid.range.all_ghosts(), cfl, rho.d_view, u.d_view, P.d_view, array_dx, eos);
+        double dt = time_step(grid.range.all_ghosts(), cfl, rho.d_view, u.d_view, P.d_view, dx_array, eos);
         bool const make_output = should_output(iter, output_frequency, max_iter, t, dt, timeout);
         if ((t + dt) > timeout)
         {
@@ -231,12 +229,10 @@ int main(int argc, char** argv)
             should_exit = true;
         }
 
-        reconstruction->execute(grid.range.with_ghosts(1), rho_rec, rhou_rec, E_rec, rho.d_view, u.d_view, P.d_view, eos, array_dx, dt);
+        reconstruction->execute(grid.range.with_ghosts(1), rho_rec, rhou_rec, E_rec, rho.d_view, u.d_view, P.d_view, eos, dx_array, g_array, dt);
 
         godunov_scheme->execute(grid.range.no_ghosts(), rho.d_view, rhou.d_view, E.d_view, rho_rec, rhou_rec, E_rec,
-                                rho_new, rhou_new, E_new, array_dx, dt);
-
-        gravity_add->execute(grid.range.no_ghosts(), rho.d_view, rhou.d_view, rhou_new, E_new, g_array, dt);
+                                rho_new, rhou_new, E_new, dx_array, g_array, dt);
 
         boundary_construction_array[0]->ghostFill(rho_new, rhou_new, E_new, grid);
         for ( std::unique_ptr<IBoundaryCondition> const& boundary_construction : boundary_construction_array )

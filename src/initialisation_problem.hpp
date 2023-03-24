@@ -266,13 +266,12 @@ public:
             if (y >= 0)
             {
                 rho(i, j, k) = 2;
-                P(i, j, k) = P0 + y * g * rho(i, j, k);
             }
             if (y < 0)
             {
                 rho(i, j, k) = 1;
-                P(i, j, k) = P0 - y * g * rho(i, j, k);
             }
+            P(i, j, k) = P0 + rho(i, j, k) * g * y;
             u(i, j, k, 0) = 0;
             u(i, j, k, 1) = (A/4) * (1+Kokkos::cos(2*Kokkos::numbers::pi*x/Lx)) * (1+Kokkos::cos(2*Kokkos::numbers::pi*y/Ly));
          });
