@@ -25,14 +25,15 @@
 #include "range.hpp"
 #include "kronecker.hpp"
 #include "Kokkos_shortcut.hpp"
+#include "io_config.yaml.hpp"
 
 using namespace novapp;
 
 int main(int argc, char** argv)
 {
-    if (argc < 3)
+    if (argc < 2)
     {
-        std::cout << "usage: " << argv[0] << " <path to the ini file> <path to the yaml file>\n";
+        std::cout << "usage: " << argv[0] << " <path to the ini file> [<path to the yaml file>]\n";
         return EXIT_FAILURE;
     }
 
@@ -42,7 +43,15 @@ int main(int argc, char** argv)
 
     INIReader const reader(argv[1]);
 
-    PC_tree_t conf = PC_parse_path(argv[2]);
+    PC_tree_t conf;
+    if (argc == 3)
+    {
+        conf = PC_parse_path(argv[2]);
+    }
+    else
+    {
+        conf = PC_parse_string(io_config);
+    }
     PDI_init(PC_get(conf, ".pdi"));
 
     Grid const grid(reader);

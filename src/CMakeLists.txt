@@ -1,6 +1,7 @@
 add_subdirectory(thermodynamics)
 
 add_library(libnova++ array_conversion.cpp
+                      io_config.yaml.cpp
                       io.cpp
                       cfl_cond.cpp
                       mpi_scope_guard.cpp

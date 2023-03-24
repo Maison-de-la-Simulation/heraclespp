@@ -1,3 +1,6 @@
+#include "io_config.yaml.hpp"
+
+char const* const io_config = R"IO_CONFIG(
 pdi:
   metadata:
     ndim: int
@@ -65,7 +68,7 @@ pdi:
             dataset_selection:
               size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
               start: [ '$start[2]', '$start[1]', '$start[0]']
-      
+
       - file: ${restart_filename}
         on_event: read_file
         communicator: '${MPI_COMM_WORLD}'
@@ -93,3 +96,4 @@ pdi:
             dataset_selection:
               size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
               start: [ '$start[2]', '$start[1]', '$start[0]']
+)IO_CONFIG";
