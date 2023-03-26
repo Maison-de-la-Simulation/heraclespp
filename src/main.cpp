@@ -87,8 +87,8 @@ int main(int argc, char** argv)
     write_pdi_init(max_iter, output_frequency, grid);
 
     std::array<std::unique_ptr<IBoundaryCondition>, ndim*2> boundary_construction_array;
-    std::array<std::string, 3> bc_dir = {"_X", "_Y", "_Z"};
-    std::array<std::string, 3> bc_face = {"_left", "_right"};
+    std::array<std::string, 3> const bc_dir {"_X", "_Y", "_Z"};
+    std::array<std::string, 2> const bc_face {"_left", "_right"};
 
     std::string bc_choice;
     std::string bc_choice_dir;
