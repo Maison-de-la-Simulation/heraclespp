@@ -2,7 +2,9 @@
  * @file grid.cpp
  * Grid class implementation
  */
+
 #include "grid.hpp"
+#include "Kokkos_shortcut.hpp"
 
 namespace novapp
 {
@@ -22,15 +24,32 @@ Grid::Grid(INIReader const& reader)
         Nghost[idim] = Ng;
     }
 
+    xmin = reader.GetReal("Grid", "xmin", 0.0);
+    xmax = reader.GetReal("Grid", "xmax", 1.0);
+    ymin = reader.GetReal("Grid", "ymin", 0.0);
+    ymax = reader.GetReal("Grid", "ymax", 1.0);
+    zmin = reader.GetReal("Grid", "zmin", 0.0);
+    zmax = reader.GetReal("Grid", "zmax", 1.0);
+
+    Lx = xmax - xmin;
+    Ly = ymax - ymin;
+    Lz = zmax - zmin;
+
+    dx[0] = Lx / Nx_glob_ng[0];
+    dx[1] = Ly / Nx_glob_ng[1];
+    dx[2] = Lz / Nx_glob_ng[2];
+
     Ncpu_x[0] = reader.GetInteger("Grid", "Ncpu_x", 0); // number of procs, default 0=>defined by MPI
     Ncpu_x[1] = reader.GetInteger("Grid", "Ncpu_y", 0); // number of procs
     Ncpu_x[2] = reader.GetInteger("Grid", "Ncpu_z", 0); // number of procs
 
     //!    Type of boundary conditions possibilities are : 
     //!    "Internal", "Periodic", "Reflexive", NullGradient", UserDefined", "Null" (undefined) 
-    Nx_local_ng      = Nx_glob_ng ; // default for a single MPI process
+    Nx_local_ng = Nx_glob_ng; // default for a single MPI process
 
     MPI_Decomp();
+
+    Init_nodes();
 }
 
 /* ****************************************************************
@@ -74,7 +93,7 @@ void Grid::MPI_Decomp()
         remain_dims[i]=true;
         MPI_Cart_sub(comm_cart, remain_dims.data(), &comm_cart_1d[i]);
         MPI_Exscan(&Nx_local_ng[i], &cmin[i], 1, MPI_INT, MPI_SUM, comm_cart_1d[i]);
-        cmax[i] = cmin[i]+Nx_local_ng[i];
+        cmax[i] = cmin[i] + Nx_local_ng[i];
         
         remain_dims[i]=false;
     }
@@ -95,11 +114,11 @@ void Grid::MPI_Decomp()
         }
     }  
 
-    NBlock[0] = 1   ; // Default is no sub-block 
-    NBlock[1] = 1   ; // Default is no sub-block 
-    NBlock[2] = 1   ; // Default is no sub-block 
+    NBlock[0] = 1; // Default is no sub-block 
+    NBlock[1] = 1; // Default is no sub-block 
+    NBlock[2] = 1; // Default is no sub-block 
 
-    Nx_block = Nx_local_wg ;
+    Nx_block = Nx_local_wg;
 
     for(int i=0; i<3; i++)
     {
@@ -109,6 +128,39 @@ void Grid::MPI_Decomp()
         if(mpi_rank_cart[i] == 0)           is_border[i][0] = true;
         if(mpi_rank_cart[i] == Ncpu_x[i]-1) is_border[i][1] = true;
     }
+}
+
+void Grid::Init_nodes()
+{
+    x = KDV_double_1d("Initx", Nx_local_ng[0]+ 2*Nghost[0] + 1);
+    y = KDV_double_1d("Inity", Nx_local_ng[1]+ 2*Nghost[1] + 1);
+    z = KDV_double_1d("Initz", Nx_local_ng[2]+ 2*Nghost[2] + 1);
+
+    offsetx = range.Corner_min[0] - Nghost[0];
+    offsety = range.Corner_min[1] - Nghost[1];
+    offsetz = range.Corner_min[2] - Nghost[2];
+
+    auto const x_h = x.h_view;
+    for (int i = 0; i < Nx_local_ng[0] + 2 * Nghost[0] + 1; ++i)
+    {
+        x_h(i) = xmin + (i + offsetx) * dx[0]; // Position of the left interface
+    }
+    x.modify_host();
+    x.sync_device();
+    auto const y_h = y.h_view;
+    for (int i = 0; i < Nx_local_ng[1] + 2 * Nghost[1] + 1; ++i)
+    {
+        y_h(i) = ymin + (i + offsety) * dx[1]; // Position of the left interface
+    }
+    y.modify_host();
+    y.sync_device();
+    auto const z_h = z.h_view;
+    for (int i = 0; i < Nx_local_ng[2] + 2 * Nghost[2] + 1; ++i)
+    {
+        z_h(i) = zmin + (i + offsetz) * dx[2]; // Position of the left interface
+    }
+    z.modify_host();
+    z.sync_device();
 }
 
 void Grid::print_grid() const

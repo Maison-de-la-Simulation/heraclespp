@@ -19,6 +19,8 @@ class PerfectGas;
 
 class Range;
 
+class Grid;
+
 //! Time step with the cfl condition
 //! @param[in] rho density array 3D
 //! @param[in] u celerity array 3D
@@ -31,7 +33,7 @@ class Range;
     KV_cdouble_3d rho,
     KV_cdouble_4d u,
     KV_cdouble_3d P,
-    KV_cdouble_1d dx, 
-    thermodynamics::PerfectGas const& eos);
+    thermodynamics::PerfectGas const& eos,
+    Grid const& grid);
 
 } // namespace novapp

@@ -10,6 +10,7 @@
 #include "face_reconstruction.hpp"
 #include "ndim.hpp"
 #include "range.hpp"
+#include "grid.hpp"
 
 namespace novapp
 {
@@ -38,9 +39,9 @@ public:
             KV_cdouble_4d u,
             KV_cdouble_3d P,
             thermodynamics::PerfectGas const& eos,
-            KV_cdouble_1d dx,
             KV_cdouble_1d g,
-            double const dt) const
+            double const dt,
+            Grid const& grid) const
             = 0;
 };
 
@@ -73,19 +74,19 @@ public:
             KV_cdouble_4d const u,
             KV_cdouble_3d const P,
             thermodynamics::PerfectGas const& eos,
-            KV_cdouble_1d dx,
             KV_cdouble_1d g,
-            double const dt) const final
+            double const dt,
+            Grid const& grid) const final
     {
-        m_face_reconstruction->execute(range, rho, rho_rec, dx);
-        m_face_reconstruction->execute(range, P, m_P_rec, dx);
+        m_face_reconstruction->execute(range, rho, rho_rec, grid);
+        m_face_reconstruction->execute(range, P, m_P_rec, grid);
         for (int idim = 0; idim < ndim; ++idim)
         {
             m_face_reconstruction->execute(
                     range,
                     Kokkos::subview(u, ALL, ALL, ALL, idim),
                     Kokkos::subview(m_u_rec, ALL, ALL, ALL, ALL, ALL, idim),
-                    dx);
+                    grid);
         }
 
         for (int idim = 0; idim < ndim; ++idim)
@@ -134,7 +135,7 @@ public:
                 plus_one.pressure = m_P_rec(i, j, k, 1, idim);
                 EulerFlux flux_plus_one = compute_flux(plus_one, idim, eos);
 
-                double dto2dx = dt / (2 * dx(idim));
+                double dto2dx = dt / (2 * grid.dx[idim]);
 
                 for (int ipos = 0; ipos < ndim; ++ipos)
                 {

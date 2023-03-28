@@ -15,6 +15,7 @@
 #include "kronecker.hpp"
 #include "ndim.hpp"
 #include "range.hpp"
+#include "grid.hpp"
 #include "riemann_solver.hpp"
 #include "Kokkos_shortcut.hpp"
 
@@ -47,9 +48,9 @@ public:
             KV_double_3d rho_new,
             KV_double_4d rhou_new,
             KV_double_3d E_new,
-            KV_cdouble_1d dx,
             KV_cdouble_1d g,
-            double dt) const
+            double dt,
+            Grid const& grid) const
             = 0;
 };
 
@@ -89,9 +90,9 @@ public:
             KV_double_3d const rho_new,
             KV_double_4d const rhou_new,
             KV_double_3d const E_new,
-            KV_cdouble_1d const dx,
             KV_cdouble_1d const g,
-            double dt) const final
+            double dt,
+            Grid const& grid) const final
     {
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
@@ -141,7 +142,7 @@ public:
                 plus_oneL.energy = E_rec(i_p, j_p, k_p, 0, idim);
                 EulerFlux const FluxR = m_riemann_solver(var_R, plus_oneL, idim, m_eos);
 
-                double dtodx = dt / dx(idim);
+                double dtodx = dt / grid.dx[idim];
 
                 rho_new(i, j, k) += dtodx * (FluxL.density - FluxR.density);
                 for (int idr = 0; idr < ndim; ++idr)

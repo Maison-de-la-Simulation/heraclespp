@@ -65,23 +65,15 @@ int main(int argc, char** argv)
 
     thermodynamics::PerfectGas const eos(reader.GetReal("PerfectGas", "gamma", 1.4), 1.0);
 
-    double const xmin = reader.GetReal("Grid", "xmin", 0.0);
-    double const xmax = reader.GetReal("Grid", "xmax", 1.0);
-    double const ymin = reader.GetReal("Grid", "ymin", 0.0);
-    double const ymax = reader.GetReal("Grid", "ymax", 1.0);
-    double const zmin = reader.GetReal("Grid", "zmin", 0.0);
-    double const zmax = reader.GetReal("Grid", "zmax", 1.0);
-
-    double const Lx = xmax - xmin;
-    double const Ly = ymax - ymin;
-    double const Lz = zmax - zmin;
-
-    KV_double_1d dx_array("dx_array", 3); //Space step array
+    const double gx = reader.GetReal("Gravity", "gx", 0.0);
+    const double gy = reader.GetReal("Gravity", "gy", 0.0);
+    const double gz = reader.GetReal("Gravity", "gz", 0.0);
+    KV_double_1d g_array("g_array", 3);
     Kokkos::parallel_for(1, KOKKOS_LAMBDA([[maybe_unused]] int i)
     {
-        dx_array(0) = Lx / grid.Nx_glob_ng[0];
-        dx_array(1) = Ly / grid.Nx_glob_ng[1];
-        dx_array(2) = Lz / grid.Nx_glob_ng[2];
+        g_array(0) = gx;
+        g_array(1) = gy;
+        g_array(2) = gz;
     });
 
     write_pdi_init(max_iter, output_frequency, grid);
@@ -127,46 +119,6 @@ int main(int argc, char** argv)
     std::unique_ptr<IGodunovScheme> godunov_scheme
             = factory_godunov_scheme(riemann_solver, eos);
 
-    const double gx = reader.GetReal("Gravity", "gx", 0.0);
-    const double gy = reader.GetReal("Gravity", "gy", 0.0);
-    const double gz = reader.GetReal("Gravity", "gz", 0.0);
-
-    KV_double_1d g_array("g_array", 3);
-    Kokkos::parallel_for(1, KOKKOS_LAMBDA([[maybe_unused]] int i)
-    {
-        g_array(0) = gx;
-        g_array(1) = gy;
-        g_array(2) = gz;
-    });
-
-    KV_double_1d nodes_x0("nodes_x0", grid.Nx_local_wg[0]+1); // Nodes for x0
-    KV_double_1d nodes_y0("nodes_y0", grid.Nx_local_wg[1]+1); // Nodes for y0
-    KV_double_1d nodes_z0("nodes_z0", grid.Nx_local_wg[2]+1); // Nodes for z0
-
-    int offsetx = grid.range.Corner_min[0] - grid.Nghost[0];
-    Kokkos::parallel_for("InitialisationNodes",
-                         Kokkos::RangePolicy<>(0, nodes_x0.extent(0)),
-                         KOKKOS_LAMBDA(int i)
-    {
-        nodes_x0(i) = xmin + (i + offsetx) * dx_array(0) ; // Position of the left interface
-    });
-
-    int offsety = grid.range.Corner_min[1] - grid.Nghost[1];
-    Kokkos::parallel_for("InitialisationNodes",
-                         Kokkos::RangePolicy<>(0, nodes_y0.extent(0)),
-                         KOKKOS_LAMBDA(int i)
-    {
-        nodes_y0(i) = ymin + (i + offsety) * dx_array(1) ; // Position of the left interface
-    });
-
-    int offsetz = grid.range.Corner_min[2] - grid.Nghost[2];
-    Kokkos::parallel_for("InitialisationNodes",
-                         Kokkos::RangePolicy<>(0, nodes_z0.extent(0)),
-                         KOKKOS_LAMBDA(int i)
-    {
-        nodes_z0(i) = zmin + (i + offsetz) * dx_array(2) ; // Position of the left interface
-    });
-
     KDV_double_3d rho("rho",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Density
     KDV_double_4d u("u",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim); // Speed
     KDV_double_3d P("P",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Pressure
@@ -182,7 +134,6 @@ int main(int argc, char** argv)
     KV_double_3d rho_new("rhonew",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
     KV_double_4d rhou_new("rhounew", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim);
     KV_double_3d E_new("Enew",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
-
 
     double t = 0;
     int iter = 0;
@@ -208,12 +159,12 @@ int main(int argc, char** argv)
     }
     else
     {
-        initialisation->execute(grid.range.no_ghosts(), rho.d_view, u.d_view, P.d_view, nodes_x0, nodes_y0, dx_array, g_array, eos);
+        initialisation->execute(grid.range.no_ghosts(), rho.d_view, u.d_view, P.d_view, g_array, eos, grid);
     }
     conv_prim_to_cons(grid.range.no_ghosts(), rhou.d_view, E.d_view, rho.d_view, u.d_view, P.d_view, eos);
     
     boundary_construction_array[0]->ghostFill(rho.d_view, rhou.d_view, E.d_view, grid);
-    for ( std::unique_ptr<IBoundaryCondition> const& boundary_construction : boundary_construction_array )
+    for ( std::unique_ptr<IBoundaryCondition> const& boundary_construction : boundary_construction_array)
     {
         boundary_construction->execute(rho.d_view, rhou.d_view, E.d_view, grid);
     }
@@ -230,7 +181,7 @@ int main(int argc, char** argv)
 
     while (!should_exit && t < timeout && iter < max_iter)
     {
-        double dt = time_step(grid.range.all_ghosts(), cfl, rho.d_view, u.d_view, P.d_view, dx_array, eos);
+        double dt = time_step(grid.range.all_ghosts(), cfl, rho.d_view, u.d_view, P.d_view, eos, grid);
         bool const make_output = should_output(iter, output_frequency, max_iter, t, dt, timeout);
         if ((t + dt) > timeout)
         {
@@ -238,10 +189,11 @@ int main(int argc, char** argv)
             should_exit = true;
         }
 
-        reconstruction->execute(grid.range.with_ghosts(1), rho_rec, rhou_rec, E_rec, rho.d_view, u.d_view, P.d_view, eos, dx_array, g_array, dt);
+        reconstruction->execute(grid.range.with_ghosts(1), rho_rec, rhou_rec, E_rec, rho.d_view, u.d_view, P.d_view, 
+                                eos, g_array, dt, grid);
 
         godunov_scheme->execute(grid.range.no_ghosts(), rho.d_view, rhou.d_view, E.d_view, rho_rec, rhou_rec, E_rec,
-                                rho_new, rhou_new, E_new, dx_array, g_array, dt);
+                                rho_new, rhou_new, E_new, g_array, dt, grid);
 
         boundary_construction_array[0]->ghostFill(rho_new, rhou_new, E_new, grid);
         for ( std::unique_ptr<IBoundaryCondition> const& boundary_construction : boundary_construction_array )
