@@ -23,6 +23,8 @@ using KV_cdouble_4d=Kokkos::View<const double****, Kokkos::LayoutLeft>;
 using KV_cdouble_5d=Kokkos::View<const double*****, Kokkos::LayoutLeft>;
 using KV_cdouble_6d=Kokkos::View<const double******, Kokkos::LayoutLeft>;
 
+using KDV_double_1d=Kokkos::DualView<double*, Kokkos::LayoutLeft>;
+using KDV_double_2d=Kokkos::DualView<double**, Kokkos::LayoutLeft>;
 using KDV_double_3d=Kokkos::DualView<double***, Kokkos::LayoutLeft>;
 using KDV_double_4d=Kokkos::DualView<double****, Kokkos::LayoutLeft>;
 

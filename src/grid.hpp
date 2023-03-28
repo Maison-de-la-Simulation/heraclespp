@@ -15,6 +15,7 @@
 #include <iomanip>
 #include "range.hpp"
 #include "ndim.hpp"
+#include "Kokkos_shortcut.hpp"
 
 namespace novapp
 {
@@ -38,6 +39,7 @@ public :
 
 private:
     void MPI_Decomp();
+    void Init_nodes();
 
 public :
     int Ng;
@@ -47,6 +49,19 @@ public :
     std::array<int, 3> Nx_local_wg;    // Number of cells on the local MPI process (including ghost)
     std::array<int, 3> NBlock;     // number of sub-blocks (default (1,1,1))
     std::array<int, 3> Nx_block;   // Maximum size of sub-block, including ghos
+    
+    double xmin;
+    double xmax;
+    double ymin;
+    double ymax;
+    double zmin;
+    double zmax;
+
+    double Lx;
+    double Ly;
+    double Lz;
+
+    Kokkos::Array<double, 3> dx;
 
     std::array<std::array<std::array<int, 3>, 3>, 3> NeighborRank;
     std::array<int,3> Ncpu_x;
@@ -59,6 +74,14 @@ public :
 
     Range range;
     std::array<std::array<bool, 2>,3> is_border;
+
+    int offsetx;
+    int offsety;
+    int offsetz;
+
+    KDV_double_1d x;
+    KDV_double_1d y;
+    KDV_double_1d z;
 };
 
 } // namespace novapp

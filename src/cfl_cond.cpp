@@ -3,6 +3,7 @@
 #include "cfl_cond.hpp"
 #include "euler_equations.hpp"
 #include "range.hpp"
+#include "grid.hpp"
 
 namespace novapp
 {
@@ -13,8 +14,8 @@ double time_step(
     KV_cdouble_3d rho,
     KV_cdouble_4d u,
     KV_cdouble_3d P,
-    KV_cdouble_1d dx, 
-    thermodynamics::PerfectGas const& eos)
+    thermodynamics::PerfectGas const& eos,
+    Grid const& grid)
 {
     double inverse_dt = 0;
     
@@ -27,7 +28,7 @@ double time_step(
         double dt_loc_inverse = 0;
         for(int idim = 0; idim < ndim; idim++)
         {
-            dt_loc_inverse += (Kokkos::fabs(u(i, j, k, idim)) + sound) / dx(idim);
+            dt_loc_inverse += (Kokkos::fabs(u(i, j, k, idim)) + sound) / grid.dx[idim];
         }
         local_a = Kokkos::fmax(dt_loc_inverse, local_a);
     },
