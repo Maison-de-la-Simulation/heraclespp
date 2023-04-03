@@ -6,7 +6,6 @@ add_library(libnova++ array_conversion.cpp
                       cfl_cond.cpp
                       mpi_scope_guard.cpp
                       grid.cpp
-                      buffer.cpp
                       boundary.cpp
                       range.cpp)
 configure_file(ndim.hpp.in ndim.hpp NO_SOURCE_PERMISSIONS @ONLY)

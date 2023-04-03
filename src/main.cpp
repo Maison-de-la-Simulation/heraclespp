@@ -79,33 +79,24 @@ int main(int argc, char** argv)
     write_pdi_init(max_iter, output_frequency, grid);
 
     std::array<std::unique_ptr<IBoundaryCondition>, ndim*2> boundary_construction_array;
-    std::array<std::string, 3> const bc_dir {"_X", "_Y", "_Z"};
-    std::array<std::string, 2> const bc_face {"_left", "_right"};
 
     std::string bc_choice;
     std::string bc_choice_dir;
-    std::array<std::string, ndim*2> bc_choice_face;
+    std::array<std::string, ndim*2> bc_choice_faces;
     
     bc_choice = reader.Get("Boundary Condition", "BC", "");
     for(int idim=0; idim<ndim; idim++)
     {
         bc_choice_dir = reader.Get("Boundary Condition", "BC"+bc_dir[idim], bc_choice);
-        bc_choice_face[idim*2] = reader.Get("Boundary Condition", "BC"+bc_dir[idim]+bc_face[0], bc_choice_dir);
-        bc_choice_face[idim*2+1] = reader.Get("Boundary Condition", "BC"+bc_dir[idim]+bc_face[1], bc_choice_dir);
-    }
-
-    for(int idim=0; idim<ndim; idim++)
-    {
-        if(bc_choice_face[idim*2].empty() || bc_choice_face[idim*2+1].empty()) 
+        bc_choice_faces[idim*2] = reader.Get("Boundary Condition", "BC"+bc_dir[idim]+bc_face[0], bc_choice_dir);
+        bc_choice_faces[idim*2+1] = reader.Get("Boundary Condition", "BC"+bc_dir[idim]+bc_face[1], bc_choice_dir);
+        if(bc_choice_faces[idim*2].empty() || bc_choice_faces[idim*2+1].empty()) 
         {
-            throw std::runtime_error("boundary condition not defined for dim "+bc_dir[idim]);
-        }
-        for(int iface=0; iface<2; iface++)
-        {
-            if(!(grid.is_border[idim][iface])) {bc_choice_face[idim*2+iface] = "Periodic";}
-            boundary_construction_array[idim*2+iface] = factory_boundary_construction(grid, bc_choice_face[idim*2+iface], idim, iface);
+            throw std::runtime_error("boundary condition not fully defined for dimension "+bc_dir[idim]);
         }
     }
+    
+    BC_init(boundary_construction_array, bc_choice_faces, grid);
     
     std::string const initialisation_problem = reader.Get("Problem", "type", "ShockTube");
     std::unique_ptr<IInitialisationProblem> initialisation
@@ -162,12 +153,8 @@ int main(int argc, char** argv)
         initialisation->execute(grid.range.no_ghosts(), rho.d_view, u.d_view, P.d_view, g_array, eos, grid);
     }
     conv_prim_to_cons(grid.range.no_ghosts(), rhou.d_view, E.d_view, rho.d_view, u.d_view, P.d_view, eos);
-    
-    boundary_construction_array[0]->ghostFill(rho.d_view, rhou.d_view, E.d_view, grid);
-    for ( std::unique_ptr<IBoundaryCondition> const& boundary_construction : boundary_construction_array)
-    {
-        boundary_construction->execute(rho.d_view, rhou.d_view, E.d_view, grid);
-    }
+
+    BC_update(boundary_construction_array, rho.d_view, rhou.d_view, E.d_view, grid);
     
     conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho.d_view, rhou.d_view, E.d_view, eos);
 
@@ -193,13 +180,9 @@ int main(int argc, char** argv)
                                 eos, g_array, dt, grid);
 
         godunov_scheme->execute(grid.range.no_ghosts(), rho.d_view, rhou.d_view, E.d_view, rho_rec, rhou_rec, E_rec,
-                                rho_new, rhou_new, E_new, g_array, dt, grid);
+                             rho_new, rhou_new, E_new, g_array, dt, grid);
 
-        boundary_construction_array[0]->ghostFill(rho_new, rhou_new, E_new, grid);
-        for ( std::unique_ptr<IBoundaryCondition> const& boundary_construction : boundary_construction_array )
-        {
-            boundary_construction->execute(rho_new, rhou_new, E_new, grid);
-        }
+        BC_update(boundary_construction_array, rho_new, rhou_new, E_new, grid);
 
         conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho_new, rhou_new, E_new, eos);
         Kokkos::deep_copy(rho.d_view, rho_new);
@@ -226,7 +209,7 @@ int main(int argc, char** argv)
         std::printf("Final time = %f and number of iterations = %d  \n", t, iter);
         std::printf("--- End ---\n");
     }
-
+    MPI_Comm_free(&(const_cast<Grid&>(grid).comm_cart));
     PDI_finalize();
     PC_tree_destroy(&conf);
 

@@ -50,6 +50,14 @@ Grid::Grid(INIReader const& reader)
     MPI_Decomp();
 
     Init_nodes();
+    
+    std::array<int, 3> buf_size = Nx_local_wg;
+    for(int idim=0; idim<ndim; idim++)
+    {
+        buf_size[idim] = Nghost[idim];
+        mpi_buffer[idim] = KDV_double_4d("",buf_size[0], buf_size[1], buf_size[2], ndim+2);
+    }
+    
 }
 
 /* ****************************************************************
@@ -97,6 +105,8 @@ void Grid::MPI_Decomp()
         
         remain_dims[i]=false;
     }
+    for (int i=0; i<3; i++) MPI_Comm_free(&comm_cart_1d[i]);
+
     range = Range(cmin, cmax, Ng);
     
     int tmp_coord[3];
@@ -113,6 +123,14 @@ void Grid::MPI_Decomp()
             } 
         }
     }  
+    for(int idim=0; idim<ndim; idim++)
+    {
+        for(int iface=0; iface<2; iface++)
+        {
+            int displ = iface==0? -1 : 1;
+            MPI_Cart_shift(comm_cart, idim, displ, &neighbor_src[idim*2+iface], &neighbor_dest[idim*2+iface]);
+        }
+    }
 
     NBlock[0] = 1; // Default is no sub-block 
     NBlock[1] = 1; // Default is no sub-block 
