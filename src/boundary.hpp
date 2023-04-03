@@ -5,24 +5,23 @@
 #pragma once
 
 #include "Kokkos_shortcut.hpp"
-#include "buffer.hpp"
 #include "grid.hpp"
 #include "ndim.hpp"
 
 namespace novapp
 {
 
+std::array<std::string, 3> const bc_dir {"_X", "_Y", "_Z"};
+std::array<std::string, 2> const bc_face {"_left", "_right"};
+
 class IBoundaryCondition
 {
 public:
     IBoundaryCondition() = default;
 
-    IBoundaryCondition(Grid const & grid, int idim, int iface):
-    sbuf(grid.Nghost, grid.Nx_local_ng, 2+ndim),
-    rbuf(grid.Nghost, grid.Nx_local_ng, 2+ndim),
+    IBoundaryCondition(int idim, int iface):
     bc_idim(idim),
-    bc_iface(iface)
-    {};
+    bc_iface(iface){};
 
     IBoundaryCondition(IBoundaryCondition const& x) = default;
 
@@ -43,13 +42,10 @@ public:
                        KV_double_4d rhou,
                        KV_double_3d E, 
                        Grid const & grid);
-
-private:    
-    Buffer sbuf, rbuf;
+    
 public:
     int bc_idim;
     int bc_iface;
-
 };
 
 
@@ -58,9 +54,9 @@ class NullGradient : public IBoundaryCondition
     std::string m_label;
 
 public:
-    NullGradient(Grid const & grid, int idim, int iface)
-        : IBoundaryCondition(grid, idim, iface)
-        , m_label("NullGradient_" + std::to_string(idim) + "_" + std::to_string(iface))
+    NullGradient(int idim, int iface)
+        : IBoundaryCondition(idim, iface)
+        , m_label("NullGradient" + bc_dir[idim] + bc_face[iface])
     {
     }
     
@@ -107,18 +103,16 @@ class PeriodicCondition : public IBoundaryCondition
 {
 public:
 
-    PeriodicCondition(Grid const & grid, int idim, int iface)
-    : IBoundaryCondition(grid, idim, iface){};    
+    PeriodicCondition(int idim, int iface)
+    : IBoundaryCondition(idim, iface){};    
 
     void execute([[maybe_unused]]KV_double_3d rho,
                   [[maybe_unused]]KV_double_4d rhou,
                   [[maybe_unused]]KV_double_3d E,
                   [[maybe_unused]]Grid const & grid) const final
     {
-        // ghostFill_dev(rho, rhou, E, grid);
         // do nothing
     }
-
 };
 
 
@@ -127,9 +121,9 @@ class ReflexiveCondition : public IBoundaryCondition
     std::string m_label;
 
 public:
-    ReflexiveCondition(Grid const & grid, int idim, int iface)
-        : IBoundaryCondition(grid, idim, iface)
-        , m_label("Reflexive_" + std::to_string(idim) + "_" + std::to_string(iface))
+    ReflexiveCondition(int idim, int iface)
+        : IBoundaryCondition(idim, iface)
+        , m_label("Reflexive" + bc_dir[idim] + bc_face[iface])
     {
     }
 
@@ -167,23 +161,32 @@ public:
 };
 
 inline std::unique_ptr<IBoundaryCondition> factory_boundary_construction(
-    Grid const & grid,
     std::string const& s,
     int idim, int iface)
 {
     if (s == "NullGradient")
     {
-        return std::make_unique<NullGradient>(grid, idim, iface);
+        return std::make_unique<NullGradient>(idim, iface);
     }
     if (s == "Periodic")
     {
-        return std::make_unique<PeriodicCondition>(grid, idim, iface);
+        return std::make_unique<PeriodicCondition>(idim, iface);
     }
     if (s == "Reflexive")
     {
-        return std::make_unique<ReflexiveCondition>(grid, idim, iface);
+        return std::make_unique<ReflexiveCondition>(idim, iface);
     }
     throw std::runtime_error("Unknown boundary condition : " + s + ".");
 }
 
+
+void BC_update(std::array<std::unique_ptr<IBoundaryCondition>, ndim*2> & BC_array, 
+               KV_double_3d rho, 
+               KV_double_4d rhou, 
+               KV_double_3d E, 
+               Grid const & grid);
+
+void BC_init(std::array<std::unique_ptr<IBoundaryCondition>, ndim*2> & BC_array,
+             std::array<std::string, ndim*2> & BC_choices,
+             Grid const & grid);
 } // namespace novapp

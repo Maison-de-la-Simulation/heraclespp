@@ -11,6 +11,7 @@
 #include <Kokkos_Core.hpp>
 #include <Kokkos_DualView.hpp>
 #include <inih/INIReader.hpp>
+#include "Kokkos_shortcut.hpp"
 #include <mpi.h>
 #include <iomanip>
 #include "range.hpp"
@@ -64,6 +65,8 @@ public :
     Kokkos::Array<double, 3> dx;
 
     std::array<std::array<std::array<int, 3>, 3>, 3> NeighborRank;
+    std::array<int, Ndim*2> neighbor_src;
+    std::array<int, Ndim*2> neighbor_dest;
     std::array<int,3> Ncpu_x;
     int Ncpu;
 
@@ -82,6 +85,8 @@ public :
     KDV_double_1d x;
     KDV_double_1d y;
     KDV_double_1d z;
+
+    std::array<KDV_double_4d, ndim> mpi_buffer;
 };
 
 } // namespace novapp

@@ -21,6 +21,8 @@ public :
     std::array<std::array<KDV_double_4d,4>,3> edgeBuffer;
     std::array<std::array<KDV_double_4d,4>,2> cornerBuffer;
 
+    KDV_double_4d BC_buffer;
+
 public :
     Buffer() = default;
 
@@ -31,6 +33,11 @@ public :
     //!
     Buffer(std::array<int, 3> const & ng,
            std::array<int, 3> const & nx_local_ng,
+           int nvar);
+
+    Buffer(std::array<int, 3> const & ng,
+           std::array<int, 3> const & nx_local_wg,
+           int idim, 
            int nvar);
 };
 

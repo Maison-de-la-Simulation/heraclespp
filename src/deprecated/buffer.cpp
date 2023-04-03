@@ -41,4 +41,14 @@ Buffer::Buffer(std::array<int, 3> const & ng,
     }
 }
 
+
+Buffer::Buffer(std::array<int, 3> const & ng, 
+               std::array<int, 3> const & nx_local_wg, 
+               int const idim, int const nvar)
+{   std::array<int, 3> buf_size = nx_local_wg;
+    buf_size[idim] = ng[idim];
+    BC_buffer = KDV_double_4d ("", buf_size[0],buf_size[1],buf_size[2],nvar);
+}
+
+
 } // namespace novapp
