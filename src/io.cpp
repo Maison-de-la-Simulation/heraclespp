@@ -29,7 +29,10 @@ void write_pdi_init(int max_iter, int frequency, Grid const& grid)
 void write_pdi(int iter, double t, KDV_double_3d rho,
                                    KDV_double_4d u,
                                    KDV_double_3d P, 
-                                   KDV_double_3d E)
+                                   KDV_double_3d E,
+                                   KDV_double_1d x,
+                                   KDV_double_1d y,
+                                   KDV_double_1d z)
 {
     rho.sync_host();
     u.sync_host();
@@ -42,6 +45,9 @@ void write_pdi(int iter, double t, KDV_double_3d rho,
                     "u", u.h_view.data(), PDI_OUT,
                     "P", P.h_view.data(), PDI_OUT,
                     "E", E.h_view.data(), PDI_OUT,
+                    "x", x.h_view.data(), PDI_OUT,
+                    "y", y.h_view.data(), PDI_OUT,
+                    "z", z.h_view.data(), PDI_OUT,
                     NULL);
 }
 

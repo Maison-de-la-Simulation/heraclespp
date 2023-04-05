@@ -163,7 +163,7 @@ int main(int argc, char** argv)
 
     if (output_frequency > 0)
     {
-        write_pdi(iter, t, rho, u, P, E);
+        write_pdi(iter, t, rho, u, P, E, grid.x, grid.y, grid.z);
     }
 
     while (!should_exit && t < timeout && iter < max_iter)
@@ -200,7 +200,7 @@ int main(int argc, char** argv)
 
         if(make_output)
         {
-            write_pdi(iter, t, rho, u, P, E);
+            write_pdi(iter, t, rho, u, P, E, grid.x, grid.y, grid.z);
         }
     }
 

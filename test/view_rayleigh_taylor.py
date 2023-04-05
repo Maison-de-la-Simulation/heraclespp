@@ -12,24 +12,23 @@ print("********************************")
 filename = sys.argv[1]
 
 with h5py.File(str(filename), 'r') as f :
-    print(f.keys())
+    #print(f.keys())
     rho = f['rho'][0, :, :]
-    u_x = f['u'][0, 0, :, :]
-    u_y = f['u'][1, 0, :, :]
-    P = f['P'][0, :, :]
+    x = f['x'][()]
+    y = f['y'][()]
+    t = f['current_time'][()]
+    iter = f['iter'][()]
+
+print("Final time =", t, "s")
+print("Iteration number =", iter )
+
+# ------------------------------------------
 
 plt.figure(figsize=(10,8))
 plt.suptitle('Rayleigh Taylor instability')
-#plt.subplot(121)
 plt.title('Density')
-plt.imshow(rho, origin='lower', extent=[-0.25, 0.25, -0.75, 0.75])
+plt.imshow(rho, origin='lower', extent=[np.min(x), np.max(x), np.min(y), np.max(y)])
 plt.colorbar()
 plt.inferno()
 plt.xlabel('x'); plt.ylabel('y')
-""" plt.subplot(122)
-plt.title('Pressure')
-plt.imshow(P.T, origin='lower', extent=[-0.25, 0.25, -0.75, 0.75])
-plt.colorbar()
-plt.inferno()
-plt.xlabel('x'); plt.ylabel('y') """
 plt.show() 

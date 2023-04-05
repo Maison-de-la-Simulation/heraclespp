@@ -18,12 +18,16 @@ pdi:
     start: {type: array, subtype: int, size: 3}
     restart_filename_size: int
     restart_filename: { type: array, subtype: char, size: $restart_filename_size }
+    
 
   data: # this describe the data that will be send by each proc
     u:   { type: array, subtype: double, size: ['$ndim', '$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]'] }
     rho: { type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]' ] }
     P:   { type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]' ] }
     E:   { type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]' ] }
+    x:   { type: array, subtype: double, size: '$nx_local_wg[0]+1' }
+    y:   { type: array, subtype: double, size: '$nx_local_wg[1]+1' }
+    z:   { type: array, subtype: double, size: '$nx_local_wg[2]+1' }
 
   plugins:
     mpi:
@@ -37,6 +41,9 @@ pdi:
           rho: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]' ] }
           P:   {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]' ] }
           E:   {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]' ] }
+          x:   {type: array, subtype: double, size: ['$nx_glob_ng[0]+1'] }
+          y:   {type: array, subtype: double, size: ['$nx_glob_ng[1]+1'] }
+          z:   {type: array, subtype: double, size: ['$nx_glob_ng[2]+1'] }
         write:
           iter:
           current_time:
@@ -68,6 +75,27 @@ pdi:
             dataset_selection:
               size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
               start: [ '$start[2]', '$start[1]', '$start[0]']
+          x:
+            memory_selection:
+              size: ['$nx_local_ng[0]+1']
+              start: ['$n_ghost[0]']
+            dataset_selection:
+              size: ['$nx_local_ng[0]+1']
+              start: ['$start[0]']
+          y:
+            memory_selection:
+              size: ['$nx_local_ng[1]+1']
+              start: ['$n_ghost[1]']
+            dataset_selection:
+              size: ['$nx_local_ng[1]+1']
+              start: ['$start[1]']
+          z:
+            memory_selection:
+              size: ['$nx_local_ng[2]+1']
+              start: ['$n_ghost[2]']
+            dataset_selection:
+              size: ['$nx_local_ng[2]+1']
+              start: ['$start[2]']
 
       - file: ${restart_filename}
         on_event: read_file
