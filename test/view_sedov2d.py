@@ -12,17 +12,20 @@ print("********************************")
 filename = sys.argv[1]
 
 with h5py.File(str(filename), 'r') as f :
-    print(f.keys())
+    #print(f.keys())
     rho = f['rho'][0, :, :]
-    rho_x = f['rho'][0, 0, :]
-    rho_y = f['rho'][0, :, 0]
-    P = f['P'][0, :, :]
+    x = f['x'][()]
+    y = f['y'][()]
+    t = f['current_time'][()]
+    iter = f['iter'][()]
+    
+print("Final time =", t, "s")
+print("Iteration number =", iter )
 
-x = np.linspace(-5, 5, len(rho_x))
-y = np.linspace(-5, 5, len(rho_y))
-theta = np.linspace(0, 2*np.pi, len(rho_x))
+theta = np.linspace(0, 2*np.pi, len(x))
 
-t = 0.025
+# Analytical result ------------------------
+
 E0 = 10**5
 rho0 = 1
 alpha = 0.049
@@ -32,12 +35,14 @@ x_choc = r_choc * np.cos(theta)
 y_choc = r_choc * np.sin(theta)
 r = np.sqrt(x_choc**2 + y_choc**2)
 
-plt.figure(figsize=(15, 8))
+# ------------------------------------------
+
+plt.figure(figsize=(15, 5))
 plt.suptitle('Sedov blast wave 2d')
 plt.subplot(121)
 plt.title('Density')
 #plt.plot(x_choc, y_choc, 'o')
-plt.imshow(rho, origin='lower', extent=[-5, 5, -5, 5])
+plt.imshow(rho, origin='lower', extent=[np.min(x), np.max(x), np.min(y), np.max(y)])
 plt.colorbar()
 plt.plasma()
 plt.xlabel('x'); plt.ylabel('y')
