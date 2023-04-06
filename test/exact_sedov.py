@@ -5,9 +5,7 @@
 
 import numpy as np
 
-from init_sedov1d import gamma
-
-def SolutionSedov(n):
+def SolutionSedov(n, gamma):
     n1 = 1_000
     n2 = 1_000
 
@@ -55,7 +53,7 @@ def SolutionSedov(n):
     r[0:len(r2)] = r2
     r[len(r2):len(r1) + len(r2)] = r1
     r[-2] = np.max(r1)
-    r[-1] = np.max(r1) #+ 1_000
+    r[-1] = np.max(r1) + 1_000
 
     d = np.zeros(len(r))
     d[0:len(r2)] = d2
@@ -102,16 +100,26 @@ def SolutionSedov(n):
     sum1 = np.sum(int1)
     sum2 = np.sum(int2)
     sum = sum1 + sum2
-    #print('chi0 =', sum**(-1 / (2 + n)))
+    print('chi0 =', sum**(-1 / (2 + n)))
     chi0 = sum**(- 1 / (2 + n))
     r = r * chi0
     u = u * chi0
     p = p * chi0**2
+    etot=0
+    rr = np.zeros(len(r)+1)
+    for i in range(1,len(rr)-1):
+        rr[i] = (r[i] + r[i-1]) / 2
+    rr[-1] = 2 * (r[-1] -r[-2])
+    
+    for i in range(len(r)):
+        #etot = etot + 4 / 3 * np.pi* (rr[i+1]**3 - rr[i]**3) * (p[i] / (gamma - 1) + 1 / 2 * d[i] * u[i]**2)
+         etot = etot + 2.*(rr[i+1] - rr[i]) * (p[i] / (gamma - 1) + 1 / 2 * d[i] * u[i]**2)
+    print(etot)
     return r, d, u, p
 
-def ExactSedov(rho_0, E_per, t):
+def ExactSedov(rho_0, E_per, t, gamma):
     n = 1 # Cartesian
-    r, rho, u, P = SolutionSedov(n)
+    r, rho, u, P = SolutionSedov(n, gamma)
     r_f = r * (E_per / rho_0)**(1 / (n + 2)) * t**(2 / (n + 2))
     rho_f = rho * rho_0
     u_f = u * (E_per / rho_0)**(1 / (n + 2)) * t**(- n / (n + 2))

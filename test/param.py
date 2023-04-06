@@ -28,7 +28,7 @@ for i in range(Ncell+1):
 # Left
 rho0l = 1
 u0l = 0
-P0l = 1
+P0l = 10
 c0l = np.sqrt(gamma * P0l / rho0l)
 var_int0l = np.array([rho0l, u0l, P0l, c0l])
 

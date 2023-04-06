@@ -33,7 +33,7 @@ tab_rho0, tab_u0, tab_P0 = CI(x_exact, inter, var_int0l, var_int0r)
 tab_e0 = tab_P0 / tab_rho0 / g8
 
 # Solution Exact
-timeout = 0.2
+timeout = 0.05
 rho_exact, u_exact, P_exact, e_exact = ExactShockTube(x_exact, inter, var_int0l, var_int0r, timeout)
 print('Final time shock tube problem = ', timeout, 's')
 
