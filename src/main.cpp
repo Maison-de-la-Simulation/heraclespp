@@ -63,7 +63,7 @@ int main(int argc, char** argv)
     int const max_iter = reader.GetInteger("Output", "max_iter", 10000);
     int const output_frequency = reader.GetInteger("Output", "frequency", 10);
 
-    thermodynamics::PerfectGas const eos(reader.GetReal("PerfectGas", "gamma", 1.4), 1.0);
+    thermodynamics::PerfectGas const eos(reader.GetReal("PerfectGas", "gamma", 5./3), 1.0);
 
     const double gx = reader.GetReal("Gravity", "gx", 0.0);
     const double gy = reader.GetReal("Gravity", "gy", 0.0);

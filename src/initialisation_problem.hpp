@@ -71,7 +71,7 @@ public:
             if((x_d(i) + x_d(i+1)) / 2 <= 0.5)
             {
                 rho(i, j, k) = 1;
-                P(i, j, k) = 1;
+                P(i, j, k) = 10;
                 for (int idim = 0; idim < ndim; ++idim)
                 {
                     u(i, j, k, idim) = 0;
@@ -357,7 +357,8 @@ public:
 
         double gamma = eos.compute_adiabatic_index();
         double E0 = 1E-12;
-        double Eperturb = 1;
+        double Eperturb = 0.5;
+        double dv = grid.dx[0];
 
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
@@ -365,15 +366,14 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            double dv = grid.dx[0];
             rho(i, j, k) = 1;
             for (int idim = 0; idim < ndim; ++idim)
             {
                 u(i, j, k, idim) = 0;
             }
             P(i, j, k) = E0 * (gamma - 1) / dv;
-            P(2, j, k) = Eperturb * (gamma - 1) /  dv;
         });
+        P(2, 0, 0) = Eperturb * (gamma - 1) /  dv;
     }
 };
 
