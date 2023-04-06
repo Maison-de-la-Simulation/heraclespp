@@ -26,6 +26,7 @@
 #include "kronecker.hpp"
 #include "Kokkos_shortcut.hpp"
 #include "io_config.yaml.hpp"
+#include "extrapolation_time.hpp"
 
 using namespace novapp;
 
@@ -68,6 +69,7 @@ int main(int argc, char** argv)
     const double gx = reader.GetReal("Gravity", "gx", 0.0);
     const double gy = reader.GetReal("Gravity", "gy", 0.0);
     const double gz = reader.GetReal("Gravity", "gz", 0.0);
+
     KV_double_1d g_array("g_array", 3);
     Kokkos::parallel_for(1, KOKKOS_LAMBDA([[maybe_unused]] int i)
     {
@@ -105,10 +107,14 @@ int main(int argc, char** argv)
     std::string const reconstruction_type = reader.Get("Hydro", "reconstruction", "VanLeer");
     std::unique_ptr<IFaceReconstruction> face_reconstruction
             = factory_face_reconstruction(reconstruction_type);
+    
+    std::string const gravity_type = reader.Get("Gravity", "type", "Uniform");
+    std::unique_ptr<IExtrapolationReconstruction> time_reconstruction
+            = factory_time_reconstruction(gravity_type, eos, g_array);
 
     std::string const riemann_solver = reader.Get("Hydro", "riemann_solver", "HLL");
     std::unique_ptr<IGodunovScheme> godunov_scheme
-            = factory_godunov_scheme(riemann_solver, eos);
+            = factory_godunov_scheme(riemann_solver, gravity_type, eos, g_array);
 
     KDV_double_3d rho("rho",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Density
     KDV_double_4d u("u",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim); // Speed
@@ -159,7 +165,7 @@ int main(int argc, char** argv)
     conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho.d_view, rhou.d_view, E.d_view, eos);
 
     std::unique_ptr<IHydroReconstruction> reconstruction = std::make_unique<
-            MUSCLHancockHydroReconstruction>(std::move(face_reconstruction), P_rec, u_rec);
+            MUSCLHancockHydroReconstruction>(std::move(face_reconstruction), std::move(time_reconstruction), P_rec, u_rec);
 
     if (output_frequency > 0)
     {
@@ -177,10 +183,10 @@ int main(int argc, char** argv)
         }
 
         reconstruction->execute(grid.range.with_ghosts(1), rho_rec, rhou_rec, E_rec, rho.d_view, u.d_view, P.d_view, 
-                                eos, g_array, dt, grid);
+                                eos, dt, grid);
 
         godunov_scheme->execute(grid.range.no_ghosts(), rho.d_view, rhou.d_view, E.d_view, rho_rec, rhou_rec, E_rec,
-                             rho_new, rhou_new, E_new, g_array, dt, grid);
+                                rho_new, rhou_new, E_new, dt, grid);
 
         BC_update(boundary_construction_array, rho_new, rhou_new, E_new, grid);
 
