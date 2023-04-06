@@ -18,6 +18,7 @@
 #include "grid.hpp"
 #include "riemann_solver.hpp"
 #include "Kokkos_shortcut.hpp"
+#include "gravity.hpp"
 
 namespace novapp
 {
@@ -48,13 +49,12 @@ public:
             KV_double_3d rho_new,
             KV_double_4d rhou_new,
             KV_double_3d E_new,
-            KV_cdouble_1d g,
             double dt,
             Grid const& grid) const
             = 0;
 };
 
-template <class RiemannSolver>
+template <class RiemannSolver, class Gravity>
 class RiemannBasedGodunovScheme : public IGodunovScheme
 {
     static_assert(
@@ -67,17 +67,22 @@ class RiemannBasedGodunovScheme : public IGodunovScheme
                     thermodynamics::PerfectGas>,
             "Incompatible Riemann solver.");
 
+private :
     RiemannSolver m_riemann_solver;
+
+    Gravity m_gravity;
 
     thermodynamics::PerfectGas m_eos;
 public:
     RiemannBasedGodunovScheme(
             RiemannSolver const& riemann_solver,
+            Gravity const& gravity,
             thermodynamics::PerfectGas const& eos)
         : m_riemann_solver(riemann_solver)
+        , m_gravity(gravity)
         , m_eos(eos)
-    {
-    }
+   {
+   } 
 
     void execute(
             Range const& range,
@@ -90,7 +95,6 @@ public:
             KV_double_3d const rho_new,
             KV_double_4d const rhou_new,
             KV_double_3d const E_new,
-            KV_cdouble_1d const g,
             double dt,
             Grid const& grid) const final
     {
@@ -98,7 +102,8 @@ public:
         Kokkos::parallel_for(
         "RiemannBasedGodunovScheme",
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-        KOKKOS_CLASS_LAMBDA(int i, int j, int k) {
+        KOKKOS_CLASS_LAMBDA(int i, int j, int k) 
+        {
             rho_new(i, j, k) = rho(i, j, k);
             E_new(i, j, k) = E(i, j, k);
             for (int idim = 0; idim < ndim; ++idim)
@@ -151,11 +156,11 @@ public:
                 }
                 E_new(i, j, k) += dtodx * (FluxL.energy - FluxR.energy);
 
-                // gravity
+                // Gravity
                 for (int idr = 0; idr < ndim; ++idr)
                 {
-                    rhou_new(i, j, k, idr) += dt * g(idr) * rho(i, j, k);
-                    E_new(i, j, k) += dt * g(idr) * rhou(i, j, k, idr);
+                    rhou_new(i, j, k, idr) += dt * m_gravity(i, j, k, idr, grid) * rho(i, j, k);
+                    E_new(i, j, k) += dt * m_gravity(i, j, k, idr, grid) * rhou(i, j, k, idr);
                 }
             }
         });
@@ -164,11 +169,14 @@ public:
 
 inline std::unique_ptr<IGodunovScheme> factory_godunov_scheme(
         std::string const& riemann_solver,
-        thermodynamics::PerfectGas const& eos)
+        std::string const& gravity,
+        thermodynamics::PerfectGas const& eos,
+        KV_double_1d &g)
 {
-    if (riemann_solver == "HLL")
+    if (riemann_solver == "HLL" && gravity =="Uniform")
     {
-        return std::make_unique<RiemannBasedGodunovScheme<HLL>>(HLL(), eos);
+
+        return std::make_unique<RiemannBasedGodunovScheme<HLL, UniformGravity>>(HLL(), UniformGravity(g), eos);
     }
     throw std::runtime_error("Invalid riemann solver: " + riemann_solver + ".");
 }

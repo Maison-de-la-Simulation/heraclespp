@@ -6,8 +6,8 @@
 
 #include "Kokkos_shortcut.hpp"
 #include "array_conversion.hpp"
-#include "euler_equations.hpp"
 #include "face_reconstruction.hpp"
+#include "extrapolation_time.hpp"
 #include "ndim.hpp"
 #include "range.hpp"
 #include "grid.hpp"
@@ -39,7 +39,6 @@ public:
             KV_cdouble_4d u,
             KV_cdouble_3d P,
             thermodynamics::PerfectGas const& eos,
-            KV_cdouble_1d g,
             double const dt,
             Grid const& grid) const
             = 0;
@@ -50,6 +49,8 @@ class MUSCLHancockHydroReconstruction : public IHydroReconstruction
     // WARNING, needs to be shared to be captured by KOKKOS_CLASS_LAMBDA
     std::shared_ptr<IFaceReconstruction> m_face_reconstruction;
 
+    std::shared_ptr<IExtrapolationReconstruction> m_hancock_reconstruction;
+
     KV_double_5d m_P_rec;
 
     KV_double_6d m_u_rec;
@@ -57,9 +58,11 @@ class MUSCLHancockHydroReconstruction : public IHydroReconstruction
 public:
     MUSCLHancockHydroReconstruction(
             std::unique_ptr<IFaceReconstruction> face_reconstruction,
+            std::unique_ptr<IExtrapolationReconstruction> hancock_reconstruction,
             KV_double_5d P_rec,
             KV_double_6d u_rec)
         : m_face_reconstruction(std::move(face_reconstruction))
+        , m_hancock_reconstruction(std::move(hancock_reconstruction))
         , m_P_rec(P_rec)
         , m_u_rec(u_rec)
     {
@@ -74,7 +77,6 @@ public:
             KV_cdouble_4d const u,
             KV_cdouble_3d const P,
             thermodynamics::PerfectGas const& eos,
-            KV_cdouble_1d g,
             double const dt,
             Grid const& grid) const final
     {
@@ -104,65 +106,7 @@ public:
             }
         }
 
-        auto const [begin, end] = cell_range(range);
-
-        //intermediate array
-        KV_double_5d rho_rec_old = Kokkos::subview(rho_rec, ALL, ALL, ALL, ALL, ALL);
-        KV_double_6d rhou_rec_old = Kokkos::subview(rhou_rec, ALL, ALL, ALL, ALL,ALL, ALL);
-
-        Kokkos::parallel_for(
-        "HancockExtrapolation",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-        KOKKOS_CLASS_LAMBDA(int i, int j, int k) 
-        {
-            for (int idim = 0; idim < ndim; ++idim)
-            {
-                EulerPrim minus_one; // Left, front, bottom
-                minus_one.density = rho_rec(i, j, k, 0, idim);
-                for (int idr = 0; idr < ndim; ++idr)
-                {
-                    minus_one.velocity[idr] = m_u_rec(i, j, k, 0, idim, idr);
-                }
-                minus_one.pressure = m_P_rec(i, j, k, 0, idim);
-                EulerFlux flux_minus_one = compute_flux(minus_one, idim, eos);
-
-                EulerPrim plus_one; // Right, back, top
-                plus_one.density = rho_rec(i, j, k, 1, idim);
-                for (int idr = 0; idr < ndim; ++idr)
-                {
-                    plus_one.velocity[idr] = m_u_rec(i, j, k, 1, idim, idr);
-                }
-                plus_one.pressure = m_P_rec(i, j, k, 1, idim);
-                EulerFlux flux_plus_one = compute_flux(plus_one, idim, eos);
-
-                double dto2dx = dt / (2 * grid.dx[idim]);
-
-                for (int ipos = 0; ipos < ndim; ++ipos)
-                {
-                    rho_rec(i, j, k, 0, ipos) += dto2dx * (flux_minus_one.density - flux_plus_one.density);
-                    rho_rec(i, j, k, 1, ipos) += dto2dx * (flux_minus_one.density - flux_plus_one.density);
-                    for (int idr = 0; idr < ndim; ++idr)
-                    {
-                        rhou_rec(i, j, k, 0, ipos, idr) += dto2dx * (flux_minus_one.momentum[idr] - flux_plus_one.momentum[idr]);
-                        rhou_rec(i, j, k, 1, ipos, idr) += dto2dx * (flux_minus_one.momentum[idr] - flux_plus_one.momentum[idr]);
-                    }
-                    E_rec(i, j, k, 0, ipos) += dto2dx * (flux_minus_one.energy - flux_plus_one.energy);
-                    E_rec(i, j, k, 1, ipos) += dto2dx * (flux_minus_one.energy - flux_plus_one.energy);
-                }
-
-                // gravity
-                for (int ipos = 0; ipos < ndim; ++ipos)
-                {
-                    for (int idr = 0; idr < ndim; ++idr)
-                    {
-                        rhou_rec(i, j, k, 0, ipos, idr) += dt * g(idr) * rho_rec_old(i, j, k, 0, ipos);
-                        rhou_rec(i, j, k, 1, ipos, idr) += dt * g(idr) * rho_rec_old(i, j, k, 1, ipos);
-                        E_rec(i, j, k, 0, ipos) += dt * g(idr) * rhou_rec_old(i, j, k, 0, ipos, idr);
-                        E_rec(i, j, k, 1, ipos) += dt * g(idr) * rhou_rec_old(i, j, k, 1, ipos, idr);
-                    }
-                }
-            }
-        });
+        m_hancock_reconstruction->execute(range, rho_rec, rhou_rec, E_rec, m_u_rec, m_P_rec, dt, grid);
     }
 };
 

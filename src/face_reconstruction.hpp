@@ -115,7 +115,7 @@ inline std::unique_ptr<IFaceReconstruction> factory_face_reconstruction(
         return std::make_unique<LimitedLinearReconstruction<VanAlbada>>(VanAlbada());
     }
 
-    throw std::runtime_error("Unknown reconstruction algorithm: " + label + ".");
+    throw std::runtime_error("Unknown face reconstruction algorithm: " + label + ".");
 }
 
 } // namespace novapp
