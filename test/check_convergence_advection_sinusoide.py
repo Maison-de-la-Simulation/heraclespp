@@ -5,7 +5,7 @@ import glob
 from scipy import stats
 import sys
 
-from param import *
+L = 1
 
 print("********************************")
 print(" Convergence advection sinusoide")

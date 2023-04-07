@@ -3,7 +3,15 @@
 
 import numpy as np
 
-from param import *
+gamma = 1.4
+z = (gamma - 1) / (2 * gamma)
+g2 = (gamma + 1) / (2 * gamma)
+g3 = 2 * gamma / (gamma - 1)
+g4 = 2 / (gamma - 1)
+g5 = 2 / (gamma + 1)
+g6 = (gamma - 1) / (gamma + 1)
+g7 = (gamma - 1) / 2
+g8 = (gamma - 1)
 
 def CI(x, inter, tabl, tabr) :
     """Initialisation for the shock tube problem

@@ -6,7 +6,7 @@ import h5py
 from argparse import ArgumentParser
 from pathlib import Path
 
-from param import *
+from init_shock_tube import inter, var0l, var0r
 from exact_shockTube import CI, ExactShockTube
 
 parser = ArgumentParser(description="Plot shock tube.")
@@ -20,24 +20,10 @@ parser.add_argument('-o', '--output',
                     help='Output file to generate')
 args = parser.parse_args()
 
-# Condition for pressure > 0
-if (g4 * (c0l + c0r)) < (u0r - u0l) :
-    print('Il faut inclure le vide')
-
 print("********************************")
 print("Shock tube problem")
 print("********************************")
 
-# Initialisation
-tab_rho0, tab_u0, tab_P0 = CI(x_exact, inter, var_int0l, var_int0r)
-tab_e0 = tab_P0 / tab_rho0 / g8
-
-# Solution Exact
-timeout = 0.05
-rho_exact, u_exact, P_exact, e_exact = ExactShockTube(x_exact, inter, var_int0l, var_int0r, timeout)
-print('Final time shock tube problem = ', timeout, 's')
-
-# Solution solver
 with h5py.File(args.filename, 'r') as f :
     print(f.keys())
     rho = f['rho'][0, 0, :]
@@ -46,6 +32,9 @@ with h5py.File(args.filename, 'r') as f :
     x = f['x'][()]
     t = f['current_time'][()]
     iter = f['iter'][()]
+
+L = 1 #read in file
+gamma = 1.4
 
 e = P / rho / (gamma - 1)
 
@@ -58,12 +47,25 @@ for i in range(len(rho)):
 print("Final time =", t, "s")
 print("Iteration number =", iter )
 
+# Initialisation ------------------------
+Ncell = 1_000 
+dx_exact = L / Ncell
+x_exact = np.zeros(Ncell+1)
+for i in range(len(x_exact)):
+    x_exact[i] = i * dx_exact
+
+rho0, u0, P0 = CI(x_exact, inter, var0l, var0r)
+e0 = P0 / rho0 / (gamma - 1)
+
+# Analytical result ------------------------
+rho_exact, u_exact, P_exact, e_exact = ExactShockTube(x_exact, inter, var0l, var0r, t)
+
 # ------------------------------------------
 
 plt.figure(figsize=(10,8))
 plt.suptitle('Shock tube')
 plt.subplot(221)
-plt.plot(x_exact, tab_rho0, '--', label='t=0')
+plt.plot(x_exact, rho0, '--', label='t=0')
 plt.plot(x_exact,rho_exact, label='Exact')
 plt.plot(xc, rho, label='Solver')
 plt.ylabel('Densité'); plt.xlabel('Position')
@@ -71,7 +73,7 @@ plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
 plt.legend()
 plt.subplot(222)
-plt.plot(x_exact, tab_u0, '--', label='t=0')
+plt.plot(x_exact, u0, '--', label='t=0')
 plt.plot(x_exact, u_exact, label='Exact')
 plt.plot(xc, u, label='Solver')
 plt.ylabel('Velocity'); plt.xlabel('Position')
@@ -79,7 +81,7 @@ plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
 plt.legend()
 plt.subplot(223)
-plt.plot(x_exact, tab_P0,'--', label='t=0')
+plt.plot(x_exact, P0,'--', label='t=0')
 plt.plot(x_exact, P_exact, label='Exact')
 plt.plot(xc, P, label='Solver')
 plt.ylabel('Pressure'); plt.xlabel('Position')
@@ -87,7 +89,7 @@ plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
 plt.legend()
 plt.subplot(224)
-plt.plot(x_exact, tab_e0,'--', label='t=0')
+plt.plot(x_exact, e0,'--', label='t=0')
 plt.plot(x_exact, e_exact, label='Exact')
 plt.plot(xc, e, label='Solver')
 plt.ylabel('Internal energy'); plt.xlabel('Position')

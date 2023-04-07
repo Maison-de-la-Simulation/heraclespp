@@ -71,7 +71,7 @@ public:
             if((x_d(i) + x_d(i+1)) / 2 <= 0.5)
             {
                 rho(i, j, k) = 1;
-                P(i, j, k) = 10;
+                P(i, j, k) = 1;
                 for (int idim = 0; idim < ndim; ++idim)
                 {
                     u(i, j, k, idim) = 0;
@@ -324,7 +324,7 @@ public:
             {
                 u(i, j, k, idim) = 1;
             }
-            if (r < 0.025)
+            if (r <0.025)
             {
                 P(i, j, k) = Eperturb * (gamma - 1) / dv;
             }
