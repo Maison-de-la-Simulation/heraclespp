@@ -94,19 +94,19 @@ void Grid::MPI_Decomp()
     }
     
     std::array<int, 3> remain_dims= {false, false, false};
-    MPI_Comm comm_cart_1d[3];
     std::array<int, 3> cmin{0, 0, 0};
     std::array<int, 3> cmax{0, 0, 0};
     for(int i=0; i<3; i++)
     {
         remain_dims[i]=true;
-        MPI_Cart_sub(comm_cart, remain_dims.data(), &comm_cart_1d[i]);
-        MPI_Exscan(&Nx_local_ng[i], &cmin[i], 1, MPI_INT, MPI_SUM, comm_cart_1d[i]);
+        MPI_Comm comm_cart_1d;
+        MPI_Cart_sub(comm_cart, remain_dims.data(), &comm_cart_1d);
+        MPI_Exscan(&Nx_local_ng[i], &cmin[i], 1, MPI_INT, MPI_SUM, comm_cart_1d);
+        MPI_Comm_free(&comm_cart_1d);
         cmax[i] = cmin[i] + Nx_local_ng[i];
         
         remain_dims[i]=false;
     }
-    for (int i=0; i<3; i++) MPI_Comm_free(&comm_cart_1d[i]);
 
     range = Range(cmin, cmax, Ng);
     
