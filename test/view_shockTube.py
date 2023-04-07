@@ -6,7 +6,6 @@ import h5py
 from argparse import ArgumentParser
 from pathlib import Path
 
-from init_shock_tube import inter, var0l, var0r
 from exact_shockTube import CI, ExactShockTube
 
 parser = ArgumentParser(description="Plot shock tube.")
@@ -32,9 +31,8 @@ with h5py.File(args.filename, 'r') as f :
     x = f['x'][()]
     t = f['current_time'][()]
     iter = f['iter'][()]
-
-L = 1 #read in file
-gamma = 1.4
+    gamma = f['gamma'][()]
+    L = f['L'][()][0]
 
 e = P / rho / (gamma - 1)
 
@@ -48,6 +46,21 @@ print("Final time =", t, "s")
 print("Iteration number =", iter )
 
 # Initialisation ------------------------
+inter = 0.5 # Interface position
+# Left
+rho0l = 1
+u0l = 0
+P0l = 1
+c0l = np.sqrt(gamma * P0l / rho0l)
+var0l = np.array([rho0l, u0l, P0l, c0l])
+
+# Right
+rho0r = 0.125
+u0r = 0
+P0r = 0.1
+c0r = np.sqrt(gamma * P0r / rho0r)
+var0r = np.array([rho0r, u0r, P0r, c0r])
+
 Ncell = 1_000 
 dx_exact = L / Ncell
 x_exact = np.zeros(Ncell+1)
@@ -58,7 +71,8 @@ rho0, u0, P0 = CI(x_exact, inter, var0l, var0r)
 e0 = P0 / rho0 / (gamma - 1)
 
 # Analytical result ------------------------
-rho_exact, u_exact, P_exact, e_exact = ExactShockTube(x_exact, inter, var0l, var0r, t)
+
+rho_exact, u_exact, P_exact, e_exact = ExactShockTube(x_exact, inter, var0l, var0r, t, gamma)
 
 # ------------------------------------------
 

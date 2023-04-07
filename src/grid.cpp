@@ -31,13 +31,13 @@ Grid::Grid(INIReader const& reader)
     zmin = reader.GetReal("Grid", "zmin", 0.0);
     zmax = reader.GetReal("Grid", "zmax", 1.0);
 
-    Lx = xmax - xmin;
-    Ly = ymax - ymin;
-    Lz = zmax - zmin;
+    L[0] = xmax - xmin;
+    L[1] = ymax - ymin;
+    L[2] = zmax - zmin;
 
-    dx[0] = Lx / Nx_glob_ng[0];
-    dx[1] = Ly / Nx_glob_ng[1];
-    dx[2] = Lz / Nx_glob_ng[2];
+    dx[0] = L[0] / Nx_glob_ng[0];
+    dx[1] = L[1] / Nx_glob_ng[1];
+    dx[2] = L[2] / Nx_glob_ng[2];
 
     Ncpu_x[0] = reader.GetInteger("Grid", "Ncpu_x", 0); // number of procs, default 0=>defined by MPI
     Ncpu_x[1] = reader.GetInteger("Grid", "Ncpu_y", 0); // number of procs

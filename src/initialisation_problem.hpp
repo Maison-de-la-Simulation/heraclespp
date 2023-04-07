@@ -278,7 +278,7 @@ public:
             }
             P(i, j, k) = P0 + rho(i, j, k) * gval * y;
             u(i, j, k, 0) = 0;
-            u(i, j, k, 1) = (A/4) * (1+Kokkos::cos(2*Kokkos::numbers::pi*x/grid.Lx)) * (1+Kokkos::cos(2*Kokkos::numbers::pi*y/grid.Ly));
+            u(i, j, k, 1) = (A/4) * (1+Kokkos::cos(2*Kokkos::numbers::pi*x/grid.L[0])) * (1+Kokkos::cos(2*Kokkos::numbers::pi*y/grid.L[1]));
          });
     }
 };

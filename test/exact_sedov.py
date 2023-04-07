@@ -100,21 +100,11 @@ def SolutionSedov(n, gamma):
     sum1 = np.sum(int1)
     sum2 = np.sum(int2)
     sum = sum1 + sum2
-    print('chi0 =', sum**(-1 / (2 + n)))
+    #print('chi0 =', sum**(-1 / (2 + n)))
     chi0 = sum**(- 1 / (2 + n))
     r = r * chi0
     u = u * chi0
     p = p * chi0**2
-    etot=0
-    rr = np.zeros(len(r)+1)
-    for i in range(1,len(rr)-1):
-        rr[i] = (r[i] + r[i-1]) / 2
-    rr[-1] = 2 * (r[-1] -r[-2])
-    
-    for i in range(len(r)):
-        #etot = etot + 4 / 3 * np.pi* (rr[i+1]**3 - rr[i]**3) * (p[i] / (gamma - 1) + 1 / 2 * d[i] * u[i]**2)
-         etot = etot + 2.*(rr[i+1] - rr[i]) * (p[i] / (gamma - 1) + 1 / 2 * d[i] * u[i]**2)
-    print(etot)
     return r, d, u, p
 
 def ExactSedov(rho_0, E_per, t, gamma):
