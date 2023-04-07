@@ -31,7 +31,7 @@ with h5py.File(args.filename, 'r') as f :
     rho = f['rho'][0, 0, :]
     u = f['u'][0, 0, 0, :]
     P = f['P'][0, 0, :]
-    #x = f['x'][()]
+    x = f['x'][()]
     t = f['current_time'][()]
     iter = f['iter'][()]
 
@@ -43,8 +43,7 @@ etot = 1 / 2 * rho * u**2 + P / (gamma - 1)
 dx = L / len(rho)
 xc = np.zeros(len(rho))
 for i in range(len(rho)):
-    #xc[i] = x[i] + dx / 2
-    xc[i] = i * dx + dx / 2
+    xc[i] = x[i] + dx / 2
 
 # Analytical result ------------------------
 
@@ -60,7 +59,7 @@ print("Iteration number =", iter )
 
 plt.figure(figsize=(15,4))
 plt.suptitle('Sedov blast wave 1d')
-plt.subplot(221)
+plt.subplot(131)
 plt.plot(r,rho_exact, label='Exact')
 plt.plot(xc, rho, label='Solver')
 plt.ylabel('Density'); plt.xlabel('Position')
@@ -68,7 +67,7 @@ plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.xlim(0,1)
 plt.grid()
 plt.legend()
-plt.subplot(222)
+plt.subplot(132)
 plt.plot(r, u_exact, label='Exact')
 plt.plot(xc, u, label='Solver')
 plt.ylabel('Velocity'); plt.xlabel('Position')
@@ -76,11 +75,9 @@ plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.xlim(0,1)
 plt.grid()
 plt.legend()
-plt.subplot(223)
+plt.subplot(133)
 plt.plot(r, P_exact, label='Exact')
 plt.plot(xc, P, label='Solver')
-#plt.plot(r, E2, label='Exact')
-#plt.plot(x, et, label='Solver')
 plt.ylabel('Pressure'); plt.xlabel('Position')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.xlim(0,1)
