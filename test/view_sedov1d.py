@@ -34,9 +34,8 @@ with h5py.File(args.filename, 'r') as f :
     x = f['x'][()]
     t = f['current_time'][()]
     iter = f['iter'][()]
-
-gamma = 1.4
-L = 1
+    gamma = f['gamma'][()] 
+    L = f['L'][()][0]
 
 etot = 1 / 2 * rho * u**2 + P / (gamma - 1)
 

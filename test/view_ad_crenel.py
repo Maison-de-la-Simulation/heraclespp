@@ -17,8 +17,7 @@ with h5py.File(str(filename), 'r') as f :
     x = f['x'][()]
     t = f['current_time'][()]
     iter = f['iter'][()]
-
-L = 1
+    L = f['L'][()][0]
 
 dx = L / len(rho)
 

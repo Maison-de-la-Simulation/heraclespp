@@ -3,16 +3,6 @@
 
 import numpy as np
 
-gamma = 1.4
-z = (gamma - 1) / (2 * gamma)
-g2 = (gamma + 1) / (2 * gamma)
-g3 = 2 * gamma / (gamma - 1)
-g4 = 2 / (gamma - 1)
-g5 = 2 / (gamma + 1)
-g6 = (gamma - 1) / (gamma + 1)
-g7 = (gamma - 1) / 2
-g8 = (gamma - 1)
-
 def CI(x, inter, tabl, tabr) :
     """Initialisation for the shock tube problem
     input :
@@ -43,7 +33,7 @@ def CI(x, inter, tabl, tabr) :
             P0[i] = Pr
     return rho0, u0, P0
 
-def StarPU(tabl, tabr):
+def StarPU(tabl, tabr, gamma):
     """ Pressure and speed in he star region
     inpout :
     tabl : array(4) : density, speed, pressure and speed sound left
@@ -56,12 +46,12 @@ def StarPU(tabl, tabr):
     rhor, ur, Pr, cr = tabr
     tolpre = 1e-6 # Variation threshold
     nriter = 20
-    P_start = GuessP(tabl, tabr) # initale pressure
+    P_start = GuessP(tabl, tabr, gamma) # initale pressure
     P_old = P_start 
     u_diff = ur - ul
     for i in range(nriter):
-        fr, frd = Prefun(P_old, Pr, rhor, cr)
-        fl, fld = Prefun(P_old, Pl, rhol, cl)
+        fr, frd = Prefun(P_old, Pr, rhor, cr, gamma)
+        fl, fld = Prefun(P_old, Pl, rhol, cl, gamma)
         P_star = P_old - (fl + fr + u_diff) / (fld + frd)
         change =  2 * (P_star - P_old) / (P_star + P_old)
         if (change < tolpre):
@@ -72,7 +62,7 @@ def StarPU(tabl, tabr):
     u_star = 0.5 * (ul + ur + fr - fl)
     return u_star, P_star
 
-def GuessP(tabl, tabr):
+def GuessP(tabl, tabr, gamma):
     """ Define an intelligent initial pressure in the star region
     input :
     tabl : array(4) : (density, speed, pressure and speed sound) left
@@ -80,6 +70,11 @@ def GuessP(tabl, tabr):
     ouput :
     P_star : float : pressure in the star region
     """
+    z = (gamma - 1) / (2 * gamma)
+    g4 = 2 / (gamma - 1)
+    g5 = 2 / (gamma + 1)
+    g6 = (gamma - 1) / (gamma + 1)
+    g7 = (gamma - 1) / 2
     rhol, ul, Pl, cl = tabl
     rhor, ur, Pr, cr = tabr
     quser = 2
@@ -105,7 +100,7 @@ def GuessP(tabl, tabr):
             P_star = (gl * Pl + gr * Pr - (ur - ul)) / (gl + gr)
     return P_star
 
-def Prefun(P, Pk, rhok, ck):
+def Prefun(P, Pk, rhok, ck, gamma):
     """Evaluate the pressure fuction
     input :
     P :float :  input estimate pressure
@@ -117,6 +112,11 @@ def Prefun(P, Pk, rhok, ck):
     fk :float : pressure function left or right
     fd :float : presure funtion derivate
     """
+    z = (gamma - 1) / (2 * gamma)
+    g2 = (gamma + 1) / (2 * gamma)
+    g4 = 2 / (gamma - 1)
+    g5 = 2 / (gamma + 1)
+    g6 = (gamma - 1) / (gamma + 1)
     if (P < Pk) : # Rarefaction wave
         P_rat = P / Pk
         fk = g4 * ck * (P_rat**z -1)
@@ -129,7 +129,7 @@ def Prefun(P, Pk, rhok, ck):
         fd =  (1 - 0.5 * (P - Pk) / (Bk + P)) * qrt
     return fk, fd
 
-def Sample(P_star, u_star, S, tabl, tabr):
+def Sample(P_star, u_star, S, tabl, tabr, gamma):
     """Find solution between the wave
     input :
     P_star :float : pressure in the star region
@@ -142,9 +142,16 @@ def Sample(P_star, u_star, S, tabl, tabr):
     u : float : speed
     P : float : pressure
     """
+    z = (gamma - 1) / (2 * gamma)
+    g2 = (gamma + 1) / (2 * gamma)
+    g3 = 2 * gamma / (gamma - 1)
+    g4 = 2 / (gamma - 1)
+    g5 = 2 / (gamma + 1)
+    g6 = (gamma - 1) / (gamma + 1)
+    g7 = (gamma - 1) / 2
+
     rhol, ul, Pl, cl = tabl
     rhor, ur, Pr, cr = tabr
-
     if (S < u_star) : # Left of the discontinuity
         if (P_star <= Pl) : # Rearefaction wave
             Shl = ul - cl
@@ -207,7 +214,7 @@ def Sample(P_star, u_star, S, tabl, tabr):
                     P = Pr * (aide2 / cr)**g3
     return rho, u, P
 
-def ExactShockTube(x, inter, var0L, var0R, t):
+def ExactShockTube(x, inter, var0L, var0R, t, gamma):
     """Exact solution depends on t
     input :
     x : array : position
@@ -224,9 +231,9 @@ def ExactShockTube(x, inter, var0L, var0R, t):
     rho = np.zeros(len(x))
     u = np.zeros(len(x))
     P = np.zeros(len(x))
-    u_star, P_star = StarPU(var0L, var0R)
+    u_star, P_star = StarPU(var0L, var0R, gamma)
     for i in range(len(x)):
         S = (x[i] -  inter) / t
-        rho[i], u[i], P[i] = Sample(P_star, u_star, S, var0L, var0R)
-    e = P / (rho * g8)
+        rho[i], u[i], P[i] = Sample(P_star, u_star, S, var0L, var0R, gamma)
+    e = P / (rho * (gamma - 1))
     return rho, u , P, e

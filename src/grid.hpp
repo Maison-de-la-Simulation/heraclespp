@@ -58,9 +58,7 @@ public :
     double zmin;
     double zmax;
 
-    double Lx;
-    double Ly;
-    double Lz;
+    Kokkos::Array<double, 3> L;
 
     Kokkos::Array<double, 3> dx;
 
