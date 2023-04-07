@@ -18,6 +18,7 @@ pdi:
     start: {type: array, subtype: int, size: 3}
     restart_filename_size: int
     restart_filename: { type: array, subtype: char, size: $restart_filename_size }
+    grid_communicator: MPI_Comm
     
 
   data: # this describe the data that will be send by each proc
@@ -34,7 +35,7 @@ pdi:
     decl_hdf5:
       - file: test_${iter:08}.h5
         collision_policy: write_into
-        communicator: '$MPI_COMM_WORLD'
+        communicator: '${grid_communicator}'
         on_event: write_file
         datasets: # this is the global data size (data in the final h5 fil)
           u:   {type: array, subtype: double, size: ['$ndim', '$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
@@ -99,7 +100,7 @@ pdi:
 
       - file: ${restart_filename}
         on_event: read_file
-        communicator: '${MPI_COMM_WORLD}'
+        communicator: '${grid_communicator}'
         read:
           iter:
           current_time:

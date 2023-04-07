@@ -23,6 +23,7 @@ void write_pdi_init(int max_iter, int frequency, Grid const& grid)
                     "nx_local_ng", grid.Nx_local_ng.data(), PDI_OUT,
                     "nx_local_wg", grid.Nx_local_wg.data(), PDI_OUT,
                     "start", grid.range.Corner_min.data(), PDI_OUT,
+                    "grid_communicator", &grid.comm_cart, PDI_OUT,
                     NULL);
 }
 

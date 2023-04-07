@@ -68,10 +68,7 @@ Ncpu_x  : Number of cpu along each direction, output
 */
 void Grid::MPI_Decomp() 
 {
-    MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
-    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
-
-    Ncpu = mpi_size;
+    MPI_Comm_size(MPI_COMM_WORLD, &Ncpu);
 
     MPI_Dims_create(Ncpu, Ndim, Ncpu_x.data());
     for(int n=Ndim; n<3; n++)
@@ -80,7 +77,9 @@ void Grid::MPI_Decomp()
     }
     std::array<int, 3> periodic = {1,1,1};
 
-    MPI_Cart_create(MPI_COMM_WORLD, 3, Ncpu_x.data(), periodic.data(), 0, &comm_cart);
+    MPI_Cart_create(MPI_COMM_WORLD, 3, Ncpu_x.data(), periodic.data(), 1, &comm_cart);
+    MPI_Comm_size(comm_cart, &mpi_size);
+    MPI_Comm_rank(comm_cart, &mpi_rank);
     MPI_Cart_coords(comm_cart, mpi_rank, 3, mpi_rank_cart.data());
 
     for(int i=0; i<3; i++)
