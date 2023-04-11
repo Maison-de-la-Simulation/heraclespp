@@ -170,7 +170,7 @@ int main(int argc, char** argv)
 
     if (output_frequency > 0)
     {
-        write_pdi(iter, t, eos.compute_adiabatic_index(), grid.L, rho, u, P, E, grid.x, grid.y, grid.z);
+        write_pdi(iter, t, eos.compute_adiabatic_index(), rho, u, P, E, grid.x, grid.y, grid.z);
     }
 
     while (!should_exit && t < timeout && iter < max_iter)
@@ -207,7 +207,7 @@ int main(int argc, char** argv)
 
         if(make_output)
         {
-            write_pdi(iter, t, eos.compute_adiabatic_index(), grid.L, rho, u, P, E, grid.x, grid.y, grid.z);
+            write_pdi(iter, t, eos.compute_adiabatic_index(), rho, u, P, E, grid.x, grid.y, grid.z);
         }
     }
 

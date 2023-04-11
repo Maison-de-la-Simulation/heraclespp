@@ -32,7 +32,8 @@ with h5py.File(args.filename, 'r') as f :
     t = f['current_time'][()]
     iter = f['iter'][()]
     gamma = f['gamma'][()]
-    L = f['L'][()][0]
+
+L = np.max(x) - np.min(x)
 
 e = P / rho / (gamma - 1)
 
