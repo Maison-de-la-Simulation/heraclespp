@@ -8,7 +8,6 @@ pdi:
     frequency: int
     iter: int
     gamma: double
-    L: {type: array, subtype: double, size: 3}
     time_out: double
     current_time: double
     mpi_rank: int
@@ -40,7 +39,6 @@ pdi:
         communicator: '${grid_communicator}'
         on_event: write_file
         datasets: # this is the global data size (data in the final h5 fil)
-          L:   {type: array, subtype: double, size: [3] }
           u:   {type: array, subtype: double, size: ['$ndim', '$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
           rho: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]' ] }
           P:   {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]' ] }
@@ -52,13 +50,6 @@ pdi:
           iter:
           current_time:
           gamma:
-          L:
-            memory_selection:
-              size: [3]
-              start: [0]
-            dataset_selection:
-              size: [3]
-              start: [0]
           u:
             memory_selection:
               size: ['$ndim', '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
