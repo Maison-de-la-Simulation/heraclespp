@@ -27,7 +27,7 @@ u2d = np.sqrt(u_x**2 + u_y**2)
 
 plt.figure(figsize=(15, 8))
 plt.suptitle('Gresho Vortex')
-plt.title('Speed')
+plt.title(f'Speed t = {t:1f} s')
 plt.imshow(u2d, origin='lower', extent=[-1, 1, -1, 1])
 plt.colorbar()
 plt.plasma()

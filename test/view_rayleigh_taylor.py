@@ -26,7 +26,7 @@ print("Iteration number =", iter )
 
 plt.figure(figsize=(10,8))
 plt.suptitle('Rayleigh Taylor instability')
-plt.title('Density')
+plt.title(f'Density t = {t:1f} s')
 plt.imshow(rho, origin='lower', extent=[np.min(x), np.max(x), np.min(y), np.max(y)])
 plt.colorbar()
 plt.inferno()
