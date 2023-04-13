@@ -78,7 +78,7 @@ rho_exact, u_exact, P_exact, e_exact = ExactShockTube(x_exact, inter, var0l, var
 # ------------------------------------------
 
 plt.figure(figsize=(10,8))
-plt.suptitle('Shock tube')
+plt.suptitle(f'Shock tube t = {t:1f} s')
 plt.subplot(221)
 plt.plot(x_exact, rho0, '--', label='t=0')
 plt.plot(x_exact,rho_exact, label='Exact')

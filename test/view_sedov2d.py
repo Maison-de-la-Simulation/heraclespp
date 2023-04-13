@@ -36,13 +36,12 @@ print("Iteration number =", iter )
 
 # ------------------------------------------
 
-plt.figure(figsize=(15, 5))
-plt.suptitle('Sedov blast wave 2d')
+plt.figure(figsize=(10, 5))
+plt.suptitle(f'Sedov blast wave 2d t = {t:1f} s')
 plt.title('Density')
 #plt.plot(x_choc, y_choc, label='Theorical radius')
 plt.imshow(rho, origin='lower', extent=[np.min(x), np.max(x), np.min(y), np.max(y)])
 plt.colorbar()
 plt.plasma()
-plt.legend()
 plt.xlabel('x'); plt.ylabel('y')
 plt.show()
