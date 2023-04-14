@@ -77,7 +77,6 @@ int main(int argc, char** argv)
         g_array(1) = gy;
         g_array(2) = gz;
     });
-    std::printf("%f %f\n", grid.L[0], eos.compute_adiabatic_index());
 
     write_pdi_init(max_iter, output_frequency, grid);
 
@@ -184,7 +183,7 @@ int main(int argc, char** argv)
         }
 
         reconstruction->execute(grid.range.with_ghosts(1), rho_rec, rhou_rec, E_rec, rho.d_view, u.d_view, P.d_view, 
-                                eos, dt, grid);
+                                eos, dt/2, grid);
 
         godunov_scheme->execute(grid.range.no_ghosts(), rho.d_view, rhou.d_view, E.d_view, rho_rec, rhou_rec, E_rec,
                                 rho_new, rhou_new, E_new, dt, grid);
