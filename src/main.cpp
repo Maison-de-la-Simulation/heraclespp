@@ -64,7 +64,9 @@ int main(int argc, char** argv)
     int const max_iter = reader.GetInteger("Output", "max_iter", 10000);
     int const output_frequency = reader.GetInteger("Output", "frequency", 10);
 
-    thermodynamics::PerfectGas const eos(reader.GetReal("PerfectGas", "gamma", 5./3), 1.0);
+    thermodynamics::PerfectGas const eos(reader.GetReal("PerfectGas", "gamma", 5./3), 
+                                        1.0, 
+                                        reader.GetReal("PerfectGas", "temperature", 100.));
 
     const double gx = reader.GetReal("Gravity", "gx", 0.0);
     const double gy = reader.GetReal("Gravity", "gy", 0.0);
@@ -160,7 +162,7 @@ int main(int argc, char** argv)
     }
     conv_prim_to_cons(grid.range.no_ghosts(), rhou.d_view, E.d_view, rho.d_view, u.d_view, P.d_view, eos);
 
-    BC_update(boundary_construction_array, rho.d_view, rhou.d_view, E.d_view, grid);
+    BC_update(boundary_construction_array, rho.d_view, rhou.d_view, E.d_view, g_array, grid, eos);
     
     conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho.d_view, rhou.d_view, E.d_view, eos);
 
@@ -188,7 +190,7 @@ int main(int argc, char** argv)
         godunov_scheme->execute(grid.range.no_ghosts(), rho.d_view, rhou.d_view, E.d_view, rho_rec, rhou_rec, E_rec,
                                 rho_new, rhou_new, E_new, dt, grid);
 
-        BC_update(boundary_construction_array, rho_new, rhou_new, E_new, grid);
+        BC_update(boundary_construction_array, rho_new, rhou_new, E_new, g_array, grid, eos);
 
         conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho_new, rhou_new, E_new, eos);
         Kokkos::deep_copy(rho.d_view, rho_new);
