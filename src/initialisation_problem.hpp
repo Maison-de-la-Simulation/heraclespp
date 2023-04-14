@@ -326,11 +326,11 @@ public:
             }
             if (r <0.025)
             {
-                P(i, j, k) = eos.compute_pressure(gamma, Eperturb) / dv;
+                P(i, j, k) = eos.compute_pressure(rho(i, j, k), Eperturb) / dv;
             }
             else
             {
-                P(i, j, k) = eos.compute_pressure(gamma, E0) / dv;
+                P(i, j, k) = eos.compute_pressure(rho(i, j, k), E0) / dv;
             } 
         });
     }
@@ -371,8 +371,8 @@ public:
             {
                 u(i, j, k, idim) = 0;
             }
-            P(i, j, k) = eos.compute_pressure(gamma, E0) / dv;
-            P(2, j, k) = eos.compute_pressure(gamma, Eperturb) /  dv;
+            P(i, j, k) = eos.compute_pressure(rho(i, j, k), E0) / dv;
+            P(2, j, k) = eos.compute_pressure(rho(i, j, k), Eperturb) /  dv;
         });
     }
 };
