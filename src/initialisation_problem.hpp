@@ -304,7 +304,7 @@ public:
 
         double gamma = eos.compute_adiabatic_index();
         double E0 = 1E-12;
-        double Eperturb = 1E5;
+        double Eperturb = 1E5 / 2;
 
         auto const x_d = grid.x.d_view;
         auto const y_d = grid.y.d_view;
@@ -322,15 +322,15 @@ public:
             rho(i, j, k) = 1;
             for (int idim = 0; idim < ndim; ++idim)
             {
-                u(i, j, k, idim) = 1;
+                u(i, j, k, idim) = 0;
             }
             if (r <0.025)
             {
-                P(i, j, k) = Eperturb * (gamma - 1) / dv;
+                P(i, j, k) = eos.compute_pressure(gamma, Eperturb) / dv;
             }
             else
             {
-                P(i, j, k) = E0 * (gamma - 1) / dv;
+                P(i, j, k) = eos.compute_pressure(gamma, E0) / dv;
             } 
         });
     }
@@ -371,9 +371,9 @@ public:
             {
                 u(i, j, k, idim) = 0;
             }
-            P(i, j, k) = E0 * (gamma - 1) / dv;
+            P(i, j, k) = eos.compute_pressure(gamma, E0) / dv;
+            P(2, j, k) = eos.compute_pressure(gamma, Eperturb) /  dv;
         });
-        P(2, 0, 0) = Eperturb * (gamma - 1) /  dv;
     }
 };
 

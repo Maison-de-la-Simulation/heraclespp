@@ -122,19 +122,19 @@ public:
                 plus_one.pressure = loc_P_rec(i, j, k, 1, idim);
                 EulerFlux flux_plus_one = compute_flux(plus_one, idim, m_eos);
 
-                double dto2dx = dt / (2 * grid.dx[idim]);
+                double dtodx = dt / grid.dx[idim];
 
                 for (int ipos = 0; ipos < ndim; ++ipos)
                 {
-                    rho_rec(i, j, k, 0, ipos) += dto2dx * (flux_minus_one.density - flux_plus_one.density);
-                    rho_rec(i, j, k, 1, ipos) += dto2dx * (flux_minus_one.density - flux_plus_one.density);
+                    rho_rec(i, j, k, 0, ipos) += dtodx * (flux_minus_one.density - flux_plus_one.density);
+                    rho_rec(i, j, k, 1, ipos) += dtodx * (flux_minus_one.density - flux_plus_one.density);
                     for (int idr = 0; idr < ndim; ++idr)
                     {
-                        rhou_rec(i, j, k, 0, ipos, idr) += dto2dx * (flux_minus_one.momentum[idr] - flux_plus_one.momentum[idr]);
-                        rhou_rec(i, j, k, 1, ipos, idr) += dto2dx * (flux_minus_one.momentum[idr] - flux_plus_one.momentum[idr]);
+                        rhou_rec(i, j, k, 0, ipos, idr) += dtodx * (flux_minus_one.momentum[idr] - flux_plus_one.momentum[idr]);
+                        rhou_rec(i, j, k, 1, ipos, idr) += dtodx * (flux_minus_one.momentum[idr] - flux_plus_one.momentum[idr]);
                     }
-                    E_rec(i, j, k, 0, ipos) += dto2dx * (flux_minus_one.energy - flux_plus_one.energy);
-                    E_rec(i, j, k, 1, ipos) += dto2dx * (flux_minus_one.energy - flux_plus_one.energy);
+                    E_rec(i, j, k, 0, ipos) += dtodx * (flux_minus_one.energy - flux_plus_one.energy);
+                    E_rec(i, j, k, 1, ipos) += dtodx * (flux_minus_one.energy - flux_plus_one.energy);
                 }
                 // Gravity
                 for (int ipos = 0; ipos < ndim; ++ipos)
