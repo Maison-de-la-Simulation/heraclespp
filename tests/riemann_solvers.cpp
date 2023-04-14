@@ -26,7 +26,7 @@ TYPED_TEST_SUITE(RiemannSolverFixture, RiemannSolvers);
 
 TYPED_TEST(RiemannSolverFixture, Consistency)
 {
-    novapp::thermodynamics::PerfectGas const eos(1.4, 1.);
+    novapp::thermodynamics::PerfectGas const eos(1.4, 1., 0);
     novapp::EulerPrim prim;
     prim.density = 2.;
     prim.velocity = {3.};
@@ -41,7 +41,7 @@ TYPED_TEST(RiemannSolverFixture, Consistency)
 
 TYPED_TEST(RiemannSolverFixture, Symmetry)
 {
-    novapp::thermodynamics::PerfectGas const eos(1.4, 1.);
+    novapp::thermodynamics::PerfectGas const eos(1.4, 1., 0);
     novapp::EulerPrim prim_left;
     prim_left.density = 2.;
     prim_left.velocity = {3.};

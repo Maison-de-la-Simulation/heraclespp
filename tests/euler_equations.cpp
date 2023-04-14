@@ -22,7 +22,7 @@ TEST(EulerEquations, KineticEnergyFromCons)
 
 TEST(EulerEquations, PrimToConsToPrim)
 {
-    novapp::thermodynamics::PerfectGas eos(1.4, 1.);
+    novapp::thermodynamics::PerfectGas eos(1.4, 1., 0);
     novapp::EulerPrim prim;
     prim.density = 2.;
     prim.velocity = {10.};

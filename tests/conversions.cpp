@@ -11,7 +11,7 @@ TEST(Conversions, PrimToCons)
 {
     int const n = 10;
     novapp::Range const range({0, 0, 0}, {n, n, n}, 0);
-    novapp::thermodynamics::PerfectGas const eos(2, 1);
+    novapp::thermodynamics::PerfectGas const eos(2, 1, 0);
     novapp::EulerPrim prim;
     prim.density = 2;
     for (int idim = 0; idim < novapp::ndim; ++idim)
@@ -68,7 +68,7 @@ TEST(Conversions, ConsToPrim)
 {
     int const n = 10;
     novapp::Range const range({0, 0, 0}, {n, n, n}, 0);
-    novapp::thermodynamics::PerfectGas const eos(2, 1);
+    novapp::thermodynamics::PerfectGas const eos(2, 1, 0);
     novapp::EulerCons cons;
     cons.density = 2;
     for (int idim = 0; idim < novapp::ndim; ++idim)

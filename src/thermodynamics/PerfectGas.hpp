@@ -6,6 +6,8 @@
 
 #include <Kokkos_Core.hpp>
 
+#include "../units.hpp"
+
 namespace novapp::thermodynamics
 {
 
@@ -15,9 +17,10 @@ class PerfectGas
     double m_gamma_m1;
     double m_inv_gamma_m1;
     double m_mmw;
+    double m_T;
 
 public:
-    PerfectGas(double gamma, double mmw);
+    PerfectGas(double gamma, double mmw, double T);
 
     PerfectGas(const PerfectGas& rhs) = default;
 
@@ -51,6 +54,17 @@ public:
     double compute_pressure([[maybe_unused]] double const density, double const volumic_internal_energy) const noexcept
     {
         return m_gamma_m1 * volumic_internal_energy;
+    }
+
+    KOKKOS_FORCEINLINE_FUNCTION
+    double compute_temprature(double const density, double const pressure) const noexcept
+    {
+        return pressure * m_mmw * units::mh / (density * units::kb);
+    }
+
+    double compute_const_temprature() const noexcept
+    {
+        return m_T;
     }
 
     KOKKOS_FORCEINLINE_FUNCTION

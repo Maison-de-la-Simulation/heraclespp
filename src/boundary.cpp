@@ -12,8 +12,10 @@ namespace novapp
 
 void IBoundaryCondition::ghostFill(KV_double_3d rho,
                                    KV_double_4d rhou,
-                                   KV_double_3d E, 
-                                   Grid const & grid)
+                                   KV_double_3d E,
+                                   KV_double_1d g,
+                                   Grid const & grid,
+                                   thermodynamics::PerfectGas const& eos)
 {
     int ng = grid.Nghost[bc_idim];
 
@@ -83,16 +85,18 @@ void BC_init(std::array<std::unique_ptr<IBoundaryCondition>, ndim*2> & BC_array,
 void BC_update(std::array<std::unique_ptr<IBoundaryCondition>, ndim*2> & BC_array, 
                KV_double_3d rho, 
                KV_double_4d rhou, 
-               KV_double_3d E, 
-               Grid const & grid)
+               KV_double_3d E,
+               KV_double_1d g,
+               Grid const & grid,
+               thermodynamics::PerfectGas const& eos)
 {
     for (int idim=0; idim<ndim; idim++)
     {
-        BC_array[idim*2]->ghostFill(rho, rhou, E, grid);
-        BC_array[idim*2+1]->execute(rho, rhou, E, grid);
+        BC_array[idim*2]->ghostFill(rho, rhou, E, g, grid, eos);
+        BC_array[idim*2+1]->execute(rho, rhou, E, g, grid, eos);
 
-        BC_array[idim*2+1]->ghostFill(rho, rhou, E, grid);
-        BC_array[idim*2]->execute(rho, rhou, E, grid);
+        BC_array[idim*2+1]->ghostFill(rho, rhou, E, g, grid, eos);
+        BC_array[idim*2]->execute(rho, rhou, E, g, grid, eos);
     }
 }
 

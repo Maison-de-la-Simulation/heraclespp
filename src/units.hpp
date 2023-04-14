@@ -9,7 +9,12 @@
 
 namespace novapp::units
 {
-// code units in SI (kg / metre / seconde) 
+
+    constexpr double kb = 1.38E-23;
+    constexpr double mh = 1.67E-27;
+
+
+/* // code units in SI (kg / metre / seconde) 
     constexpr double unitM = 1.0E+00 ; // Mass unit in kg
     constexpr double unitL = 1.0E+00 ; // Length unit in meter
     constexpr double unitT = 1.0E+00 ; // Time unit in second
@@ -57,6 +62,6 @@ namespace novapp::units
     constexpr double metre   =  1.000000e+02 * centimetre ;
     constexpr double Pascal  =  1.000000e+00 * kg/metre      /(seconde*seconde) ;
     constexpr double Joule   =  1.000000e+00 * kg*metre*metre/(seconde*seconde) ;
-    constexpr double H0      =  7.200000e+01 * kms/Mpc ;
+    constexpr double H0      =  7.200000e+01 * kms/Mpc ; */
 
 } // namespace novapp::units
