@@ -83,8 +83,6 @@ public :
     KDV_double_1d x;
     KDV_double_1d y;
     KDV_double_1d z;
-
-    std::array<KDV_double_4d, ndim> mpi_buffer;
 };
 
 } // namespace novapp

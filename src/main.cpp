@@ -82,8 +82,6 @@ int main(int argc, char** argv)
 
     write_pdi_init(max_iter, output_frequency, grid);
 
-    std::array<std::unique_ptr<IBoundaryCondition>, ndim*2> boundary_construction_array;
-
     std::string bc_choice;
     std::string bc_choice_dir;
     std::array<std::string, ndim*2> bc_choice_faces;
@@ -100,7 +98,15 @@ int main(int argc, char** argv)
         }
     }
     
-    BC_init(boundary_construction_array, bc_choice_faces, grid);
+    std::array<std::unique_ptr<IBoundaryCondition>, ndim*2> boundary_construction_array;
+    for(int idim=0; idim<ndim; idim++)
+    {
+        for(int iface=0; iface<2; iface++)
+        {
+            boundary_construction_array[idim*2+iface] = factory_boundary_construction(bc_choice_faces[idim*2+iface], idim, iface);
+        }
+    }
+    DistributedBoundaryCondition const bcs(std::move(boundary_construction_array), grid);
     
     std::string const initialisation_problem = reader.Get("Problem", "type", "ShockTube");
     std::unique_ptr<IInitialisationProblem> initialisation
@@ -162,7 +168,7 @@ int main(int argc, char** argv)
     }
     conv_prim_to_cons(grid.range.no_ghosts(), rhou.d_view, E.d_view, rho.d_view, u.d_view, P.d_view, eos);
 
-    BC_update(boundary_construction_array, rho.d_view, rhou.d_view, E.d_view, g_array, grid, eos);
+    bcs.execute(rho.d_view, rhou.d_view, E.d_view, g_array, grid, eos);
     
     conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho.d_view, rhou.d_view, E.d_view, eos);
 
@@ -190,7 +196,7 @@ int main(int argc, char** argv)
         godunov_scheme->execute(grid.range.no_ghosts(), rho.d_view, rhou.d_view, E.d_view, rho_rec, rhou_rec, E_rec,
                                 rho_new, rhou_new, E_new, dt, grid);
 
-        BC_update(boundary_construction_array, rho_new, rhou_new, E_new, g_array, grid, eos);
+        bcs.execute(rho_new, rhou_new, E_new, g_array, grid, eos);
 
         conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho_new, rhou_new, E_new, eos);
         Kokkos::deep_copy(rho.d_view, rho_new);
