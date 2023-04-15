@@ -43,18 +43,10 @@ public:
                           Grid const & grid,
                           thermodynamics::PerfectGas const& eos) const = 0;
 
-    void ghostFill(KV_double_3d rho,
-                       KV_double_4d rhou,
-                       KV_double_3d E,
-                       KV_double_1d g,
-                       Grid const & grid,
-                       thermodynamics::PerfectGas const& eos);
-    
 public:
     int bc_idim;
     int bc_iface;
 };
-
 
 class NullGradient : public IBoundaryCondition
 {
@@ -260,16 +252,65 @@ inline std::unique_ptr<IBoundaryCondition> factory_boundary_construction(
 }
 
 
-void BC_update(std::array<std::unique_ptr<IBoundaryCondition>, ndim*2> & BC_array, 
-               KV_double_3d rho, 
-               KV_double_4d rhou, 
-               KV_double_3d E,
-               KV_double_1d g,
-               Grid const & grid,
-               thermodynamics::PerfectGas const& eos);
+class DistributedBoundaryCondition
+{
+private:
+    std::array<KDV_double_4d, ndim> m_mpi_buffer;
 
-void BC_init(std::array<std::unique_ptr<IBoundaryCondition>, ndim*2> & BC_array,
-             std::array<std::string, ndim*2> & BC_choices,
-             Grid const & grid);
+    std::array<std::unique_ptr<IBoundaryCondition>, ndim * 2> m_bcs;
+
+    void ghostFill(
+            KV_double_3d rho,
+            KV_double_4d rhou,
+            KV_double_3d E,
+            int bc_idim,
+            int bc_iface,
+            Grid const& grid) const;
+
+public:
+    DistributedBoundaryCondition(
+            std::array<std::unique_ptr<IBoundaryCondition>, ndim * 2> bcs,
+            Grid const& grid) noexcept
+        : m_bcs(std::move(bcs))
+    {
+        // Replacing non-physical boundary conditions by no-op
+        for (int idim = 0; idim < ndim; idim++)
+        {
+            for (int iface = 0; iface < 2; iface++)
+            {
+                if (!grid.is_border[idim][iface])
+                {
+                    m_bcs[idim * 2 + iface] = factory_boundary_construction("Periodic", idim, iface);
+                }
+            }
+        }
+
+        std::array<int, 3> buf_size = grid.Nx_local_wg;
+        for (int idim = 0; idim < ndim; idim++)
+        {
+            buf_size[idim] = grid.Nghost[idim];
+            m_mpi_buffer[idim] = KDV_double_4d("", buf_size[0], buf_size[1], buf_size[2], ndim + 2);
+            buf_size[idim] = grid.Nx_local_wg[idim];
+        }
+    }
+
+    void execute(
+            KV_double_3d rho,
+            KV_double_4d rhou,
+            KV_double_3d E,
+            [[maybe_unused]] KV_double_1d g,
+            Grid const& grid,
+            [[maybe_unused]] thermodynamics::PerfectGas const& eos) const
+    {
+        for (int idim = 0; idim < ndim; idim++)
+        {
+            ghostFill(rho, rhou, E, idim, 0, grid);
+            m_bcs[idim * 2 + 1]->execute(rho, rhou, E, g, grid, eos);
+
+            ghostFill(rho, rhou, E, idim, 1, grid);
+            m_bcs[idim * 2]->execute(rho, rhou, E, g, grid, eos);
+        }
+    }
+};
 
 } // namespace novapp

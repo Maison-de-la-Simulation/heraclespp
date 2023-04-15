@@ -50,15 +50,6 @@ Grid::Grid(INIReader const& reader)
     MPI_Decomp();
 
     Init_nodes();
-    
-    std::array<int, 3> buf_size = Nx_local_wg;
-    for(int idim=0; idim<ndim; idim++)
-    {
-        buf_size[idim] = Nghost[idim];
-        mpi_buffer[idim] = KDV_double_4d("",buf_size[0], buf_size[1], buf_size[2], ndim+2);
-        buf_size[idim] = Nx_local_wg[idim];
-    }
-    
 }
 
 /* ****************************************************************
