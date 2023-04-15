@@ -82,32 +82,8 @@ int main(int argc, char** argv)
 
     write_pdi_init(max_iter, output_frequency, grid);
 
-    std::string bc_choice;
-    std::string bc_choice_dir;
-    std::array<std::string, ndim*2> bc_choice_faces;
-    
-    bc_choice = reader.Get("Boundary Condition", "BC", "");
-    for(int idim=0; idim<ndim; idim++)
-    {
-        bc_choice_dir = reader.Get("Boundary Condition", "BC"+bc_dir[idim], bc_choice);
-        bc_choice_faces[idim*2] = reader.Get("Boundary Condition", "BC"+bc_dir[idim]+bc_face[0], bc_choice_dir);
-        bc_choice_faces[idim*2+1] = reader.Get("Boundary Condition", "BC"+bc_dir[idim]+bc_face[1], bc_choice_dir);
-        if(bc_choice_faces[idim*2].empty() || bc_choice_faces[idim*2+1].empty()) 
-        {
-            throw std::runtime_error("boundary condition not fully defined for dimension "+bc_dir[idim]);
-        }
-    }
-    
-    std::array<std::unique_ptr<IBoundaryCondition>, ndim*2> boundary_construction_array;
-    for(int idim=0; idim<ndim; idim++)
-    {
-        for(int iface=0; iface<2; iface++)
-        {
-            boundary_construction_array[idim*2+iface] = factory_boundary_construction(bc_choice_faces[idim*2+iface], idim, iface);
-        }
-    }
-    DistributedBoundaryCondition const bcs(std::move(boundary_construction_array), grid);
-    
+    DistributedBoundaryCondition const bcs(reader, grid);
+
     std::string const initialisation_problem = reader.Get("Problem", "type", "ShockTube");
     std::unique_ptr<IInitialisationProblem> initialisation
             = factory_initialisation(initialisation_problem);
