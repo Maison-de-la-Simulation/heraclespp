@@ -276,10 +276,10 @@ public:
             {
                 rho(i, j, k) = 1;
             }
-            P(i, j, k) = P0 + rho(i, j, k) * g(1) * y;
             u(i, j, k, 0) = 0;
             u(i, j, k, 1) = (A/4) * (1+Kokkos::cos(2*Kokkos::numbers::pi*x/grid.L[0])) * (1+Kokkos::cos(2*Kokkos::numbers::pi*y/grid.L[1]));
-         });
+            P(i, j, k) = P0 + rho(i, j, k) * g(1) * y;
+        });
     }
 };
 

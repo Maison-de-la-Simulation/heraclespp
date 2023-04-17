@@ -221,8 +221,13 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k) 
         {
+            double gravity = 0;
+            for (int idim = 0; idim < ndim; ++idim)
+            {
+                gravity += g(idim); //Gravity always on one direction
+            }
             double xcenter = x_d(i) + grid.dx[0] / 2;
-            double x0 = kb * T / (mu * mh * std::abs(g(0)));
+            double x0 = kb * T / (mu * mh * std::abs(gravity));
             rho(i, j, k) = rho0 * Kokkos::exp(- xcenter / x0);
             for (int n = 0; n < rhou.extent_int(3); n++)
             {
