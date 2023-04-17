@@ -372,7 +372,10 @@ public:
                 u(i, j, k, idim) = 0;
             }
             P(i, j, k) = eos.compute_pressure(rho(i, j, k), E0) / dv;
-            P(2, j, k) = eos.compute_pressure(rho(i, j, k), Eperturb) /  dv;
+            if(grid.mpi_rank==0)
+            {
+                P(2, j, k) = eos.compute_pressure(rho(i, j, k), Eperturb) / dv;
+            }
         });
     }
 };

@@ -58,7 +58,7 @@ print("Iteration number =", iter )
 # ------------------------------------------
 
 plt.figure(figsize=(15,4))
-plt.suptitle(f'Sedov blast wave 1d t = {t:1f}')
+plt.suptitle(f'Sedov blast wave 1d t = {t:1f} s')
 plt.subplot(131)
 plt.plot(r,rho_exact, label='Exact')
 plt.plot(xc, rho, label='Solver')
