@@ -9,27 +9,28 @@
 namespace novapp
 {
 
-Grid::Grid(INIReader const& reader)
-    : Ng(reader.GetInteger("Grid", "Nghost", 2))
-    , Nghost {0, 0, 0}
+Grid::Grid(Param const& param)
+    : Nghost {0, 0, 0}
     , Ncpu_x {1, 1, 1}
     , mpi_rank_cart {0, 0, 0}
 {
-    Nx_glob_ng[0] = reader.GetInteger("Grid", "Nx_glob", 0); // Cell number
-    Nx_glob_ng[1] = reader.GetInteger("Grid", "Ny_glob", 0); // Cell number
-    Nx_glob_ng[2] = reader.GetInteger("Grid", "Nz_glob", 0); // Cell number
+    Ng = param.Ng;
+
+    Nx_glob_ng[0] = param.Nx_glob_ng[0];
+    Nx_glob_ng[1] = param.Nx_glob_ng[1];
+    Nx_glob_ng[2] = param.Nx_glob_ng[2];
 
     for (int idim = 0; idim < Ndim; idim++)
     {
         Nghost[idim] = Ng;
     }
 
-    xmin = reader.GetReal("Grid", "xmin", 0.0);
-    xmax = reader.GetReal("Grid", "xmax", 1.0);
-    ymin = reader.GetReal("Grid", "ymin", 0.0);
-    ymax = reader.GetReal("Grid", "ymax", 1.0);
-    zmin = reader.GetReal("Grid", "zmin", 0.0);
-    zmax = reader.GetReal("Grid", "zmax", 1.0);
+    xmin = param.xmin;
+    xmax = param.xmax;
+    ymin = param.ymin;
+    ymax = param.ymax;
+    zmin = param.zmin;
+    zmax = param.zmax;
 
     L[0] = xmax - xmin;
     L[1] = ymax - ymin;
@@ -39,13 +40,13 @@ Grid::Grid(INIReader const& reader)
     dx[1] = L[1] / Nx_glob_ng[1];
     dx[2] = L[2] / Nx_glob_ng[2];
 
-    Ncpu_x[0] = reader.GetInteger("Grid", "Ncpu_x", 0); // number of procs, default 0=>defined by MPI
-    Ncpu_x[1] = reader.GetInteger("Grid", "Ncpu_y", 0); // number of procs
-    Ncpu_x[2] = reader.GetInteger("Grid", "Ncpu_z", 0); // number of procs
+    Ncpu_x[0] = param.Ncpu_x[0];
+    Ncpu_x[1] = param.Ncpu_x[1];
+    Ncpu_x[2] = param.Ncpu_x[2];
 
     //!    Type of boundary conditions possibilities are : 
     //!    "Internal", "Periodic", "Reflexive", NullGradient", UserDefined", "Null" (undefined) 
-    Nx_local_ng = Nx_glob_ng; // default for a single MPI process
+    Nx_local_ng = param.Nx_glob_ng; // default for a single MPI process
 
     MPI_Decomp();
 

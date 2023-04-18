@@ -27,6 +27,7 @@
 #include "Kokkos_shortcut.hpp"
 #include "io_config.yaml.hpp"
 #include "extrapolation_time.hpp"
+#include "nova_params.hpp"
 
 using namespace novapp;
 
@@ -55,53 +56,38 @@ int main(int argc, char** argv)
     }
     PDI_init(PC_get(conf, ".pdi"));
 
-    Grid const grid(reader);
+    Param const param(reader);
+    Grid const grid(param);
     grid.print_grid();
 
-    double const timeout = reader.GetReal("Run", "timeout", 0.2);
-    double const cfl = reader.GetReal("Run", "cfl", 0.4);
-
-    int const max_iter = reader.GetInteger("Output", "max_iter", 10000);
-    int const output_frequency = reader.GetInteger("Output", "frequency", 10);
-
-    thermodynamics::PerfectGas const eos(reader.GetReal("PerfectGas", "gamma", 5./3), 
-                                        1.0, 
-                                        reader.GetReal("PerfectGas", "temperature", 100.));
-
-    const double gx = reader.GetReal("Gravity", "gx", 0.0);
-    const double gy = reader.GetReal("Gravity", "gy", 0.0);
-    const double gz = reader.GetReal("Gravity", "gz", 0.0);
+    thermodynamics::PerfectGas const eos(param.gamma, param.mu, param.T);
 
     KV_double_1d g_array("g_array", 3);
     Kokkos::parallel_for(1, KOKKOS_LAMBDA([[maybe_unused]] int i)
     {
-        g_array(0) = gx;
-        g_array(1) = gy;
-        g_array(2) = gz;
+        g_array(0) = param.gx;
+        g_array(1) = param.gy;
+        g_array(2) = param.gz;
     });
 
-    write_pdi_init(max_iter, output_frequency, grid);
+    write_pdi_init(param.max_iter, param.output_frequency, grid);
 
-    DistributedBoundaryCondition const bcs(reader, grid);
+    DistributedBoundaryCondition const bcs(reader, param, grid);
 
-    std::string const initialisation_problem = reader.Get("Problem", "type", "ShockTube");
     std::unique_ptr<IInitialisationProblem> initialisation
-            = factory_initialisation(initialisation_problem);
+            = factory_initialisation(param.initialisation_problem);
 
-    std::string const reconstruction_type = reader.Get("Hydro", "reconstruction", "VanLeer");
     std::unique_ptr<IFaceReconstruction> face_reconstruction
-            = factory_face_reconstruction(reconstruction_type);
+            = factory_face_reconstruction(param.reconstruction_type);
     
-    std::string const gravity_type = reader.Get("Gravity", "type", "Uniform");
     std::unique_ptr<IExtrapolationReconstruction> time_reconstruction
-            = factory_time_reconstruction(gravity_type, eos, g_array);
+            = factory_time_reconstruction(param.gravity_type, eos, g_array);
 
-    std::string const riemann_solver = reader.Get("Hydro", "riemann_solver", "HLL");
     std::unique_ptr<IGodunovScheme> godunov_scheme
-            = factory_godunov_scheme(riemann_solver, gravity_type, eos, g_array);
+            = factory_godunov_scheme(param.riemann_solver, param.gravity_type, eos, g_array);
 
     KDV_double_3d rho("rho",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Density
-    KDV_double_4d u("u",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim); // Speed
+    KDV_double_4d u("u",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim); // Velocity
     KDV_double_3d P("P",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Pressure
     KDV_double_4d rhou("rhou", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim); // Momentum
     KDV_double_3d E("E",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Energy
@@ -120,11 +106,9 @@ int main(int argc, char** argv)
     int iter = 0;
     bool should_exit = false;
 
-    if(reader.GetBoolean("Problem", "restart", false))
-    {
-        std::string const restart_file = reader.Get("Problem", "restart_file", "restart.h5");
-        
-        read_pdi(restart_file, rho, u, P, t, iter); // read data into host view
+    if(param.restart)
+    {   
+        read_pdi(param.restart_file, rho, u, P, t, iter); // read data into host view
         
         rho.sync_device();
         u.sync_device();
@@ -133,36 +117,36 @@ int main(int argc, char** argv)
         if(grid.mpi_rank==0) 
         {
             std::cout<<std::endl<< std::left << std::setw(80) << std::setfill('*') << "*"<<std::endl;
-            std::cout<<"read from file "<<restart_file<<std::endl;
-            std::cout<<"starting at time "<<t<<" ( ~ "<<100*t/timeout<<"%)"
+            std::cout<<"read from file "<<param.restart_file<<std::endl;
+            std::cout<<"starting at time "<<t<<" ( ~ "<<100*t/param.timeout<<"%)"
                      <<", with iteration "<<iter<<std::endl<<std::endl;
         }
     }
     else
     {
-        initialisation->execute(grid.range.no_ghosts(), rho.d_view, u.d_view, P.d_view, g_array, eos, grid);
+        initialisation->execute(grid.range.no_ghosts(), rho.d_view, u.d_view, P.d_view, g_array, eos, grid, param);
     }
     conv_prim_to_cons(grid.range.no_ghosts(), rhou.d_view, E.d_view, rho.d_view, u.d_view, P.d_view, eos);
 
-    bcs.execute(rho.d_view, rhou.d_view, E.d_view, g_array, grid, eos);
+    bcs.execute(rho.d_view, rhou.d_view, E.d_view, g_array, grid, eos, param);
     
     conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho.d_view, rhou.d_view, E.d_view, eos);
 
     std::unique_ptr<IHydroReconstruction> reconstruction = std::make_unique<
             MUSCLHancockHydroReconstruction>(std::move(face_reconstruction), std::move(time_reconstruction), P_rec, u_rec);
 
-    if (output_frequency > 0)
+    if (param.output_frequency > 0)
     {
         write_pdi(iter, t, eos.compute_adiabatic_index(), rho, u, P, E, grid.x, grid.y, grid.z);
     }
 
-    while (!should_exit && t < timeout && iter < max_iter)
+    while (!should_exit && t < param.timeout && iter < param.max_iter)
     {
-        double dt = time_step(grid.range.all_ghosts(), cfl, rho.d_view, u.d_view, P.d_view, eos, grid);
-        bool const make_output = should_output(iter, output_frequency, max_iter, t, dt, timeout);
-        if ((t + dt) > timeout)
+        double dt = time_step(grid.range.all_ghosts(), param.cfl, rho.d_view, u.d_view, P.d_view, eos, grid);
+        bool const make_output = should_output(iter, param.output_frequency, param.max_iter, t, dt, param.timeout);
+        if ((t + dt) > param.timeout)
         {
-            dt = timeout - t;
+            dt = param.timeout - t;
             should_exit = true;
         }
 
@@ -172,7 +156,7 @@ int main(int argc, char** argv)
         godunov_scheme->execute(grid.range.no_ghosts(), rho.d_view, rhou.d_view, E.d_view, rho_rec, rhou_rec, E_rec,
                                 rho_new, rhou_new, E_new, dt, grid);
 
-        bcs.execute(rho_new, rhou_new, E_new, g_array, grid, eos);
+        bcs.execute(rho_new, rhou_new, E_new, g_array, grid, eos, param);
 
         conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho_new, rhou_new, E_new, eos);
         Kokkos::deep_copy(rho.d_view, rho_new);

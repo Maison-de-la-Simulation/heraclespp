@@ -57,6 +57,12 @@ public:
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
+    double compute_perfect_pressure(double const density, double const temperature) const noexcept
+    {
+        return density * units::kb * temperature / (m_mmw * units::mh);
+    }
+
+    KOKKOS_FORCEINLINE_FUNCTION
     double compute_temprature(double const density, double const pressure) const noexcept
     {
         return pressure * m_mmw * units::mh / (density * units::kb);
