@@ -39,7 +39,8 @@ public:
         KV_double_3d P,
         KV_double_1d g,
         thermodynamics::PerfectGas const& eos,
-        Grid const& grid) const 
+        Grid const& grid,
+        Param const& param) const 
         = 0;
 };
 
@@ -53,7 +54,8 @@ public:
         KV_double_3d const P,
         [[maybe_unused]] KV_double_1d g,
         [[maybe_unused]] thermodynamics::PerfectGas const& eos,
-        [[maybe_unused]] Grid const& grid) const final
+        [[maybe_unused]] Grid const& grid,
+        [[maybe_unused]] Param const& param) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -71,20 +73,20 @@ public:
         {
             if((x_d(i) + x_d(i+1)) / 2 <= 0.5)
             {
-                rho(i, j, k) = 1;
-                P(i, j, k) = 1;
+                rho(i, j, k) = param.rho0;
+                P(i, j, k) = param.P0;
                 for (int idim = 0; idim < ndim; ++idim)
                 {
-                    u(i, j, k, idim) = 0;
+                    u(i, j, k, idim) = param.u0;
                 }
             }
             else
             {
-                rho(i, j, k) = 0.125;
-                P(i, j, k) =  0.1;
+                rho(i, j, k) = param.rho1;
+                P(i, j, k) =  param.P1;
                 for (int idim = 0; idim < ndim; ++idim)
                 {
-                    u(i, j, k, idim) = 0;
+                    u(i, j, k, idim) = param.u1;
                 }
             }
         });  
@@ -101,7 +103,8 @@ public:
         KV_double_3d P,
         [[maybe_unused]] KV_double_1d g,
         [[maybe_unused]] thermodynamics::PerfectGas const& eos,
-        [[maybe_unused]] Grid const& grid) const final
+        [[maybe_unused]] Grid const& grid,
+        Param const& param) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -117,11 +120,11 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            rho(i, j, k) = 1 * Kokkos::exp(-15*Kokkos::pow(1./2 - (x_d(i)+x_d(i+1))/2, 2));
-            P(i, j, k) = 0.1;
+            rho(i, j, k) = param.rho0 * Kokkos::exp(-15*Kokkos::pow(1./2 - (x_d(i)+x_d(i+1))/2, 2));
+            P(i, j, k) = param.P0;
             for (int idim = 0; idim < ndim; ++idim)
             {
-                u(i, j, k, idim) = 1;
+                u(i, j, k, idim) = param.u0;
             }
         });
     }
@@ -137,7 +140,8 @@ public:
         KV_double_3d P,
         [[maybe_unused]] KV_double_1d g,
         [[maybe_unused]] thermodynamics::PerfectGas const& eos,
-        [[maybe_unused]] Grid const& grid) const final
+        [[maybe_unused]] Grid const& grid,
+        Param const& param) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -155,20 +159,20 @@ public:
         {
             if ((x_d(i) + x_d(i+1)) / 2 <= 0.3)
             {
-                rho(i, j, k) = 1;
+                rho(i, j, k) = param.rho0;
             }
             else if ((x_d(i) + x_d(i+1)) / 2 >= 0.7)
             {
-                rho(i, j, k) = 1;
+                rho(i, j, k) = param.rho0;
             }
             else
             {
-                rho(i, j, k) = 2;
+                rho(i, j, k) = param.rho1;
             }
-            P(i, j, k) = 0.1;
+            P(i, j, k) = param.P0;
             for (int idim = 0; idim < ndim; ++idim)
             {
-                u(i, j, k, idim) = 1;
+                u(i, j, k, idim) = param.u0;
             }
         });
     }
@@ -184,7 +188,8 @@ public:
         KV_double_3d const P,
         [[maybe_unused]] KV_double_1d g,
         [[maybe_unused]] thermodynamics::PerfectGas const& eos,
-        [[maybe_unused]] Grid const& grid) const final
+        [[maybe_unused]] Grid const& grid,
+        Param const& param) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -192,8 +197,6 @@ public:
         assert(u.extent(1) == P.extent(1));
         assert(rho.extent(2) == u.extent(2));
         assert(u.extent(2) == P.extent(2));
-
-        double P0 = 5;
 
         auto const x_d = grid.x.d_view;
         auto const y_d = grid.y.d_view;
@@ -208,10 +211,10 @@ public:
             double r = Kokkos::sqrt(x * x + y * y);
             double theta = Kokkos::atan2(y, x);
             double u_theta;
-            rho(i, j, k) = 1;
+            rho(i, j, k) = param.rho0;
             if (r < 0.2)
             {
-                P(i, j, k) = P0 + 12.5 * r * r;
+                P(i, j, k) = param.P0 + 12.5 * r * r;
                 u_theta = 5 * r;
                 u(i, j, k, 0) = - u_theta * Kokkos::sin(theta);
                 u(i, j, k, 1) = u_theta * Kokkos::cos(theta);
@@ -219,17 +222,17 @@ public:
             
             else if ((r >= 0.2) && (r < 0.4))
             {
-                P(i, j, k) = P0 + 12.5 * r * r + 4 - 20 * r + 4 * Kokkos::log(5 * r);
+                P(i, j, k) = param.P0 + 12.5 * r * r + 4 - 20 * r + 4 * Kokkos::log(5 * r);
                 u_theta = 2 - 5 * r;
                 u(i, j, k, 0) = - u_theta * Kokkos::sin(theta);
                 u(i, j, k, 1) = u_theta * Kokkos::cos(theta);
             }
             else
             {
-                P(i, j, k) = P0 - 2 + 4 * Kokkos::log(2);
+                P(i, j, k) = param.P0 - 2 + 4 * Kokkos::log(2);
                 for (int idim = 0; idim < ndim; ++idim)
                 {
-                    u(i, j, k, idim) = 0;
+                    u(i, j, k, idim) = param.u0;
                 }
             } 
         });
@@ -246,7 +249,8 @@ public:
         KV_double_3d const P,
         KV_double_1d g,
         [[maybe_unused]] thermodynamics::PerfectGas const& eos,
-        [[maybe_unused]] Grid const& grid) const final
+        Grid const& grid,
+        Param const& param) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -254,9 +258,6 @@ public:
         assert(u.extent(1) == P.extent(1));
         assert(rho.extent(2) == u.extent(2));
         assert(u.extent(2) == P.extent(2));
-
-        double P0 = 2.5;
-        double A = 0.01;
 
         auto const x_d = grid.x.d_view;
         auto const y_d = grid.y.d_view;
@@ -270,15 +271,15 @@ public:
             double y = y_d(j);
             if (y >= 0)
             {
-                rho(i, j, k) = 2;
+                rho(i, j, k) = param.rho1;
             }
             if (y < 0)
             {
-                rho(i, j, k) = 1;
+                rho(i, j, k) = param.rho0;
             }
-            u(i, j, k, 0) = 0;
-            u(i, j, k, 1) = (A/4) * (1+Kokkos::cos(2*Kokkos::numbers::pi*x/grid.L[0])) * (1+Kokkos::cos(2*Kokkos::numbers::pi*y/grid.L[1]));
-            P(i, j, k) = P0 + rho(i, j, k) * g(1) * y;
+            u(i, j, k, 0) = param.u0;
+            u(i, j, k, 1) = (param.A/4) * (1+Kokkos::cos(2*Kokkos::numbers::pi*x/grid.L[0])) * (1+Kokkos::cos(2*Kokkos::numbers::pi*y/grid.L[1]));
+            P(i, j, k) = param.P0 + rho(i, j, k) * g(1) * y;
         });
     }
 };
@@ -293,7 +294,8 @@ public:
         KV_double_3d const P,
         [[maybe_unused]] KV_double_1d g,
         thermodynamics::PerfectGas const& eos,
-        [[maybe_unused]] Grid const& grid) const final
+        Grid const& grid,
+        Param const& param) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -303,8 +305,6 @@ public:
         assert(u.extent(2) == P.extent(2));
 
         double gamma = eos.compute_adiabatic_index();
-        double E0 = 1E-12;
-        double Eperturb = 1E5 / 2;
 
         auto const x_d = grid.x.d_view;
         auto const y_d = grid.y.d_view;
@@ -319,18 +319,18 @@ public:
             double y = y_d(j);
             double r = Kokkos::sqrt(x * x + y * y);
 
-            rho(i, j, k) = 1;
+            rho(i, j, k) = param.rho0;
             for (int idim = 0; idim < ndim; ++idim)
             {
-                u(i, j, k, idim) = 0;
+                u(i, j, k, idim) = param.u0;
             }
             if (r <0.025)
             {
-                P(i, j, k) = eos.compute_pressure(rho(i, j, k), Eperturb) / dv;
+                P(i, j, k) = eos.compute_pressure(rho(i, j, k), param.E1) / dv;
             }
             else
             {
-                P(i, j, k) = eos.compute_pressure(rho(i, j, k), E0) / dv;
+                P(i, j, k) = eos.compute_pressure(rho(i, j, k), param.E0) / dv;
             } 
         });
     }
@@ -346,7 +346,8 @@ public:
         KV_double_3d const P,
         [[maybe_unused]] KV_double_1d g,
         thermodynamics::PerfectGas const& eos,
-        [[maybe_unused]] Grid const& grid) const final
+        [[maybe_unused]] Grid const& grid,
+        Param const& param) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -356,8 +357,6 @@ public:
         assert(u.extent(2) == P.extent(2));
 
         double gamma = eos.compute_adiabatic_index();
-        double E0 = 1E-12;
-        double Eperturb = 0.5;
         double dv = grid.dx[0];
 
         auto const [begin, end] = cell_range(range);
@@ -366,15 +365,15 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            rho(i, j, k) = 1;
+            rho(i, j, k) = param.rho0;
             for (int idim = 0; idim < ndim; ++idim)
             {
-                u(i, j, k, idim) = 0;
+                u(i, j, k, idim) = param.u0;
             }
-            P(i, j, k) = eos.compute_pressure(rho(i, j, k), E0) / dv;
+            P(i, j, k) = eos.compute_pressure(rho(i, j, k), param.E0) / dv;
             if(grid.mpi_rank==0)
             {
-                P(2, j, k) = eos.compute_pressure(rho(i, j, k), Eperturb) / dv;
+                P(2, j, k) = eos.compute_pressure(rho(i, j, k), param.E1) / dv;
             }
         });
     }
@@ -390,7 +389,8 @@ public:
         KV_double_3d const P,
         KV_double_1d g,
         thermodynamics::PerfectGas const& eos,
-        [[maybe_unused]] Grid const& grid) const final
+        Grid const& grid,
+        Param const& param) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -403,11 +403,6 @@ public:
         double mu = eos.compute_mean_molecular_weight();
         double gamma = eos.compute_adiabatic_index();
         double T = eos.compute_const_temprature();
-        double kb = units::kb;
-        double mh = units::mh;
-
-        double rho0 = 10;
-
         //std::cout <<"Scale = " << kb * T / (mu * mh * std::abs(gx)) << std::endl;
         
         auto const [begin, end] = cell_range(range);
@@ -417,13 +412,13 @@ public:
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
             double xcenter = x_d(i) + grid.dx[0] / 2;
-            double x0 = kb * T / (mu * mh * std::abs(g(0)));
-            rho(i, j, k) = rho0 * Kokkos::exp(- xcenter / x0);
+            double x0 = units::kb * T / (mu * units::mh * std::abs(g(0)));
+            rho(i, j, k) = param.rho0 * Kokkos::exp(- xcenter / x0);
             for (int idim = 0; idim < ndim; ++idim)
             {
-                u(i, j, k, idim) = 0;
+                u(i, j, k, idim) = param.u0;
             }
-            P(i, j, k) = rho(i, j, k) * kb * T / (mu * mh);
+            P(i, j, k) = eos.compute_perfect_pressure(rho(i, j, k), T);
         });
     }
 };

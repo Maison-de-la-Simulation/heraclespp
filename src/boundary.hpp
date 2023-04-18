@@ -15,6 +15,7 @@
 #include "grid.hpp"
 #include "ndim.hpp"
 #include "units.hpp"
+#include "nova_params.hpp"
 
 namespace novapp
 {
@@ -46,7 +47,8 @@ public:
                           KV_double_3d E,
                           KV_double_1d g,
                           Grid const & grid,
-                          thermodynamics::PerfectGas const& eos) const = 0;
+                          thermodynamics::PerfectGas const& eos,
+                          Param const& param) const = 0;
 
 public:
     int bc_idim;
@@ -69,7 +71,8 @@ public:
                   KV_double_3d E,
                   [[maybe_unused]] KV_double_1d g,
                   Grid const & grid,
-                  [[maybe_unused]] thermodynamics::PerfectGas const& eos) const final
+                  [[maybe_unused]] thermodynamics::PerfectGas const& eos,
+                  [[maybe_unused]] Param const& param) const final
     {
         assert(rho.extent(0) == rhou.extent(0));
         assert(rhou.extent(0) == E.extent(0));
@@ -118,7 +121,8 @@ public:
                   [[maybe_unused]]KV_double_3d E,
                   [[maybe_unused]] KV_double_1d g,
                   [[maybe_unused]]Grid const & grid,
-                  [[maybe_unused]] thermodynamics::PerfectGas const& eos) const final
+                  [[maybe_unused]] thermodynamics::PerfectGas const& eos,
+                  [[maybe_unused]] Param const& param) const final
     {
         // do nothing
     }
@@ -141,7 +145,8 @@ public:
                   KV_double_3d E,
                   [[maybe_unused]] KV_double_1d g,
                   Grid const & grid,
-                  [[maybe_unused]] thermodynamics::PerfectGas const& eos) const final
+                  [[maybe_unused]] thermodynamics::PerfectGas const& eos,
+                  [[maybe_unused]] Param const& param) const final
     {
         Kokkos::Array<int, 3> begin {0, 0, 0};
         Kokkos::Array<int, 3> end {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)};
@@ -188,7 +193,8 @@ public:
                   KV_double_3d E,
                   KV_double_1d g,
                   Grid const & grid,
-                  thermodynamics::PerfectGas const& eos) const final
+                  thermodynamics::PerfectGas const& eos,
+                  Param const& param) const final
     {
         assert(rho.extent(0) == rhou.extent(0));
         assert(rhou.extent(0) == E.extent(0));
@@ -204,10 +210,6 @@ public:
         double mu = eos.compute_mean_molecular_weight();
         double gamma = eos.compute_adiabatic_index();
         double T = eos.compute_const_temprature();
-        double kb = units::kb;
-        double mh = units::mh;
-
-        double rho0 = 10;
 
         int const ng = grid.Nghost[bc_idim];
         if (bc_iface == 1)
@@ -227,13 +229,13 @@ public:
                 gravity += g(idim); //Gravity always on one direction
             }
             double xcenter = x_d(i) + grid.dx[0] / 2;
-            double x0 = kb * T / (mu * mh * std::abs(gravity));
-            rho(i, j, k) = rho0 * Kokkos::exp(- xcenter / x0);
+            double x0 = units::kb * T / (mu * units::mh * std::abs(gravity));
+            rho(i, j, k) = param.rho0 * Kokkos::exp(- xcenter / x0);
             for (int n = 0; n < rhou.extent_int(3); n++)
             {
-                rhou(i, j, k, n) = 0;
+                rhou(i, j, k, n) = param.rho0 * param.u0;
             }
-            E(i, j, k) = rho(i, j, k) * kb * T / (mu * mh * (gamma - 1));
+            E(i, j, k) = eos.compute_perfect_pressure(rho(i, j, k), T) / (gamma - 1);
         });
     }
 };
@@ -279,17 +281,15 @@ private:
             int bc_iface,
             Grid const& grid) const;
 
-    void generate_order(INIReader const& reader)
+    void generate_order(Param const& param, INIReader const& reader)
     {
-        std::string bc_priority = reader.Get("Boundary Condition", "priority", "");
-
-        if(bc_priority.empty())
+        if(param.bc_priority.empty())
         {
             std::iota(m_bc_order.begin(), m_bc_order.end(), 0); // m_bc_order = {0,1,2,3,4,5};
             return;
         }
         std::array<std::string, ndim*2> tmp_arr;
-        std::stringstream ssin(bc_priority);
+        std::stringstream ssin(param.bc_priority);
         for(int i=0; i<ndim*2 && ssin.good(); i++)
         {
             ssin >> tmp_arr[i];
@@ -315,16 +315,15 @@ private:
 public:
     DistributedBoundaryCondition(
             INIReader const& reader,
+            Param const& param,
             Grid const& grid)
     {
-        std::string bc_choice;
         std::string bc_choice_dir;
         std::array<std::string, ndim*2> bc_choice_faces;
 
-        bc_choice = reader.Get("Boundary Condition", "BC", "");
         for(int idim = 0; idim < ndim; idim++)
         {
-            bc_choice_dir = reader.Get("Boundary Condition", "BC"+bc_dir[idim], bc_choice);
+            bc_choice_dir = reader.Get("Boundary Condition", "BC"+bc_dir[idim], param.bc_choice);
             for (int iface = 0; iface < 2; iface++)
             {
                 bc_choice_faces[idim*2+iface] = reader.Get("Boundary Condition", "BC"+bc_dir[idim]+bc_face[iface], bc_choice_dir);
@@ -358,10 +357,17 @@ public:
             buf_size[idim] = grid.Nx_local_wg[idim];
         }
 
-        generate_order(reader);
+        //generate_order(reader);
+        generate_order(param, reader);
     }
 
-    void execute(KV_double_3d rho, KV_double_4d rhou, KV_double_3d E, KV_double_1d g, Grid const & grid, thermodynamics::PerfectGas const& eos) const
+    void execute(KV_double_3d rho, 
+                 KV_double_4d rhou, 
+                 KV_double_3d E, 
+                 KV_double_1d g, 
+                 Grid const & grid, 
+                 thermodynamics::PerfectGas const& eos, 
+                 Param const& param) const
     {
         for (int idim = 0; idim < ndim; idim++)
         {
@@ -373,7 +379,7 @@ public:
 
         for ( int const bc_id : m_bc_order )
         {
-            m_bcs[bc_id]->execute(rho, rhou, E, g, grid, eos);
+            m_bcs[bc_id]->execute(rho, rhou, E, g, grid, eos, param);
         }
     }
 };

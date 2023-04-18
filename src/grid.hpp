@@ -17,6 +17,7 @@
 #include "range.hpp"
 #include "ndim.hpp"
 #include "Kokkos_shortcut.hpp"
+#include "nova_params.hpp"
 
 namespace novapp
 {
@@ -35,7 +36,7 @@ class Grid
 public :
     static constexpr int Ndim = ndim;
 
-    explicit Grid(INIReader const& reader);
+    explicit Grid(Param const& param);
     void print_grid() const;
 
 private:
@@ -59,7 +60,6 @@ public :
     double zmax;
 
     Kokkos::Array<double, 3> L;
-
     Kokkos::Array<double, 3> dx;
 
     std::array<std::array<std::array<int, 3>, 3>, 3> NeighborRank;
