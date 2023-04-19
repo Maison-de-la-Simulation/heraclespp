@@ -20,7 +20,7 @@ class PerfectGas
     double m_T;
 
 public:
-    PerfectGas(double gamma, double mmw, double T);
+    PerfectGas(double gamma, double mmw);
 
     PerfectGas(const PerfectGas& rhs) = default;
 
@@ -51,13 +51,13 @@ public:
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
-    double compute_pressure([[maybe_unused]] double const density, double const volumic_internal_energy) const noexcept
+    double compute_pressure_from_e([[maybe_unused]] double const density, double const volumic_internal_energy) const noexcept
     {
         return m_gamma_m1 * volumic_internal_energy;
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
-    double compute_perfect_pressure(double const density, double const temperature) const noexcept
+    double compute_pressure_from_T(double const density, double const temperature) const noexcept
     {
         return density * units::kb * temperature / (m_mmw * units::mh);
     }
@@ -66,11 +66,6 @@ public:
     double compute_temprature(double const density, double const pressure) const noexcept
     {
         return pressure * m_mmw * units::mh / (density * units::kb);
-    }
-
-    double compute_const_temprature() const noexcept
-    {
-        return m_T;
     }
 
     KOKKOS_FORCEINLINE_FUNCTION

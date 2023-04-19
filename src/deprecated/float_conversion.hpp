@@ -80,6 +80,6 @@ public :
 
     double ConvP()
     {
-        return m_eos.compute_pressure(m_rho, m_E - (1. / 2) * m_rho * m_u * m_u);
+        return m_eos.compute_pressure_from_e(m_rho, m_E - (1. / 2) * m_rho * m_u * m_u);
     }
 };

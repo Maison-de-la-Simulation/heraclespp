@@ -29,11 +29,11 @@ TEST(Thermodynamics, GammaValidityRange)
     double const valid_mmw = 1;
     for (double const invalid_gamma : invalid_values)
     {
-        EXPECT_THROW(novapp::thermodynamics::PerfectGas(invalid_gamma, valid_mmw, 0), std::domain_error);
+        EXPECT_THROW(novapp::thermodynamics::PerfectGas(invalid_gamma, valid_mmw), std::domain_error);
     }
     for (double const valid_gamma : valid_values)
     {
-        EXPECT_NO_THROW(novapp::thermodynamics::PerfectGas(valid_gamma, valid_mmw, 0));
+        EXPECT_NO_THROW(novapp::thermodynamics::PerfectGas(valid_gamma, valid_mmw));
     }
 }
 
@@ -63,11 +63,11 @@ TEST(Thermodynamics, MmwValidityRange)
     double const valid_gamma = 1.4;
     for (double const invalid_mmw : invalid_values)
     {
-        EXPECT_THROW(novapp::thermodynamics::PerfectGas(valid_gamma, invalid_mmw, 0), std::domain_error);
+        EXPECT_THROW(novapp::thermodynamics::PerfectGas(valid_gamma, invalid_mmw), std::domain_error);
     }
     for (double const valid_mmw : valid_values)
     {
-        EXPECT_NO_THROW(novapp::thermodynamics::PerfectGas(valid_gamma, valid_mmw, 0));
+        EXPECT_NO_THROW(novapp::thermodynamics::PerfectGas(valid_gamma, valid_mmw));
     }
 }
 
@@ -75,20 +75,16 @@ TEST(Thermodynamics, Accessors)
 {
     double const gamma = 1.4;
     double const mmw = 1;
-    double const T = 100;
-    novapp::thermodynamics::PerfectGas const eos(gamma, mmw, T);
+    novapp::thermodynamics::PerfectGas const eos(gamma, mmw);
     EXPECT_DOUBLE_EQ(eos.compute_adiabatic_index(), gamma);
     EXPECT_DOUBLE_EQ(eos.compute_mean_molecular_weight(), mmw);
-    EXPECT_DOUBLE_EQ(eos.compute_const_temprature(), T);
-    
 }
 
 TEST(Thermodynamics, ValidState)
 {
     double const gamma = 1.4;
     double const mmw = 1;
-    double const T = 100;
-    novapp::thermodynamics::PerfectGas const eos(gamma, mmw, T);
+    novapp::thermodynamics::PerfectGas const eos(gamma, mmw);
 
     std::vector<double> const valid_values {
             std::numeric_limits<double>::denorm_min(),

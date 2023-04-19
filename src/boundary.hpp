@@ -209,7 +209,6 @@ public:
         auto const x_d = grid.x.d_view;
         double mu = eos.compute_mean_molecular_weight();
         double gamma = eos.compute_adiabatic_index();
-        double T = eos.compute_const_temprature();
 
         int const ng = grid.Nghost[bc_idim];
         if (bc_iface == 1)
@@ -229,13 +228,13 @@ public:
                 gravity += g(idim); //Gravity always on one direction
             }
             double xcenter = x_d(i) + grid.dx[0] / 2;
-            double x0 = units::kb * T / (mu * units::mh * std::abs(gravity));
+            double x0 = units::kb * param.T / (mu * units::mh * std::abs(gravity));
             rho(i, j, k) = param.rho0 * Kokkos::exp(- xcenter / x0);
             for (int n = 0; n < rhou.extent_int(3); n++)
             {
                 rhou(i, j, k, n) = param.rho0 * param.u0;
             }
-            E(i, j, k) = eos.compute_perfect_pressure(rho(i, j, k), T) / (gamma - 1);
+            E(i, j, k) = eos.compute_pressure_from_T(rho(i, j, k), param.T) / (gamma - 1);
         });
     }
 };
