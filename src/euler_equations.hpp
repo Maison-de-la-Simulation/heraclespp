@@ -92,7 +92,7 @@ EulerFlux compute_flux(
 {
     EulerFlux flux;
     double const volumic_internal_energy = cons.energy - compute_volumic_kinetic_energy(cons);
-    double const pressure = eos.compute_pressure(cons.density, volumic_internal_energy);
+    double const pressure = eos.compute_pressure_from_e(cons.density, volumic_internal_energy);
     double const velocity = cons.momentum[locdim] / cons.density;
     flux.density = velocity * cons.density;
     for (int idim = 0; idim < ndim; ++idim)
@@ -113,7 +113,7 @@ EulerPrim to_prim(EulerCons const& cons, thermodynamics::PerfectGas const& eos) 
     {
         prim.velocity[idim] = cons.momentum[idim] / cons.density;
     }
-    prim.pressure = eos.compute_pressure(
+    prim.pressure = eos.compute_pressure_from_e(
             cons.density,
             cons.energy - compute_volumic_kinetic_energy(cons));
     return prim;

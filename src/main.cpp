@@ -60,7 +60,7 @@ int main(int argc, char** argv)
     Grid const grid(param);
     grid.print_grid();
 
-    thermodynamics::PerfectGas const eos(param.gamma, param.mu, param.T);
+    thermodynamics::PerfectGas const eos(param.gamma, param.mu);
 
     KV_double_1d g_array("g_array", 3);
     Kokkos::parallel_for(1, KOKKOS_LAMBDA([[maybe_unused]] int i)

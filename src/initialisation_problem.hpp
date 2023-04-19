@@ -304,8 +304,6 @@ public:
         assert(rho.extent(2) == u.extent(2));
         assert(u.extent(2) == P.extent(2));
 
-        double gamma = eos.compute_adiabatic_index();
-
         auto const x_d = grid.x.d_view;
         auto const y_d = grid.y.d_view;
         auto const [begin, end] = cell_range(range);
@@ -326,11 +324,11 @@ public:
             }
             if (r <0.025)
             {
-                P(i, j, k) = eos.compute_pressure(rho(i, j, k), param.E1) / dv;
+                P(i, j, k) = eos.compute_pressure_from_e(rho(i, j, k), param.E1 / dv);
             }
             else
             {
-                P(i, j, k) = eos.compute_pressure(rho(i, j, k), param.E0) / dv;
+                P(i, j, k) = eos.compute_pressure_from_e(rho(i, j, k), param.E0 / dv);
             } 
         });
     }
@@ -356,7 +354,6 @@ public:
         assert(rho.extent(2) == u.extent(2));
         assert(u.extent(2) == P.extent(2));
 
-        double gamma = eos.compute_adiabatic_index();
         double dv = grid.dx[0];
 
         auto const [begin, end] = cell_range(range);
@@ -370,10 +367,10 @@ public:
             {
                 u(i, j, k, idim) = param.u0;
             }
-            P(i, j, k) = eos.compute_pressure(rho(i, j, k), param.E0) / dv;
+            P(i, j, k) = eos.compute_pressure_from_e(rho(i, j, k), param.E0 / dv);
             if(grid.mpi_rank==0)
             {
-                P(2, j, k) = eos.compute_pressure(rho(i, j, k), param.E1) / dv;
+                P(2, j, k) = eos.compute_pressure_from_e(rho(i, j, k), param.E1 / dv);
             }
         });
     }
@@ -401,8 +398,6 @@ public:
 
         auto const x_d = grid.x.d_view;
         double mu = eos.compute_mean_molecular_weight();
-        double gamma = eos.compute_adiabatic_index();
-        double T = eos.compute_const_temprature();
         //std::cout <<"Scale = " << kb * T / (mu * mh * std::abs(gx)) << std::endl;
         
         auto const [begin, end] = cell_range(range);
@@ -412,13 +407,13 @@ public:
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
             double xcenter = x_d(i) + grid.dx[0] / 2;
-            double x0 = units::kb * T / (mu * units::mh * std::abs(g(0)));
+            double x0 = units::kb * param.T / (mu * units::mh * std::abs(g(0)));
             rho(i, j, k) = param.rho0 * Kokkos::exp(- xcenter / x0);
             for (int idim = 0; idim < ndim; ++idim)
             {
                 u(i, j, k, idim) = param.u0;
             }
-            P(i, j, k) = eos.compute_perfect_pressure(rho(i, j, k), T);
+            P(i, j, k) = eos.compute_pressure_from_T(rho(i, j, k), param.T);
         });
     }
 };
