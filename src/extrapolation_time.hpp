@@ -16,6 +16,7 @@
 #include "grid.hpp"
 #include "gravity.hpp"
 #include "Kokkos_shortcut.hpp"
+#include "kronecker.hpp"
 
 
 namespace novapp
@@ -89,7 +90,7 @@ public:
         assert(rho_rec.extent(4) == rhou_rec.extent(4));
         assert(rhou_rec.extent(4) == E_rec.extent(4));
 
-        //intermediate array
+        // Intermediate array
         KV_double_5d rho_rec_old("rho_rec_old", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim);
         KV_double_6d rhou_rec_old("rhou_rec_old", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim, ndim);
         Kokkos::deep_copy(rho_rec_old, rho_rec);
@@ -100,10 +101,12 @@ public:
         Kokkos::parallel_for(
         "HancockExtrapolation",
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-        KOKKOS_CLASS_LAMBDA(int i, int j, int k) 
+        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
             for (int idim = 0; idim < ndim; ++idim)
             {
+                auto const [i_p, j_p, k_p] = rindex(idim, i, j, k); // i + 1
+
                 EulerPrim minus_one; // Left, front, bottom
                 minus_one.density = rho_rec(i, j, k, 0, idim);
                 for (int idr = 0; idr < ndim; ++idr)
@@ -122,20 +125,21 @@ public:
                 plus_one.pressure = loc_P_rec(i, j, k, 1, idim);
                 EulerFlux flux_plus_one = compute_flux(plus_one, idim, m_eos);
 
-                double dtodx = dt / grid.dx[idim];
+                double dtodv = dt / grid.dv.d_view(i, j, k);
 
                 for (int ipos = 0; ipos < ndim; ++ipos)
                 {
-                    rho_rec(i, j, k, 0, ipos) += dtodx * (flux_minus_one.density - flux_plus_one.density);
-                    rho_rec(i, j, k, 1, ipos) += dtodx * (flux_minus_one.density - flux_plus_one.density);
+                    rho_rec(i, j, k, 0, ipos) += dtodv * (flux_minus_one.density * grid.ds.d_view(i, j, k, idim) - flux_plus_one.density * grid.ds.d_view(i_p, j_p, k_p, idim));
+                    rho_rec(i, j, k, 1, ipos) += dtodv * (flux_minus_one.density * grid.ds.d_view(i, j, k, idim) - flux_plus_one.density * grid.ds.d_view(i_p, j_p, k_p, idim));
                     for (int idr = 0; idr < ndim; ++idr)
                     {
-                        rhou_rec(i, j, k, 0, ipos, idr) += dtodx * (flux_minus_one.momentum[idr] - flux_plus_one.momentum[idr]);
-                        rhou_rec(i, j, k, 1, ipos, idr) += dtodx * (flux_minus_one.momentum[idr] - flux_plus_one.momentum[idr]);
+                        rhou_rec(i, j, k, 0, ipos, idr) += dtodv * (flux_minus_one.momentum[idr] * grid.ds.d_view(i, j, k, idim) - flux_plus_one.momentum[idr] * grid.ds.d_view(i_p, j_p, k_p, idim));
+                        rhou_rec(i, j, k, 1, ipos, idr) += dtodv * (flux_minus_one.momentum[idr] * grid.ds.d_view(i, j, k, idim) - flux_plus_one.momentum[idr] * grid.ds.d_view(i_p, j_p, k_p, idim));
                     }
-                    E_rec(i, j, k, 0, ipos) += dtodx * (flux_minus_one.energy - flux_plus_one.energy);
-                    E_rec(i, j, k, 1, ipos) += dtodx * (flux_minus_one.energy - flux_plus_one.energy);
+                    E_rec(i, j, k, 0, ipos) += dtodv * (flux_minus_one.energy * grid.ds.d_view(i, j, k, idim) - flux_plus_one.energy * grid.ds.d_view(i_p, j_p, k_p, idim));
+                    E_rec(i, j, k, 1, ipos) += dtodv * (flux_minus_one.energy * grid.ds.d_view(i, j, k, idim) - flux_plus_one.energy * grid.ds.d_view(i_p, j_p, k_p, idim));
                 }
+                
                 // Gravity
                 for (int ipos = 0; ipos < ndim; ++ipos)
                 {

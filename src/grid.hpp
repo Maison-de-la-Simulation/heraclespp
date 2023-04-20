@@ -38,6 +38,7 @@ public :
 
     explicit Grid(Param const& param);
     void print_grid() const;
+    void Init_grid();
 
 private:
     void MPI_Decomp();
@@ -60,7 +61,6 @@ public :
     double zmax;
 
     Kokkos::Array<double, 3> L;
-    Kokkos::Array<double, 3> dx;
 
     std::array<std::array<std::array<int, 3>, 3>, 3> NeighborRank;
     std::array<int, Ndim*2> neighbor_src;
@@ -76,6 +76,8 @@ public :
     Range range;
     std::array<std::array<bool, 2>,3> is_border;
 
+    std::array<KDV_double_4d, ndim> mpi_buffer;
+
     int offsetx;
     int offsety;
     int offsetz;
@@ -83,6 +85,11 @@ public :
     KDV_double_1d x;
     KDV_double_1d y;
     KDV_double_1d z;
+
+    KDV_double_4d dx;
+    KV_double_1d dx_inter;
+    KDV_double_4d ds;
+    KDV_double_3d dv;
 };
 
 } // namespace novapp

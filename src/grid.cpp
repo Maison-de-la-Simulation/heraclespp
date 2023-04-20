@@ -36,10 +36,6 @@ Grid::Grid(Param const& param)
     L[1] = ymax - ymin;
     L[2] = zmax - zmin;
 
-    dx[0] = L[0] / Nx_glob_ng[0];
-    dx[1] = L[1] / Nx_glob_ng[1];
-    dx[2] = L[2] / Nx_glob_ng[2];
-
     Ncpu_x[0] = param.Ncpu_x[0];
     Ncpu_x[1] = param.Ncpu_x[1];
     Ncpu_x[2] = param.Ncpu_x[2];
@@ -49,8 +45,8 @@ Grid::Grid(Param const& param)
     Nx_local_ng = param.Nx_glob_ng; // default for a single MPI process
 
     MPI_Decomp();
-
     Init_nodes();
+    Init_grid();
 }
 
 /* ****************************************************************
@@ -142,35 +138,110 @@ void Grid::MPI_Decomp()
 
 void Grid::Init_nodes()
 {
-    x = KDV_double_1d("Initx", Nx_local_ng[0]+ 2*Nghost[0] + 1);
-    y = KDV_double_1d("Inity", Nx_local_ng[1]+ 2*Nghost[1] + 1);
-    z = KDV_double_1d("Initz", Nx_local_ng[2]+ 2*Nghost[2] + 1);
+    x = KDV_double_1d("Initx", Nx_local_ng[0]+2*Nghost[0]+1);
+    y = KDV_double_1d("Inity", Nx_local_ng[1]+2*Nghost[1]+1);
+    z = KDV_double_1d("Initz", Nx_local_ng[2]+2*Nghost[2]+1);
 
     offsetx = range.Corner_min[0] - Nghost[0];
     offsety = range.Corner_min[1] - Nghost[1];
     offsetz = range.Corner_min[2] - Nghost[2];
 
+    double dx = L[0] / Nx_glob_ng[0];
+    double dy = L[1] / Nx_glob_ng[1];
+    double dz = L[2] / Nx_glob_ng[2];
+
     auto const x_h = x.h_view;
-    for (int i = 0; i < Nx_local_ng[0] + 2 * Nghost[0] + 1; ++i)
+    for (int i=0; i<Nx_local_ng[0]+2*Nghost[0]+1; ++i)
     {
-        x_h(i) = xmin + (i + offsetx) * dx[0]; // Position of the left interface
+        x_h(i) = xmin + (i + offsetx) * dx; // Position of the left interface
     }
     x.modify_host();
     x.sync_device();
     auto const y_h = y.h_view;
-    for (int i = 0; i < Nx_local_ng[1] + 2 * Nghost[1] + 1; ++i)
+    for (int i=0; i<Nx_local_ng[1]+2*Nghost[1]+1; ++i)
     {
-        y_h(i) = ymin + (i + offsety) * dx[1]; // Position of the left interface
+        y_h(i) = ymin + (i + offsety) * dy; // Position of the left interface
     }
     y.modify_host();
     y.sync_device();
     auto const z_h = z.h_view;
-    for (int i = 0; i < Nx_local_ng[2] + 2 * Nghost[2] + 1; ++i)
+    for (int i=0; i<Nx_local_ng[2]+2*Nghost[2]+1; ++i)
     {
-        z_h(i) = zmin + (i + offsetz) * dx[2]; // Position of the left interface
+        z_h(i) = zmin + (i + offsetz) * dz; // Position of the left interface
     }
     z.modify_host();
     z.sync_device();
+}
+
+void Grid::Init_grid()
+{
+    dx = KDV_double_4d("dx", Nx_local_ng[0]+2*Nghost[0],
+                             Nx_local_ng[1]+2*Nghost[1],
+                             Nx_local_ng[2]+2*Nghost[2],
+                             3);
+    ds = KDV_double_4d("ds", Nx_local_ng[0]+2*Nghost[0], 
+                             Nx_local_ng[1]+2*Nghost[1],
+                             Nx_local_ng[2]+2*Nghost[2],
+                             3);
+    dv = KDV_double_3d("dv", Nx_local_ng[0]+2*Nghost[0], 
+                             Nx_local_ng[1]+2*Nghost[1],
+                             Nx_local_ng[2]+2*Nghost[2]);
+    dx_inter = KV_double_1d("dx_inter", 3);
+
+    auto const dx_d = dx.d_view;
+    auto const x_d = x.d_view;
+    auto const y_d = y.d_view;
+    auto const z_d = z.d_view;
+    Kokkos::parallel_for("File_dx",
+    Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0}, 
+                            {Nx_local_ng[0]+2*Nghost[0], 
+                             Nx_local_ng[1]+2*Nghost[1],
+                             Nx_local_ng[2]+2*Nghost[2]}),
+    KOKKOS_CLASS_LAMBDA(int i, int j, int k)
+    {
+        dx_d(i, j, k, 0) = x_d(i+1) - x_d(i);
+        dx_d(i, j, k, 1) = y_d(j+1) - y_d(j);
+        dx_d(i, j, k, 2) = z_d(k+1) - z_d(k);
+    });
+    dx.modify_device();
+    dx.sync_host();
+
+    auto const ds_d = ds.d_view;
+    Kokkos::parallel_for("File_ds",
+    Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0}, 
+                            {Nx_local_ng[0]+2*Nghost[0], 
+                             Nx_local_ng[1]+2*Nghost[1],
+                             Nx_local_ng[2]+2*Nghost[2]}),
+    KOKKOS_CLASS_LAMBDA(int i, int j, int k)
+    {
+        for (int idim=0; idim<3; ++idim)
+        {
+            dx_inter[0] = dx_d(i, j, k, 0);
+            dx_inter[1] = dx_d(i, j, k, 1);
+            dx_inter[2] = dx_d(i, j, k, 2);
+            dx_inter[idim] = 1;
+            ds_d(i, j, k, idim) = dx_inter[0] * dx_inter[1] * dx_inter[2];
+        }
+    });
+    ds.modify_device();
+    ds.sync_host();
+
+    auto const dv_d = dv.d_view;
+    Kokkos::parallel_for("File_dv",
+    Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0}, 
+                            {Nx_local_ng[0]+2*Nghost[0], 
+                             Nx_local_ng[1]+2*Nghost[1],
+                             Nx_local_ng[2]+2*Nghost[2]}),
+    KOKKOS_CLASS_LAMBDA(int i, int j, int k)
+    {
+        dv_d(i, j, k) = 1;
+        for (int idim=0; idim<ndim; ++idim)
+        {
+            dv_d(i, j, k) *= dx_d(i, j, k, idim);
+        }
+    });
+    dv.modify_device();
+    dv.sync_host();
 }
 
 void Grid::print_grid() const

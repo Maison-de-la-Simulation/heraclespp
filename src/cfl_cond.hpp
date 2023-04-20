@@ -25,7 +25,6 @@ class Grid;
 //! @param[in] rho density array 3D
 //! @param[in] u celerity array 3D
 //! @param[in] P pressure array 3D
-//! @param[in] dx space step array 3D
 //! @return time step
 [[nodiscard]] double time_step(
     Range const& range,

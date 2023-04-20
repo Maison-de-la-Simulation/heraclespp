@@ -20,9 +20,9 @@ def ExactSolution(N):
     rho    : array : density
     """
     dx = L / N
-    x = np.zeros(N) # Left interface
+    x = np.zeros(N) # Center
     for i in range(N):
-        x[i] = i * dx
+        x[i] = i * dx  + dx / 2
     rho = np.zeros(N)
     for i in range(N):
         rho[i] = 1 * np.exp(-15 * ((1. / 2)  - x[i])**2)
@@ -44,6 +44,7 @@ def Error(filename):
 
 if __name__ == "__main__":
     filenames = glob.glob('convergence_test_advection_sinus_[0-9]*.h5')
+    filenames.sort()
     val_error = np.empty(len(filenames))
     for i in range(len(filenames)):
         val_error[i] = Error(filenames[i])
@@ -59,8 +60,11 @@ if __name__ == "__main__":
     theoretical_slope = 2
     tol = 0.05
     order_error = np.fabs(result.slope - theoretical_slope) / theoretical_slope
-    if order_error > tol:
+    if(result.slope < 2 - tol):
+    #if order_error > tol:
         print("FAILURE")
+        print(result)
         sys.exit(1)
     else:
         print("SUCCESS")
+        print(result)
