@@ -105,7 +105,7 @@ convergence-advection-sinusoide-test-job:serial:1:
   stage: test
   needs: ["build-job:serial:1"]
   script:
-    - ./test/run_convergence_advection_sinusoide.sh
+    - ./test/run_convergence_advection_gaussian.sh
 
 format-job:
   only: [ main, merge_requests ]
