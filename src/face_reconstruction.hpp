@@ -93,29 +93,29 @@ public:
 };
 
 inline std::unique_ptr<IFaceReconstruction> factory_face_reconstruction(
-        std::string const& label)
+        std::string const& slope)
 {
-    if (label == Constant::s_label)
+    if (slope == "Constant")
     {
         return std::make_unique<LimitedLinearReconstruction<Constant>>(Constant());
     }
 
-    if (label == VanLeer::s_label)
+    if (slope == "VanLeer")
     {
         return std::make_unique<LimitedLinearReconstruction<VanLeer>>(VanLeer());
     }
 
-    if (label == Minmod::s_label)
+    if (slope == "Minmod")
     {
         return std::make_unique<LimitedLinearReconstruction<Minmod>>(Minmod());
     }
 
-    if (label == VanAlbada::s_label)
+    if (slope == "VanAlbada")
     {
         return std::make_unique<LimitedLinearReconstruction<VanAlbada>>(VanAlbada());
     }
 
-    throw std::runtime_error("Unknown face reconstruction algorithm: " + label + ".");
+    throw std::runtime_error("Unknown face reconstruction algorithm: " + slope + ".");
 }
 
 } // namespace novapp

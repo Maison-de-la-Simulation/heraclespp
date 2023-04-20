@@ -5,30 +5,30 @@
 TEST(EulerEquations, KineticEnergyFromPrim)
 {
     novapp::EulerPrim prim;
-    prim.density = 2.;
-    prim.velocity = {10.};
-    prim.pressure = 0.;
-    EXPECT_DOUBLE_EQ(compute_volumic_kinetic_energy(prim), 100.);
+    prim.rho = 2.;
+    prim.u = {10.};
+    prim.P = 0.;
+    EXPECT_DOUBLE_EQ(compute_ek(prim), 100.);
 }
 
 TEST(EulerEquations, KineticEnergyFromCons)
 {
     novapp::EulerCons cons;
-    cons.density = 2.;
-    cons.momentum = {20.};
-    cons.energy = 100.;
-    EXPECT_DOUBLE_EQ(compute_volumic_kinetic_energy(cons), 100.);
+    cons.rho = 2.;
+    cons.rhou = {20.};
+    cons.E = 100.;
+    EXPECT_DOUBLE_EQ(compute_ek(cons), 100.);
 }
 
 TEST(EulerEquations, PrimToConsToPrim)
 {
     novapp::thermodynamics::PerfectGas eos(1.4, 1.);
     novapp::EulerPrim prim;
-    prim.density = 2.;
-    prim.velocity = {10.};
-    prim.pressure = 1.;
+    prim.rho = 2.;
+    prim.u = {10.};
+    prim.P = 1.;
     novapp::EulerPrim prim_to_cons_to_prim = to_prim(to_cons(prim, eos), eos);
-    EXPECT_DOUBLE_EQ(prim.density, prim_to_cons_to_prim.density);
-    EXPECT_DOUBLE_EQ(prim.pressure, prim_to_cons_to_prim.pressure);
-    EXPECT_DOUBLE_EQ(prim.velocity[0], prim_to_cons_to_prim.velocity[0]);
+    EXPECT_DOUBLE_EQ(prim.rho, prim_to_cons_to_prim.rho);
+    EXPECT_DOUBLE_EQ(prim.P, prim_to_cons_to_prim.P);
+    EXPECT_DOUBLE_EQ(prim.u[0], prim_to_cons_to_prim.u[0]);
 }

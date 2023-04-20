@@ -116,45 +116,45 @@ public:
                 auto const [i_p, j_p, k_p] = rindex(idim, i, j, k); // i + 1
 
                 EulerCons minus_oneR; // Right, back, top (i,j,k) - 1
-                minus_oneR.density = rho_rec(i_m, j_m, k_m, 1, idim);
+                minus_oneR.rho = rho_rec(i_m, j_m, k_m, 1, idim);
                 for (int idr = 0; idr < ndim; ++idr)
                 {
-                    minus_oneR.momentum[idr] = rhou_rec(i_m, j_m, k_m, 1, idim, idr);
+                    minus_oneR.rhou[idr] = rhou_rec(i_m, j_m, k_m, 1, idim, idr);
                 }
-                minus_oneR.energy = E_rec(i_m, j_m, k_m, 1, idim);
+                minus_oneR.E = E_rec(i_m, j_m, k_m, 1, idim);
                 EulerCons var_L; // Left, front, down (i,j,k)
-                var_L.density = rho_rec(i, j, k, 0, idim);
+                var_L.rho = rho_rec(i, j, k, 0, idim);
                 for (int idr = 0; idr < ndim; ++idr)
                 {
-                    var_L.momentum[idr] = rhou_rec(i, j, k, 0, idim, idr);
+                    var_L.rhou[idr] = rhou_rec(i, j, k, 0, idim, idr);
                 }
-                var_L.energy = E_rec(i, j, k, 0, idim);
+                var_L.E = E_rec(i, j, k, 0, idim);
                 EulerFlux const FluxL = m_riemann_solver(minus_oneR, var_L, idim, m_eos);
 
                 EulerCons var_R; // Right, back, top (i,j,k)
-                var_R.density = rho_rec(i, j, k, 1, idim);
+                var_R.rho = rho_rec(i, j, k, 1, idim);
                 for (int idr = 0; idr < ndim; ++idr)
                 {
-                    var_R.momentum[idr] = rhou_rec(i, j, k, 1, idim, idr);
+                    var_R.rhou[idr] = rhou_rec(i, j, k, 1, idim, idr);
                 }
-                var_R.energy = E_rec(i, j, k, 1, idim);
+                var_R.E = E_rec(i, j, k, 1, idim);
                 EulerCons plus_oneL; // Left, front, down (i,j,k) + 1
-                plus_oneL.density = rho_rec(i_p, j_p, k_p, 0, idim);
+                plus_oneL.rho = rho_rec(i_p, j_p, k_p, 0, idim);
                 for (int idr = 0; idr < ndim; ++idr)
                 {
-                    plus_oneL.momentum[idr] = rhou_rec(i_p, j_p, k_p, 0, idim, idr);
+                    plus_oneL.rhou[idr] = rhou_rec(i_p, j_p, k_p, 0, idim, idr);
                 }
-                plus_oneL.energy = E_rec(i_p, j_p, k_p, 0, idim);
+                plus_oneL.E = E_rec(i_p, j_p, k_p, 0, idim);
                 EulerFlux const FluxR = m_riemann_solver(var_R, plus_oneL, idim, m_eos);
 
                 double dtodv = dt / grid.dv(i, j, k);
 
-                rho_new(i, j, k) += dtodv * (FluxL.density * grid.ds(i, j, k, idim) - FluxR.density * grid.ds(i_p, j_p, k_p, idim));
+                rho_new(i, j, k) += dtodv * (FluxL.rho * grid.ds(i, j, k, idim) - FluxR.rho * grid.ds(i_p, j_p, k_p, idim));
                 for (int idr = 0; idr < ndim; ++idr)
                 {
-                    rhou_new(i, j, k, idr) += dtodv * (FluxL.momentum[idr] * grid.ds(i, j, k, idim) - FluxR.momentum[idr] * grid.ds(i_p, j_p, k_p, idim));
+                    rhou_new(i, j, k, idr) += dtodv * (FluxL.rhou[idr] * grid.ds(i, j, k, idim) - FluxR.rhou[idr] * grid.ds(i_p, j_p, k_p, idim));
                 }
-                E_new(i, j, k) += dtodv * (FluxL.energy * grid.ds(i, j, k, idim) - FluxR.energy * grid.ds(i_p, j_p, k_p, idim));
+                E_new(i, j, k) += dtodv * (FluxL.E * grid.ds(i, j, k, idim) - FluxR.E * grid.ds(i_p, j_p, k_p, idim));
 
                 // Gravity
                 for (int idr = 0; idr < ndim; ++idr)
@@ -175,7 +175,6 @@ inline std::unique_ptr<IGodunovScheme> factory_godunov_scheme(
 {
     if (riemann_solver == "HLL" && gravity =="Uniform")
     {
-
         return std::make_unique<RiemannBasedGodunovScheme<HLL, UniformGravity>>(HLL(), UniformGravity(g), eos);
     }
     throw std::runtime_error("Invalid riemann solver: " + riemann_solver + ".");

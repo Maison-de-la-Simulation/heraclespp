@@ -28,11 +28,11 @@ public:
         EulerPrim const primL = to_prim(consL, eos);
         EulerPrim const primR = to_prim(consR, eos);
 
-        double const cL = eos.compute_speed_of_sound(primL.density, primL.pressure);
-        double const cR = eos.compute_speed_of_sound(primR.density, primR.pressure);
+        double const cL = eos.compute_speed_of_sound(primL.rho, primL.P);
+        double const cR = eos.compute_speed_of_sound(primR.rho, primR.P);
 
-        double const wsL = Kokkos::fmin(primL.velocity[locdim] - cL, primR.velocity[locdim] - cR);
-        double const wsR = Kokkos::fmax(primL.velocity[locdim] + cL, primR.velocity[locdim] + cR);
+        double const wsL = Kokkos::fmin(primL.u[locdim] - cL, primR.u[locdim] - cR);
+        double const wsR = Kokkos::fmax(primL.u[locdim] + cL, primR.u[locdim] + cR);
 
         EulerFlux const fluxL = compute_flux(primL, locdim, eos);
         EulerFlux const fluxR = compute_flux(primR, locdim, eos);
@@ -45,19 +45,19 @@ public:
         if (wsL <= 0 && wsR >= 0)
         {
             EulerFlux flux;
-            flux.density
-                    = FluxHLL(consL.density, consR.density, fluxL.density, fluxR.density, wsL, wsR);
+            flux.rho
+                    = FluxHLL(consL.rho, consR.rho, fluxL.rho, fluxR.rho, wsL, wsR);
             for (int idim = 0; idim < ndim; ++idim)
             {
-                flux.momentum[idim] = FluxHLL(
-                    consL.momentum[idim],
-                    consR.momentum[idim],
-                    fluxL.momentum[idim],
-                    fluxR.momentum[idim],
+                flux.rhou[idim] = FluxHLL(
+                    consL.rhou[idim],
+                    consR.rhou[idim],
+                    fluxL.rhou[idim],
+                    fluxR.rhou[idim],
                     wsL,
                     wsR);
             }
-            flux.energy = FluxHLL(consL.energy, consR.energy, fluxL.energy, fluxR.energy, wsL, wsR);
+            flux.E = FluxHLL(consL.E, consR.E, fluxL.E, fluxR.E, wsL, wsR);
             return flux;
         }
 

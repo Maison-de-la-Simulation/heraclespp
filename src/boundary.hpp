@@ -207,8 +207,8 @@ public:
         Kokkos::Array<int, 3> end {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)};
 
         auto const x_d = grid.x.d_view;
-        double mu = eos.compute_mean_molecular_weight();
-        double gamma = eos.compute_adiabatic_index();
+        double mu = eos.mean_molecular_weight();
+        double gamma = eos.adiabatic_index();
 
         int const ng = grid.Nghost[bc_idim];
         if (bc_iface == 1)
@@ -234,7 +234,7 @@ public:
             {
                 rhou(i, j, k, n) = param.rho0 * param.u0;
             }
-            E(i, j, k) = eos.compute_pressure_from_T(rho(i, j, k), param.T) / (gamma - 1);
+            E(i, j, k) = eos.compute_P_from_T(rho(i, j, k), param.T) / (gamma - 1);
         });
     }
 };

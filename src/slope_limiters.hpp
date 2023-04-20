@@ -16,8 +16,6 @@ namespace novapp
 class Constant
 {
 public:
-    static constexpr std::string_view s_label = "Constant";
-
     //! @param[in] diffR float (U_{i+1}^{n} - U_{i}^{n}) / dx
     //! @param[in] diffL float (U_{i}^{n} - U_{i-1}^{n}) / dx
     //! @return slope
@@ -33,8 +31,6 @@ public:
 class VanLeer
 {
 public:
-    static constexpr std::string_view s_label = "VanLeer";
-
     //! The Van Leer formula.
     //! @param[in] diffR float (U_{i+1}^{n} - U_{i}^{n}) / dx
     //! @param[in] diffL float (U_{i}^{n} - U_{i-1}^{n}) / dx
@@ -56,8 +52,6 @@ public:
 class Minmod
 {
 public:
-    static constexpr std::string_view s_label = "Minmod";
-
     //! The Minmod formula.
     //! @param[in] diffR float (U_{i+1}^{n} - U_{i}^{n}) / dx
     //! @param[in] diffL float (U_{i}^{n} - U_{i-1}^{n}) / dx
@@ -80,8 +74,6 @@ public:
 class VanAlbada
 {
 public:
-    static constexpr std::string_view s_label = "VanAlbada";
-
     //! The Minmod formula.
     //! @param[in] diffR float (U_{i+1}^{n} - U_{i}^{n}) / dx
     //! @param[in] diffL float (U_{i}^{n} - U_{i-1}^{n}) / dx
