@@ -179,11 +179,11 @@ void Grid::Init_grid()
                              Nx_local_ng[1]+2*Nghost[1],
                              Nx_local_ng[2]+2*Nghost[2],
                              3);
-    ds = KDV_double_4d("ds", Nx_local_ng[0]+2*Nghost[0], 
+    ds = KV_double_4d("ds", Nx_local_ng[0]+2*Nghost[0], 
                              Nx_local_ng[1]+2*Nghost[1],
                              Nx_local_ng[2]+2*Nghost[2],
                              3);
-    dv = KDV_double_3d("dv", Nx_local_ng[0]+2*Nghost[0], 
+    dv = KV_double_3d("dv", Nx_local_ng[0]+2*Nghost[0], 
                              Nx_local_ng[1]+2*Nghost[1],
                              Nx_local_ng[2]+2*Nghost[2]);
     dx_inter = KV_double_1d("dx_inter", 3);
@@ -206,7 +206,6 @@ void Grid::Init_grid()
     dx.modify_device();
     dx.sync_host();
 
-    auto const ds_d = ds.d_view;
     Kokkos::parallel_for("File_ds",
     Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0}, 
                             {Nx_local_ng[0]+2*Nghost[0], 
@@ -220,13 +219,10 @@ void Grid::Init_grid()
             dx_inter[1] = dx_d(i, j, k, 1);
             dx_inter[2] = dx_d(i, j, k, 2);
             dx_inter[idim] = 1;
-            ds_d(i, j, k, idim) = dx_inter[0] * dx_inter[1] * dx_inter[2];
+            ds(i, j, k, idim) = dx_inter[0] * dx_inter[1] * dx_inter[2];
         }
     });
-    ds.modify_device();
-    ds.sync_host();
 
-    auto const dv_d = dv.d_view;
     Kokkos::parallel_for("File_dv",
     Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0}, 
                             {Nx_local_ng[0]+2*Nghost[0], 
@@ -234,14 +230,12 @@ void Grid::Init_grid()
                              Nx_local_ng[2]+2*Nghost[2]}),
     KOKKOS_CLASS_LAMBDA(int i, int j, int k)
     {
-        dv_d(i, j, k) = 1;
+        dv(i, j, k) = 1;
         for (int idim=0; idim<ndim; ++idim)
         {
-            dv_d(i, j, k) *= dx_d(i, j, k, idim);
+            dv(i, j, k) *= dx_d(i, j, k, idim);
         }
     });
-    dv.modify_device();
-    dv.sync_host();
 }
 
 void Grid::print_grid() const

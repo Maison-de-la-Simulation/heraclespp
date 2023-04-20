@@ -147,14 +147,14 @@ public:
                 plus_oneL.energy = E_rec(i_p, j_p, k_p, 0, idim);
                 EulerFlux const FluxR = m_riemann_solver(var_R, plus_oneL, idim, m_eos);
 
-                double dtodv = dt / grid.dv.d_view(i, j, k);
+                double dtodv = dt / grid.dv(i, j, k);
 
-                rho_new(i, j, k) += dtodv * (FluxL.density * grid.ds.d_view(i, j, k, idim) - FluxR.density * grid.ds.d_view(i_p, j_p, k_p, idim));
+                rho_new(i, j, k) += dtodv * (FluxL.density * grid.ds(i, j, k, idim) - FluxR.density * grid.ds(i_p, j_p, k_p, idim));
                 for (int idr = 0; idr < ndim; ++idr)
                 {
-                    rhou_new(i, j, k, idr) += dtodv * (FluxL.momentum[idr] * grid.ds.d_view(i, j, k, idim) - FluxR.momentum[idr] * grid.ds.d_view(i_p, j_p, k_p, idim));
+                    rhou_new(i, j, k, idr) += dtodv * (FluxL.momentum[idr] * grid.ds(i, j, k, idim) - FluxR.momentum[idr] * grid.ds(i_p, j_p, k_p, idim));
                 }
-                E_new(i, j, k) += dtodv * (FluxL.energy * grid.ds.d_view(i, j, k, idim) - FluxR.energy * grid.ds.d_view(i_p, j_p, k_p, idim));
+                E_new(i, j, k) += dtodv * (FluxL.energy * grid.ds(i, j, k, idim) - FluxR.energy * grid.ds(i_p, j_p, k_p, idim));
 
                 // Gravity
                 for (int idr = 0; idr < ndim; ++idr)

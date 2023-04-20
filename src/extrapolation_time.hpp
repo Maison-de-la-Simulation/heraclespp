@@ -125,19 +125,19 @@ public:
                 plus_one.pressure = loc_P_rec(i, j, k, 1, idim);
                 EulerFlux flux_plus_one = compute_flux(plus_one, idim, m_eos);
 
-                double dtodv = dt / grid.dv.d_view(i, j, k);
+                double dtodv = dt / grid.dv(i, j, k);
 
                 for (int ipos = 0; ipos < ndim; ++ipos)
                 {
-                    rho_rec(i, j, k, 0, ipos) += dtodv * (flux_minus_one.density * grid.ds.d_view(i, j, k, idim) - flux_plus_one.density * grid.ds.d_view(i_p, j_p, k_p, idim));
-                    rho_rec(i, j, k, 1, ipos) += dtodv * (flux_minus_one.density * grid.ds.d_view(i, j, k, idim) - flux_plus_one.density * grid.ds.d_view(i_p, j_p, k_p, idim));
+                    rho_rec(i, j, k, 0, ipos) += dtodv * (flux_minus_one.density * grid.ds(i, j, k, idim) - flux_plus_one.density * grid.ds(i_p, j_p, k_p, idim));
+                    rho_rec(i, j, k, 1, ipos) += dtodv * (flux_minus_one.density * grid.ds(i, j, k, idim) - flux_plus_one.density * grid.ds(i_p, j_p, k_p, idim));
                     for (int idr = 0; idr < ndim; ++idr)
                     {
-                        rhou_rec(i, j, k, 0, ipos, idr) += dtodv * (flux_minus_one.momentum[idr] * grid.ds.d_view(i, j, k, idim) - flux_plus_one.momentum[idr] * grid.ds.d_view(i_p, j_p, k_p, idim));
-                        rhou_rec(i, j, k, 1, ipos, idr) += dtodv * (flux_minus_one.momentum[idr] * grid.ds.d_view(i, j, k, idim) - flux_plus_one.momentum[idr] * grid.ds.d_view(i_p, j_p, k_p, idim));
+                        rhou_rec(i, j, k, 0, ipos, idr) += dtodv * (flux_minus_one.momentum[idr] * grid.ds(i, j, k, idim) - flux_plus_one.momentum[idr] * grid.ds(i_p, j_p, k_p, idim));
+                        rhou_rec(i, j, k, 1, ipos, idr) += dtodv * (flux_minus_one.momentum[idr] * grid.ds(i, j, k, idim) - flux_plus_one.momentum[idr] * grid.ds(i_p, j_p, k_p, idim));
                     }
-                    E_rec(i, j, k, 0, ipos) += dtodv * (flux_minus_one.energy * grid.ds.d_view(i, j, k, idim) - flux_plus_one.energy * grid.ds.d_view(i_p, j_p, k_p, idim));
-                    E_rec(i, j, k, 1, ipos) += dtodv * (flux_minus_one.energy * grid.ds.d_view(i, j, k, idim) - flux_plus_one.energy * grid.ds.d_view(i_p, j_p, k_p, idim));
+                    E_rec(i, j, k, 0, ipos) += dtodv * (flux_minus_one.energy * grid.ds(i, j, k, idim) - flux_plus_one.energy * grid.ds(i_p, j_p, k_p, idim));
+                    E_rec(i, j, k, 1, ipos) += dtodv * (flux_minus_one.energy * grid.ds(i, j, k, idim) - flux_plus_one.energy * grid.ds(i_p, j_p, k_p, idim));
                 }
                 
                 // Gravity

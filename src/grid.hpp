@@ -88,8 +88,8 @@ public :
 
     KDV_double_4d dx;
     KV_double_1d dx_inter;
-    KDV_double_4d ds;
-    KDV_double_3d dv;
+    KV_double_4d ds;
+    KV_double_3d dv;
 };
 
 } // namespace novapp
