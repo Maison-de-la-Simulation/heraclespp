@@ -308,7 +308,6 @@ public:
 
         auto const x_d = grid.x.d_view;
         auto const y_d = grid.y.d_view;
-        auto const dv_d = grid.dv.d_view;
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
         "SedovBlastWaveInit",
@@ -326,11 +325,11 @@ public:
             }
             if (r <0.025)
             {
-                P(i, j, k) = eos.compute_pressure_from_e(rho(i, j, k), param.E1 / dv_d(i, j, k));
+                P(i, j, k) = eos.compute_pressure_from_e(rho(i, j, k), param.E1 / grid.dv(i, j, k));
             }
             else
             {
-                P(i, j, k) = eos.compute_pressure_from_e(rho(i, j, k), param.E0 / dv_d(i, j, k));
+                P(i, j, k) = eos.compute_pressure_from_e(rho(i, j, k), param.E0 / grid.dv(i, j, k));
             } 
         });
     }
@@ -356,7 +355,6 @@ public:
         assert(rho.extent(2) == u.extent(2));
         assert(u.extent(2) == P.extent(2));
 
-        auto const dv_d = grid.dv.d_view;
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
         "SedovBlastWaveInit",
@@ -368,10 +366,10 @@ public:
             {
                 u(i, j, k, idim) = param.u0;
             }
-            P(i, j, k) = eos.compute_pressure_from_e(rho(i, j, k), param.E0 / dv_d(i, j, k));
+            P(i, j, k) = eos.compute_pressure_from_e(rho(i, j, k), param.E0 / grid.dv(i, j, k));
             if(grid.mpi_rank==0)
             {
-                P(2, j, k) = eos.compute_pressure_from_e(rho(i, j, k), param.E1 / dv_d(i, j, k));
+                P(2, j, k) = eos.compute_pressure_from_e(rho(i, j, k), param.E1 / grid.dv(i, j, k));
             }
         });
     }
