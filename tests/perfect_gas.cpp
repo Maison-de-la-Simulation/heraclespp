@@ -76,8 +76,8 @@ TEST(Thermodynamics, Accessors)
     double const gamma = 1.4;
     double const mmw = 1;
     novapp::thermodynamics::PerfectGas const eos(gamma, mmw);
-    EXPECT_DOUBLE_EQ(eos.compute_adiabatic_index(), gamma);
-    EXPECT_DOUBLE_EQ(eos.compute_mean_molecular_weight(), mmw);
+    EXPECT_DOUBLE_EQ(eos.adiabatic_index(), gamma);
+    EXPECT_DOUBLE_EQ(eos.mean_molecular_weight(), mmw);
 }
 
 TEST(Thermodynamics, ValidState)

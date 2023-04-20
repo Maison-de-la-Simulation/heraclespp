@@ -108,36 +108,36 @@ public:
                 auto const [i_p, j_p, k_p] = rindex(idim, i, j, k); // i + 1
 
                 EulerPrim minus_one; // Left, front, bottom
-                minus_one.density = rho_rec(i, j, k, 0, idim);
+                minus_one.rho = rho_rec(i, j, k, 0, idim);
                 for (int idr = 0; idr < ndim; ++idr)
                 {
-                    minus_one.velocity[idr] = loc_u_rec(i, j, k, 0, idim, idr);
+                    minus_one.u[idr] = loc_u_rec(i, j, k, 0, idim, idr);
                 }
-                minus_one.pressure = loc_P_rec(i, j, k, 0, idim);
+                minus_one.P = loc_P_rec(i, j, k, 0, idim);
                 EulerFlux flux_minus_one = compute_flux(minus_one, idim, m_eos);
 
                 EulerPrim plus_one; // Right, back, top
-                plus_one.density = rho_rec(i, j, k, 1, idim);
+                plus_one.rho = rho_rec(i, j, k, 1, idim);
                 for (int idr = 0; idr < ndim; ++idr)
                 {
-                    plus_one.velocity[idr] = loc_u_rec(i, j, k, 1, idim, idr);
+                    plus_one.u[idr] = loc_u_rec(i, j, k, 1, idim, idr);
                 }
-                plus_one.pressure = loc_P_rec(i, j, k, 1, idim);
+                plus_one.P = loc_P_rec(i, j, k, 1, idim);
                 EulerFlux flux_plus_one = compute_flux(plus_one, idim, m_eos);
 
                 double dtodv = dt / grid.dv(i, j, k);
 
                 for (int ipos = 0; ipos < ndim; ++ipos)
                 {
-                    rho_rec(i, j, k, 0, ipos) += dtodv * (flux_minus_one.density * grid.ds(i, j, k, idim) - flux_plus_one.density * grid.ds(i_p, j_p, k_p, idim));
-                    rho_rec(i, j, k, 1, ipos) += dtodv * (flux_minus_one.density * grid.ds(i, j, k, idim) - flux_plus_one.density * grid.ds(i_p, j_p, k_p, idim));
+                    rho_rec(i, j, k, 0, ipos) += dtodv * (flux_minus_one.rho * grid.ds(i, j, k, idim) - flux_plus_one.rho * grid.ds(i_p, j_p, k_p, idim));
+                    rho_rec(i, j, k, 1, ipos) += dtodv * (flux_minus_one.rho * grid.ds(i, j, k, idim) - flux_plus_one.rho * grid.ds(i_p, j_p, k_p, idim));
                     for (int idr = 0; idr < ndim; ++idr)
                     {
-                        rhou_rec(i, j, k, 0, ipos, idr) += dtodv * (flux_minus_one.momentum[idr] * grid.ds(i, j, k, idim) - flux_plus_one.momentum[idr] * grid.ds(i_p, j_p, k_p, idim));
-                        rhou_rec(i, j, k, 1, ipos, idr) += dtodv * (flux_minus_one.momentum[idr] * grid.ds(i, j, k, idim) - flux_plus_one.momentum[idr] * grid.ds(i_p, j_p, k_p, idim));
+                        rhou_rec(i, j, k, 0, ipos, idr) += dtodv * (flux_minus_one.rhou[idr] * grid.ds(i, j, k, idim) - flux_plus_one.rhou[idr] * grid.ds(i_p, j_p, k_p, idim));
+                        rhou_rec(i, j, k, 1, ipos, idr) += dtodv * (flux_minus_one.rhou[idr] * grid.ds(i, j, k, idim) - flux_plus_one.rhou[idr] * grid.ds(i_p, j_p, k_p, idim));
                     }
-                    E_rec(i, j, k, 0, ipos) += dtodv * (flux_minus_one.energy * grid.ds(i, j, k, idim) - flux_plus_one.energy * grid.ds(i_p, j_p, k_p, idim));
-                    E_rec(i, j, k, 1, ipos) += dtodv * (flux_minus_one.energy * grid.ds(i, j, k, idim) - flux_plus_one.energy * grid.ds(i_p, j_p, k_p, idim));
+                    E_rec(i, j, k, 0, ipos) += dtodv * (flux_minus_one.E * grid.ds(i, j, k, idim) - flux_plus_one.E * grid.ds(i_p, j_p, k_p, idim));
+                    E_rec(i, j, k, 1, ipos) += dtodv * (flux_minus_one.E * grid.ds(i, j, k, idim) - flux_plus_one.E * grid.ds(i_p, j_p, k_p, idim));
                 }
                 
                 // Gravity

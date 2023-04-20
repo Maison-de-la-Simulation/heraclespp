@@ -32,51 +32,51 @@ public:
     PerfectGas& operator=(PerfectGas&& rhs) noexcept = default;
 
     KOKKOS_FORCEINLINE_FUNCTION
-    double compute_adiabatic_index() const noexcept
+    double adiabatic_index() const noexcept
     {
         return m_gamma;
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
-    double compute_volumic_internal_energy([[maybe_unused]] double const density, double const pressure) const noexcept
+    double compute_evol([[maybe_unused]] double const rho, double const P) const noexcept
     {
-        return m_inv_gamma_m1 * pressure;
+        return m_inv_gamma_m1 * P;
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
-    double compute_mean_molecular_weight() const noexcept
+    double mean_molecular_weight() const noexcept
     {
         return m_mmw;
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
-    double compute_pressure_from_e([[maybe_unused]] double const density, double const volumic_internal_energy) const noexcept
+    double compute_P_from_evol([[maybe_unused]] double const rho, double const evol) const noexcept
     {
-        return m_gamma_m1 * volumic_internal_energy;
+        return m_gamma_m1 * evol;
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
-    double compute_pressure_from_T(double const density, double const temperature) const noexcept
+    double compute_P_from_T(double const rho, double const T) const noexcept
     {
-        return density * units::kb * temperature / (m_mmw * units::mh);
+        return rho * units::kb * T / (m_mmw * units::mh);
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
-    double compute_temprature(double const density, double const pressure) const noexcept
+    double temprature(double const rho, double const P) const noexcept
     {
-        return pressure * m_mmw * units::mh / (density * units::kb);
+        return P * m_mmw * units::mh / (rho * units::kb);
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
-    double compute_speed_of_sound(double const density, double const pressure) const noexcept
+    double compute_speed_of_sound(double const rho, double const P) const noexcept
     {
-        return Kokkos::sqrt(m_gamma * pressure / density);
+        return Kokkos::sqrt(m_gamma * P / rho);
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
-    static bool is_valid(double const density, double const pressure) noexcept
+    static bool is_valid(double const rho, double const P) noexcept
     {
-        return Kokkos::isfinite(density) && density > 0 && Kokkos::isfinite(pressure) && pressure > 0;
+        return Kokkos::isfinite(rho) && rho > 0 && Kokkos::isfinite(P) && P > 0;
     }
 };
 

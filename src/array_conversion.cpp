@@ -22,17 +22,17 @@ void conv_prim_to_cons(
     KOKKOS_LAMBDA(int i, int j, int k)
     {
         EulerPrim var_prim;
-        var_prim.density = rho(i, j, k);
-        var_prim.pressure = P(i, j, k);
+        var_prim.rho = rho(i, j, k);
+        var_prim.P = P(i, j, k);
         for (int idim = 0; idim < ndim; ++idim)
         {
-            var_prim.velocity[idim] = u(i, j, k, idim);
+            var_prim.u[idim] = u(i, j, k, idim);
         }
         EulerCons cons = to_cons(var_prim, eos);
-        E(i, j, k) = cons.energy;
+        E(i, j, k) = cons.E;
         for (int idim = 0; idim < ndim; ++idim)
         {
-            rhou(i, j, k, idim) = cons.momentum[idim];
+            rhou(i, j, k, idim) = cons.rhou[idim];
         }
     });
 }
@@ -53,17 +53,17 @@ void conv_cons_to_prim(
     KOKKOS_LAMBDA(int i, int j, int k)
     {
         EulerCons var_cons;
-        var_cons.density = rho(i, j, k);
-        var_cons.energy = E(i, j, k);
+        var_cons.rho = rho(i, j, k);
+        var_cons.E = E(i, j, k);
         for (int idim = 0; idim < ndim; ++idim)
         {
-            var_cons.momentum[idim] = rhou(i, j, k, idim);
+            var_cons.rhou[idim] = rhou(i, j, k, idim);
         }
         EulerPrim prim = to_prim(var_cons, eos);
-        P(i, j, k) = prim.pressure;
+        P(i, j, k) = prim.P;
         for (int idim = 0; idim < ndim; ++idim)
         {
-            u(i, j, k, idim) = prim.velocity[idim];
+            u(i, j, k, idim) = prim.u[idim];
         }
     });   
 }

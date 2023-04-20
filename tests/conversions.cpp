@@ -13,22 +13,22 @@ TEST(Conversions, PrimToCons)
     novapp::Range const range({0, 0, 0}, {n, n, n}, 0);
     novapp::thermodynamics::PerfectGas const eos(2, 1);
     novapp::EulerPrim prim;
-    prim.density = 2;
+    prim.rho = 2;
     for (int idim = 0; idim < novapp::ndim; ++idim)
     {
-        prim.velocity[idim] = -1;
+        prim.u[idim] = -1;
     }
-    prim.pressure = 10;
+    prim.P = 10;
     Kokkos::View<double***, Kokkos::LayoutLeft> rho_view("rho", n, n, n);
     Kokkos::View<double****, Kokkos::LayoutLeft> u_view("u", n, n, n, novapp::ndim);
     Kokkos::View<double***, Kokkos::LayoutLeft> P_view("P", n, n, n);
 
-    Kokkos::deep_copy(rho_view, prim.density);
+    Kokkos::deep_copy(rho_view, prim.rho);
     for (int idim = 0; idim < novapp::ndim; ++idim)
     {
-        Kokkos::deep_copy(u_view, prim.velocity[idim]);
+        Kokkos::deep_copy(u_view, prim.u[idim]);
     }
-    Kokkos::deep_copy(P_view, prim.pressure);
+    Kokkos::deep_copy(P_view, prim.P);
 
     Kokkos::DualView<double****, Kokkos::LayoutLeft> rhou_view("rhou", n, n, n, novapp::ndim);
     Kokkos::DualView<double***, Kokkos::LayoutLeft> E_view("E", n, n, n);
@@ -56,9 +56,9 @@ TEST(Conversions, PrimToCons)
             {
                 for (int idim = 0; idim < novapp::ndim; ++idim)
                 {
-                    EXPECT_DOUBLE_EQ(rhou_host(i, j, k, idim), cons.momentum[idim]);
+                    EXPECT_DOUBLE_EQ(rhou_host(i, j, k, idim), cons.rhou[idim]);
                 }
-                EXPECT_DOUBLE_EQ(E_host(i, j, k), cons.energy);
+                EXPECT_DOUBLE_EQ(E_host(i, j, k), cons.E);
             }
         }
     }
@@ -70,22 +70,22 @@ TEST(Conversions, ConsToPrim)
     novapp::Range const range({0, 0, 0}, {n, n, n}, 0);
     novapp::thermodynamics::PerfectGas const eos(2, 1);
     novapp::EulerCons cons;
-    cons.density = 2;
+    cons.rho = 2;
     for (int idim = 0; idim < novapp::ndim; ++idim)
     {
-        cons.momentum[idim] = -2;
+        cons.rhou[idim] = -2;
     }
-    cons.energy = 10;
+    cons.E = 10;
     Kokkos::View<double***, Kokkos::LayoutLeft> rho_view("rho", n, n, n);
     Kokkos::View<double****, Kokkos::LayoutLeft> rhou_view("rhou", n, n, n, novapp::ndim);
     Kokkos::View<double***, Kokkos::LayoutLeft> E_view("E", n, n, n);
 
-    Kokkos::deep_copy(rho_view, cons.density);
+    Kokkos::deep_copy(rho_view, cons.rho);
     for (int idim = 0; idim < novapp::ndim; ++idim)
     {
-        Kokkos::deep_copy(rhou_view, cons.momentum[idim]);
+        Kokkos::deep_copy(rhou_view, cons.rhou[idim]);
     }
-    Kokkos::deep_copy(E_view, cons.energy);
+    Kokkos::deep_copy(E_view, cons.E);
 
     Kokkos::DualView<double****, Kokkos::LayoutLeft> u_view("u", n, n, n, novapp::ndim);
     Kokkos::DualView<double***, Kokkos::LayoutLeft> P_view("P", n, n, n);
@@ -113,9 +113,9 @@ TEST(Conversions, ConsToPrim)
             {
                 for (int idim = 0; idim < novapp::ndim; ++idim)
                 {
-                    EXPECT_DOUBLE_EQ(u_host(i, j, k, idim), prim.velocity[idim]);
+                    EXPECT_DOUBLE_EQ(u_host(i, j, k, idim), prim.u[idim]);
                 }
-                EXPECT_DOUBLE_EQ(P_host(i, j, k), prim.pressure);
+                EXPECT_DOUBLE_EQ(P_host(i, j, k), prim.P);
             }
         }
     }

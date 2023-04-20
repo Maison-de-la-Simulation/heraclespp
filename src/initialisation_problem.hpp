@@ -325,11 +325,11 @@ public:
             }
             if (r <0.025)
             {
-                P(i, j, k) = eos.compute_pressure_from_e(rho(i, j, k), param.E1 / grid.dv(i, j, k));
+                P(i, j, k) = eos.compute_P_from_evol(rho(i, j, k), param.E1 / grid.dv(i, j, k));
             }
             else
             {
-                P(i, j, k) = eos.compute_pressure_from_e(rho(i, j, k), param.E0 / grid.dv(i, j, k));
+                P(i, j, k) = eos.compute_P_from_evol(rho(i, j, k), param.E0 / grid.dv(i, j, k));
             } 
         });
     }
@@ -366,10 +366,10 @@ public:
             {
                 u(i, j, k, idim) = param.u0;
             }
-            P(i, j, k) = eos.compute_pressure_from_e(rho(i, j, k), param.E0 / grid.dv(i, j, k));
+            P(i, j, k) = eos.compute_P_from_evol(rho(i, j, k), param.E0 / grid.dv(i, j, k));
             if(grid.mpi_rank==0)
             {
-                P(2, j, k) = eos.compute_pressure_from_e(rho(i, j, k), param.E1 / grid.dv(i, j, k));
+                P(2, j, k) = eos.compute_P_from_evol(rho(i, j, k), param.E1 / grid.dv(i, j, k));
             }
         });
     }
@@ -397,7 +397,7 @@ public:
 
         auto const x_d = grid.x.d_view;
         auto const dx_d = grid.dx.d_view;
-        double mu = eos.compute_mean_molecular_weight();
+        double mu = eos.mean_molecular_weight();
         //std::cout <<"Scale = " << kb * T / (mu * mh * std::abs(gx)) << std::endl;
         
         auto const [begin, end] = cell_range(range);
@@ -413,7 +413,7 @@ public:
             {
                 u(i, j, k, idim) = param.u0;
             }
-            P(i, j, k) = eos.compute_pressure_from_T(rho(i, j, k), param.T);
+            P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), param.T);
         });
     }
 };
