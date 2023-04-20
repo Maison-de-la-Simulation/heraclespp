@@ -43,7 +43,7 @@ def Error(filename):
     return np.sum((exact - solver)**2) * (1 / N)
 
 if __name__ == "__main__":
-    filenames = glob.glob('convergence_test_advection_sinus_[0-9]*.h5')
+    filenames = glob.glob('convergence_test_advection_gaussian_[0-9]*.h5')
     filenames.sort()
     val_error = np.empty(len(filenames))
     for i in range(len(filenames)):

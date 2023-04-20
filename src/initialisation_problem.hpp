@@ -93,7 +93,7 @@ public:
     }
 };
 
-class AdvectionSinus : public IInitialisationProblem
+class AdvectionGaussian : public IInitialisationProblem
 {
 public:
     void execute(
@@ -427,9 +427,9 @@ inline std::unique_ptr<IInitialisationProblem> factory_initialisation(
     {
         return std::make_unique<ShockTube>();
     }
-    if (problem == "AdvectionSinus")
+    if (problem == "AdvectionGaussian")
     {
-        return std::make_unique<AdvectionSinus>();
+        return std::make_unique<AdvectionGaussian>();
     }
     if (problem == "AdvectionCrenel")
     {
