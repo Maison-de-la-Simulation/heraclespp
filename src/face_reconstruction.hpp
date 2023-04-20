@@ -82,11 +82,11 @@ public:
                 auto const [i_p, j_p, k_p] = rindex(idim, i, j, k); // i + 1
 
                 double const slope = m_slope_limiter(
-                    (var(i_p, j_p, k_p) - var(i, j, k)) / grid.dx[idim],
-                    (var(i, j, k) - var(i_m, j_m, k_m)) / grid.dx[idim]);
+                    (var(i_p, j_p, k_p) - var(i, j, k)) / grid.dx.d_view(i, j, k, idim),
+                    (var(i, j, k) - var(i_m, j_m, k_m)) / grid.dx.d_view(i, j, k, idim));
 
-                var_rec(i, j, k, 0, idim) =  var(i, j, k) - (grid.dx[idim] / 2) * slope;
-                var_rec(i, j, k, 1, idim) =  var(i, j, k) + (grid.dx[idim] / 2) * slope;
+                var_rec(i, j, k, 0, idim) =  var(i, j, k) - (grid.dx.d_view(i, j, k, idim) / 2) * slope;
+                var_rec(i, j, k, 1, idim) =  var(i, j, k) + (grid.dx.d_view(i, j, k, idim) / 2) * slope;
             } 
         });
     }

@@ -114,13 +114,15 @@ public:
         assert(u.extent(2) == P.extent(2));
 
         auto const x_d = grid.x.d_view;
+        auto const dx_d = grid.dx.d_view;
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
         "AdvectionInitSinus",
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            rho(i, j, k) = param.rho0 * Kokkos::exp(-15*Kokkos::pow(1./2 - (x_d(i)+x_d(i+1))/2, 2));
+            double xcenter = x_d(i) + dx_d(i, j, k, 0) / 2;
+            rho(i, j, k) = 1 * Kokkos::exp(-15*Kokkos::pow(1./2 - xcenter, 2));
             P(i, j, k) = param.P0;
             for (int idim = 0; idim < ndim; ++idim)
             {
@@ -306,13 +308,13 @@ public:
 
         auto const x_d = grid.x.d_view;
         auto const y_d = grid.y.d_view;
+        auto const dv_d = grid.dv.d_view;
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
         "SedovBlastWaveInit",
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            double dv = grid.dx[0] * grid.dx[1];
             double x = x_d(i);
             double y = y_d(j);
             double r = Kokkos::sqrt(x * x + y * y);
@@ -324,11 +326,11 @@ public:
             }
             if (r <0.025)
             {
-                P(i, j, k) = eos.compute_pressure_from_e(rho(i, j, k), param.E1 / dv);
+                P(i, j, k) = eos.compute_pressure_from_e(rho(i, j, k), param.E1 / dv_d(i, j, k));
             }
             else
             {
-                P(i, j, k) = eos.compute_pressure_from_e(rho(i, j, k), param.E0 / dv);
+                P(i, j, k) = eos.compute_pressure_from_e(rho(i, j, k), param.E0 / dv_d(i, j, k));
             } 
         });
     }
@@ -354,8 +356,7 @@ public:
         assert(rho.extent(2) == u.extent(2));
         assert(u.extent(2) == P.extent(2));
 
-        double dv = grid.dx[0];
-
+        auto const dv_d = grid.dv.d_view;
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
         "SedovBlastWaveInit",
@@ -367,10 +368,10 @@ public:
             {
                 u(i, j, k, idim) = param.u0;
             }
-            P(i, j, k) = eos.compute_pressure_from_e(rho(i, j, k), param.E0 / dv);
+            P(i, j, k) = eos.compute_pressure_from_e(rho(i, j, k), param.E0 / dv_d(i, j, k));
             if(grid.mpi_rank==0)
             {
-                P(2, j, k) = eos.compute_pressure_from_e(rho(i, j, k), param.E1 / dv);
+                P(2, j, k) = eos.compute_pressure_from_e(rho(i, j, k), param.E1 / dv_d(i, j, k));
             }
         });
     }
@@ -397,6 +398,7 @@ public:
         assert(u.extent(2) == P.extent(2));
 
         auto const x_d = grid.x.d_view;
+        auto const dx_d = grid.dx.d_view;
         double mu = eos.compute_mean_molecular_weight();
         //std::cout <<"Scale = " << kb * T / (mu * mh * std::abs(gx)) << std::endl;
         
@@ -406,7 +408,7 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            double xcenter = x_d(i) + grid.dx[0] / 2;
+            double xcenter = x_d(i) + dx_d(i, j, k, 0) / 2;
             double x0 = units::kb * param.T / (mu * units::mh * std::abs(g(0)));
             rho(i, j, k) = param.rho0 * Kokkos::exp(- xcenter / x0);
             for (int idim = 0; idim < ndim; ++idim)

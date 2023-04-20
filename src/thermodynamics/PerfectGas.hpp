@@ -17,7 +17,6 @@ class PerfectGas
     double m_gamma_m1;
     double m_inv_gamma_m1;
     double m_mmw;
-    double m_T;
 
 public:
     PerfectGas(double gamma, double mmw);

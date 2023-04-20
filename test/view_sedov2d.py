@@ -32,7 +32,7 @@ x_choc = r_choc * np.cos(theta)
 y_choc = r_choc * np.sin(theta)
 
 print("Final time =", t, "s")
-print("Iteration number =", iter )
+print("Iteration number =", iter)
 
 # ------------------------------------------
 

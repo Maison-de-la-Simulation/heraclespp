@@ -222,12 +222,12 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k) 
         {
+            double xcenter = x_d(i) + grid.dx.d_view(i, j, k, 0) / 2;
             double gravity = 0;
             for (int idim = 0; idim < ndim; ++idim)
             {
                 gravity += g(idim); //Gravity always on one direction
             }
-            double xcenter = x_d(i) + grid.dx[0] / 2;
             double x0 = units::kb * param.T / (mu * units::mh * std::abs(gravity));
             rho(i, j, k) = param.rho0 * Kokkos::exp(- xcenter / x0);
             for (int n = 0; n < rhou.extent_int(3); n++)
@@ -280,7 +280,7 @@ private:
             int bc_iface,
             Grid const& grid) const;
 
-    void generate_order(Param const& param, INIReader const& reader)
+    void generate_order(Param const& param)
     {
         if(param.bc_priority.empty())
         {
@@ -356,8 +356,7 @@ public:
             buf_size[idim] = grid.Nx_local_wg[idim];
         }
 
-        //generate_order(reader);
-        generate_order(param, reader);
+        generate_order(param);
     }
 
     void execute(KV_double_3d rho, 
