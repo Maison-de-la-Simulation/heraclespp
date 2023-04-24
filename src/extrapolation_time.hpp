@@ -44,7 +44,7 @@ public:
         KV_double_5d E_rec,
         KV_double_6d loc_u_rec,
         KV_double_5d loc_P_rec,
-        double const dt,
+        double const dt_reconstruction,
         Grid const& grid) const
         = 0;
 };
@@ -76,7 +76,7 @@ public:
         KV_double_5d const E_rec,
         KV_double_6d const loc_u_rec,
         KV_double_5d const loc_P_rec,
-        double const dt,
+        double const dt_reconstruction,
         Grid const& grid) const final
     {
         assert(rho_rec.extent(0) == rhou_rec.extent(0));
@@ -125,7 +125,7 @@ public:
                 plus_one.P = loc_P_rec(i, j, k, 1, idim);
                 EulerFlux flux_plus_one = compute_flux(plus_one, idim, m_eos);
 
-                double dtodv = dt / grid.dv(i, j, k);
+                double dtodv = dt_reconstruction / grid.dv(i, j, k);
 
                 for (int ipos = 0; ipos < ndim; ++ipos)
                 {
@@ -145,10 +145,10 @@ public:
                 {
                     for (int idr = 0; idr < ndim; ++idr)
                     {
-                        rhou_rec(i, j, k, 0, ipos, idr) += dt * m_gravity(i, j, k, idr, grid) * rho_rec_old(i, j, k, 0, ipos);
-                        rhou_rec(i, j, k, 1, ipos, idr) += dt * m_gravity(i, j, k, idr, grid) * rho_rec_old(i, j, k, 1, ipos);
-                        E_rec(i, j, k, 0, ipos) += dt * m_gravity(i, j, k, idr, grid) * rhou_rec_old(i, j, k, 0, ipos, idr);
-                        E_rec(i, j, k, 1, ipos) += dt * m_gravity(i, j, k, idr, grid) * rhou_rec_old(i, j, k, 1, ipos, idr);
+                        rhou_rec(i, j, k, 0, ipos, idr) += dt_reconstruction * m_gravity(i, j, k, idr, grid) * rho_rec_old(i, j, k, 0, ipos);
+                        rhou_rec(i, j, k, 1, ipos, idr) += dt_reconstruction * m_gravity(i, j, k, idr, grid) * rho_rec_old(i, j, k, 1, ipos);
+                        E_rec(i, j, k, 0, ipos) += dt_reconstruction * m_gravity(i, j, k, idr, grid) * rhou_rec_old(i, j, k, 0, ipos, idr);
+                        E_rec(i, j, k, 1, ipos) += dt_reconstruction * m_gravity(i, j, k, idr, grid) * rhou_rec_old(i, j, k, 1, ipos, idr);
                     }
                 }
             }
