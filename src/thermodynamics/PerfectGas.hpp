@@ -62,7 +62,7 @@ public:
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
-    double temprature(double const rho, double const P) const noexcept
+    double temperature(double const rho, double const P) const noexcept
     {
         return P * m_mmw * units::mh / (rho * units::kb);
     }
