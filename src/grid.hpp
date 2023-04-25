@@ -86,7 +86,10 @@ public :
     KDV_double_1d y;
     KDV_double_1d z;
 
-    KDV_double_4d dx;
+    KV_double_1d dx;
+    KV_double_1d dy;
+    KV_double_1d dz;
+
     KV_double_1d dx_inter;
     KV_double_4d ds;
     KV_double_3d dv;

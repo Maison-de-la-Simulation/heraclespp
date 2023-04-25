@@ -222,7 +222,7 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k) 
         {
-            double xcenter = x_d(i) + grid.dx.d_view(i, j, k, 0) / 2;
+            double xcenter = x_d(i) + grid.dx(i) / 2;
             double gravity = 0;
             for (int idim = 0; idim < ndim; ++idim)
             {

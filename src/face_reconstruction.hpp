@@ -69,7 +69,7 @@ public:
         assert(var.extent(0) == var_rec.extent(0));
         assert(var.extent(1) == var_rec.extent(1));
         assert(var.extent(2) == var_rec.extent(2));
-        
+
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
         "LimitedLinearFaceReconstruction",
@@ -80,13 +80,14 @@ public:
             {
                 auto const [i_m, j_m, k_m] = lindex(idim, i, j, k); // i - 1
                 auto const [i_p, j_p, k_p] = rindex(idim, i, j, k); // i + 1
-
+                double dx = kron(idim,0) * grid.dx(i) + kron(idim,1) * grid.dy(j) + kron(idim,2) * grid.dz(k);
+                
                 double const slope = m_slope_limiter(
-                    (var(i_p, j_p, k_p) - var(i, j, k)) / grid.dx.d_view(i, j, k, idim),
-                    (var(i, j, k) - var(i_m, j_m, k_m)) / grid.dx.d_view(i, j, k, idim));
+                    (var(i_p, j_p, k_p) - var(i, j, k)) / dx,
+                    (var(i, j, k) - var(i_m, j_m, k_m)) / dx);
 
-                var_rec(i, j, k, 0, idim) =  var(i, j, k) - (grid.dx.d_view(i, j, k, idim) / 2) * slope;
-                var_rec(i, j, k, 1, idim) =  var(i, j, k) + (grid.dx.d_view(i, j, k, idim) / 2) * slope;
+                var_rec(i, j, k, 0, idim) =  var(i, j, k) - (dx / 2) * slope;
+                var_rec(i, j, k, 1, idim) =  var(i, j, k) + (dx / 2) * slope;
             } 
         });
     }

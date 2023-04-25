@@ -28,7 +28,8 @@ double time_step(
         double dt_loc_inverse = 0;
         for(int idim = 0; idim < ndim; idim++)
         {
-            dt_loc_inverse += (Kokkos::fabs(u(i, j, k, idim)) + sound) / grid.dx.d_view(i, j, k, idim);
+            double dx = kron(idim,0) * grid.dx(i) + kron(idim,1) * grid.dy(j) + kron(idim,2) * grid.dz(k);
+            dt_loc_inverse += (Kokkos::fabs(u(i, j, k, idim)) + sound) / dx;
         }
         local_a = Kokkos::fmax(dt_loc_inverse, local_a);
     },
