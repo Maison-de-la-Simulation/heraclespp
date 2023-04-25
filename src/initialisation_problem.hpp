@@ -114,14 +114,13 @@ public:
         assert(u.extent(2) == P.extent(2));
 
         auto const x_d = grid.x.d_view;
-        auto const dx_d = grid.dx.d_view;
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
         "AdvectionInitSinus",
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            double xcenter = x_d(i) + dx_d(i, j, k, 0) / 2;
+            double xcenter = x_d(i) + grid.dx(i) / 2;
             rho(i, j, k) = 1 * Kokkos::exp(-15*Kokkos::pow(1./2 - xcenter, 2));
             P(i, j, k) = param.P0;
             for (int idim = 0; idim < ndim; ++idim)
@@ -396,7 +395,6 @@ public:
         assert(u.extent(2) == P.extent(2));
 
         auto const x_d = grid.x.d_view;
-        auto const dx_d = grid.dx.d_view;
         double mu = eos.mean_molecular_weight();
         //std::cout <<"Scale = " << kb * T / (mu * mh * std::abs(gx)) << std::endl;
         
@@ -406,7 +404,7 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            double xcenter = x_d(i) + dx_d(i, j, k, 0) / 2;
+            double xcenter = x_d(i) + grid.dx(i) / 2;
             double x0 = units::kb * param.T / (mu * units::mh * std::abs(g(0)));
             rho(i, j, k) = param.rho0 * Kokkos::exp(- xcenter / x0);
             for (int idim = 0; idim < ndim; ++idim)

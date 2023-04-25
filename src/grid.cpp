@@ -175,10 +175,10 @@ void Grid::Init_nodes()
 
 void Grid::Init_grid()
 {
-    dx = KDV_double_4d("dx", Nx_local_ng[0]+2*Nghost[0],
-                             Nx_local_ng[1]+2*Nghost[1],
-                             Nx_local_ng[2]+2*Nghost[2],
-                             3);
+    dx = KV_double_1d("dx", Nx_local_ng[0]+2*Nghost[0]);
+    dy = KV_double_1d("dy", Nx_local_ng[1]+2*Nghost[1]);
+    dz = KV_double_1d("dz", Nx_local_ng[2]+2*Nghost[2]);
+
     ds = KV_double_4d("ds", Nx_local_ng[0]+2*Nghost[0], 
                              Nx_local_ng[1]+2*Nghost[1],
                              Nx_local_ng[2]+2*Nghost[2],
@@ -188,23 +188,21 @@ void Grid::Init_grid()
                              Nx_local_ng[2]+2*Nghost[2]);
     dx_inter = KV_double_1d("dx_inter", 3);
 
-    auto const dx_d = dx.d_view;
     auto const x_d = x.d_view;
     auto const y_d = y.d_view;
     auto const z_d = z.d_view;
-    Kokkos::parallel_for("File_dx",
-    Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0}, 
-                            {Nx_local_ng[0]+2*Nghost[0], 
-                             Nx_local_ng[1]+2*Nghost[1],
-                             Nx_local_ng[2]+2*Nghost[2]}),
-    KOKKOS_CLASS_LAMBDA(int i, int j, int k)
+    for (int i=0; i<Nx_local_ng[0]+2*Nghost[0]; ++i)
     {
-        dx_d(i, j, k, 0) = x_d(i+1) - x_d(i);
-        dx_d(i, j, k, 1) = y_d(j+1) - y_d(j);
-        dx_d(i, j, k, 2) = z_d(k+1) - z_d(k);
-    });
-    dx.modify_device();
-    dx.sync_host();
+        dx(i) = x_d(i+1) - x_d(i);
+    }
+    for (int i=0; i<Nx_local_ng[1]+2*Nghost[1]; ++i)
+    {
+        dy(i) = y_d(i+1) - y_d(i);
+    }
+    for (int i=0; i<Nx_local_ng[2]+2*Nghost[2]; ++i)
+    {
+        dz(i) = z_d(i+1) - z_d(i);
+    }
 
     Kokkos::parallel_for("File_ds",
     Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0}, 
@@ -215,9 +213,9 @@ void Grid::Init_grid()
     {
         for (int idim=0; idim<3; ++idim)
         {
-            dx_inter[0] = dx_d(i, j, k, 0);
-            dx_inter[1] = dx_d(i, j, k, 1);
-            dx_inter[2] = dx_d(i, j, k, 2);
+            dx_inter[0] = dx(i);
+            dx_inter[1] = dy(j);
+            dx_inter[2] = dz(k);
             dx_inter[idim] = 1;
             ds(i, j, k, idim) = dx_inter[0] * dx_inter[1] * dx_inter[2];
         }
@@ -230,11 +228,7 @@ void Grid::Init_grid()
                              Nx_local_ng[2]+2*Nghost[2]}),
     KOKKOS_CLASS_LAMBDA(int i, int j, int k)
     {
-        dv(i, j, k) = 1;
-        for (int idim=0; idim<ndim; ++idim)
-        {
-            dv(i, j, k) *= dx_d(i, j, k, idim);
-        }
+        dv(i, j, k) = dx(i) * dy(j) * dz(k);
     });
 }
 
