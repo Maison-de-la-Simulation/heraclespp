@@ -234,7 +234,7 @@ public:
             {
                 rhou(i, j, k, n) = param.rho0 * param.u0;
             }
-            E(i, j, k) = eos.compute_P_from_T(rho(i, j, k), param.T) / (gamma - 1);
+            E(i, j, k) = eos.compute_evol(rho(i, j, k), eos.compute_P_from_T(rho(i, j, k), param.T));
         });
     }
 };
