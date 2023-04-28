@@ -208,7 +208,6 @@ public:
 
         auto const x_d = grid.x.d_view;
         double mu = eos.mean_molecular_weight();
-        double gamma = eos.adiabatic_index();
 
         int const ng = grid.Nghost[bc_idim];
         if (bc_iface == 1)
@@ -222,19 +221,19 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k) 
         {
-            double xcenter = x_d(i) + grid.dx(i) / 2;
+            double xcenter = (x_d(i) + grid.dx(i) / 2) * units::m;
             double gravity = 0;
             for (int idim = 0; idim < ndim; ++idim)
             {
-                gravity += g(idim); //Gravity always on one direction
+                gravity += g(idim) * units::acc; //Gravity always on one direction
             }
-            double x0 = units::kb * param.T / (mu * units::mh * std::abs(gravity));
-            rho(i, j, k) = param.rho0 * Kokkos::exp(- xcenter / x0);
+            double x0 = units::kb * param.T * units::Kelvin / (mu * units::mh * std::abs(gravity));
+            rho(i, j, k) = param.rho0 * units::density * Kokkos::exp(- xcenter / x0);
             for (int n = 0; n < rhou.extent_int(3); n++)
             {
-                rhou(i, j, k, n) = param.rho0 * param.u0;
+                rhou(i, j, k, n) = param.rho0 * units::density * param.u0 * units::velocity;
             }
-            E(i, j, k) = eos.compute_evol(rho(i, j, k), eos.compute_P_from_T(rho(i, j, k), param.T));
+            E(i, j, k) = eos.compute_evol(rho(i, j, k) * units::density, eos.compute_P_from_T(rho(i, j, k) * units::density, param.T * units::Kelvin));
         });
     }
 };

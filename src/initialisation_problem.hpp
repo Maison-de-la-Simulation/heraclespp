@@ -54,8 +54,8 @@ public:
         KV_double_3d const P,
         [[maybe_unused]] KV_double_1d g,
         [[maybe_unused]] thermodynamics::PerfectGas const& eos,
-        [[maybe_unused]] Grid const& grid,
-        [[maybe_unused]] Param const& param) const final
+        Grid const& grid,
+        Param const& param) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -71,22 +71,22 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            if((x_d(i) + x_d(i+1)) / 2 <= 0.5)
+            if((x_d(i) + x_d(i+1)) * units::m / 2 <= 0.5)
             {
-                rho(i, j, k) = param.rho0;
-                P(i, j, k) = param.P0;
+                rho(i, j, k) = param.rho0 * units::density;
+                P(i, j, k) = param.P0 * units::pressure;
                 for (int idim = 0; idim < ndim; ++idim)
                 {
-                    u(i, j, k, idim) = param.u0;
+                    u(i, j, k, idim) = param.u0 * units::velocity;
                 }
             }
             else
             {
-                rho(i, j, k) = param.rho1;
-                P(i, j, k) =  param.P1;
+                rho(i, j, k) = param.rho1 * units::density;
+                P(i, j, k) =  param.P1 * units::pressure;
                 for (int idim = 0; idim < ndim; ++idim)
                 {
-                    u(i, j, k, idim) = param.u1;
+                    u(i, j, k, idim) = param.u1 * units::velocity;
                 }
             }
         });  
@@ -103,7 +103,7 @@ public:
         KV_double_3d P,
         [[maybe_unused]] KV_double_1d g,
         [[maybe_unused]] thermodynamics::PerfectGas const& eos,
-        [[maybe_unused]] Grid const& grid,
+        Grid const& grid,
         Param const& param) const final
     {
         assert(rho.extent(0) == u.extent(0));
@@ -120,12 +120,12 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            double xcenter = x_d(i) + grid.dx(i) / 2;
-            rho(i, j, k) = 1 * Kokkos::exp(-15*Kokkos::pow(1./2 - xcenter, 2));
-            P(i, j, k) = param.P0;
+            double xcenter = (x_d(i) + grid.dx(i) / 2) * units::m;
+            rho(i, j, k) = 1 * Kokkos::exp(-15*Kokkos::pow(1./2 - xcenter, 2)) * units::density;
+            P(i, j, k) = param.P0 * units::pressure;
             for (int idim = 0; idim < ndim; ++idim)
             {
-                u(i, j, k, idim) = param.u0;
+                u(i, j, k, idim) = param.u0 * units::velocity;
             }
         });
     }
@@ -141,7 +141,7 @@ public:
         KV_double_3d P,
         [[maybe_unused]] KV_double_1d g,
         [[maybe_unused]] thermodynamics::PerfectGas const& eos,
-        [[maybe_unused]] Grid const& grid,
+        Grid const& grid,
         Param const& param) const final
     {
         assert(rho.extent(0) == u.extent(0));
@@ -158,22 +158,22 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            if ((x_d(i) + x_d(i+1)) / 2 <= 0.3)
+            if ((x_d(i) + x_d(i+1)) * units::m / 2 <= 0.3)
             {
-                rho(i, j, k) = param.rho0;
+                rho(i, j, k) = param.rho0 * units::density;
             }
-            else if ((x_d(i) + x_d(i+1)) / 2 >= 0.7)
+            else if ((x_d(i) + x_d(i+1)) * units::m / 2 >= 0.7)
             {
-                rho(i, j, k) = param.rho0;
+                rho(i, j, k) = param.rho0 * units::density;
             }
             else
             {
-                rho(i, j, k) = param.rho1;
+                rho(i, j, k) = param.rho1 * units::density;
             }
-            P(i, j, k) = param.P0;
+            P(i, j, k) = param.P0 * units::pressure;
             for (int idim = 0; idim < ndim; ++idim)
             {
-                u(i, j, k, idim) = param.u0;
+                u(i, j, k, idim) = param.u0 * units::velocity;
             }
         });
     }
@@ -189,7 +189,7 @@ public:
         KV_double_3d const P,
         [[maybe_unused]] KV_double_1d g,
         [[maybe_unused]] thermodynamics::PerfectGas const& eos,
-        [[maybe_unused]] Grid const& grid,
+        Grid const& grid,
         Param const& param) const final
     {
         assert(rho.extent(0) == u.extent(0));
@@ -207,15 +207,15 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            double x = x_d(i);
-            double y = y_d(j);
+            double x = x_d(i) * units::m;
+            double y = y_d(j) * units::m;
             double r = Kokkos::sqrt(x * x + y * y);
             double theta = Kokkos::atan2(y, x);
             double u_theta;
-            rho(i, j, k) = param.rho0;
+            rho(i, j, k) = param.rho0 * units::density;
             if (r < 0.2)
             {
-                P(i, j, k) = param.P0 + 12.5 * r * r;
+                P(i, j, k) = param.P0 * units::pressure + 12.5 * r * r;
                 u_theta = 5 * r;
                 u(i, j, k, 0) = - u_theta * Kokkos::sin(theta);
                 u(i, j, k, 1) = u_theta * Kokkos::cos(theta);
@@ -223,17 +223,17 @@ public:
             
             else if ((r >= 0.2) && (r < 0.4))
             {
-                P(i, j, k) = param.P0 + 12.5 * r * r + 4 - 20 * r + 4 * Kokkos::log(5 * r);
+                P(i, j, k) = param.P0 * units::pressure + 12.5 * r * r + 4 - 20 * r + 4 * Kokkos::log(5 * r);
                 u_theta = 2 - 5 * r;
                 u(i, j, k, 0) = - u_theta * Kokkos::sin(theta);
                 u(i, j, k, 1) = u_theta * Kokkos::cos(theta);
             }
             else
             {
-                P(i, j, k) = param.P0 - 2 + 4 * Kokkos::log(2);
+                P(i, j, k) = param.P0 * units::pressure - 2 + 4 * Kokkos::log(2);
                 for (int idim = 0; idim < ndim; ++idim)
                 {
-                    u(i, j, k, idim) = param.u0;
+                    u(i, j, k, idim) = param.u0 * units::velocity;
                 }
             } 
         });
@@ -268,19 +268,19 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            double x = x_d(i);
-            double y = y_d(j);
+            double x = x_d(i) * units::m;
+            double y = y_d(j) * units::m;
             if (y >= 0)
             {
-                rho(i, j, k) = param.rho1;
+                rho(i, j, k) = param.rho1 * units::density;
             }
             if (y < 0)
             {
-                rho(i, j, k) = param.rho0;
+                rho(i, j, k) = param.rho0 * units::density;
             }
-            u(i, j, k, 0) = param.u0;
+            u(i, j, k, 0) = param.u0 * units::velocity;
             u(i, j, k, 1) = (param.A/4) * (1+Kokkos::cos(2*Kokkos::numbers::pi*x/grid.L[0])) * (1+Kokkos::cos(2*Kokkos::numbers::pi*y/grid.L[1]));
-            P(i, j, k) = param.P0 + rho(i, j, k) * g(1) * y;
+            P(i, j, k) = param.P0 * units::pressure + rho(i, j, k) * g(1) * units::acc * y;
         });
     }
 };
@@ -313,22 +313,22 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            double x = x_d(i);
-            double y = y_d(j);
+            double x = x_d(i) * units::m;
+            double y = y_d(j) * units::m;
             double r = Kokkos::sqrt(x * x + y * y);
 
-            rho(i, j, k) = param.rho0;
+            rho(i, j, k) = param.rho0 * units::density;
             for (int idim = 0; idim < ndim; ++idim)
             {
-                u(i, j, k, idim) = param.u0;
+                u(i, j, k, idim) = param.u0 * units::velocity;
             }
             if (r <0.025)
             {
-                P(i, j, k) = eos.compute_P_from_evol(rho(i, j, k), param.E1 / grid.dv(i, j, k));
+                P(i, j, k) = eos.compute_P_from_evol(rho(i, j, k), param.E1 * units::evol / grid.dv(i, j, k)) * units::pressure;
             }
             else
             {
-                P(i, j, k) = eos.compute_P_from_evol(rho(i, j, k), param.E0 / grid.dv(i, j, k));
+                P(i, j, k) = eos.compute_P_from_evol(rho(i, j, k), param.E0 * units::evol / grid.dv(i, j, k)) * units::pressure;
             } 
         });
     }
@@ -344,7 +344,7 @@ public:
         KV_double_3d const P,
         [[maybe_unused]] KV_double_1d g,
         thermodynamics::PerfectGas const& eos,
-        [[maybe_unused]] Grid const& grid,
+        Grid const& grid,
         Param const& param) const final
     {
         assert(rho.extent(0) == u.extent(0));
@@ -360,15 +360,15 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            rho(i, j, k) = param.rho0;
+            rho(i, j, k) = param.rho0 * units::density;
             for (int idim = 0; idim < ndim; ++idim)
             {
-                u(i, j, k, idim) = param.u0;
+                u(i, j, k, idim) = param.u0 * units::velocity;
             }
-            P(i, j, k) = eos.compute_P_from_evol(rho(i, j, k), param.E0 / grid.dv(i, j, k));
+            P(i, j, k) = eos.compute_P_from_evol(rho(i, j, k), param.E0 * units::evol / grid.dv(i, j, k)) * units::pressure;
             if(grid.mpi_rank==0)
             {
-                P(2, j, k) = eos.compute_P_from_evol(rho(i, j, k), param.E1 / grid.dv(i, j, k));
+                P(2, j, k) = eos.compute_P_from_evol(rho(i, j, k), param.E1 * units::evol / grid.dv(i, j, k)) * units::pressure;
             }
         });
     }
@@ -404,12 +404,12 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            double xcenter = x_d(i) + grid.dx(i) / 2;
-            double x0 = units::kb * param.T / (mu * units::mh * std::abs(g(0)));
-            rho(i, j, k) = param.rho0 * Kokkos::exp(- xcenter / x0);
+            double xcenter = (x_d(i) + grid.dx(i) / 2) * units::m;
+            double x0 = units::kb * param.T * units::Kelvin / (mu * units::mh * std::abs(g(0)) * units::acc);
+            rho(i, j, k) = param.rho0 * units::density * Kokkos::exp(- xcenter / x0);
             for (int idim = 0; idim < ndim; ++idim)
             {
-                u(i, j, k, idim) = param.u0;
+                u(i, j, k, idim) = param.u0 * units::velocity;
             }
             P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), param.T);
         });
