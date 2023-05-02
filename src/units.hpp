@@ -65,7 +65,7 @@ namespace novapp::units
     constexpr double kb4 = kb * kb * kb * kb;
     constexpr double hplanck3 = hplanck * hplanck * hplanck;
     constexpr double c2 = c * c;
-    constexpr double ar = (2 * pi5 * kb4) / (15 * hplanck3 * c2) * Watt / (m2 * K4); // kg.s^{-3}.K^{-4}
+    constexpr double ar = (8 * pi5 * kb4) / (15 * hplanck3 * c3) * Watt / (m2 * K4); // kg.m^{-1}.s^{-2}.K^{-4}
 
     constexpr double ua = 1.49597870E11* m;
     
