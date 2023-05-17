@@ -6,16 +6,18 @@
 namespace novapp
 {
 
-void write_pdi_init(int max_iter, int frequency, Grid const& grid)
+void write_pdi_init(int max_iter, int frequency, Grid const& grid, Param const& param)
 {
     int mpi_rank = grid.mpi_rank;
     int mpi_size = grid.mpi_size;
     int simu_ndim = grid.Ndim;
+    int simu_nfx = param.nfx;
 
     PDI_multi_expose("init_PDI",
                     "max_iter", &max_iter, PDI_OUT,
                     "frequency", &frequency, PDI_OUT,
                     "ndim", &simu_ndim, PDI_OUT,
+                    "nfx", &simu_nfx, PDI_OUT,
                     "mpi_rank", &mpi_rank, PDI_OUT,
                     "mpi_size", &mpi_size, PDI_OUT,
                     "n_ghost", grid.Nghost.data(), PDI_OUT,
@@ -36,12 +38,14 @@ void write_pdi(int iter,
                KDV_double_3d E,
                KDV_double_1d x,
                KDV_double_1d y,
-               KDV_double_1d z)
+               KDV_double_1d z,
+               KDV_double_4d fx)
 {
     rho.sync_host();
     u.sync_host();
     P.sync_host();
     E.sync_host();
+    fx.sync_host();
     PDI_multi_expose("write_file",
                     "iter", &iter, PDI_OUT,
                     "current_time", &t, PDI_OUT,
@@ -53,6 +57,7 @@ void write_pdi(int iter,
                     "x", x.h_view.data(), PDI_OUT,
                     "y", y.h_view.data(), PDI_OUT,
                     "z", z.h_view.data(), PDI_OUT,
+                    "fx", fx.h_view.data(), PDI_OUT,
                     NULL);
 }
 

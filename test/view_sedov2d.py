@@ -16,6 +16,7 @@ with h5py.File(str(filename), 'r') as f :
     rho = f['rho'][0, :, :]
     x = f['x'][()]
     y = f['y'][()]
+    fx = f['fx'][0, 0, 0, :]
     t = f['current_time'][()]
     iter = f['iter'][()]
 
@@ -44,4 +45,10 @@ plt.imshow(rho, origin='lower', extent=[np.min(x), np.max(x), np.min(y), np.max(
 plt.colorbar()
 plt.plasma()
 plt.xlabel('x'); plt.ylabel('y')
+
+plt.figure()
+plt.title('Passive scalar')
+plt.plot(fx)
+plt.grid()
+
 plt.show()

@@ -48,6 +48,7 @@ public :
     double E0;
     double E1;
     double A;
+    double nfx;
 
     explicit Param(INIReader const& reader)
     {
@@ -88,13 +89,16 @@ public :
         gy = reader.GetReal("Gravity", "gy", 0.0);
         gz = reader.GetReal("Gravity", "gz", 0.0);
 
-        gamma = reader.GetReal("PerfectGas", "gamma", 5./3);
-        T = reader.GetReal("PerfectGas", "temperature", 100.);
-        mu = reader.GetReal("PerfectGas", "mu", 1.);
+        gamma = reader.GetReal("Perfect Gas", "gamma", 5./3);
+        T = reader.GetReal("Perfect Gas", "temperature", 100.);
+        mu = reader.GetReal("Perfect Gas", "mu", 1.);
 
         bc_choice = reader.Get("Boundary Condition", "BC", "");
         bc_priority = reader.Get("Boundary Condition", "priority", "");
 
+        nfx = reader.GetInteger("Passive Scalar", "nfx", 0);
+
+        // à mettre ailleurs
         rho0 = reader.GetReal("Initialisation", "rho0", 1.0);
         rho1 = reader.GetReal("Initialisation", "rho1", 1.0);
         u0 = reader.GetReal("Initialisation", "u0", 1.0);

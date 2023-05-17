@@ -45,6 +45,7 @@ public:
     virtual void execute(KV_double_3d rho,
                           KV_double_4d rhou,
                           KV_double_3d E,
+                          KV_double_4d fx,
                           KV_double_1d g,
                           Grid const & grid,
                           thermodynamics::PerfectGas const& eos,
@@ -67,12 +68,13 @@ public:
     }
     
     void execute(KV_double_3d rho,
-                  KV_double_4d rhou,
-                  KV_double_3d E,
-                  [[maybe_unused]] KV_double_1d g,
-                  Grid const & grid,
-                  [[maybe_unused]] thermodynamics::PerfectGas const& eos,
-                  [[maybe_unused]] Param const& param) const final
+                 KV_double_4d rhou,
+                 KV_double_3d E,
+                 KV_double_4d fx,
+                 [[maybe_unused]] KV_double_1d g,
+                 Grid const & grid,
+                 [[maybe_unused]] thermodynamics::PerfectGas const& eos,
+                 Param const& param) const final
     {
         assert(rho.extent(0) == rhou.extent(0));
         assert(rhou.extent(0) == E.extent(0));
@@ -93,19 +95,23 @@ public:
 
         int const offset = bc_iface == 0 ? end[bc_idim] : begin[bc_idim] - 1;
         Kokkos::parallel_for(
-                m_label,
-                Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-                KOKKOS_CLASS_LAMBDA(int i, int j, int k) 
-                {
-                    Kokkos::Array<int, 3> offsets {i, j, k};
-                    offsets[bc_idim] = offset;
-                    rho(i, j, k) = rho(offsets[0], offsets[1], offsets[2]);
-                    for (int n = 0; n < rhou.extent_int(3); n++)
-                    {
-                        rhou(i, j, k, n) = rhou(offsets[0], offsets[1], offsets[2], n);
-                    }
-                    E(i, j, k) = E(offsets[0], offsets[1], offsets[2]);
-                });
+        m_label,
+        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+        KOKKOS_CLASS_LAMBDA(int i, int j, int k) 
+        {
+            Kokkos::Array<int, 3> offsets {i, j, k};
+            offsets[bc_idim] = offset;
+            rho(i, j, k) = rho(offsets[0], offsets[1], offsets[2]);
+            for (int n = 0; n < rhou.extent_int(3); n++)
+            {
+                rhou(i, j, k, n) = rhou(offsets[0], offsets[1], offsets[2], n);
+            }
+            E(i, j, k) = E(offsets[0], offsets[1], offsets[2]);
+            for (int ifx = 0; ifx < param.nfx; ++ifx)
+            {
+                fx(i, j, k, ifx) = fx(offsets[0], offsets[1], offsets[2], ifx);
+            }
+        });
     }
 };
 
@@ -116,13 +122,14 @@ public:
     PeriodicCondition(int idim, int iface)
     : IBoundaryCondition(idim, iface){};    
 
-    void execute([[maybe_unused]]KV_double_3d rho,
-                  [[maybe_unused]]KV_double_4d rhou,
-                  [[maybe_unused]]KV_double_3d E,
-                  [[maybe_unused]] KV_double_1d g,
-                  [[maybe_unused]]Grid const & grid,
-                  [[maybe_unused]] thermodynamics::PerfectGas const& eos,
-                  [[maybe_unused]] Param const& param) const final
+    void execute([[maybe_unused]] KV_double_3d rho,
+                 [[maybe_unused]] KV_double_4d rhou,
+                 [[maybe_unused]] KV_double_3d E,
+                 [[maybe_unused]] KV_double_4d fx,
+                 [[maybe_unused]] KV_double_1d g,
+                 [[maybe_unused]] Grid const & grid,
+                 [[maybe_unused]] thermodynamics::PerfectGas const& eos,
+                 [[maybe_unused]] Param const& param) const final
     {
         // do nothing
     }
@@ -141,12 +148,13 @@ public:
     }
 
     void execute(KV_double_3d rho,
-                  KV_double_4d rhou,
-                  KV_double_3d E,
-                  [[maybe_unused]] KV_double_1d g,
-                  Grid const & grid,
-                  [[maybe_unused]] thermodynamics::PerfectGas const& eos,
-                  [[maybe_unused]] Param const& param) const final
+                 KV_double_4d rhou,
+                 KV_double_3d E,
+                 KV_double_4d fx,
+                 [[maybe_unused]] KV_double_1d g,
+                 Grid const & grid,
+                 [[maybe_unused]] thermodynamics::PerfectGas const& eos,
+                 Param const& param) const final
     {
         Kokkos::Array<int, 3> begin {0, 0, 0};
         Kokkos::Array<int, 3> end {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)};
@@ -173,6 +181,10 @@ public:
             }
             rhou(i, j, k, bc_idim) = -rhou(i, j, k, bc_idim);
             E(i, j, k) = E(offsets[0], offsets[1], offsets[2]);
+            for (int ifx = 0; ifx < param.nfx; ++ifx)
+            {
+                fx(i, j, k, ifx) = fx(offsets[0], offsets[1], offsets[2], ifx);
+            }
         });
     }
 };
@@ -189,12 +201,13 @@ public:
     }
     
     void execute(KV_double_3d rho,
-                  KV_double_4d rhou,
-                  KV_double_3d E,
-                  KV_double_1d g,
-                  Grid const & grid,
-                  thermodynamics::PerfectGas const& eos,
-                  Param const& param) const final
+                 KV_double_4d rhou,
+                 KV_double_3d E,
+                 [[maybe_unused]] KV_double_4d fx,
+                 KV_double_1d g,
+                 Grid const & grid,
+                 thermodynamics::PerfectGas const& eos,
+                 Param const& param) const final
     {
         assert(rho.extent(0) == rhou.extent(0));
         assert(rhou.extent(0) == E.extent(0));
@@ -275,9 +288,11 @@ private:
             KV_double_3d rho,
             KV_double_4d rhou,
             KV_double_3d E,
+            KV_double_4d fx,
             int bc_idim,
             int bc_iface,
-            Grid const& grid) const;
+            Grid const& grid, 
+            Param const& param) const;
 
     void generate_order(Param const& param)
     {
@@ -351,32 +366,33 @@ public:
         for (int idim = 0; idim < ndim; idim++)
         {
             buf_size[idim] = grid.Nghost[idim];
-            m_mpi_buffer[idim] = KDV_double_4d("", buf_size[0], buf_size[1], buf_size[2], ndim + 2);
+            m_mpi_buffer[idim] = KDV_double_4d("", buf_size[0], buf_size[1], buf_size[2], ndim + 2 + param.nfx);
             buf_size[idim] = grid.Nx_local_wg[idim];
         }
 
         generate_order(param);
     }
 
-    void execute(KV_double_3d rho, 
-                 KV_double_4d rhou, 
-                 KV_double_3d E, 
-                 KV_double_1d g, 
-                 Grid const & grid, 
-                 thermodynamics::PerfectGas const& eos, 
+    void execute(KV_double_3d rho,
+                 KV_double_4d rhou,
+                 KV_double_3d E,
+                 KV_double_4d fx,
+                 KV_double_1d g,
+                 Grid const & grid,
+                 thermodynamics::PerfectGas const& eos,
                  Param const& param) const
     {
         for (int idim = 0; idim < ndim; idim++)
         {
             for (int iface = 0; iface < 2; iface++)
             {
-                ghostFill(rho, rhou, E, idim, iface, grid);
+                ghostFill(rho, rhou, E, fx, idim, iface, grid, param);
             }
         }
 
         for ( int const bc_id : m_bc_order )
         {
-            m_bcs[bc_id]->execute(rho, rhou, E, g, grid, eos, param);
+            m_bcs[bc_id]->execute(rho, rhou, E, fx, g, grid, eos, param);
         }
     }
 };

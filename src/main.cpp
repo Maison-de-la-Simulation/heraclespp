@@ -70,7 +70,7 @@ int main(int argc, char** argv)
         g_array(2) = param.gz;
     });
 
-    write_pdi_init(param.max_iter, param.output_frequency, grid);
+    write_pdi_init(param.max_iter, param.output_frequency, grid, param);
 
     DistributedBoundaryCondition const bcs(reader, param, grid);
 
@@ -102,6 +102,10 @@ int main(int argc, char** argv)
     KV_double_4d rhou_new("rhounew", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim);
     KV_double_3d E_new("Enew",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
 
+    KDV_double_4d fx("fx",        grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], param.nfx);
+    KV_double_4d fx_new("fx_new", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], param.nfx);
+    KV_double_6d fx_rec("fx_rec", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim, param.nfx);
+
     double t = 0;
     int iter = 0;
     bool should_exit = false;
@@ -124,11 +128,11 @@ int main(int argc, char** argv)
     }
     else
     {
-        initialisation->execute(grid.range.no_ghosts(), rho.d_view, u.d_view, P.d_view, g_array, eos, grid, param);
+        initialisation->execute(grid.range.no_ghosts(), rho.d_view, u.d_view, P.d_view, fx.d_view, g_array, eos, grid, param);
     }
     conv_prim_to_cons(grid.range.no_ghosts(), rhou.d_view, E.d_view, rho.d_view, u.d_view, P.d_view, eos);
 
-    bcs.execute(rho.d_view, rhou.d_view, E.d_view, g_array, grid, eos, param);
+    bcs.execute(rho.d_view, rhou.d_view, E.d_view, fx.d_view, g_array, grid, eos, param);
     
     conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho.d_view, rhou.d_view, E.d_view, eos);
 
@@ -137,7 +141,7 @@ int main(int argc, char** argv)
 
     if (param.output_frequency > 0)
     {
-        write_pdi(iter, t, eos.adiabatic_index(), rho, u, P, E, grid.x, grid.y, grid.z);
+        write_pdi(iter, t, eos.adiabatic_index(), rho, u, P, E, grid.x, grid.y, grid.z, fx);
     }
 
     while (!should_exit && t < param.timeout && iter < param.max_iter)
@@ -149,32 +153,34 @@ int main(int argc, char** argv)
             dt = param.timeout - t;
             should_exit = true;
         }
+        
+        reconstruction->execute(grid.range.with_ghosts(1), rho_rec, rhou_rec, E_rec, fx_rec, rho.d_view, u.d_view, P.d_view, fx.d_view,
+                                eos, dt/2, grid, param);
 
-        reconstruction->execute(grid.range.with_ghosts(1), rho_rec, rhou_rec, E_rec, rho.d_view, u.d_view, P.d_view, 
-                                eos, dt/2, grid);
+        godunov_scheme->execute(grid.range.no_ghosts(), rho.d_view, rhou.d_view, E.d_view, fx.d_view, rho_rec, rhou_rec, E_rec, fx_rec,
+                                rho_new, rhou_new, E_new, fx_new, dt, grid, param);
 
-        godunov_scheme->execute(grid.range.no_ghosts(), rho.d_view, rhou.d_view, E.d_view, rho_rec, rhou_rec, E_rec,
-                                rho_new, rhou_new, E_new, dt, grid);
-
-        bcs.execute(rho_new, rhou_new, E_new, g_array, grid, eos, param);
+        bcs.execute(rho_new, rhou_new, E_new, fx_new, g_array, grid, eos, param);
 
         conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho_new, rhou_new, E_new, eos);
         Kokkos::deep_copy(rho.d_view, rho_new);
         Kokkos::deep_copy(rhou.d_view, rhou_new);
         Kokkos::deep_copy(E.d_view, E_new);
+        Kokkos::deep_copy(fx.d_view, fx_new);
 
         rho.modify_device();
         u.modify_device();
         P.modify_device();
         E.modify_device();
         rhou.modify_device();
+        fx.modify_device();
 
         t += dt;
         iter++;
 
         if(make_output)
         {
-            write_pdi(iter, t, eos.adiabatic_index(), rho, u, P, E, grid.x, grid.y, grid.z);
+            write_pdi(iter, t, eos.adiabatic_index(), rho, u, P, E, grid.x, grid.y, grid.z, fx);
         }
     }
 

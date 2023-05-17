@@ -29,6 +29,7 @@ with h5py.File(args.filename, 'r') as f :
     u = f['u'][0, 0, 0, :]
     P = f['P'][0, 0, :]
     x = f['x'][()]
+    fx = f['fx'][0, 0, 0, :]
     t = f['current_time'][()]
     iter = f['iter'][()]
     gamma = f['gamma'][()]
@@ -45,6 +46,8 @@ for i in range(len(rho)):
 
 print("Final time =", t, "s")
 print("Iteration number =", iter )
+
+print("Max fx =", np.max(fx), fx.shape)
 
 # Initialisation ------------------------
 inter = 0.5 # Interface position
@@ -83,7 +86,8 @@ plt.subplot(221)
 plt.plot(x_exact, rho0, '--', label='t=0')
 plt.plot(x_exact,rho_exact, label='Exact')
 plt.plot(xc, rho, label =f't = {t:1f}')
-plt.ylabel('Densité'); plt.xlabel('Position')
+plt.plot(xc, fx, label='scalar')
+plt.ylabel('Density'); plt.xlabel('Position')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
 plt.legend()
@@ -111,7 +115,14 @@ plt.ylabel('Internal energy'); plt.xlabel('Position')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
 plt.legend()
+
+plt.figure()
+plt.title('Passive scalar')
+plt.plot(xc, fx)
+plt.grid()
+
 if args.output is None:
     plt.show()
 else:
     plt.savefig(args.output)
+
