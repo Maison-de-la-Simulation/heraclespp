@@ -37,6 +37,7 @@ public:
         KV_double_3d rho,
         KV_double_4d u,
         KV_double_3d P,
+        KV_double_4d fx,
         KV_double_1d g,
         thermodynamics::PerfectGas const& eos,
         Grid const& grid,
@@ -52,6 +53,7 @@ public:
         KV_double_3d const rho,
         KV_double_4d const u,
         KV_double_3d const P,
+        KV_double_4d const fx,
         [[maybe_unused]] KV_double_1d g,
         [[maybe_unused]] thermodynamics::PerfectGas const& eos,
         Grid const& grid,
@@ -79,6 +81,7 @@ public:
                 {
                     u(i, j, k, idim) = param.u0 * units::velocity;
                 }
+                fx(i, j, k, 0) = 1;
             }
             else
             {
@@ -88,6 +91,7 @@ public:
                 {
                     u(i, j, k, idim) = param.u1 * units::velocity;
                 }
+                fx(i, j, k, 0) = 0;
             }
         });  
     }
@@ -101,6 +105,7 @@ public:
         KV_double_3d rho,
         KV_double_4d u,
         KV_double_3d P,
+        [[maybe_unused]] KV_double_4d fx,
         [[maybe_unused]] KV_double_1d g,
         [[maybe_unused]] thermodynamics::PerfectGas const& eos,
         Grid const& grid,
@@ -139,6 +144,7 @@ public:
         KV_double_3d rho,
         KV_double_4d u,
         KV_double_3d P,
+        [[maybe_unused]] KV_double_4d fx,
         [[maybe_unused]] KV_double_1d g,
         [[maybe_unused]] thermodynamics::PerfectGas const& eos,
         Grid const& grid,
@@ -187,6 +193,7 @@ public:
         KV_double_3d const rho,
         KV_double_4d const u,
         KV_double_3d const P,
+        [[maybe_unused]] KV_double_4d const fx,
         [[maybe_unused]] KV_double_1d g,
         [[maybe_unused]] thermodynamics::PerfectGas const& eos,
         Grid const& grid,
@@ -235,7 +242,7 @@ public:
                 {
                     u(i, j, k, idim) = param.u0 * units::velocity;
                 }
-            } 
+            }
         });
     }
 };
@@ -248,6 +255,7 @@ public:
         KV_double_3d const rho,
         KV_double_4d const u,
         KV_double_3d const P,
+        KV_double_4d const fx,
         KV_double_1d g,
         [[maybe_unused]] thermodynamics::PerfectGas const& eos,
         Grid const& grid,
@@ -273,14 +281,16 @@ public:
             if (y >= 0)
             {
                 rho(i, j, k) = param.rho1 * units::density;
+                fx(i, j, k, 0) = 1;
             }
             if (y < 0)
             {
                 rho(i, j, k) = param.rho0 * units::density;
+                fx(i, j, k, 0) = 0;
             }
             u(i, j, k, 0) = param.u0 * units::velocity;
             u(i, j, k, 1) = (param.A/4) * (1+Kokkos::cos(2*Kokkos::numbers::pi*x/grid.L[0])) * (1+Kokkos::cos(2*Kokkos::numbers::pi*y/grid.L[1]));
-            P(i, j, k) = param.P0 * units::pressure + rho(i, j, k) * g(1) * units::acc * y;
+            P(i, j, k) = (param.P0 + rho(i, j, k) * g(1) * units::acc * y) * units::pressure;
         });
     }
 };
@@ -293,6 +303,7 @@ public:
         KV_double_3d const rho,
         KV_double_4d const u,
         KV_double_3d const P,
+        [[maybe_unused]] KV_double_4d fx,
         [[maybe_unused]] KV_double_1d g,
         thermodynamics::PerfectGas const& eos,
         Grid const& grid,
@@ -342,6 +353,7 @@ public:
         KV_double_3d const rho,
         KV_double_4d const u,
         KV_double_3d const P,
+        [[maybe_unused]] KV_double_4d fx,
         [[maybe_unused]] KV_double_1d g,
         thermodynamics::PerfectGas const& eos,
         Grid const& grid,
@@ -382,6 +394,7 @@ public:
         KV_double_3d const rho,
         KV_double_4d const u,
         KV_double_3d const P,
+        [[maybe_unused]] KV_double_4d fx,
         KV_double_1d g,
         thermodynamics::PerfectGas const& eos,
         Grid const& grid,

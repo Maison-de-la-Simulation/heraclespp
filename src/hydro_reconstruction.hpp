@@ -11,6 +11,7 @@
 #include "ndim.hpp"
 #include "range.hpp"
 #include "grid.hpp"
+#include "nova_params.hpp"
 
 namespace novapp
 {
@@ -35,12 +36,15 @@ public:
             KV_double_5d rho_rec,
             KV_double_6d rhou_rec,
             KV_double_5d E_rec,
+            KV_double_6d fx_rec,
             KV_cdouble_3d rho,
             KV_cdouble_4d u,
             KV_cdouble_3d P,
+            KV_cdouble_4d fx,
             thermodynamics::PerfectGas const& eos,
             double const dt,
-            Grid const& grid) const
+            Grid const& grid,
+            Param const& param) const
             = 0;
 };
 
@@ -73,12 +77,15 @@ public:
             KV_double_5d const rho_rec,
             KV_double_6d const rhou_rec,
             KV_double_5d const E_rec,
+            KV_double_6d const fx_rec,
             KV_cdouble_3d const rho,
             KV_cdouble_4d const u,
             KV_cdouble_3d const P,
+            KV_cdouble_4d const fx,
             thermodynamics::PerfectGas const& eos,
             double const dt,
-            Grid const& grid) const final
+            Grid const& grid,
+            Param const& param) const final
     {
         m_face_reconstruction->execute(range, rho, rho_rec, grid);
         m_face_reconstruction->execute(range, P, m_P_rec, grid);
@@ -88,6 +95,14 @@ public:
                     range,
                     Kokkos::subview(u, ALL, ALL, ALL, idim),
                     Kokkos::subview(m_u_rec, ALL, ALL, ALL, ALL, ALL, idim),
+                    grid);
+        }
+        for (int ifx = 0; ifx < param.nfx; ++ifx)
+        {
+            m_face_reconstruction->execute(
+                    range,
+                    Kokkos::subview(fx, ALL, ALL, ALL, ifx),
+                    Kokkos::subview(fx_rec, ALL, ALL, ALL, ALL, ALL, ifx),
                     grid);
         }
 
@@ -106,7 +121,7 @@ public:
             }
         }
 
-        m_hancock_reconstruction->execute(range, rho_rec, rhou_rec, E_rec, m_u_rec, m_P_rec, dt, grid);
+        m_hancock_reconstruction->execute(range, rho_rec, rhou_rec, E_rec, m_u_rec, m_P_rec, fx_rec, dt, grid, param);
     }
 };
 

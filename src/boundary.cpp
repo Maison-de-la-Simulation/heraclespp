@@ -13,9 +13,11 @@ void DistributedBoundaryCondition::ghostFill(
         KV_double_3d rho,
         KV_double_4d rhou,
         KV_double_3d E,
+        KV_double_4d fx,
         int bc_idim,
         int bc_iface,
-        Grid const& grid) const
+        Grid const& grid,
+        Param const& param) const
 {
     int ng = grid.Nghost[bc_idim];
 
@@ -36,11 +38,18 @@ void DistributedBoundaryCondition::ghostFill(
             Kokkos::subview(buf.d_view, ALL, ALL, ALL, 1),
             Kokkos::subview(E, KRange[0], KRange[1], KRange[2]));
 
-    for (int n = 0; n < ndim; n++)
+    for (int idim = 0; idim < ndim; idim++)
     {
         Kokkos::deep_copy(
-                Kokkos::subview(buf.d_view, ALL, ALL, ALL, 2 + n),
-                Kokkos::subview(rhou, KRange[0], KRange[1], KRange[2], n));
+                Kokkos::subview(buf.d_view, ALL, ALL, ALL, 2 + idim),
+                Kokkos::subview(rhou, KRange[0], KRange[1], KRange[2], idim));
+    }
+
+    for (int ifx = 0; ifx < param.nfx; ++ifx)
+    {
+        Kokkos::deep_copy(
+                Kokkos::subview(buf.d_view, ALL, ALL, ALL, 2 + ndim + ifx),
+                Kokkos::subview(fx, KRange[0], KRange[1], KRange[2], ifx));           
     }
 
     buf.modify_device();
@@ -75,11 +84,18 @@ void DistributedBoundaryCondition::ghostFill(
             Kokkos::subview(E, KRange[0], KRange[1], KRange[2]),
             Kokkos::subview(buf.d_view, ALL, ALL, ALL, 1));
 
-    for (int n = 0; n < ndim; n++)
+    for (int idim = 0; idim < ndim; idim++)
     {
         Kokkos::deep_copy(
-                Kokkos::subview(rhou, KRange[0], KRange[1], KRange[2], n),
-                Kokkos::subview(buf.d_view, ALL, ALL, ALL, 2 + n));
+                Kokkos::subview(rhou, KRange[0], KRange[1], KRange[2], idim),
+                Kokkos::subview(buf.d_view, ALL, ALL, ALL, 2 + idim));
+    }
+
+    for (int ifx = 0; ifx < param.nfx; ++ifx)
+    {
+        Kokkos::deep_copy(
+                Kokkos::subview(fx, KRange[0], KRange[1], KRange[2], ifx),
+                Kokkos::subview(buf.d_view, ALL, ALL, ALL, 2 + ndim + ifx));          
     }
 }
 
