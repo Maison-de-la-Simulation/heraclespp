@@ -48,7 +48,7 @@ public :
     double E0;
     double E1;
     double A;
-    double nfx;
+    int nfx;
 
     explicit Param(INIReader const& reader)
     {
