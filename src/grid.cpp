@@ -151,12 +151,15 @@ void Grid::Init_nodes()
     double dz = L[2] / Nx_glob_ng[2];
 
     auto const x_h = x.h_view;
+    
     for (int i=0; i<Nx_local_ng[0]+2*Nghost[0]+1; ++i)
     {
         x_h(i) = xmin + (i + offsetx) * dx; // Position of the left interface
     }
+    
     x.modify_host();
     x.sync_device();
+    
     auto const y_h = y.h_view;
     for (int i=0; i<Nx_local_ng[1]+2*Nghost[1]+1; ++i)
     {
@@ -191,18 +194,40 @@ void Grid::Init_grid()
     auto const x_d = x.d_view;
     auto const y_d = y.d_view;
     auto const z_d = z.d_view;
-    for (int i=0; i<Nx_local_ng[0]+2*Nghost[0]; ++i)
+
+    Kokkos::parallel_for("set_dx",
+    Nx_local_wg[0],
+    KOKKOS_CLASS_LAMBDA(int i)
     {
         dx(i) = x_d(i+1) - x_d(i);
-    }
-    for (int i=0; i<Nx_local_ng[1]+2*Nghost[1]; ++i)
+    });
+
+    Kokkos::parallel_for("set_dy",
+    Nx_local_wg[1],
+    KOKKOS_CLASS_LAMBDA(int i)
     {
         dy(i) = y_d(i+1) - y_d(i);
-    }
-    for (int i=0; i<Nx_local_ng[2]+2*Nghost[2]; ++i)
+    });
+
+    Kokkos::parallel_for("set_dz",
+    Nx_local_wg[2],
+    KOKKOS_CLASS_LAMBDA(int i)
     {
         dz(i) = z_d(i+1) - z_d(i);
-    }
+    });
+
+// for (int i=0; i<Nx_local_ng[0]+2*Nghost[0]; ++i)
+    // {
+    //     dx(i) = x_h(i+1) - x_h(i);
+    // }
+    // for (int i=0; i<Nx_local_ng[1]+2*Nghost[1]; ++i)
+    // {
+    //     dy(i) = y_h(i+1) - y_h(i);
+    // }
+    // for (int i=0; i<Nx_local_ng[2]+2*Nghost[2]; ++i)
+    // {
+    //     dz(i) = z_h(i+1) - z_h(i);
+    // }
 
     Kokkos::parallel_for("File_ds",
     Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0}, 
