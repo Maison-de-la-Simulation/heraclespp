@@ -47,8 +47,7 @@ public:
                          [[maybe_unused]] KV_double_4d rhou,
                          [[maybe_unused]] KV_double_3d E,
                          [[maybe_unused]] KV_double_4d fx,
-                         [[maybe_unused]] KV_double_1d g,
-                         [[maybe_unused]] ParamSetup const& param_setup) const 
+                         [[maybe_unused]] KV_double_1d g) const 
                          {
                             throw std::runtime_error("Boundary not implemented");
                          }
@@ -77,8 +76,7 @@ public:
                  KV_double_4d rhou,
                  KV_double_3d E,
                  [[maybe_unused]] KV_double_4d fx,
-                 [[maybe_unused]] KV_double_1d g,
-                 [[maybe_unused]] ParamSetup const& param_setup) const final
+                 [[maybe_unused]] KV_double_1d g) const final
     {
         assert(rho.extent(0) == rhou.extent(0));
         assert(rhou.extent(0) == E.extent(0));
@@ -130,8 +128,7 @@ public:
                  [[maybe_unused]] KV_double_4d rhou,
                  [[maybe_unused]] KV_double_3d E,
                  [[maybe_unused]] KV_double_4d fx,
-                 [[maybe_unused]] KV_double_1d g,
-                 [[maybe_unused]] ParamSetup const& param_setup) const final
+                 [[maybe_unused]] KV_double_1d g) const final
     {
         // do nothing
     }
@@ -159,8 +156,7 @@ public:
                  KV_double_4d rhou,
                  KV_double_3d E,
                  [[maybe_unused]] KV_double_4d fx,
-                 [[maybe_unused]] KV_double_1d g,
-                 [[maybe_unused]] ParamSetup const& param_setup) const final
+                 [[maybe_unused]] KV_double_1d g) const final
     {
         Kokkos::Array<int, 3> begin {0, 0, 0};
         Kokkos::Array<int, 3> end {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)};

@@ -92,15 +92,18 @@ class BoundarySetup : public IBoundaryCondition
 private:
     thermodynamics::PerfectGas m_eos;
     Grid m_grid;
+    ParamSetup m_param_setup;
 
 public:
     BoundarySetup(int idim, int iface,
         thermodynamics::PerfectGas const& eos,
-        Grid const& grid)
+        Grid const& grid,
+        ParamSetup const& param_setup)
         : IBoundaryCondition(idim, iface)
         , m_label("UserDefined" + bc_dir[idim] + bc_face[iface])
         , m_eos(eos)
         , m_grid(grid)
+        , m_param_setup(param_setup)
     {
     }
     
@@ -108,8 +111,7 @@ public:
                  KV_double_4d rhou,
                  KV_double_3d E,
                  [[maybe_unused]] KV_double_4d fx,
-                 KV_double_1d g,
-                 ParamSetup const& param_setup) const final
+                 KV_double_1d g) const final
     {
         assert(rho.extent(0) == rhou.extent(0));
         assert(rhou.extent(0) == E.extent(0));
@@ -138,14 +140,14 @@ public:
         {
             double xcenter = (x_d(i) + m_grid.dx(i) / 2) * units::m;
             double gravity = g(0) * units::acc;
-            double x0 = units::kb * param_setup.T * units::Kelvin / (mu * units::mh * std::abs(gravity));
-            rho(i, j, k) = param_setup.rho0 * units::density * Kokkos::exp(- xcenter / x0);
+            double x0 = units::kb * m_param_setup.T * units::Kelvin / (mu * units::mh * std::abs(gravity));
+            rho(i, j, k) = m_param_setup.rho0 * units::density * Kokkos::exp(- xcenter / x0);
             for (int n = 0; n < rhou.extent_int(3); n++)
             {
-                rhou(i, j, k, n) = param_setup.rho0 * units::density * param_setup.u0 * units::velocity;
+                rhou(i, j, k, n) = m_param_setup.rho0 * units::density * m_param_setup.u0 * units::velocity;
             }
             E(i, j, k) = m_eos.compute_evol(rho(i, j, k) * units::density,
-                          m_eos.compute_P_from_T(rho(i, j, k) * units::density, param_setup.T * units::Kelvin));
+                          m_eos.compute_P_from_T(rho(i, j, k) * units::density, m_param_setup.T * units::Kelvin));
         });
     }
 };

@@ -75,7 +75,7 @@ int main(int argc, char** argv)
 
     write_pdi_init(param.max_iter, param.output_frequency, grid, param);
 
-    DistributedBoundaryCondition const bcs(reader, param, eos, grid);
+    DistributedBoundaryCondition const bcs(reader, eos, grid, param, param_setup);
 
     std::unique_ptr<IInitializationProblem> initialization 
             = std::make_unique<InitializationSetup>(eos, grid, param_setup);
@@ -135,7 +135,7 @@ int main(int argc, char** argv)
     }
     conv_prim_to_cons(grid.range.no_ghosts(), rhou.d_view, E.d_view, rho.d_view, u.d_view, P.d_view, eos);
 
-    bcs.execute(rho.d_view, rhou.d_view, E.d_view, fx.d_view, g_array, param_setup);
+    bcs.execute(rho.d_view, rhou.d_view, E.d_view, fx.d_view, g_array);
     
     conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho.d_view, rhou.d_view, E.d_view, eos);
 
@@ -166,7 +166,7 @@ int main(int argc, char** argv)
                                 rho_rec, rhou_rec, E_rec, fx_rec,
                                 rho_new, rhou_new, E_new, fx_new);
 
-        bcs.execute(rho_new, rhou_new, E_new, fx_new, g_array, param_setup);
+        bcs.execute(rho_new, rhou_new, E_new, fx_new, g_array);
 
         conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho_new, rhou_new, E_new, eos);
         Kokkos::deep_copy(rho.d_view, rho_new);

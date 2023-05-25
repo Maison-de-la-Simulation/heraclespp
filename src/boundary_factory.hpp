@@ -28,7 +28,8 @@ inline std::unique_ptr<IBoundaryCondition> factory_boundary_construction(
     int idim,
     int iface,
     thermodynamics::PerfectGas const& eos,
-    Grid const& grid)
+    Grid const& grid,
+    ParamSetup const& param_setup)
 {
     if (boundary == "NullGradient")
     {
@@ -44,7 +45,7 @@ inline std::unique_ptr<IBoundaryCondition> factory_boundary_construction(
     }
     if (boundary == "UserDefined")
     {
-        return std::make_unique<BoundarySetup>(idim, iface, eos, grid);
+        return std::make_unique<BoundarySetup>(idim, iface, eos, grid, param_setup);
     }
     throw std::runtime_error("Unknown boundary condition : " + boundary + ".");
 }
@@ -55,8 +56,10 @@ private:
     std::array<KDV_double_4d, ndim> m_mpi_buffer;
     std::array<std::unique_ptr<IBoundaryCondition>, ndim * 2> m_bcs;
     std::array<int, ndim*2> m_bc_order;
+    thermodynamics::PerfectGas m_eos;
     Grid m_grid;
     Param m_param;
+    ParamSetup m_param_setup;
 
     void ghostFill(
             KV_double_3d rho,
@@ -100,11 +103,14 @@ private:
 public:
     DistributedBoundaryCondition(
             INIReader const& reader,
-            Param const& param,
             thermodynamics::PerfectGas const& eos,
-            Grid const& grid)
-            : m_grid(grid)
+            Grid const& grid, 
+            Param const& param,
+            ParamSetup const& param_setup)
+            :  m_eos(eos)
+            , m_grid(grid)
             , m_param(param)
+            , m_param_setup(param_setup)
     {
         std::string bc_choice_dir;
         std::array<std::string, ndim*2> bc_choice_faces;
@@ -132,12 +138,12 @@ public:
                 if (!m_grid.is_border[idim][iface])
                 {
                     m_bcs[idim * 2 + iface] = factory_boundary_construction(
-                                               "Periodic", idim, iface, eos, grid);
+                                               "Periodic", idim, iface, m_eos, m_grid, m_param_setup);
                 }
                 else
                 {
                     m_bcs[idim*2+iface] = factory_boundary_construction(
-                                           bc_choice_faces[idim*2+iface], idim, iface, eos, grid);
+                                           bc_choice_faces[idim*2+iface], idim, iface, m_eos, m_grid, m_param_setup);
                 }
             }
         }
@@ -157,8 +163,7 @@ public:
                  KV_double_4d rhou,
                  KV_double_3d E,
                  KV_double_4d fx,
-                 KV_double_1d g,
-                 ParamSetup const& param_setup) const
+                 KV_double_1d g) const
     {
         for (int idim = 0; idim < ndim; idim++)
         {
@@ -170,7 +175,7 @@ public:
 
         for ( int const bc_id : m_bc_order )
         {
-            m_bcs[bc_id]->execute(rho, rhou, E, fx, g, param_setup);
+            m_bcs[bc_id]->execute(rho, rhou, E, fx, g);
         }
     }
 };

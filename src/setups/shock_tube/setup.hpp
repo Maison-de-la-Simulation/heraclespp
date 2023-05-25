@@ -107,7 +107,8 @@ class BoundarySetup : public IBoundaryCondition
 public:
     BoundarySetup(int idim, int iface,
         [[maybe_unused]] thermodynamics::PerfectGas const& eos,
-        [[maybe_unused]] Grid const& grid)
+        [[maybe_unused]] Grid const& grid,
+        [[maybe_unused]] ParamSetup const& param_setup)
         : IBoundaryCondition(idim, iface)
     {
     }
