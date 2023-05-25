@@ -149,6 +149,8 @@ int main(int argc, char** argv)
         write_pdi(iter, t, eos.adiabatic_index(), rho, u, P, E, grid.x, grid.y, grid.z, fx);
     }
 
+    std::chrono::steady_clock::time_point const start = std::chrono::steady_clock::now();
+
     while (!should_exit && t < param.timeout && iter < param.max_iter)
     {
         double dt = time_step(grid.range.all_ghosts(), param.cfl, rho.d_view, u.d_view, P.d_view, eos, grid);
@@ -190,9 +192,16 @@ int main(int argc, char** argv)
         }
     }
 
+    std::chrono::steady_clock::time_point const end = std::chrono::steady_clock::now();
+
     if (grid.mpi_rank == 0)
     {
+        float const nb_cells = grid.Nx_glob_ng[0] * grid.Nx_glob_ng[1] * grid.Nx_glob_ng[2];
+        float const nb_cells_updated = iter * nb_cells;
+        float const duration = std::chrono::duration<float>(end - start).count();
+        float const perf = nb_cells_updated / duration;
         std::printf("Final time = %f and number of iterations = %d  \n", t, iter);
+        std::printf("Mean performance: %f Mcell-updates/s\n", perf * 1e-6f);
         std::printf("--- End ---\n");
     }
     MPI_Comm_free(&(const_cast<Grid&>(grid).comm_cart));
