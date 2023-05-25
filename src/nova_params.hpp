@@ -99,7 +99,7 @@ public :
         nfx = reader.GetInteger("Passive Scalar", "nfx", 0);
 
         // à mettre ailleurs
-        rho0 = reader.GetReal("Initialisation", "rho0", 1.0);
+        /* rho0 = reader.GetReal("Initialisation", "rho0", 1.0);
         rho1 = reader.GetReal("Initialisation", "rho1", 1.0);
         u0 = reader.GetReal("Initialisation", "u0", 1.0);
         u1 = reader.GetReal("Initialisation", "u1", 1.0);
@@ -107,7 +107,7 @@ public :
         P1 = reader.GetReal("Initialisation", "P1", 1.0);
         E0 = reader.GetReal("Initialisation", "E0", 1.0);
         E1 = reader.GetReal("Initialisation", "E1", 1.0);
-        A = reader.GetReal("Initialisation", "A", 1.0); // amplitude
+        A = reader.GetReal("Initialisation", "A", 1.0); */
     }
 };
 

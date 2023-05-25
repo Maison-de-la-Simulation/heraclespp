@@ -33,6 +33,7 @@ public:
 
     virtual void execute(
             Range const& range,
+            double const dt,
             KV_double_5d rho_rec,
             KV_double_6d rhou_rec,
             KV_double_5d E_rec,
@@ -40,11 +41,7 @@ public:
             KV_cdouble_3d rho,
             KV_cdouble_4d u,
             KV_cdouble_3d P,
-            KV_cdouble_4d fx,
-            thermodynamics::PerfectGas const& eos,
-            double const dt,
-            Grid const& grid,
-            Param const& param) const
+            KV_cdouble_4d fx) const
             = 0;
 };
 
@@ -55,6 +52,8 @@ class MUSCLHancockHydroReconstruction : public IHydroReconstruction
 
     std::shared_ptr<IExtrapolationReconstruction> m_hancock_reconstruction;
 
+    thermodynamics::PerfectGas m_eos;
+
     KV_double_5d m_P_rec;
 
     KV_double_6d m_u_rec;
@@ -63,10 +62,12 @@ public:
     MUSCLHancockHydroReconstruction(
             std::unique_ptr<IFaceReconstruction> face_reconstruction,
             std::unique_ptr<IExtrapolationReconstruction> hancock_reconstruction,
+            thermodynamics::PerfectGas const& eos,
             KV_double_5d P_rec,
             KV_double_6d u_rec)
         : m_face_reconstruction(std::move(face_reconstruction))
         , m_hancock_reconstruction(std::move(hancock_reconstruction))
+        , m_eos(eos)
         , m_P_rec(P_rec)
         , m_u_rec(u_rec)
     {
@@ -74,6 +75,7 @@ public:
 
     void execute(
             Range const& range,
+            double const dt,
             KV_double_5d const rho_rec,
             KV_double_6d const rhou_rec,
             KV_double_5d const E_rec,
@@ -81,29 +83,24 @@ public:
             KV_cdouble_3d const rho,
             KV_cdouble_4d const u,
             KV_cdouble_3d const P,
-            KV_cdouble_4d const fx,
-            thermodynamics::PerfectGas const& eos,
-            double const dt,
-            Grid const& grid,
-            Param const& param) const final
+            KV_cdouble_4d const fx) const final
     {
-        m_face_reconstruction->execute(range, rho, rho_rec, grid);
-        m_face_reconstruction->execute(range, P, m_P_rec, grid);
+        m_face_reconstruction->execute(range, rho, rho_rec);
+        m_face_reconstruction->execute(range, P, m_P_rec);
         for (int idim = 0; idim < ndim; ++idim)
         {
             m_face_reconstruction->execute(
                     range,
                     Kokkos::subview(u, ALL, ALL, ALL, idim),
-                    Kokkos::subview(m_u_rec, ALL, ALL, ALL, ALL, ALL, idim),
-                    grid);
+                    Kokkos::subview(m_u_rec, ALL, ALL, ALL, ALL, ALL, idim));
         }
-        for (int ifx = 0; ifx < param.nfx; ++ifx)
+        int nfx = fx.extent_int(3);
+        for (int ifx = 0; ifx < nfx; ++ifx)
         {
             m_face_reconstruction->execute(
                     range,
                     Kokkos::subview(fx, ALL, ALL, ALL, ifx),
-                    Kokkos::subview(fx_rec, ALL, ALL, ALL, ALL, ALL, ifx),
-                    grid);
+                    Kokkos::subview(fx_rec, ALL, ALL, ALL, ALL, ALL, ifx));
         }
 
         for (int idim = 0; idim < ndim; ++idim)
@@ -117,11 +114,11 @@ public:
                         Kokkos::subview(rho_rec, ALL, ALL, ALL, iside, idim),
                         Kokkos::subview(m_u_rec, ALL, ALL, ALL, iside, idim, ALL),
                         Kokkos::subview(m_P_rec, ALL, ALL, ALL, iside, idim),
-                        eos);
+                        m_eos);
             }
         }
 
-        m_hancock_reconstruction->execute(range, rho_rec, rhou_rec, E_rec, m_u_rec, m_P_rec, fx_rec, dt, grid, param);
+        m_hancock_reconstruction->execute(range, dt, rho_rec, rhou_rec, E_rec, m_u_rec, m_P_rec, fx_rec);
     }
 };
 

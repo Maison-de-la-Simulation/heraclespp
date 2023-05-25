@@ -13,7 +13,7 @@
 #include "range.hpp"
 #include "slope_limiters.hpp"
 #include "Kokkos_shortcut.hpp"
-
+#include "grid.hpp"
 
 namespace novapp
 {
@@ -39,8 +39,7 @@ public:
     virtual void execute(
         Range const& range,
         KV_cdouble_3d var,
-        KV_double_5d var_rec,
-        Grid const& grid) const
+        KV_double_5d var_rec) const
         = 0;
 };
 
@@ -48,23 +47,31 @@ template <class SlopeLimiter>
 class LimitedLinearReconstruction : public IFaceReconstruction
 {
     static_assert(
-            std::is_invocable_r_v<double, SlopeLimiter, double, double>,
+            std::is_invocable_r_v<
+            double, 
+            SlopeLimiter, 
+            double, 
+            double>,
             "Invalid slope limiter.");
 
 private:
     SlopeLimiter m_slope_limiter;
 
+    Grid m_grid;
+
 public:
-    LimitedLinearReconstruction(SlopeLimiter const& slope_limiter)
+    LimitedLinearReconstruction(
+            SlopeLimiter const& slope_limiter,
+            Grid const& grid)
         : m_slope_limiter(slope_limiter)
+        , m_grid(grid)
     {
     }
 
     void execute(
         Range const& range,
         KV_cdouble_3d var,
-        KV_double_5d var_rec,
-        Grid const& grid) const final
+        KV_double_5d var_rec) const final
     {
         assert(var.extent(0) == var_rec.extent(0));
         assert(var.extent(1) == var_rec.extent(1));
@@ -80,7 +87,9 @@ public:
             {
                 auto const [i_m, j_m, k_m] = lindex(idim, i, j, k); // i - 1
                 auto const [i_p, j_p, k_p] = rindex(idim, i, j, k); // i + 1
-                double dx = kron(idim,0) * grid.dx(i) + kron(idim,1) * grid.dy(j) + kron(idim,2) * grid.dz(k);
+                double dx = kron(idim,0) * m_grid.dx(i) 
+                            + kron(idim,1) * m_grid.dy(j) 
+                            + kron(idim,2) * m_grid.dz(k);
                 
                 double const slope = m_slope_limiter(
                     (var(i_p, j_p, k_p) - var(i, j, k)) / dx,
@@ -94,26 +103,27 @@ public:
 };
 
 inline std::unique_ptr<IFaceReconstruction> factory_face_reconstruction(
-        std::string const& slope)
+        std::string const& slope,
+        Grid const& grid)
 {
     if (slope == "Constant")
     {
-        return std::make_unique<LimitedLinearReconstruction<Constant>>(Constant());
+        return std::make_unique<LimitedLinearReconstruction<Constant>>(Constant(), grid);
     }
 
     if (slope == "VanLeer")
     {
-        return std::make_unique<LimitedLinearReconstruction<VanLeer>>(VanLeer());
+        return std::make_unique<LimitedLinearReconstruction<VanLeer>>(VanLeer(), grid);
     }
 
     if (slope == "Minmod")
     {
-        return std::make_unique<LimitedLinearReconstruction<Minmod>>(Minmod());
+        return std::make_unique<LimitedLinearReconstruction<Minmod>>(Minmod(), grid);
     }
 
     if (slope == "VanAlbada")
     {
-        return std::make_unique<LimitedLinearReconstruction<VanAlbada>>(VanAlbada());
+        return std::make_unique<LimitedLinearReconstruction<VanAlbada>>(VanAlbada(), grid);
     }
 
     throw std::runtime_error("Unknown face reconstruction algorithm: " + slope + ".");
