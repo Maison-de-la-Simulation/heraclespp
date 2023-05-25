@@ -9,7 +9,7 @@
 #include <inih/INIReader.hpp>
 
 #include "array_conversion.hpp"
-#include "initialisation_problem.hpp"
+#include "initialization_interface.hpp"
 #include "io.hpp"
 #include "face_reconstruction.hpp"
 #include "cfl_cond.hpp"
@@ -28,6 +28,8 @@
 #include "io_config.yaml.hpp"
 #include "extrapolation_time.hpp"
 #include "nova_params.hpp"
+#include "setup.hpp"
+#include "boundary_factory.hpp"
 
 using namespace novapp;
 
@@ -57,6 +59,7 @@ int main(int argc, char** argv)
     PDI_init(PC_get(conf, ".pdi"));
 
     Param const param(reader);
+    ParamSetup const param_setup(reader);
     Grid const grid(param);
     grid.print_grid();
 
@@ -72,19 +75,19 @@ int main(int argc, char** argv)
 
     write_pdi_init(param.max_iter, param.output_frequency, grid, param);
 
-    DistributedBoundaryCondition const bcs(reader, param, grid);
+    DistributedBoundaryCondition const bcs(reader, param, eos, grid);
 
-    std::unique_ptr<IInitialisationProblem> initialisation
-            = factory_initialisation(param.initialisation_problem);
+    std::unique_ptr<IInitializationProblem> initialization 
+            = std::make_unique<InitializationSetup>(eos, grid, param_setup);
 
     std::unique_ptr<IFaceReconstruction> face_reconstruction
-            = factory_face_reconstruction(param.reconstruction_type);
+            = factory_face_reconstruction(param.reconstruction_type, grid);
     
     std::unique_ptr<IExtrapolationReconstruction> time_reconstruction
-            = factory_time_reconstruction(param.gravity_type, eos, g_array);
+            = factory_time_reconstruction(param.gravity_type, eos, grid, g_array);
 
     std::unique_ptr<IGodunovScheme> godunov_scheme
-            = factory_godunov_scheme(param.riemann_solver, param.gravity_type, eos, g_array);
+            = factory_godunov_scheme(param.riemann_solver, param.gravity_type, eos, grid, g_array);
 
     KDV_double_3d rho("rho",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Density
     KDV_double_4d u("u",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim); // Velocity
@@ -128,16 +131,18 @@ int main(int argc, char** argv)
     }
     else
     {
-        initialisation->execute(grid.range.no_ghosts(), rho.d_view, u.d_view, P.d_view, fx.d_view, g_array, eos, grid, param);
+        initialization->execute(grid.range.no_ghosts(), rho.d_view, u.d_view, P.d_view, fx.d_view, g_array);
     }
     conv_prim_to_cons(grid.range.no_ghosts(), rhou.d_view, E.d_view, rho.d_view, u.d_view, P.d_view, eos);
 
-    bcs.execute(rho.d_view, rhou.d_view, E.d_view, fx.d_view, g_array, grid, eos, param);
+    bcs.execute(rho.d_view, rhou.d_view, E.d_view, fx.d_view, g_array, param_setup);
     
     conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho.d_view, rhou.d_view, E.d_view, eos);
 
-    std::unique_ptr<IHydroReconstruction> reconstruction = std::make_unique<
-            MUSCLHancockHydroReconstruction>(std::move(face_reconstruction), std::move(time_reconstruction), P_rec, u_rec);
+    std::unique_ptr<IHydroReconstruction> reconstruction 
+        = std::make_unique<MUSCLHancockHydroReconstruction>(std::move(face_reconstruction), 
+                                                            std::move(time_reconstruction), 
+                                                            eos, P_rec, u_rec);
 
     if (param.output_frequency > 0)
     {
@@ -154,13 +159,14 @@ int main(int argc, char** argv)
             should_exit = true;
         }
         
-        reconstruction->execute(grid.range.with_ghosts(1), rho_rec, rhou_rec, E_rec, fx_rec, rho.d_view, u.d_view, P.d_view, fx.d_view,
-                                eos, dt/2, grid, param);
+        reconstruction->execute(grid.range.with_ghosts(1), dt/2, rho_rec, rhou_rec, E_rec, fx_rec, 
+                                rho.d_view, u.d_view, P.d_view, fx.d_view);
 
-        godunov_scheme->execute(grid.range.no_ghosts(), rho.d_view, rhou.d_view, E.d_view, fx.d_view, rho_rec, rhou_rec, E_rec, fx_rec,
-                                rho_new, rhou_new, E_new, fx_new, dt, grid, param);
+        godunov_scheme->execute(grid.range.no_ghosts(), dt, rho.d_view, rhou.d_view, E.d_view, fx.d_view, 
+                                rho_rec, rhou_rec, E_rec, fx_rec,
+                                rho_new, rhou_new, E_new, fx_new);
 
-        bcs.execute(rho_new, rhou_new, E_new, fx_new, g_array, grid, eos, param);
+        bcs.execute(rho_new, rhou_new, E_new, fx_new, g_array, param_setup);
 
         conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho_new, rhou_new, E_new, eos);
         Kokkos::deep_copy(rho.d_view, rho_new);

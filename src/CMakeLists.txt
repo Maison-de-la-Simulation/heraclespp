@@ -8,8 +8,9 @@ add_library(libnova++ array_conversion.cpp
                       grid.cpp
                       boundary.cpp
                       range.cpp)
+target_include_directories(libnova++ PUBLIC setups/${Novapp_SETUP}/)
 configure_file(ndim.hpp.in ndim.hpp NO_SOURCE_PERMISSIONS @ONLY)
-target_include_directories(libnova++ INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(libnova++ PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(libnova++ PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 target_compile_features(libnova++ PUBLIC cxx_std_17)

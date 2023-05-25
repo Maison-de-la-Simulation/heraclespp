@@ -19,7 +19,6 @@
 #include "riemann_solver.hpp"
 #include "Kokkos_shortcut.hpp"
 #include "gravity.hpp"
-#include "nova_params.hpp"
 
 namespace novapp
 {
@@ -41,6 +40,7 @@ namespace novapp
 
         virtual void execute(
             Range const &range,
+            double const dt,
             KV_cdouble_3d const rho,
             KV_cdouble_4d const rhou,
             KV_cdouble_3d const E,
@@ -52,10 +52,7 @@ namespace novapp
             KV_double_3d rho_new,
             KV_double_4d rhou_new,
             KV_double_3d E_new,
-            KV_double_4d const fx_new,
-            double const dt,
-            Grid const &grid,
-            Param const &param) const = 0;
+            KV_double_4d const fx_new) const = 0;
     };
 
     template <class RiemannSolver, class Gravity>
@@ -73,22 +70,26 @@ namespace novapp
 
     private:
         RiemannSolver m_riemann_solver;
-
         Gravity m_gravity;
-
         thermodynamics::PerfectGas m_eos;
-
+        Grid m_grid;
+        
     public:
         RiemannBasedGodunovScheme(
             RiemannSolver const &riemann_solver,
-            Gravity const &gravity,
-            thermodynamics::PerfectGas const &eos)
-            : m_riemann_solver(riemann_solver), m_gravity(gravity), m_eos(eos)
+            Gravity const& gravity,
+            thermodynamics::PerfectGas const& eos, 
+            Grid const& grid)
+            : m_riemann_solver(riemann_solver)
+            , m_gravity(gravity)
+            , m_eos(eos)
+            , m_grid(grid)
         {
         }
 
         void execute(
-            Range const &range,
+            Range const& range,
+            double const dt,
             KV_cdouble_3d const rho,
             KV_cdouble_4d const rhou,
             KV_cdouble_3d const E,
@@ -100,11 +101,10 @@ namespace novapp
             KV_double_3d const rho_new,
             KV_double_4d const rhou_new,
             KV_double_3d const E_new,
-            KV_double_4d const fx_new,
-            double const dt,
-            Grid const &grid,
-            Param const &param) const final
+            KV_double_4d const fx_new) const final
         {
+            int nfx = fx.extent_int(3);
+
             auto const [begin, end] = cell_range(range);
             Kokkos::parallel_for(
             "RiemannBasedGodunovScheme",
@@ -119,7 +119,7 @@ namespace novapp
                     rhou_new(i, j, k, idim) = rhou(i, j, k, idim);
                 }
 
-                for (int ifx = 0; ifx < param.nfx; ++ifx)
+                for (int ifx = 0; ifx < nfx; ++ifx)
                 {
                     fx_new(i, j, k, ifx) = fx(i, j, k, ifx) * rho(i, j,k);
                 }
@@ -161,27 +161,27 @@ namespace novapp
                     plus_oneL.E = E_rec(i_p, j_p, k_p, 0, idim);
                     EulerFlux const FluxR = m_riemann_solver(var_R, plus_oneL, idim, m_eos);
 
-                    double dtodv = dt / grid.dv(i, j, k);
+                    double dtodv = dt / m_grid.dv(i, j, k);
 
-                    rho_new(i, j, k) += dtodv * (FluxL.rho * grid.ds(i, j, k, idim) 
-                                        - FluxR.rho * grid.ds(i_p, j_p, k_p, idim));
+                    rho_new(i, j, k) += dtodv * (FluxL.rho * m_grid.ds(i, j, k, idim) 
+                                        - FluxR.rho * m_grid.ds(i_p, j_p, k_p, idim));
                     for (int idr = 0; idr < ndim; ++idr)
                     {
-                        rhou_new(i, j, k, idr) += dtodv * (FluxL.rhou[idr] * grid.ds(i, j, k, idim) 
-                                                    - FluxR.rhou[idr] * grid.ds(i_p, j_p, k_p, idim));
+                        rhou_new(i, j, k, idr) += dtodv * (FluxL.rhou[idr] * m_grid.ds(i, j, k, idim) 
+                                                    - FluxR.rhou[idr] * m_grid.ds(i_p, j_p, k_p, idim));
                     }
-                    E_new(i, j, k) += dtodv * (FluxL.E * grid.ds(i, j, k, idim) 
-                                            - FluxR.E * grid.ds(i_p, j_p, k_p, idim));
+                    E_new(i, j, k) += dtodv * (FluxL.E * m_grid.ds(i, j, k, idim) 
+                                            - FluxR.E * m_grid.ds(i_p, j_p, k_p, idim));
 
                     // Gravity
                     for (int idr = 0; idr < ndim; ++idr)
                     {
-                        rhou_new(i, j, k, idr) += dt * m_gravity(i, j, k, idr, grid) * rho(i, j, k);
-                        E_new(i, j, k) += dt * m_gravity(i, j, k, idr, grid) * rhou(i, j, k, idr);
+                        rhou_new(i, j, k, idr) += dt * m_gravity(i, j, k, idr, m_grid) * rho(i, j, k);
+                        E_new(i, j, k) += dt * m_gravity(i, j, k, idr, m_grid) * rhou(i, j, k, idr);
                     }
 
                     // Passive scalar
-                    for (int ifx = 0; ifx < param.nfx; ++ifx)
+                    for (int ifx = 0; ifx < nfx; ++ifx)
                     {
                         int iL_uw = i_m; // upwind
                         int iR_uw = i;
@@ -210,8 +210,8 @@ namespace novapp
                         double flux_fx_L = fx_rec(iL_uw, jL_uw, kL_uw, face_L, idim, ifx) * FluxL.rho;
                         double flux_fx_R = fx_rec(iR_uw, jR_uw, kR_uw, face_R, idim, ifx) * FluxR.rho;
 
-                        fx_new(i, j, k, ifx) += dtodv * (flux_fx_L * grid.ds(i, j, k, idim)
-                                                - flux_fx_R * grid.ds(i_p, j_p, k_p, idim));
+                        fx_new(i, j, k, ifx) += dtodv * (flux_fx_L * m_grid.ds(i, j, k, idim)
+                                                - flux_fx_R * m_grid.ds(i_p, j_p, k_p, idim));
                     }
                 }
             });
@@ -221,7 +221,7 @@ namespace novapp
             Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
             KOKKOS_CLASS_LAMBDA(int i, int j, int k)
             {
-                for (int ifx = 0; ifx < param.nfx; ++ifx)
+                for (int ifx = 0; ifx < nfx; ++ifx)
                 {
                     fx_new(i, j, k, ifx) /= rho_new(i, j, k);
                 
@@ -239,16 +239,17 @@ namespace novapp
     };
 
     inline std::unique_ptr<IGodunovScheme> factory_godunov_scheme(
-        std::string const &riemann_solver,
-        std::string const &gravity,
-        thermodynamics::PerfectGas const &eos,
-        KV_double_1d &g)
+        std::string const& riemann_solver,
+        std::string const& gravity,
+        thermodynamics::PerfectGas const& eos, 
+        Grid const& grid,
+        KV_double_1d& g)
     {
         if (riemann_solver == "HLL" && gravity == "Uniform")
         {
-            return std::make_unique<RiemannBasedGodunovScheme<HLL, UniformGravity>>(HLL(), UniformGravity(g), eos);
+            return std::make_unique<RiemannBasedGodunovScheme<HLL, UniformGravity>>(HLL(), UniformGravity(g), eos, grid);
         }
-        throw std::runtime_error("Invalid riemann solver: " + riemann_solver + ".");
+        throw std::runtime_error("Invalid riemann solver: " + riemann_solver + "or gravity: " + gravity + ".");
     }
 
 } // namespace novapp

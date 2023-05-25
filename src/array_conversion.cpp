@@ -3,9 +3,10 @@
 #include "array_conversion.hpp"
 #include "euler_equations.hpp"
 #include "range.hpp"
+
 namespace novapp
 {
-
+    
 void conv_prim_to_cons(
     Range const& range,
     Kokkos::View<double****, Kokkos::LayoutStride> const rhou,

@@ -40,15 +40,13 @@ public:
 
     virtual void execute(
         Range const& range,
+        double const dt_reconstruction,
         KV_double_5d rho_rec,
         KV_double_6d rhou_rec,
         KV_double_5d E_rec,
         KV_double_6d loc_u_rec,
         KV_double_5d loc_P_rec,
-        KV_double_6d fx_rec,
-        double const dt_reconstruction,
-        Grid const& grid,
-        Param const& param) const
+        KV_double_6d fx_rec) const
         = 0;
 };
 
@@ -64,25 +62,28 @@ private:
 
     thermodynamics::PerfectGas m_eos;
 
+    Grid m_grid;
+
 public:
-    ExtrapolationTimeReconstruction(Gravity const& gravity,
-    thermodynamics::PerfectGas const& eos)
+    ExtrapolationTimeReconstruction(
+            Gravity const& gravity,
+            thermodynamics::PerfectGas const& eos, 
+            Grid const& grid)
         : m_gravity(gravity)
         , m_eos(eos)
+        , m_grid(grid)
     {
     }
 
     void execute(
         Range const& range,
+        double const dt_reconstruction,
         KV_double_5d const rho_rec,
         KV_double_6d const rhou_rec,
         KV_double_5d const E_rec,
         KV_double_6d const loc_u_rec,
         KV_double_5d const loc_P_rec,
-        KV_double_6d const fx_rec,
-        double const dt_reconstruction,
-        Grid const& grid,
-        Param const& param) const final
+        KV_double_6d const fx_rec) const final
     {
         assert(rho_rec.extent(0) == rhou_rec.extent(0));
         assert(rhou_rec.extent(0) == E_rec.extent(0));
@@ -95,8 +96,10 @@ public:
         assert(rho_rec.extent(4) == rhou_rec.extent(4));
         assert(rhou_rec.extent(4) == E_rec.extent(4));
 
-        KV_double_6d fx_rec_old("rho_rec_old", grid.Nx_local_wg[0], grid.Nx_local_wg[1], 
-                                grid.Nx_local_wg[2], 2, ndim, param.nfx);
+        int nfx = fx_rec.extent_int(5);
+
+        KV_double_6d fx_rec_old("rho_rec_old", m_grid.Nx_local_wg[0], m_grid.Nx_local_wg[1], 
+                                m_grid.Nx_local_wg[2], 2, ndim, nfx);
         Kokkos::deep_copy(fx_rec_old, fx_rec);
 
         auto const [begin, end] = cell_range(range);
@@ -110,7 +113,7 @@ public:
 
             for (int idim = 0; idim < ndim; ++idim)
             {
-                for (int ifx = 0; ifx < param.nfx; ++ifx)
+                for (int ifx = 0; ifx < nfx; ++ifx)
                 {
                     fx_rec(i, j, k, 0, idim, ifx) *= rho_rec(i, j, k, 0, idim);
                     fx_rec(i, j, k, 1, idim, ifx) *= rho_rec(i, j, k, 1, idim);
@@ -148,25 +151,25 @@ public:
                 plus_one.P = loc_P_rec(i, j, k, 1, idim);
                 EulerFlux flux_plus_one = compute_flux(plus_one, idim, m_eos);
 
-                double dtodv = dt_reconstruction / grid.dv(i, j, k);
+                double dtodv = dt_reconstruction / m_grid.dv(i, j, k);
 
                 for (int ipos = 0; ipos < ndim; ++ipos)
                 {
-                    rho_rec(i, j, k, 0, ipos) += dtodv * (flux_minus_one.rho * grid.ds(i, j, k, idim) 
-                                                 - flux_plus_one.rho * grid.ds(i_p, j_p, k_p, idim));
-                    rho_rec(i, j, k, 1, ipos) += dtodv * (flux_minus_one.rho * grid.ds(i, j, k, idim) 
-                                                 - flux_plus_one.rho * grid.ds(i_p, j_p, k_p, idim));
+                    rho_rec(i, j, k, 0, ipos) += dtodv * (flux_minus_one.rho * m_grid.ds(i, j, k, idim) 
+                                                 - flux_plus_one.rho * m_grid.ds(i_p, j_p, k_p, idim));
+                    rho_rec(i, j, k, 1, ipos) += dtodv * (flux_minus_one.rho * m_grid.ds(i, j, k, idim) 
+                                                 - flux_plus_one.rho * m_grid.ds(i_p, j_p, k_p, idim));
                     for (int idr = 0; idr < ndim; ++idr)
                     {
-                        rhou_rec(i, j, k, 0, ipos, idr) += dtodv * (flux_minus_one.rhou[idr] * grid.ds(i, j, k, idim) 
-                                                           - flux_plus_one.rhou[idr] * grid.ds(i_p, j_p, k_p, idim));
-                        rhou_rec(i, j, k, 1, ipos, idr) += dtodv * (flux_minus_one.rhou[idr] * grid.ds(i, j, k, idim) 
-                                                           - flux_plus_one.rhou[idr] * grid.ds(i_p, j_p, k_p, idim));
+                        rhou_rec(i, j, k, 0, ipos, idr) += dtodv * (flux_minus_one.rhou[idr] * m_grid.ds(i, j, k, idim) 
+                                                           - flux_plus_one.rhou[idr] * m_grid.ds(i_p, j_p, k_p, idim));
+                        rhou_rec(i, j, k, 1, ipos, idr) += dtodv * (flux_minus_one.rhou[idr] * m_grid.ds(i, j, k, idim) 
+                                                           - flux_plus_one.rhou[idr] * m_grid.ds(i_p, j_p, k_p, idim));
                     }
-                    E_rec(i, j, k, 0, ipos) += dtodv * (flux_minus_one.E * grid.ds(i, j, k, idim) 
-                                               - flux_plus_one.E * grid.ds(i_p, j_p, k_p, idim));
-                    E_rec(i, j, k, 1, ipos) += dtodv * (flux_minus_one.E * grid.ds(i, j, k, idim) 
-                                               - flux_plus_one.E * grid.ds(i_p, j_p, k_p, idim));
+                    E_rec(i, j, k, 0, ipos) += dtodv * (flux_minus_one.E * m_grid.ds(i, j, k, idim) 
+                                               - flux_plus_one.E * m_grid.ds(i_p, j_p, k_p, idim));
+                    E_rec(i, j, k, 1, ipos) += dtodv * (flux_minus_one.E * m_grid.ds(i, j, k, idim) 
+                                               - flux_plus_one.E * m_grid.ds(i_p, j_p, k_p, idim));
                 }
                 
                 // Gravity
@@ -174,15 +177,15 @@ public:
                 {
                     for (int idr = 0; idr < ndim; ++idr)
                     {
-                        rhou_rec(i, j, k, 0, ipos, idr) += dt_reconstruction * m_gravity(i, j, k, idr, grid) * rho_old[0][ipos];
-                        rhou_rec(i, j, k, 1, ipos, idr) += dt_reconstruction * m_gravity(i, j, k, idr, grid) * rho_old[1][ipos];
-                        E_rec(i, j, k, 0, ipos) += dt_reconstruction * m_gravity(i, j, k, idr, grid) * rhou_old[0][ipos][idr];
-                        E_rec(i, j, k, 1, ipos) += dt_reconstruction * m_gravity(i, j, k, idr, grid) * rhou_old[1][ipos][idr];
+                        rhou_rec(i, j, k, 0, ipos, idr) += dt_reconstruction * m_gravity(i, j, k, idr, m_grid) * rho_old[0][ipos];
+                        rhou_rec(i, j, k, 1, ipos, idr) += dt_reconstruction * m_gravity(i, j, k, idr, m_grid) * rho_old[1][ipos];
+                        E_rec(i, j, k, 0, ipos) += dt_reconstruction * m_gravity(i, j, k, idr, m_grid) * rhou_old[0][ipos][idr];
+                        E_rec(i, j, k, 1, ipos) += dt_reconstruction * m_gravity(i, j, k, idr, m_grid) * rhou_old[1][ipos][idr];
                     }
                 }
 
                 // Passive scalar
-                for (int ifx = 0; ifx < param.nfx; ++ifx)
+                for (int ifx = 0; ifx < nfx; ++ifx)
                 {
                     int iL_uw = i_m; // upwind
                     int iR_uw = i;
@@ -211,10 +214,10 @@ public:
                     double flux_fx_L = fx_rec_old(iL_uw, jL_uw, kL_uw, face_L, idim, ifx) * flux_minus_one.rho;
                     double flux_fx_R = fx_rec_old(iR_uw, jR_uw, kR_uw, face_R, idim, ifx) * flux_plus_one.rho;
 
-                    fx_rec(i, j, k, 0, idim, ifx) += dtodv * (flux_fx_L * grid.ds(i, j, k, idim) 
-                                                        - flux_fx_R * grid.ds(i_p, j_p, k_p, idim));
-                    fx_rec(i, j, k, 1, idim, ifx) += dtodv * (flux_fx_L * grid.ds(i, j, k, idim) 
-                                                        - flux_fx_R * grid.ds(i_p, j_p, k_p, idim));
+                    fx_rec(i, j, k, 0, idim, ifx) += dtodv * (flux_fx_L * m_grid.ds(i, j, k, idim) 
+                                                        - flux_fx_R * m_grid.ds(i_p, j_p, k_p, idim));
+                    fx_rec(i, j, k, 1, idim, ifx) += dtodv * (flux_fx_L * m_grid.ds(i, j, k, idim) 
+                                                        - flux_fx_R * m_grid.ds(i_p, j_p, k_p, idim));
                 }
             }
         });
@@ -226,7 +229,7 @@ public:
         {
             for (int idim = 0; idim < ndim; ++idim)
             {
-                for (int ifx = 0; ifx < param.nfx; ++ifx)
+                for (int ifx = 0; ifx < nfx; ++ifx)
                 {
                     fx_rec(i, j, k, 0, idim, ifx) /= rho_rec(i, j, k, 0, idim);
                     fx_rec(i, j, k, 1, idim, ifx) /= rho_rec(i, j, k, 1, idim);
@@ -239,11 +242,12 @@ public:
 inline std::unique_ptr<IExtrapolationReconstruction> factory_time_reconstruction(
         std::string const& gravity,
         thermodynamics::PerfectGas const& eos,
+        Grid const& grid,
         KV_double_1d &g)
 {
     if (gravity == "Uniform")
     {
-        return std::make_unique<ExtrapolationTimeReconstruction<UniformGravity>>(UniformGravity(g), eos);
+        return std::make_unique<ExtrapolationTimeReconstruction<UniformGravity>>(UniformGravity(g), eos, grid);
     }
     throw std::runtime_error("Unknown time reconstruction algorithm: " + gravity + ".");
 }
