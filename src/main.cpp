@@ -147,8 +147,11 @@ int main(int argc, char** argv)
                                                             std::move(time_reconstruction), 
                                                             eos, P_rec, u_rec);
 
+    std::vector<std::pair<int, double>> outputs_record;
     if (param.output_frequency > 0)
     {
+        outputs_record.emplace_back(iter, t);
+        writeXML(grid, outputs_record, grid.x_glob, grid.y_glob, grid.z_glob);
         write_pdi(iter, t, eos.adiabatic_index(), rho, u, P, E, grid.x, grid.y, grid.z, fx);
     }
 
@@ -191,6 +194,8 @@ int main(int argc, char** argv)
 
         if(make_output)
         {
+            outputs_record.emplace_back(iter, t);
+            writeXML(grid, outputs_record, grid.x_glob, grid.y_glob, grid.z_glob);
             write_pdi(iter, t, eos.adiabatic_index(), rho, u, P, E, grid.x, grid.y, grid.z, fx);
         }
     }
