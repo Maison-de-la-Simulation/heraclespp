@@ -6,9 +6,11 @@
 
 #include <Kokkos_Core.hpp>
 #include <PerfectGas.hpp>
+#include <RadGas.hpp>
 
 #include "kronecker.hpp"
 #include "ndim.hpp"
+#include "eos.hpp"
 
 namespace novapp
 {
@@ -64,12 +66,13 @@ KOKKOS_INLINE_FUNCTION
 EulerFlux compute_flux(
         EulerPrim const& prim,
         int locdim,
-        thermodynamics::PerfectGas const& eos) noexcept
+        EOS const& eos) noexcept
 {
     EulerFlux flux;
+    double const T = eos.compute_T_from_P(prim.rho, prim.P);
     double const volumic_total_energy
             = compute_ek(prim)
-              + eos.compute_evol(prim.rho, prim.P);
+              + eos.compute_evol_from_T(prim.rho, T);
     flux.rho = prim.rho * prim.u[locdim];
     for (int idim = 0; idim < ndim; ++idim)
     {
@@ -88,11 +91,12 @@ KOKKOS_INLINE_FUNCTION
 EulerFlux compute_flux(
         EulerCons const& cons,
         int locdim,
-        thermodynamics::PerfectGas const& eos) noexcept
+        EOS const& eos) noexcept
 {
     EulerFlux flux;
     double const evol = cons.E - compute_ek(cons);
-    double const P = eos.compute_P_from_evol(cons.rho, evol);
+    double const T = eos.compute_T_from_evol(cons.rho, evol);
+    double const P = eos.compute_P_from_T(cons.rho, T);
     double const u = cons.rhou[locdim] / cons.rho;
     flux.rho = u * cons.rho;
     for (int idim = 0; idim < ndim; ++idim)
@@ -105,31 +109,34 @@ EulerFlux compute_flux(
 }
 
 KOKKOS_INLINE_FUNCTION
-EulerPrim to_prim(EulerCons const& cons, thermodynamics::PerfectGas const& eos) noexcept
+EulerPrim to_prim(
+        EulerCons const& cons, 
+        EOS const& eos) noexcept
 {
     EulerPrim prim;
+    double const evol = cons.E - compute_ek(cons);
+    double const T = eos.compute_T_from_evol(cons.rho, evol);
     prim.rho = cons.rho;
     for (int idim = 0; idim < ndim; ++idim)
     {
         prim.u[idim] = cons.rhou[idim] / cons.rho;
     }
-    prim.P = eos.compute_P_from_evol(
-            cons.rho,
-            cons.E - compute_ek(cons));
+    prim.P = eos.compute_P_from_T(cons.rho, T);
     return prim;
 }
 
 KOKKOS_INLINE_FUNCTION
-EulerCons to_cons(EulerPrim const& prim, thermodynamics::PerfectGas const& eos) noexcept
+EulerCons to_cons(EulerPrim const& prim, EOS const& eos) noexcept
 {
     EulerCons cons;
+    double T = eos.compute_T_from_P(prim.rho, prim.P);
     cons.rho = prim.rho;
     for (int idim = 0; idim < ndim; ++idim)
     {
         cons.rhou[idim] = prim.rho * prim.u[idim];
     }
-    cons.E = eos.compute_evol(prim.rho, prim.P)
-                  + compute_ek(prim);
+    cons.E = eos.compute_evol_from_T(prim.rho, T) 
+                + compute_ek(prim);
     return cons;
 }
 

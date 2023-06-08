@@ -9,12 +9,12 @@
 #include <numeric>
 #include <sstream>
 
-#include <PerfectGas.hpp>
-
 #include "Kokkos_shortcut.hpp"
 #include "grid.hpp"
 #include "ndim.hpp"
 #include "units.hpp"
+#include "nova_params.hpp"
+#include "eos.hpp"
 
 namespace novapp
 {

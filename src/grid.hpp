@@ -18,6 +18,7 @@
 #include "ndim.hpp"
 #include "Kokkos_shortcut.hpp"
 #include "nova_params.hpp"
+#include "grid_type.hpp"
 
 namespace novapp
 {
@@ -37,9 +38,9 @@ public :
     static constexpr int Ndim = ndim;
 
     explicit Grid(Param const& param);
+    void Init_grid(Param const& param);
     void print_grid() const;
-    void Init_grid();
-
+    
 private:
     void MPI_Decomp();
     void Init_nodes();
@@ -52,7 +53,8 @@ public :
     std::array<int, 3> Nx_local_wg;    // Number of cells on the local MPI process (including ghost)
     std::array<int, 3> NBlock;     // number of sub-blocks (default (1,1,1))
     std::array<int, 3> Nx_block;   // Maximum size of sub-block, including ghos
-    
+    std::array<int, 3> start_cell_wg; // for local MPI process, index of starting cell wrt the global index with ghost
+
     double xmin;
     double xmax;
     double ymin;
@@ -82,9 +84,21 @@ public :
     int offsety;
     int offsetz;
 
+    double dxloc;
+    double dyloc;
+    double dzloc;
+
+    Kokkos::View<double*, Kokkos::HostSpace> x_glob;
+    Kokkos::View<double*, Kokkos::HostSpace> y_glob;
+    Kokkos::View<double*, Kokkos::HostSpace> z_glob;
+
     KDV_double_1d x;
     KDV_double_1d y;
     KDV_double_1d z;
+
+    KV_double_1d x_center;
+    KV_double_1d y_center;
+    KV_double_1d z_center;
 
     KV_double_1d dx;
     KV_double_1d dy;

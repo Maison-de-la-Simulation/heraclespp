@@ -36,7 +36,7 @@ dx_ad = L / nx
 nface = nx + 1
 x_ad = np.zeros(nface)
 for i in range(nface):
-    x_ad[i] = i * dx_ad
+    x_ad[i] = i * dx_ad + dx_ad / 2
 
 rho0 = np.zeros(nface)
 for i in range(nface):

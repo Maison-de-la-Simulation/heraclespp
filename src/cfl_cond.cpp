@@ -1,9 +1,4 @@
-#include <mpi.h>
-#include <PerfectGas.hpp>
 #include "cfl_cond.hpp"
-#include "euler_equations.hpp"
-#include "range.hpp"
-#include "grid.hpp"
 
 namespace novapp
 {
@@ -14,7 +9,7 @@ double time_step(
     KV_cdouble_3d rho,
     KV_cdouble_4d u,
     KV_cdouble_3d P,
-    thermodynamics::PerfectGas const& eos,
+    EOS const& eos,
     Grid const& grid)
 {
     double inverse_dt = 0;

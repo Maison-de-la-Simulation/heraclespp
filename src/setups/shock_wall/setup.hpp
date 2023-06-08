@@ -21,23 +21,13 @@ class ParamSetup
 {
 public:
     double rho0;
-    double rho1;
     double u0;
-    double u1;
     double P0;
-    double P1;
-    double fx0;
-    double fx1;
 
     explicit ParamSetup(INIReader const& reader)
         : rho0(reader.GetReal("Initialisation", "rho0", 1.0))
-        , rho1(reader.GetReal("Initialisation", "rho1", 1.0))
         , u0(reader.GetReal("Initialisation", "u0", 1.0))
-        , u1(reader.GetReal("Initialisation", "u1", 1.0))
         , P0(reader.GetReal("Initialisation", "P0", 1.0))
-        , P1(reader.GetReal("Initialisation", "P1", 1.0))
-        , fx0(reader.GetReal("Initialisation", "fx0", 1.0))
-        , fx1(reader.GetReal("Initialisation", "fx1", 1.0))
     {
     }
 };
@@ -51,7 +41,7 @@ private:
 
 public:
     InitializationSetup(
-    EOS const& eos,
+        EOS const& eos,
         Grid const& grid,
         ParamSetup const& param_set_up)
         : m_eos(eos)
@@ -65,7 +55,7 @@ public:
         KV_double_3d const rho,
         KV_double_4d const u,
         KV_double_3d const P,
-        KV_double_4d const fx,
+        [[maybe_unused]] KV_double_4d const fx,
         [[maybe_unused]] KV_double_1d g) const final
     {
         assert(rho.extent(0) == u.extent(0));
@@ -75,34 +65,19 @@ public:
         assert(rho.extent(2) == u.extent(2));
         assert(u.extent(2) == P.extent(2));
 
-        auto const xc = m_grid.x_center;
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
-        "shock_tube_init",
+        "ShockWallInit",
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            if(xc(i) * units::m <= 0.5)
+            rho(i, j, k) = m_param_setup.rho0 * units::density;
+            P(i, j, k) = m_param_setup.P0 * units::pressure;
+            for (int idim = 0; idim < ndim; ++idim)
             {
-                rho(i, j, k) = m_param_setup.rho0 * units::density;
-                P(i, j, k) = m_param_setup.P0 * units::pressure;
-                for (int idim = 0; idim < ndim; ++idim)
-                {
-                    u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
-                }
-                fx(i, j, k, 0) = m_param_setup.fx0;
+                u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
             }
-            else
-            {
-                rho(i, j, k) = m_param_setup.rho1 * units::density;
-                P(i, j, k) = m_param_setup.P1 * units::pressure;
-                for (int idim = 0; idim < ndim; ++idim)
-                {
-                    u(i, j, k, idim) = m_param_setup.u1 * units::velocity;
-                }
-                fx(i, j, k, 0) = m_param_setup.fx1;
-            }
-        });  
+        });
     }
 };
 
@@ -127,23 +102,12 @@ public:
         std::array<int, 3> Nx_local_wg,
         std::array<int, 3> Nx_glob_ng) const final
     {
-        double dx = m_param.xmax / (Nx_glob_ng[0]);
-        int quater_x = (Nx_glob_ng[0] / 4);
-        int three_quaters_x = 3 * quater_x;
+        double dx = m_param.xmax / (2 * Nx_glob_ng[0]);
         x_glob(Nghost[0]) = 0;
-
         for (int i = Nghost[0]+1; i < x_glob.extent(0) ; i++)
         {
-            double dxloc;
-            if ((i >= quater_x) && (i <= three_quaters_x))
-            {
-                dxloc = dx / 5;
-            }
-            else
-            {
-                dxloc = dx / 4;
-            }
-            x_glob(i) = x_glob(i-1) + dxloc;
+            x_glob(i) = x_glob(i-1) + dx;
+            dx *= 1.005;
         }
 
         double val_xmax = x_glob(x_glob.extent(0)-1 - Nghost[0]);
@@ -151,8 +115,15 @@ public:
         {
             x_glob(i) = m_param.xmax * x_glob(i) / val_xmax;
         }
+
+        //reflexive X-left
+        for(int i = Nghost[0]-1; i >= 0; i--)
+        {
+            int mirror = Nghost[0] -  2 * i + 1; 
+            x_glob(i) = x_glob(i+1) - (x_glob(i+mirror+1) - x_glob(i+mirror));
+        }
     }
-};
+}; 
 
 class BoundarySetup : public IBoundaryCondition
 {
@@ -160,7 +131,7 @@ public:
     BoundarySetup(int idim, int iface,
         [[maybe_unused]] EOS const& eos,
         [[maybe_unused]] Grid const& grid,
-        [[maybe_unused]] ParamSetup const& param_setup)
+        [[maybe_unused]] ParamSetup const& parasetup)
         : IBoundaryCondition(idim, iface)
     {
         // no new boundary

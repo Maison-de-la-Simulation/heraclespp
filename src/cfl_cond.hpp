@@ -5,7 +5,13 @@
 
 #pragma once
 
+#include <mpi.h>
+
+#include "euler_equations.hpp"
+#include "range.hpp"
+#include "grid.hpp"
 #include "Kokkos_shortcut.hpp"
+#include "eos.hpp"
 
 namespace novapp
 {
@@ -14,6 +20,8 @@ namespace thermodynamics
 {
 
 class PerfectGas;
+
+class RadGas;
 
 } // namespace thermodynamics
 
@@ -32,7 +40,7 @@ class Grid;
     KV_cdouble_3d rho,
     KV_cdouble_4d u,
     KV_cdouble_3d P,
-    thermodynamics::PerfectGas const& eos,
+    EOS const& eos,
     Grid const& grid);
 
 } // namespace novapp

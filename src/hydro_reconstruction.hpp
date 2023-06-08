@@ -4,14 +4,16 @@
 
 #pragma once
 
+#include "ndim.hpp"
+#include "range.hpp"
+#include "eos.hpp"
 #include "Kokkos_shortcut.hpp"
 #include "array_conversion.hpp"
 #include "face_reconstruction.hpp"
 #include "extrapolation_time.hpp"
-#include "ndim.hpp"
-#include "range.hpp"
 #include "grid.hpp"
 #include "nova_params.hpp"
+
 
 namespace novapp
 {
@@ -52,7 +54,7 @@ class MUSCLHancockHydroReconstruction : public IHydroReconstruction
 
     std::shared_ptr<IExtrapolationReconstruction> m_hancock_reconstruction;
 
-    thermodynamics::PerfectGas m_eos;
+    EOS m_eos;
 
     KV_double_5d m_P_rec;
 
@@ -62,7 +64,7 @@ public:
     MUSCLHancockHydroReconstruction(
             std::unique_ptr<IFaceReconstruction> face_reconstruction,
             std::unique_ptr<IExtrapolationReconstruction> hancock_reconstruction,
-            thermodynamics::PerfectGas const& eos,
+            EOS const& eos,
             KV_double_5d P_rec,
             KV_double_6d u_rec)
         : m_face_reconstruction(std::move(face_reconstruction))

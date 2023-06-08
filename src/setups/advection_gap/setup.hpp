@@ -2,17 +2,18 @@
 #pragma once
 
 #include <Kokkos_Core.hpp>
-#include <PerfectGas.hpp>
 
 #include <inih/INIReader.hpp>
 
 #include "euler_equations.hpp"
 #include "ndim.hpp"
 #include "range.hpp"
+#include "eos.hpp"
 #include "Kokkos_shortcut.hpp"
 #include "grid.hpp"
 #include "units.hpp"
 #include "initialization_interface.hpp"
+#include "nova_params.hpp"
 
 namespace novapp
 {
@@ -37,13 +38,13 @@ public:
 class InitializationSetup : public IInitializationProblem
 {
 private:
-    thermodynamics::PerfectGas m_eos;
+    EOS m_eos;
     Grid m_grid;
     ParamSetup m_param_setup;
 
 public:
     InitializationSetup(
-        thermodynamics::PerfectGas const& eos,
+        EOS const& eos,
         Grid const& grid,
         ParamSetup const& param_set_up)
         : m_eos(eos)
@@ -67,18 +68,18 @@ public:
         assert(rho.extent(2) == u.extent(2));
         assert(u.extent(2) == P.extent(2));
 
-        auto const x_d = m_grid.x.d_view;
+        auto const xc = m_grid.x_center;
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
         "advection_gap_init",
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            if ((x_d(i) + x_d(i+1)) * units::m / 2 <= 0.3)
+            if ((xc(i) + xc(i+1)) * units::m / 2 <= 0.3)
             {
                 rho(i, j, k) = m_param_setup.rho0 * units::density;
             }
-            else if ((x_d(i) + x_d(i+1)) * units::m / 2 >= 0.7)
+            else if ((xc(i) + xc(i+1)) * units::m / 2 >= 0.7)
             {
                 rho(i, j, k) = m_param_setup.rho0 * units::density;
             }
@@ -95,15 +96,27 @@ public:
     }
 };
 
+class GridSetup : public IGridType
+{
+public:
+    GridSetup(
+        [[maybe_unused]] Param const& param)
+        : IGridType()
+    {
+        // regular grid
+    }
+};
+
 class BoundarySetup : public IBoundaryCondition
 {
 public:
     BoundarySetup(int idim, int iface,
-        [[maybe_unused]] thermodynamics::PerfectGas const& eos,
+        [[maybe_unused]] EOS const& eos,
         [[maybe_unused]] Grid const& grid,
         [[maybe_unused]] ParamSetup const& param_setup)
         : IBoundaryCondition(idim, iface)
     {
+        // no new boundary
     }
 };
 

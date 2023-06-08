@@ -2,16 +2,16 @@
 
 #include <Kokkos_Core.hpp>
 #include <Kokkos_DualView.hpp>
-#include <PerfectGas.hpp>
 #include <array_conversion.hpp>
 #include <euler_equations.hpp>
 #include <range.hpp>
+#include <eos.hpp>
 
 TEST(Conversions, PrimToCons)
 {
     int const n = 10;
     novapp::Range const range({0, 0, 0}, {n, n, n}, 0);
-    novapp::thermodynamics::PerfectGas const eos(2, 1);
+    novapp::EOS const eos(2, 1);
     novapp::EulerPrim prim;
     prim.rho = 2;
     for (int idim = 0; idim < novapp::ndim; ++idim)
@@ -68,7 +68,7 @@ TEST(Conversions, ConsToPrim)
 {
     int const n = 10;
     novapp::Range const range({0, 0, 0}, {n, n, n}, 0);
-    novapp::thermodynamics::PerfectGas const eos(2, 1);
+    novapp::EOS const eos(2, 1);
     novapp::EulerCons cons;
     cons.rho = 2;
     for (int idim = 0; idim < novapp::ndim; ++idim)

@@ -46,6 +46,9 @@ void write_pdi(int iter,
     P.sync_host();
     E.sync_host();
     fx.sync_host();
+    x.sync_host();
+    y.sync_host();
+    z.sync_host();
     PDI_multi_expose("write_file",
                     "iter", &iter, PDI_OUT,
                     "current_time", &t, PDI_OUT,
