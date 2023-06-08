@@ -37,8 +37,8 @@ pdi:
     mpi:
     decl_hdf5:
       - file: test_${iter:08}.h5
-        collision_policy: write_into
-        communicator: $MPI_COMM_WORLD
+        collision_policy: replace
+        communicator: '$grid_communicator'
         on_event: write_file
         datasets: # this is the global data size (data in the final h5 fil)
           u:   {type: array, subtype: double, size: ['$ndim', '$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
