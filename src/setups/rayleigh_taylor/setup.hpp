@@ -2,17 +2,17 @@
 #pragma once
 
 #include <Kokkos_Core.hpp>
-#include <PerfectGas.hpp>
 
 #include <inih/INIReader.hpp>
 
-#include "euler_equations.hpp"
 #include "ndim.hpp"
 #include "range.hpp"
+#include "eos.hpp"
 #include "Kokkos_shortcut.hpp"
 #include "grid.hpp"
 #include "units.hpp"
 #include "initialization_interface.hpp"
+#include "nova_params.hpp"
 
 namespace novapp
 {
@@ -25,6 +25,8 @@ public:
     double u0;
     double P0;
     double A;
+    double fx0;
+    double fx1;
 
     explicit ParamSetup(INIReader const& reader)
         : rho0(reader.GetReal("Initialisation", "rho0", 1.0))
@@ -32,6 +34,8 @@ public:
         , u0(reader.GetReal("Initialisation", "u0", 1.0))
         , P0(reader.GetReal("Initialisation", "P0", 1.0))
         , A(reader.GetReal("Initialisation", "A", 1.0))
+        , fx0(reader.GetReal("Initialisation", "fx0", 1.0))
+        , fx1(reader.GetReal("Initialisation", "fx1", 1.0))
     {
     }
 };
@@ -39,13 +43,13 @@ public:
 class InitializationSetup : public IInitializationProblem
 {
 private:
-    thermodynamics::PerfectGas m_eos;
+    EOS m_eos;
     Grid m_grid;
     ParamSetup m_param_setup;
 
 public:
     InitializationSetup(
-        thermodynamics::PerfectGas const& eos,
+        EOS const& eos,
         Grid const& grid,
         ParamSetup const& param_set_up)
         : m_eos(eos)
@@ -82,12 +86,12 @@ public:
             if (y >= 0)
             {
                 rho(i, j, k) = m_param_setup.rho1 * units::density;
-                fx(i, j, k, 0) = 1;
+                fx(i, j, k, 0) = m_param_setup.fx0;
             }
             if (y < 0)
             {
                 rho(i, j, k) = m_param_setup.rho0 * units::density;
-                fx(i, j, k, 0) = 0;
+                fx(i, j, k, 0) = m_param_setup.fx1;
             }
             u(i, j, k, 0) = m_param_setup.u0 * units::velocity;
             u(i, j, k, 1) = (m_param_setup.A/4) * (1+Kokkos::cos(2*Kokkos::numbers::pi*x/m_grid.L[0])) 
@@ -97,15 +101,27 @@ public:
     }
 };
 
+class GridSetup : public IGridType
+{
+public:
+    GridSetup(
+        [[maybe_unused]] Param const& param)
+        : IGridType()
+    {
+        // regular grid
+    }
+};
+
 class BoundarySetup : public IBoundaryCondition
 {
 public:
     BoundarySetup(int idim, int iface,
-        [[maybe_unused]] thermodynamics::PerfectGas const& eos,
+        [[maybe_unused]] EOS const& eos,
         [[maybe_unused]] Grid const& grid,
         [[maybe_unused]] ParamSetup const& param_setup)
         : IBoundaryCondition(idim, iface)
     {
+        // no new boundary
     }
 };
 

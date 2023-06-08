@@ -8,8 +8,6 @@
 #include <stdexcept>
 #include <string>
 
-#include <PerfectGas.hpp>
-
 #include "ndim.hpp"
 #include "range.hpp"
 #include "euler_equations.hpp"
@@ -17,7 +15,9 @@
 #include "gravity.hpp"
 #include "Kokkos_shortcut.hpp"
 #include "kronecker.hpp"
+#include "eos.hpp"
 #include "nova_params.hpp"
+
 
 
 namespace novapp
@@ -60,14 +60,14 @@ class ExtrapolationTimeReconstruction : public IExtrapolationReconstruction
 private:
     Gravity m_gravity;
 
-    thermodynamics::PerfectGas m_eos;
+    EOS m_eos;
 
     Grid m_grid;
 
 public:
     ExtrapolationTimeReconstruction(
             Gravity const& gravity,
-            thermodynamics::PerfectGas const& eos, 
+            EOS const& eos, 
             Grid const& grid)
         : m_gravity(gravity)
         , m_eos(eos)
@@ -187,32 +187,8 @@ public:
                 // Passive scalar
                 for (int ifx = 0; ifx < nfx; ++ifx)
                 {
-                    int iL_uw = i_m; // upwind
-                    int iR_uw = i;
-                    int jL_uw = j_m;
-                    int jR_uw = j;
-                    int kL_uw = k_m;
-                    int kR_uw = k;
-                    int face_L = 1;
-                    int face_R = 1;
-
-                    if (flux_minus_one.rho < 0)
-                    {
-                        iL_uw = i;
-                        jL_uw = j;
-                        kL_uw = k;
-                        face_L = 0;
-                    }
-                    if (flux_plus_one.rho < 0)
-                    {
-                        iR_uw = i_p;
-                        jR_uw = j_p;
-                        kR_uw = k_p;
-                        face_R = 0;
-                    }
-
-                    double flux_fx_L = fx_rec_old(iL_uw, jL_uw, kL_uw, face_L, idim, ifx) * flux_minus_one.rho;
-                    double flux_fx_R = fx_rec_old(iR_uw, jR_uw, kR_uw, face_R, idim, ifx) * flux_plus_one.rho;
+                    double flux_fx_L = fx_rec_old(i, j, k, 0, idim, ifx) * flux_minus_one.rho;
+                    double flux_fx_R = fx_rec_old(i, j, k, 1, idim, ifx) * flux_plus_one.rho;
 
                     fx_rec(i, j, k, 0, idim, ifx) += dtodv * (flux_fx_L * m_grid.ds(i, j, k, idim) 
                                                         - flux_fx_R * m_grid.ds(i_p, j_p, k_p, idim));
@@ -241,7 +217,7 @@ public:
 
 inline std::unique_ptr<IExtrapolationReconstruction> factory_time_reconstruction(
         std::string const& gravity,
-        thermodynamics::PerfectGas const& eos,
+        EOS const& eos,
         Grid const& grid,
         KV_double_1d &g)
 {

@@ -16,6 +16,13 @@ using KV_double_4d=Kokkos::View<double****, Kokkos::LayoutLeft>;
 using KV_double_5d=Kokkos::View<double*****, Kokkos::LayoutLeft>;
 using KV_double_6d=Kokkos::View<double******, Kokkos::LayoutLeft>;
 
+using KVH_double_1d=KV_double_1d::HostMirror;
+using KVH_double_2d=KV_double_2d::HostMirror;
+using KVH_double_3d=KV_double_3d::HostMirror;
+using KVH_double_4d=KV_double_4d::HostMirror;
+using KVH_double_5d=KV_double_5d::HostMirror;
+using KVH_double_6d=KV_double_6d::HostMirror;
+
 using KV_cdouble_1d=Kokkos::View<const double*, Kokkos::LayoutLeft>;
 using KV_cdouble_2d=Kokkos::View<const double**, Kokkos::LayoutLeft>;
 using KV_cdouble_3d=Kokkos::View<const double***, Kokkos::LayoutLeft>;

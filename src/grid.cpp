@@ -5,6 +5,7 @@
 
 #include "grid.hpp"
 #include "Kokkos_shortcut.hpp"
+#include "factories.hpp"
 
 namespace novapp
 {
@@ -46,7 +47,7 @@ Grid::Grid(Param const& param)
 
     MPI_Decomp();
     Init_nodes();
-    Init_grid();
+    Init_grid(param);
 }
 
 /* ****************************************************************
@@ -73,11 +74,18 @@ void Grid::MPI_Decomp()
     for(int i=0; i<3; i++)
     {
         Nx_local_ng[i] = Nx_glob_ng[i]/Ncpu_x[i];
+        start_cell_wg[i] = Nx_local_ng[i] * mpi_rank_cart[i];
+
         if(mpi_rank_cart[i]<Nx_glob_ng[i]%Ncpu_x[i])
         {
             Nx_local_ng[i]+=1;
-        }  
-        Nx_local_wg[i] = Nx_local_ng[i] + 2*Nghost[i];                         ;
+            start_cell_wg[i] += mpi_rank_cart[i]; 
+        } 
+        else
+        {
+            start_cell_wg[i] += Nx_glob_ng[i]%Ncpu_x[i];
+        } 
+        Nx_local_wg[i] = Nx_local_ng[i] + 2*Nghost[i];
     }
     
     std::array<int, 3> remain_dims= {false, false, false};
@@ -138,102 +146,119 @@ void Grid::MPI_Decomp()
 
 void Grid::Init_nodes()
 {
-    x = KDV_double_1d("Initx", Nx_local_ng[0]+2*Nghost[0]+1);
-    y = KDV_double_1d("Inity", Nx_local_ng[1]+2*Nghost[1]+1);
-    z = KDV_double_1d("Initz", Nx_local_ng[2]+2*Nghost[2]+1);
+    x = KDV_double_1d("Initx", Nx_local_wg[0]+1);
+    y = KDV_double_1d("Inity", Nx_local_wg[1]+1);
+    z = KDV_double_1d("Initz", Nx_local_wg[2]+1);
 
     offsetx = range.Corner_min[0] - Nghost[0];
     offsety = range.Corner_min[1] - Nghost[1];
     offsetz = range.Corner_min[2] - Nghost[2];
 
-    double dx = L[0] / Nx_glob_ng[0];
-    double dy = L[1] / Nx_glob_ng[1];
-    double dz = L[2] / Nx_glob_ng[2];
+    dxloc = L[0] / Nx_glob_ng[0];
+    dyloc = L[1] / Nx_glob_ng[1];
+    dzloc = L[2] / Nx_glob_ng[2];
 
     auto const x_h = x.h_view;
-    
-    for (int i=0; i<Nx_local_ng[0]+2*Nghost[0]+1; ++i)
+    for (int i = 0; i < Nx_local_wg[0]+1; ++i)
     {
-        x_h(i) = xmin + (i + offsetx) * dx; // Position of the left interface
+        x_h(i) = xmin + (i + offsetx) * dxloc; // Position of the left interface
     }
     
     x.modify_host();
     x.sync_device();
     
     auto const y_h = y.h_view;
-    for (int i=0; i<Nx_local_ng[1]+2*Nghost[1]+1; ++i)
+    for (int i = 0; i < Nx_local_wg[1]+1; ++i)
     {
-        y_h(i) = ymin + (i + offsety) * dy; // Position of the left interface
+        y_h(i) = ymin + (i + offsety) * dyloc; // Position of the left interface
     }
     y.modify_host();
     y.sync_device();
     auto const z_h = z.h_view;
-    for (int i=0; i<Nx_local_ng[2]+2*Nghost[2]+1; ++i)
+    for (int i = 0; i < Nx_local_wg[2]+1; ++i)
     {
-        z_h(i) = zmin + (i + offsetz) * dz; // Position of the left interface
+        z_h(i) = zmin + (i + offsetz) * dzloc; // Position of the left interface
     }
     z.modify_host();
     z.sync_device();
 }
 
-void Grid::Init_grid()
+void Grid::Init_grid(Param const& param)
 {
-    dx = KV_double_1d("dx", Nx_local_ng[0]+2*Nghost[0]);
-    dy = KV_double_1d("dy", Nx_local_ng[1]+2*Nghost[1]);
-    dz = KV_double_1d("dz", Nx_local_ng[2]+2*Nghost[2]);
+    std::unique_ptr<IGridType> grid_type
+            = factory_grid_type(param.grid_type, param);
 
-    ds = KV_double_4d("ds", Nx_local_ng[0]+2*Nghost[0], 
-                             Nx_local_ng[1]+2*Nghost[1],
-                             Nx_local_ng[2]+2*Nghost[2],
-                             3);
-    dv = KV_double_3d("dv", Nx_local_ng[0]+2*Nghost[0], 
-                             Nx_local_ng[1]+2*Nghost[1],
-                             Nx_local_ng[2]+2*Nghost[2]);
+    x_center = KV_double_1d("x_center", Nx_local_wg[0]);
+    y_center = KV_double_1d("y_center", Nx_local_wg[1]);
+    z_center = KV_double_1d("z_center", Nx_local_wg[2]);
+
+    dx = KV_double_1d("dx", Nx_local_wg[0]);
+    dy = KV_double_1d("dy", Nx_local_wg[1]);
+    dz = KV_double_1d("dz", Nx_local_wg[2]);
+
+    ds = KV_double_4d("ds", Nx_local_wg[0], 
+                            Nx_local_wg[1],
+                            Nx_local_wg[2],
+                            3);
+    dv = KV_double_3d("dv", Nx_local_wg[0], 
+                            Nx_local_wg[1],
+                            Nx_local_wg[2]);
     dx_inter = KV_double_1d("dx_inter", 3);
+    
+    x_glob = Kokkos::View<double*, Kokkos::HostSpace>("x_glob", Nx_glob_ng[0]+2*Nghost[0]+1);
+    y_glob = Kokkos::View<double*, Kokkos::HostSpace>("y_glob", Nx_glob_ng[1]+2*Nghost[1]+1);
+    z_glob = Kokkos::View<double*, Kokkos::HostSpace>("z_glob", Nx_glob_ng[2]+2*Nghost[2]+1);
+
+    Kokkos::deep_copy(Kokkos::subview(x_glob, Kokkos::pair<int, int>(start_cell_wg[0], start_cell_wg[0]+Nx_local_wg[0]+1)), x.h_view);
+    Kokkos::deep_copy(Kokkos::subview(y_glob, Kokkos::pair<int, int>(start_cell_wg[1], start_cell_wg[1]+Nx_local_wg[1]+1)), y.h_view);
+    Kokkos::deep_copy(Kokkos::subview(z_glob, Kokkos::pair<int, int>(start_cell_wg[2], start_cell_wg[2]+Nx_local_wg[2]+1)), z.h_view);
+
+    grid_type->execute(x_glob, y_glob, z_glob, Nghost, Nx_local_wg, Nx_glob_ng);
+
+    Kokkos::deep_copy(x.h_view, Kokkos::subview(x_glob, Kokkos::pair<int, int>(start_cell_wg[0], start_cell_wg[0]+Nx_local_wg[0]+1)));
+    Kokkos::deep_copy(y.h_view, Kokkos::subview(y_glob, Kokkos::pair<int, int>(start_cell_wg[1], start_cell_wg[1]+Nx_local_wg[1]+1)));
+    Kokkos::deep_copy(z.h_view, Kokkos::subview(z_glob, Kokkos::pair<int, int>(start_cell_wg[2], start_cell_wg[2]+Nx_local_wg[2]+1)));
+
+    x.modify_host();
+    x.sync_device();
+    y.modify_host();
+    y.sync_device();
+    z.modify_host();
+    z.sync_device();
 
     auto const x_d = x.d_view;
     auto const y_d = y.d_view;
     auto const z_d = z.d_view;
 
-    Kokkos::parallel_for("set_dx",
+    Kokkos::parallel_for("set_dx_xcenter",
     Nx_local_wg[0],
     KOKKOS_CLASS_LAMBDA(int i)
     {
         dx(i) = x_d(i+1) - x_d(i);
+        x_center(i) = x_d(i) + dx(i) / 2;
     });
 
-    Kokkos::parallel_for("set_dy",
+    Kokkos::parallel_for("set_dy_ycenter",
     Nx_local_wg[1],
     KOKKOS_CLASS_LAMBDA(int i)
     {
         dy(i) = y_d(i+1) - y_d(i);
+        y_center(i) = y_d(i) + dy(i) / 2;
     });
 
-    Kokkos::parallel_for("set_dz",
+    Kokkos::parallel_for("set_dz_zcenter",
     Nx_local_wg[2],
     KOKKOS_CLASS_LAMBDA(int i)
     {
         dz(i) = z_d(i+1) - z_d(i);
+        z_center(i) = z_d(i) + dz(i) / 2;
     });
-
-// for (int i=0; i<Nx_local_ng[0]+2*Nghost[0]; ++i)
-    // {
-    //     dx(i) = x_h(i+1) - x_h(i);
-    // }
-    // for (int i=0; i<Nx_local_ng[1]+2*Nghost[1]; ++i)
-    // {
-    //     dy(i) = y_h(i+1) - y_h(i);
-    // }
-    // for (int i=0; i<Nx_local_ng[2]+2*Nghost[2]; ++i)
-    // {
-    //     dz(i) = z_h(i+1) - z_h(i);
-    // }
 
     Kokkos::parallel_for("File_ds",
     Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0}, 
-                            {Nx_local_ng[0]+2*Nghost[0], 
-                             Nx_local_ng[1]+2*Nghost[1],
-                             Nx_local_ng[2]+2*Nghost[2]}),
+                            {Nx_local_wg[0], 
+                             Nx_local_wg[1],
+                             Nx_local_wg[2]}),
     KOKKOS_CLASS_LAMBDA(int i, int j, int k)
     {
         for (int idim=0; idim<3; ++idim)
@@ -248,9 +273,9 @@ void Grid::Init_grid()
 
     Kokkos::parallel_for("File_dv",
     Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0}, 
-                            {Nx_local_ng[0]+2*Nghost[0], 
-                             Nx_local_ng[1]+2*Nghost[1],
-                             Nx_local_ng[2]+2*Nghost[2]}),
+                            {Nx_local_wg[0], 
+                             Nx_local_wg[1],
+                             Nx_local_wg[2]}),
     KOKKOS_CLASS_LAMBDA(int i, int j, int k)
     {
         dv(i, j, k) = dx(i) * dy(j) * dz(k);

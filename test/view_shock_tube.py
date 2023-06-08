@@ -38,16 +38,20 @@ L = np.max(x) - np.min(x)
 
 e = P / rho / (gamma - 1)
 
-dx = L / len(rho)
+dx = np.zeros(len(rho))
+for i in range(len(rho)):
+    dx[i] = x[i+1] - x[i]
 
 xc = np.zeros(len(rho))
 for i in range(len(rho)):
-    xc[i] = x[i] + dx / 2
+    xc[i] = x[i] + dx[i] / 2
 
 print("Final time =", t, "s")
 print("Iteration number =", iter )
 
 print("Max fx =", np.max(fx), fx.shape)
+
+print("dx = ", dx)
 
 # Initialisation ------------------------
 inter = 0.5 # Interface position
@@ -85,7 +89,7 @@ plt.suptitle(f'Shock tube t = {t:1f} s')
 plt.subplot(221)
 plt.plot(x_exact, rho0, '--', label='t=0')
 plt.plot(x_exact,rho_exact, label='Exact')
-plt.plot(xc, rho, label =f't = {t:1f}')
+plt.plot(xc, rho, 'x-', label =f't = {t:1f}')
 plt.plot(xc, fx, label='scalar')
 plt.ylabel('Density'); plt.xlabel('Position')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
@@ -94,7 +98,7 @@ plt.legend()
 plt.subplot(222)
 plt.plot(x_exact, u0, '--', label='t=0')
 plt.plot(x_exact, u_exact, label='Exact')
-plt.plot(xc, u, label =f't = {t:1f}')
+plt.plot(xc, u, 'x-', label =f't = {t:1f}')
 plt.ylabel('Velocity'); plt.xlabel('Position')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
@@ -102,7 +106,7 @@ plt.legend()
 plt.subplot(223)
 plt.plot(x_exact, P0,'--', label='t=0')
 plt.plot(x_exact, P_exact, label='Exact')
-plt.plot(xc, P, label =f't = {t:1f}')
+plt.plot(xc, P, 'x-', label =f't = {t:1f}')
 plt.ylabel('Pressure'); plt.xlabel('Position')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
@@ -110,7 +114,7 @@ plt.legend()
 plt.subplot(224)
 plt.plot(x_exact, e0,'--', label='t=0')
 plt.plot(x_exact, e_exact, label='Exact')
-plt.plot(xc, e, label =f't = {t:1f}')
+plt.plot(xc, e, 'x-', label =f't = {t:1f}')
 plt.ylabel('Internal energy'); plt.xlabel('Position')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()

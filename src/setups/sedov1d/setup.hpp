@@ -2,17 +2,17 @@
 #pragma once
 
 #include <Kokkos_Core.hpp>
-#include <PerfectGas.hpp>
 
 #include <inih/INIReader.hpp>
 
-#include "euler_equations.hpp"
 #include "ndim.hpp"
 #include "range.hpp"
+#include "eos.hpp"
 #include "Kokkos_shortcut.hpp"
 #include "grid.hpp"
 #include "units.hpp"
 #include "initialization_interface.hpp"
+#include "nova_params.hpp"
 
 namespace novapp
 {
@@ -37,13 +37,13 @@ public:
 class InitializationSetup : public IInitializationProblem
 {
 private:
-    thermodynamics::PerfectGas m_eos;
+    EOS m_eos;
     Grid m_grid;
     ParamSetup m_param_setup;
 
 public:
     InitializationSetup(
-        thermodynamics::PerfectGas const& eos,
+        EOS const& eos,
         Grid const& grid,
         ParamSetup const& param_set_up)
         : m_eos(eos)
@@ -78,12 +78,25 @@ public:
             {
                 u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
             }
-            P(i, j, k) = m_eos.compute_P_from_evol(rho(i, j, k), m_param_setup.E0 * units::evol / m_grid.dv(i, j, k)) * units::pressure;
+            double T = m_eos.compute_T_from_evol(rho(i, j, k), m_param_setup.E0 * units::evol / m_grid.dv(i, j, k));
+            P(i, j, k) = m_eos.compute_P_from_T(rho(i, j, k), T) * units::pressure;
             if(m_grid.mpi_rank==0)
             {
-                P(2, j, k) = m_eos.compute_P_from_evol(rho(i, j, k), m_param_setup.E1 * units::evol / m_grid.dv(i, j, k)) * units::pressure;
+                double Tpertub = m_eos.compute_T_from_evol(rho(i, j, k), m_param_setup.E1 * units::evol / m_grid.dv(i, j, k));
+                P(2, j, k) = m_eos.compute_P_from_T(rho(i, j, k), Tpertub) * units::pressure;
             }
         });  
+    }
+};
+
+class GridSetup : public IGridType
+{
+public:
+    GridSetup(
+        [[maybe_unused]] Param const& param)
+        : IGridType()
+    {
+        // regular grid
     }
 };
 
@@ -91,11 +104,12 @@ class BoundarySetup : public IBoundaryCondition
 {
 public:
     BoundarySetup(int idim, int iface,
-        [[maybe_unused]] thermodynamics::PerfectGas const& eos,
+        [[maybe_unused]] EOS const& eos,
         [[maybe_unused]] Grid const& grid,
         [[maybe_unused]] ParamSetup const& param_setup)
         : IBoundaryCondition(idim, iface)
     {
+        // no new boundary
     }
 };
 

@@ -4,7 +4,7 @@
  */
 #pragma once
 
-#include <PerfectGas.hpp>
+#include "eos.hpp"
 
 //! Conversion primary variables to conservative
 //! @param[in] rho density
@@ -19,13 +19,13 @@ private :
     double m_rho;
     double m_u;
     double m_P;
-    thermodynamics::PerfectGas const& m_eos;
+    EOS const& m_eos;
 
 public :
     ConvPtoC(double const rho,
         double const u,
         double const P,
-        thermodynamics::PerfectGas const& eos)
+        EOS const& eos)
         : m_rho(rho)
         , m_u(u)
         , m_P(P)
@@ -58,13 +58,13 @@ private :
     double m_rhou;
     double m_E;
     double m_u;
-    thermodynamics::PerfectGas const& m_eos;
+    EOS const& m_eos;
     
 public :
     ConvCtoP(double const rho,
         double const rhou,
         double const E, 
-        thermodynamics::PerfectGas const& eos)
+        EOS const& eos)
         : m_rho(rho)
         , m_rhou(rhou)
         , m_E(E)

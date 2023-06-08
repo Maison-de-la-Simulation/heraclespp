@@ -11,44 +11,18 @@
 
 #include <PerfectGas.hpp>
 
-#include "Kokkos_shortcut.hpp"
-#include "grid.hpp"
 #include "ndim.hpp"
 #include "units.hpp"
+#include "eos.hpp"
+#include "Kokkos_shortcut.hpp"
+#include "grid.hpp"
 #include "nova_params.hpp"
 #include "boundary.hpp"
+#include "factories.hpp"
 #include "setup.hpp"
-#include "nova_params.hpp"
 
 namespace novapp
 {
-
-inline std::unique_ptr<IBoundaryCondition> factory_boundary_construction(
-    std::string const& boundary,
-    int idim,
-    int iface,
-    thermodynamics::PerfectGas const& eos,
-    Grid const& grid,
-    ParamSetup const& param_setup)
-{
-    if (boundary == "NullGradient")
-    {
-        return std::make_unique<NullGradient>(idim, iface, grid);
-    }
-    if (boundary == "Periodic")
-    {
-        return std::make_unique<PeriodicCondition>(idim, iface);
-    }
-    if (boundary == "Reflexive")
-    {
-        return std::make_unique<ReflexiveCondition>(idim, iface, grid);
-    }
-    if (boundary == "UserDefined")
-    {
-        return std::make_unique<BoundarySetup>(idim, iface, eos, grid, param_setup);
-    }
-    throw std::runtime_error("Unknown boundary condition : " + boundary + ".");
-}
 
 class DistributedBoundaryCondition
 {
@@ -56,7 +30,7 @@ private:
     std::array<KDV_double_4d, ndim> m_mpi_buffer;
     std::array<std::unique_ptr<IBoundaryCondition>, ndim * 2> m_bcs;
     std::array<int, ndim*2> m_bc_order;
-    thermodynamics::PerfectGas m_eos;
+    EOS m_eos;
     Grid m_grid;
     Param m_param;
     ParamSetup m_param_setup;
@@ -103,7 +77,7 @@ private:
 public:
     DistributedBoundaryCondition(
             INIReader const& reader,
-            thermodynamics::PerfectGas const& eos,
+            EOS const& eos,
             Grid const& grid, 
             Param const& param,
             ParamSetup const& param_setup)

@@ -5,9 +5,9 @@
 #pragma once
 
 #include <Kokkos_Core.hpp>
-#include <PerfectGas.hpp>
 
 #include "euler_equations.hpp"
+#include "eos.hpp"
 
 namespace novapp
 {
@@ -23,7 +23,7 @@ public:
             EulerCons const& consL,
             EulerCons const& consR,
             int locdim,
-            thermodynamics::PerfectGas const& eos) const noexcept
+            EOS const& eos) const noexcept
     {
         EulerPrim const primL = to_prim(consL, eos);
         EulerPrim const primR = to_prim(consR, eos);

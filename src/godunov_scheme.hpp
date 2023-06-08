@@ -9,8 +9,6 @@
 #include <string>
 #include <string_view>
 
-#include <PerfectGas.hpp>
-
 #include "euler_equations.hpp"
 #include "kronecker.hpp"
 #include "ndim.hpp"
@@ -19,6 +17,8 @@
 #include "riemann_solver.hpp"
 #include "Kokkos_shortcut.hpp"
 #include "gravity.hpp"
+#include "nova_params.hpp"
+#include "eos.hpp"
 
 namespace novapp
 {
@@ -60,25 +60,25 @@ namespace novapp
     {
         static_assert(
             std::is_invocable_r_v<
-                EulerFlux,
-                RiemannSolver,
-                EulerCons,
-                EulerCons,
-                int,
-                thermodynamics::PerfectGas>,
+                    EulerFlux,
+                    RiemannSolver,
+                    EulerCons,
+                    EulerCons,
+                    int,
+                    EOS>,
             "Incompatible Riemann solver.");
 
     private:
         RiemannSolver m_riemann_solver;
         Gravity m_gravity;
-        thermodynamics::PerfectGas m_eos;
+        EOS m_eos;
         Grid m_grid;
         
     public:
         RiemannBasedGodunovScheme(
             RiemannSolver const &riemann_solver,
             Gravity const& gravity,
-            thermodynamics::PerfectGas const& eos, 
+            EOS eos, 
             Grid const& grid)
             : m_riemann_solver(riemann_solver)
             , m_gravity(gravity)
@@ -225,14 +225,14 @@ namespace novapp
                 {
                     fx_new(i, j, k, ifx) /= rho_new(i, j, k);
                 
-                if (fx_new(i, j, k, ifx) > 1)
-                {
-                    fx_new(i, j, k, ifx) = 1;
-                }
-                if (fx_new(i, j, k, ifx) < 0)
-                {
-                    fx_new(i, j, k, ifx) = 0;
-                }
+                    if (fx_new(i, j, k, ifx) > 1)
+                    {
+                        fx_new(i, j, k, ifx) = 1;
+                    }
+                    if (fx_new(i, j, k, ifx) < 0)
+                    {
+                        fx_new(i, j, k, ifx) = 0;
+                    }
                 }
             });
         }
@@ -241,7 +241,7 @@ namespace novapp
     inline std::unique_ptr<IGodunovScheme> factory_godunov_scheme(
         std::string const& riemann_solver,
         std::string const& gravity,
-        thermodynamics::PerfectGas const& eos, 
+        EOS eos, 
         Grid const& grid,
         KV_double_1d& g)
     {

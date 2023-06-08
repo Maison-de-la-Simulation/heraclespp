@@ -28,9 +28,9 @@ pdi:
     rho: { type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]' ] }
     P:   { type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]' ] }
     E:   { type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]' ] }
-    x:   { type: array, subtype: double, size: '$nx_local_wg[0]+1' }
-    y:   { type: array, subtype: double, size: '$nx_local_wg[1]+1' }
-    z:   { type: array, subtype: double, size: '$nx_local_wg[2]+1' }
+    x:   { type: array, subtype: double, size: ['$nx_local_wg[0]+1'] }
+    y:   { type: array, subtype: double, size: ['$nx_local_wg[1]+1'] }
+    z:   { type: array, subtype: double, size: ['$nx_local_wg[2]+1'] }
     fx:  { type: array, subtype: double, size: ['$nfx', '$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]'] }
 
   plugins:
@@ -38,7 +38,7 @@ pdi:
     decl_hdf5:
       - file: test_${iter:08}.h5
         collision_policy: write_into
-        communicator: '${grid_communicator}'
+        communicator: $MPI_COMM_WORLD
         on_event: write_file
         datasets: # this is the global data size (data in the final h5 fil)
           u:   {type: array, subtype: double, size: ['$ndim', '$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }

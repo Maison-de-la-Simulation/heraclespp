@@ -2,9 +2,11 @@
  * @file exchange.cpp
  * Holo exchange implementation
  */
+
 #include <array>
 #include <mpi.h>
-#include "boundary_factory.hpp"
+
+#include "boundary_distribute.hpp"
 
 namespace novapp
 {
@@ -18,6 +20,7 @@ void DistributedBoundaryCondition::ghostFill(
         int bc_iface) const
 {
     int ng = m_grid.Nghost[bc_idim];
+    int nfx = fx.extent_int(3);
 
     KDV_double_4d buf = m_mpi_buffer[bc_idim];
 
@@ -43,11 +46,11 @@ void DistributedBoundaryCondition::ghostFill(
                 Kokkos::subview(rhou, KRange[0], KRange[1], KRange[2], idim));
     }
 
-    for (int ifx = 0; ifx < m_param.nfx; ++ifx)
+    for (int ifx = 0; ifx < nfx; ++ifx)
     {
         Kokkos::deep_copy(
                 Kokkos::subview(buf.d_view, ALL, ALL, ALL, 2 + ndim + ifx),
-                Kokkos::subview(fx, KRange[0], KRange[1], KRange[2], ifx));           
+                Kokkos::subview(fx, KRange[0], KRange[1], KRange[2], ifx));
     }
 
     buf.modify_device();
@@ -88,11 +91,11 @@ void DistributedBoundaryCondition::ghostFill(
                 Kokkos::subview(buf.d_view, ALL, ALL, ALL, 2 + idim));
     }
 
-    for (int ifx = 0; ifx < m_param.nfx; ++ifx)
+    for (int ifx = 0; ifx < nfx; ++ifx)
     {
         Kokkos::deep_copy(
                 Kokkos::subview(fx, KRange[0], KRange[1], KRange[2], ifx),
-                Kokkos::subview(buf.d_view, ALL, ALL, ALL, 2 + ndim + ifx));          
+                Kokkos::subview(buf.d_view, ALL, ALL, ALL, 2 + ndim + ifx));
     }
 }
 

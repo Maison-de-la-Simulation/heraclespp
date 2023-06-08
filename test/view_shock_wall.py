@@ -1,4 +1,4 @@
-# View Sedov blast wave 1d
+# View shock on wall 1d
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -7,9 +7,7 @@ import sys
 from argparse import ArgumentParser
 from pathlib import Path
 
-from exact_sedov import ExactSedov
-
-parser = ArgumentParser(description="Plot sedov 1d.")
+parser = ArgumentParser(description="Plot shock wall.")
 parser.add_argument('filename',
                     type=Path,
                     help='Input filename')
@@ -21,7 +19,7 @@ parser.add_argument('-o', '--output',
 args = parser.parse_args()
 
 print("********************************")
-print("Sedov blast wave 1d")
+print("Shock wall 1d")
 print("********************************")
 
 filename = sys.argv[1]
@@ -34,11 +32,8 @@ with h5py.File(args.filename, 'r') as f :
     x = f['x'][()]
     t = f['current_time'][()]
     iter = f['iter'][()]
-    gamma = f['gamma'][()] 
  
 L = np.max(x) - np.min(x)
-
-etot = 1 / 2 * rho * u**2 + P / (gamma - 1)
 
 dx = np.zeros(len(rho))
 for i in range(len(rho)):
@@ -47,13 +42,6 @@ for i in range(len(rho)):
 xc = np.zeros(len(rho))
 for i in range(len(rho)):
     xc[i] = x[i] + dx[i] / 2
-print(x)
-# Analytical result ------------------------
-
-rho0 = 1
-E0 = 1
-r, rho_exact, u_exact, P_exact = ExactSedov(rho0, E0, t, gamma)
-E = 1 / 2 * rho_exact * u_exact**2 + P_exact * (gamma - 1)
 
 print("Final time =", t, "s")
 print("Iteration number =", iter)
@@ -61,36 +49,25 @@ print("Iteration number =", iter)
 # ------------------------------------------
 
 plt.figure(figsize=(15,4))
-plt.suptitle(f'Sedov blast wave 1d t = {t:1f} s')
+plt.suptitle(f'Shock wall 1d t = {t:1f} s')
 plt.subplot(131)
-plt.plot(r,rho_exact, label='Exact')
-plt.plot(xc, rho, label='Solver')
+plt.plot(xc, rho, 'x',label='Solver')
 plt.ylabel('Density'); plt.xlabel('Position')
-plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
-plt.xlim(0,1)
 plt.grid()
 plt.legend()
 plt.subplot(132)
-plt.plot(r, u_exact, label='Exact')
 plt.plot(xc, u, 'x', label='Solver')
 plt.ylabel('Velocity'); plt.xlabel('Position')
-plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
-plt.xlim(0,1)
 plt.grid()
 plt.legend()
 plt.subplot(133)
-plt.plot(r, P_exact, label='Exact')
 plt.plot(xc, P, 'x', label='Solver')
 plt.ylabel('Pressure'); plt.xlabel('Position')
-plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
-plt.xlim(0,1)
 plt.grid()
 plt.legend()
 """ plt.subplot(224)
-plt.plot(r, E, label='Exact')
 plt.plot(xc, etot / 2, label='Solver')
 plt.ylabel('Energy'); plt.xlabel('Position')
-plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.xlim(0,1)
 plt.grid()
 plt.legend() """

@@ -21,6 +21,7 @@ public :
     double ymax;
     double zmin;
     double zmax;
+    std::string grid_type;
     int Ng;
     std::array<int,3> Ncpu_x;
     std::string system;
@@ -37,6 +38,7 @@ public :
     double gamma;
     double T;
     double mu;
+    std::string radiative;
     std::string bc_choice;
     std::string bc_priority;
     double rho0;
@@ -59,6 +61,8 @@ public :
         Nx_glob_ng[0] = reader.GetInteger("Grid", "Nx_glob", 0); // Cell number
         Nx_glob_ng[1] = reader.GetInteger("Grid", "Ny_glob", 0); // Cell number
         Nx_glob_ng[2] = reader.GetInteger("Grid", "Nz_glob", 0); // Cell number
+
+        grid_type = reader.Get("Grid", "type", "Regular");
 
         Ng = reader.GetInteger("Grid", "Nghost", 2);
 
@@ -97,17 +101,6 @@ public :
         bc_priority = reader.Get("Boundary Condition", "priority", "");
 
         nfx = reader.GetInteger("Passive Scalar", "nfx", 0);
-
-        // à mettre ailleurs
-        /* rho0 = reader.GetReal("Initialisation", "rho0", 1.0);
-        rho1 = reader.GetReal("Initialisation", "rho1", 1.0);
-        u0 = reader.GetReal("Initialisation", "u0", 1.0);
-        u1 = reader.GetReal("Initialisation", "u1", 1.0);
-        P0 = reader.GetReal("Initialisation", "P0", 1.0);
-        P1 = reader.GetReal("Initialisation", "P1", 1.0);
-        E0 = reader.GetReal("Initialisation", "E0", 1.0);
-        E1 = reader.GetReal("Initialisation", "E1", 1.0);
-        A = reader.GetReal("Initialisation", "A", 1.0); */
     }
 };
 

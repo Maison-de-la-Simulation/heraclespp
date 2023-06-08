@@ -5,6 +5,9 @@
 
 #pragma once
 
+#include "euler_equations.hpp"
+#include "range.hpp"
+#include "eos.hpp"
 #include "Kokkos_shortcut.hpp"
 
 namespace novapp
@@ -14,6 +17,7 @@ namespace thermodynamics
 {
 
 class PerfectGas;
+class RadGas;
 
 } // namespace thermodynamics
 
@@ -33,7 +37,7 @@ void conv_prim_to_cons(
     Kokkos::View<const double***, Kokkos::LayoutStride> const rho,
     Kokkos::View<const double****, Kokkos::LayoutStride> const u,
     Kokkos::View<const double***, Kokkos::LayoutStride> const P,
-    thermodynamics::PerfectGas const& eos);
+    EOS const& eos);
 
 
 //! Conversion conservative to primary variables
@@ -50,6 +54,6 @@ void conv_cons_to_prim(
     KV_cdouble_3d const rho,
     KV_cdouble_4d const rhou,
     KV_cdouble_3d const E,
-    thermodynamics::PerfectGas const& eos);
+    EOS const& eos);
 
 } // namespace novapp

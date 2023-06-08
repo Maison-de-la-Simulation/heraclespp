@@ -8,6 +8,10 @@
 
 #include <inih/INIReader.hpp>
 
+#include "ndim.hpp"
+#include "eos.hpp"
+#include "PerfectGas.hpp"
+#include "RadGas.hpp"
 #include "array_conversion.hpp"
 #include "initialization_interface.hpp"
 #include "io.hpp"
@@ -15,12 +19,11 @@
 #include "cfl_cond.hpp"
 #include "grid.hpp"
 #include "boundary.hpp"
+#include "boundary_distribute.hpp"
 #include "euler_equations.hpp"
 #include "hydro_reconstruction.hpp"
-#include "PerfectGas.hpp"
 #include "godunov_scheme.hpp"
 #include "mpi_scope_guard.hpp"
-#include "ndim.hpp"
 #include <pdi.h>
 #include "range.hpp"
 #include "kronecker.hpp"
@@ -28,8 +31,8 @@
 #include "io_config.yaml.hpp"
 #include "extrapolation_time.hpp"
 #include "nova_params.hpp"
+#include "factories.hpp"
 #include "setup.hpp"
-#include "boundary_factory.hpp"
 
 using namespace novapp;
 
@@ -63,7 +66,7 @@ int main(int argc, char** argv)
     Grid const grid(param);
     grid.print_grid();
 
-    thermodynamics::PerfectGas const eos(param.gamma, param.mu);
+    EOS const eos(param.gamma, param.mu);
 
     KV_double_1d g_array("g_array", 3);
     Kokkos::parallel_for(1, KOKKOS_LAMBDA([[maybe_unused]] int i)

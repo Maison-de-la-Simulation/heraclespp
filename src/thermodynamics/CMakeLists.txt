@@ -1,4 +1,4 @@
-add_library(thermodynamics PerfectGas.cpp)
+add_library(thermodynamics PerfectGas.cpp RadGas.cpp)
 
 target_link_libraries(thermodynamics PUBLIC Kokkos::kokkos)
 target_compile_features(thermodynamics PUBLIC cxx_std_17)

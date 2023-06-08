@@ -2,15 +2,17 @@
 #pragma once
 
 #include <Kokkos_Core.hpp>
-#include <PerfectGas.hpp>
 
-#include "euler_equations.hpp"
+#include <inih/INIReader.hpp>
+
 #include "ndim.hpp"
 #include "range.hpp"
+#include "eos.hpp"
 #include "Kokkos_shortcut.hpp"
 #include "grid.hpp"
 #include "units.hpp"
 #include "initialization_interface.hpp"
+#include "nova_params.hpp"
 
 namespace novapp
 {
@@ -33,13 +35,13 @@ public:
 class InitializationSetup : public IInitializationProblem
 {
 private:
-    thermodynamics::PerfectGas m_eos;
+    EOS m_eos;
     Grid m_grid;
     ParamSetup m_param_setup;
 
 public:
     InitializationSetup(
-        thermodynamics::PerfectGas const& eos,
+        EOS const& eos,
         Grid const& grid,
         ParamSetup const& param_setup)
         : m_eos(eos)
@@ -63,7 +65,7 @@ public:
         assert(rho.extent(2) == u.extent(2));
         assert(u.extent(2) == P.extent(2));
 
-        auto const x_d = m_grid.x.d_view;
+        auto const xc = m_grid.x_center;
         double mu = m_eos.mean_molecular_weight();
         //std::cout <<"Scale = " << units::kb * m_param_setup.T / (mu * units::mh * std::abs(g(0))) << std::endl;
         
@@ -73,9 +75,8 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            double xcenter = (x_d(i) + m_grid.dx(i) / 2) * units::m;
             double x0 = units::kb * m_param_setup.T * units::Kelvin / (mu * units::mh * std::abs(g(0)) * units::acc);
-            rho(i, j, k) = m_param_setup.rho0 * units::density * Kokkos::exp(- xcenter / x0);
+            rho(i, j, k) = m_param_setup.rho0 * units::density * Kokkos::exp(- xc / x0);
             for (int idim = 0; idim < ndim; ++idim)
             {
                 u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
@@ -85,18 +86,29 @@ public:
     }
 };
 
+class GridSetup : public IGridType
+{
+public:
+    GridSetup(
+        [[maybe_unused]] Param const& param)
+        : IGridType()
+    {
+        // regular grid
+    }
+};
+
 class BoundarySetup : public IBoundaryCondition
 {
     std::string m_label;
 
 private:
-    thermodynamics::PerfectGas m_eos;
+    EOS m_eos;
     Grid m_grid;
     ParamSetup m_param_setup;
 
 public:
     BoundarySetup(int idim, int iface,
-        thermodynamics::PerfectGas const& eos,
+        EOS const& eos,
         Grid const& grid,
         ParamSetup const& param_setup)
         : IBoundaryCondition(idim, iface)
@@ -123,7 +135,7 @@ public:
         Kokkos::Array<int, 3> begin {0, 0, 0};
         Kokkos::Array<int, 3> end {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)};
 
-        auto const x_d = m_grid.x.d_view;
+        auto const xc = m_grid.x_center;
         double mu = m_eos.mean_molecular_weight();
 
         int const ng = m_grid.Nghost[bc_idim];
@@ -138,16 +150,15 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k) 
         {
-            double xcenter = (x_d(i) + m_grid.dx(i) / 2) * units::m;
             double gravity = g(0) * units::acc;
             double x0 = units::kb * m_param_setup.T * units::Kelvin / (mu * units::mh * std::abs(gravity));
-            rho(i, j, k) = m_param_setup.rho0 * units::density * Kokkos::exp(- xcenter / x0);
+            rho(i, j, k) = m_param_setup.rho0 * units::density * Kokkos::exp(- xc / x0);
             for (int n = 0; n < rhou.extent_int(3); n++)
             {
                 rhou(i, j, k, n) = m_param_setup.rho0 * units::density * m_param_setup.u0 * units::velocity;
             }
-            E(i, j, k) = m_eos.compute_evol(rho(i, j, k) * units::density,
-                          m_eos.compute_P_from_T(rho(i, j, k) * units::density, m_param_setup.T * units::Kelvin));
+            E(i, j, k) = m_eos.compute_evol_from_T(rho(i, j, k) * units::density, param_setup.T * units::Kelvin)
+                        * m_grid.dv(i, j, k);
         });
     }
 };
