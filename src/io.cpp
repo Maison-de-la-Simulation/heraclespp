@@ -142,8 +142,6 @@ void writeXML(
 
     int const precision = sizeof(double);
 
-    std::vector<std::string> const var_names {"rho", "P", "E", "fx"};
-
     for (std::pair<int, double> const& it : outputs_record)
     {
         xdmfFile << std::string(6, ' ');
@@ -195,7 +193,7 @@ void writeXML(
 
         xdmfFile << std::string(8, ' ') << "</Geometry>\n";
 
-        for (std::string const& var_name : var_names)
+        for (std::string const& var_name : {"rho", "P", "E", "fx"})
         {
             xdmfFile << std::string(8, ' ');
             xdmfFile << "<Attribute";
@@ -222,6 +220,39 @@ void writeXML(
             xdmfFile << std::string(10, ' ') << "</DataItem>\n";
             xdmfFile << std::string(8, ' ') << "</Attribute>\n";
         }
+
+        std::vector<std::string> const components {"x", "y", "z"};
+        for (std::string const& var_name : {"u"})
+        {
+            for (int icomp = 0; icomp < ndim; ++icomp)
+            {
+                xdmfFile << std::string(8, ' ');
+                xdmfFile << "<Attribute";
+                xdmfFile << " Center=" << '"' << "Cell" << '"';
+                xdmfFile << " Name=" << '"' << var_name << components[icomp] << '"';
+                xdmfFile << " AttributeType=" << '"' << "Scalar" << '"';
+                xdmfFile << ">\n";
+                xdmfFile << std::string(10, ' ');
+                xdmfFile << "<DataItem";
+                xdmfFile << " NumberType=" << '"' << "Float" << '"';
+                xdmfFile << " Precision=" << '"' << precision << '"';
+
+                xdmfFile << " Dimensions=\"";
+                for (int idim = 2; idim >= 0; --idim)
+                {
+                    xdmfFile << ncells[idim];
+                    xdmfFile << (idim == 0 ? "\"" : " ");
+                }
+
+                xdmfFile << " Format=" << '"' << "HDF" << '"';
+                xdmfFile << ">\n";
+                xdmfFile << std::string(12, ' ') << getFilename(it.first) << ":/" << var_name << components[icomp]
+                         << "\n";
+                xdmfFile << std::string(10, ' ') << "</DataItem>\n";
+                xdmfFile << std::string(8, ' ') << "</Attribute>\n";
+            }
+        }
+
         // finalize grid file for the current time step
         xdmfFile << std::string(6, ' ') << "</Grid>\n";
     }

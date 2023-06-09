@@ -13,8 +13,8 @@ filename = sys.argv[1]
 
 with h5py.File(str(filename), 'r') as f :
     #print(f.keys())
-    u_x = f['u'][0, 0, :, :]
-    u_y = f['u'][1, 0, :, :]
+    u_x = f['ux'][0, :, :]
+    u_y = f['uy'][0, :, :]
     t = f['current_time'][()]
     iter = f['iter'][()]
 

@@ -26,7 +26,7 @@ print("********************************")
 with h5py.File(args.filename, 'r') as f :
     print(f.keys())
     rho = f['rho'][0, 0, :]
-    u = f['u'][0, 0, 0, :]
+    u = f['ux'][0, 0, :]
     P = f['P'][0, 0, :]
     x = f['x'][()]
     fx = f['fx'][0, 0, 0, :]
