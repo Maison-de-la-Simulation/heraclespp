@@ -1,4 +1,4 @@
-#include "io_config.yaml.hpp"
+#include "config.yaml.hpp"
 
 char const* const io_config = R"IO_CONFIG(
 pdi:
