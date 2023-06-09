@@ -7,7 +7,7 @@
 #include "ndim.hpp"
 #include "range.hpp"
 #include "eos.hpp"
-#include "Kokkos_shortcut.hpp"
+#include "kokkos_shortcut.hpp"
 #include "array_conversion.hpp"
 #include "face_reconstruction.hpp"
 #include "extrapolation_time.hpp"

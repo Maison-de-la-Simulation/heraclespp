@@ -13,7 +13,7 @@
 #include "euler_equations.hpp"
 #include "grid.hpp"
 #include "gravity.hpp"
-#include "Kokkos_shortcut.hpp"
+#include "kokkos_shortcut.hpp"
 #include "kronecker.hpp"
 #include "eos.hpp"
 #include "nova_params.hpp"

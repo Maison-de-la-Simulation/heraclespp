@@ -11,12 +11,12 @@
 #include <Kokkos_Core.hpp>
 #include <Kokkos_DualView.hpp>
 #include <inih/INIReader.hpp>
-#include "Kokkos_shortcut.hpp"
+#include "kokkos_shortcut.hpp"
 #include <mpi.h>
 #include <iomanip>
 #include "range.hpp"
 #include "ndim.hpp"
-#include "Kokkos_shortcut.hpp"
+#include "kokkos_shortcut.hpp"
 #include "nova_params.hpp"
 #include "grid_type.hpp"
 

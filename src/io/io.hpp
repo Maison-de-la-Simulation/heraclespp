@@ -7,7 +7,7 @@
 
 #include <array>
 #include "grid.hpp"
-#include "Kokkos_shortcut.hpp"
+#include "kokkos_shortcut.hpp"
 
 namespace novapp
 {

@@ -10,7 +10,7 @@
 #include "euler_equations.hpp"
 #include "range.hpp"
 #include "grid.hpp"
-#include "Kokkos_shortcut.hpp"
+#include "kokkos_shortcut.hpp"
 #include "eos.hpp"
 
 namespace novapp

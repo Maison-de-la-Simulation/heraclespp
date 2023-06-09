@@ -15,7 +15,7 @@
 #include "range.hpp"
 #include "grid.hpp"
 #include "riemann_solver.hpp"
-#include "Kokkos_shortcut.hpp"
+#include "kokkos_shortcut.hpp"
 #include "gravity.hpp"
 #include "nova_params.hpp"
 #include "eos.hpp"

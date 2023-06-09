@@ -9,7 +9,7 @@
 #include <numeric>
 #include <sstream>
 
-#include "Kokkos_shortcut.hpp"
+#include "kokkos_shortcut.hpp"
 #include "grid.hpp"
 #include "ndim.hpp"
 #include "units.hpp"

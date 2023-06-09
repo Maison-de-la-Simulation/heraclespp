@@ -26,7 +26,7 @@
 #include <pdi.h>
 #include "range.hpp"
 #include "kronecker.hpp"
-#include "Kokkos_shortcut.hpp"
+#include "kokkos_shortcut.hpp"
 #include "io/config.yaml.hpp"
 #include "io/io.hpp"
 #include "extrapolation_time.hpp"

@@ -8,7 +8,7 @@
 #include "euler_equations.hpp"
 #include "range.hpp"
 #include "eos.hpp"
-#include "Kokkos_shortcut.hpp"
+#include "kokkos_shortcut.hpp"
 
 namespace novapp
 {

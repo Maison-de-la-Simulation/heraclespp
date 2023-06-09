@@ -7,7 +7,7 @@
 #include <PerfectGas.hpp>
 
 #include "range.hpp"
-#include "Kokkos_shortcut.hpp"
+#include "kokkos_shortcut.hpp"
 #include "grid.hpp"
 
 namespace novapp

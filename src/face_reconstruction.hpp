@@ -12,7 +12,7 @@
 #include "ndim.hpp"
 #include "range.hpp"
 #include "slope_limiters.hpp"
-#include "Kokkos_shortcut.hpp"
+#include "kokkos_shortcut.hpp"
 #include "grid.hpp"
 
 namespace novapp

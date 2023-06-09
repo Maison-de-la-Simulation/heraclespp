@@ -14,7 +14,7 @@
 #include "ndim.hpp"
 #include "units.hpp"
 #include "eos.hpp"
-#include "Kokkos_shortcut.hpp"
+#include "kokkos_shortcut.hpp"
 #include "grid.hpp"
 #include "nova_params.hpp"
 #include "boundary.hpp"

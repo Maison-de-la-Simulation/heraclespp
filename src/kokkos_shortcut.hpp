@@ -1,5 +1,5 @@
 //!
-//! @file Kokkos_shortcut.hpp
+//! @file kokkos_shortcut.hpp
 //!
 
 #pragma once
