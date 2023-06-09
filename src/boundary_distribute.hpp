@@ -35,13 +35,7 @@ private:
     Param m_param;
     ParamSetup m_param_setup;
 
-    void ghostFill(
-            KV_double_3d rho,
-            KV_double_4d rhou,
-            KV_double_3d E,
-            KV_double_4d fx,
-            int bc_idim,
-            int bc_iface) const;
+    void ghostFill(std::vector<KV_double_3d> const& arrays, int bc_idim, int bc_iface) const;
 
     void generate_order();
 
