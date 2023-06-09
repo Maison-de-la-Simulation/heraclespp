@@ -14,7 +14,7 @@ filename = sys.argv[1]
 with h5py.File(str(filename), 'r') as f :
     print(f.keys())
     rho = f['rho'][0, :, :]
-    u = f['u'][0, :, :]
+    u = f['ux'][0, :, :]
     P = f['P'][0, :, :]
     x = f['x'][()]
     y = f['y'][()]
