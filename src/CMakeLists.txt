@@ -6,7 +6,7 @@ add_library(libnova++ array_conversion.cpp
                       cfl_cond.cpp
                       mpi_scope_guard.cpp
                       grid.cpp
-                      boundary.cpp
+                      boundary_distribute.cpp
                       range.cpp)
 target_include_directories(libnova++ PUBLIC setups/${Novapp_SETUP}/)
 configure_file(ndim.hpp.in ndim.hpp NO_SOURCE_PERMISSIONS @ONLY)
