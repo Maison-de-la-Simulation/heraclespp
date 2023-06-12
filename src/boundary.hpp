@@ -25,8 +25,6 @@ std::array<std::string, 2> const bc_face {"_left", "_right"};
 class IBoundaryCondition
 {
 public:
-    IBoundaryCondition() = default;
-
     IBoundaryCondition(int idim, int iface)
         : bc_idim(idim)
         , bc_iface(iface){};
