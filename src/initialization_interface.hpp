@@ -4,11 +4,8 @@
 
 #pragma once
 
-#include <PerfectGas.hpp>
-
-#include "range.hpp"
 #include "kokkos_shortcut.hpp"
-#include "grid.hpp"
+#include "range.hpp"
 
 namespace novapp
 {

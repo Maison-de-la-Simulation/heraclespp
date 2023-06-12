@@ -4,11 +4,8 @@
 
 #pragma once
 
-#include <inih/INIReader.hpp>
-
 #include "kokkos_shortcut.hpp"
 #include "ndim.hpp"
-#include "range.hpp"
 #include "grid.hpp"
 
 namespace novapp
