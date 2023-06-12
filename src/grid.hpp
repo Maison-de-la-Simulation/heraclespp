@@ -25,7 +25,7 @@ namespace novapp
 
 template<class T>
 inline
-void prinf_info(std::string var_name, T var_value)
+void print_info(std::string var_name, T var_value)
 {
     using namespace std;
     cout << left  << setw(40) << setfill('.') << var_name;

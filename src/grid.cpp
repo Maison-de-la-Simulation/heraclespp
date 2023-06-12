@@ -286,44 +286,44 @@ void Grid::print_grid() const
 {
     if(mpi_rank==0)
     {
-        prinf_info("Ndim", Ndim);
-        prinf_info("Nghost[0]", Nghost[0]);
-        prinf_info("Nghost[1]", Nghost[1]);
-        prinf_info("Nghost[2]", Nghost[2]);
+        print_info("Ndim", Ndim);
+        print_info("Nghost[0]", Nghost[0]);
+        print_info("Nghost[1]", Nghost[1]);
+        print_info("Nghost[2]", Nghost[2]);
         
-        prinf_info("Ncpu", Ncpu);
+        print_info("Ncpu", Ncpu);
 
-        prinf_info("Ncpu_x[0]", Ncpu_x[0]);
-        prinf_info("Ncpu_x[1]", Ncpu_x[1]);
-        prinf_info("Ncpu_x[2]", Ncpu_x[2]);
+        print_info("Ncpu_x[0]", Ncpu_x[0]);
+        print_info("Ncpu_x[1]", Ncpu_x[1]);
+        print_info("Ncpu_x[2]", Ncpu_x[2]);
 
-        prinf_info("Nx_glob_ng[0]", Nx_glob_ng[0]);
-        prinf_info("Nx_glob_ng[1]", Nx_glob_ng[1]);
-        prinf_info("Nx_glob_ng[2]", Nx_glob_ng[2]);
+        print_info("Nx_glob_ng[0]", Nx_glob_ng[0]);
+        print_info("Nx_glob_ng[1]", Nx_glob_ng[1]);
+        print_info("Nx_glob_ng[2]", Nx_glob_ng[2]);
 
-        prinf_info("Nx[0]", Nx_local_ng[0]);
-        prinf_info("Nx[1]", Nx_local_ng[1]);
-        prinf_info("Nx[2]", Nx_local_ng[2]);
+        print_info("Nx[0]", Nx_local_ng[0]);
+        print_info("Nx[1]", Nx_local_ng[1]);
+        print_info("Nx[2]", Nx_local_ng[2]);
 
-        prinf_info("Nx_local_wg[0]", Nx_local_wg[0]);
-        prinf_info("Nx_local_wg[1]", Nx_local_wg[1]);
-        prinf_info("Nx_local_wg[2]", Nx_local_wg[2]);
+        print_info("Nx_local_wg[0]", Nx_local_wg[0]);
+        print_info("Nx_local_wg[1]", Nx_local_wg[1]);
+        print_info("Nx_local_wg[2]", Nx_local_wg[2]);
 
-        prinf_info("NBlock[0]", NBlock[0]);
-        prinf_info("NBlock[1]", NBlock[1]);
-        prinf_info("NBlock[2]", NBlock[2]);
+        print_info("NBlock[0]", NBlock[0]);
+        print_info("NBlock[1]", NBlock[1]);
+        print_info("NBlock[2]", NBlock[2]);
 
-        prinf_info("Nx_block[0]", Nx_block[0]);
-        prinf_info("Nx_block[1]", Nx_block[1]);
-        prinf_info("Nx_block[2]", Nx_block[2]);
+        print_info("Nx_block[0]", Nx_block[0]);
+        print_info("Nx_block[1]", Nx_block[1]);
+        print_info("Nx_block[2]", Nx_block[2]);
 
-        prinf_info("Corner_min[0]", range.Corner_min[0]);
-        prinf_info("Corner_min[1]", range.Corner_min[1]);
-        prinf_info("Corner_min[2]", range.Corner_min[2]);
+        print_info("Corner_min[0]", range.Corner_min[0]);
+        print_info("Corner_min[1]", range.Corner_min[1]);
+        print_info("Corner_min[2]", range.Corner_min[2]);
 
-        prinf_info("Corner_max[0]", range.Corner_max[0]);
-        prinf_info("Corner_max[1]", range.Corner_max[1]);
-        prinf_info("Corner_max[2]", range.Corner_max[2]);
+        print_info("Corner_max[0]", range.Corner_max[0]);
+        print_info("Corner_max[1]", range.Corner_max[1]);
+        print_info("Corner_max[2]", range.Corner_max[2]);
     }
 }
 
