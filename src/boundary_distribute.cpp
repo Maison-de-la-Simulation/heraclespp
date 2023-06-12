@@ -5,6 +5,7 @@
 
 #include <array>
 #include <mpi.h>
+#include <vector>
 
 #include "boundary_distribute.hpp"
 
@@ -12,45 +13,27 @@ namespace novapp
 {
 
 void DistributedBoundaryCondition::ghostFill(
-        KV_double_3d rho,
-        KV_double_4d rhou,
-        KV_double_3d E,
-        KV_double_4d fx,
-        int bc_idim,
-        int bc_iface) const
+    std::vector<KV_double_3d> const& views,
+    int bc_idim,
+    int bc_iface) const
 {
     int ng = m_grid.Nghost[bc_idim];
-    int nfx = fx.extent_int(3);
 
     KDV_double_4d buf = m_mpi_buffer[bc_idim];
 
     Kokkos::Array<Kokkos::pair<int, int>, 3> KRange
-            = {Kokkos::make_pair(0, rho.extent_int(0)),
-               Kokkos::make_pair(0, rho.extent_int(1)),
-               Kokkos::make_pair(0, rho.extent_int(2))};
+            = {Kokkos::make_pair(0, views[0].extent_int(0)),
+               Kokkos::make_pair(0, views[0].extent_int(1)),
+               Kokkos::make_pair(0, views[0].extent_int(2))};
 
-    KRange[bc_idim].first = bc_iface == 0 ? ng : rho.extent_int(bc_idim) - 2 * ng;
+    KRange[bc_idim].first = bc_iface == 0 ? ng : views[0].extent_int(bc_idim) - 2 * ng;
     KRange[bc_idim].second = KRange[bc_idim].first + ng;
 
-    Kokkos::deep_copy(
-            Kokkos::subview(buf.d_view, ALL, ALL, ALL, 0),
-            Kokkos::subview(rho, KRange[0], KRange[1], KRange[2]));
-    Kokkos::deep_copy(
-            Kokkos::subview(buf.d_view, ALL, ALL, ALL, 1),
-            Kokkos::subview(E, KRange[0], KRange[1], KRange[2]));
-
-    for (int idim = 0; idim < ndim; idim++)
+    for (std::size_t i = 0; i < views.size(); ++i)
     {
         Kokkos::deep_copy(
-                Kokkos::subview(buf.d_view, ALL, ALL, ALL, 2 + idim),
-                Kokkos::subview(rhou, KRange[0], KRange[1], KRange[2], idim));
-    }
-
-    for (int ifx = 0; ifx < nfx; ++ifx)
-    {
-        Kokkos::deep_copy(
-                Kokkos::subview(buf.d_view, ALL, ALL, ALL, 2 + ndim + ifx),
-                Kokkos::subview(fx, KRange[0], KRange[1], KRange[2], ifx));
+                Kokkos::subview(buf.d_view, ALL, ALL, ALL, i),
+                Kokkos::subview(views[i], KRange[0], KRange[1], KRange[2]));
     }
 
     buf.modify_device();
@@ -73,29 +56,14 @@ void DistributedBoundaryCondition::ghostFill(
     buf.modify_host();
     buf.sync_device();
 
-    KRange[bc_idim].first = bc_iface == 0 ? rho.extent_int(bc_idim) - ng : 0;
+    KRange[bc_idim].first = bc_iface == 0 ? views[0].extent_int(bc_idim) - ng : 0;
     KRange[bc_idim].second = KRange[bc_idim].first + ng;
 
-    Kokkos::deep_copy(
-            Kokkos::subview(rho, KRange[0], KRange[1], KRange[2]),
-            Kokkos::subview(buf.d_view, ALL, ALL, ALL, 0));
-
-    Kokkos::deep_copy(
-            Kokkos::subview(E, KRange[0], KRange[1], KRange[2]),
-            Kokkos::subview(buf.d_view, ALL, ALL, ALL, 1));
-
-    for (int idim = 0; idim < ndim; idim++)
+    for (std::size_t i = 0; i < views.size(); ++i)
     {
         Kokkos::deep_copy(
-                Kokkos::subview(rhou, KRange[0], KRange[1], KRange[2], idim),
-                Kokkos::subview(buf.d_view, ALL, ALL, ALL, 2 + idim));
-    }
-
-    for (int ifx = 0; ifx < nfx; ++ifx)
-    {
-        Kokkos::deep_copy(
-                Kokkos::subview(fx, KRange[0], KRange[1], KRange[2], ifx),
-                Kokkos::subview(buf.d_view, ALL, ALL, ALL, 2 + ndim + ifx));
+                Kokkos::subview(views[i], KRange[0], KRange[1], KRange[2]),
+                Kokkos::subview(buf.d_view, ALL, ALL, ALL, i));
     }
 }
 
@@ -194,11 +162,24 @@ void DistributedBoundaryCondition::execute(KV_double_3d rho,
                                            KV_double_4d fx,
                                            KV_double_1d g) const
 {
+    std::vector<KV_double_3d> views;
+    views.reserve(2 + rhou.extent_int(3) + fx.extent_int(3));
+    views.emplace_back(rho);
+    for (int i3 = 0; i3 < rhou.extent_int(3); ++i3)
+    {
+        views.emplace_back(Kokkos::subview(rhou, ALL, ALL, ALL, i3));
+    }
+    views.emplace_back(E);
+    for (int i3 = 0; i3 < fx.extent_int(3); ++i3)
+    {
+        views.emplace_back(Kokkos::subview(rhou, ALL, ALL, ALL, i3));
+    }
+
     for (int idim = 0; idim < ndim; idim++)
     {
         for (int iface = 0; iface < 2; iface++)
         {
-            ghostFill(rho, rhou, E, fx, idim, iface);
+            ghostFill(views, idim, iface);
         }
     }
 
