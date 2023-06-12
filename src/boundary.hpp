@@ -22,8 +22,6 @@ namespace novapp
 std::array<std::string, 3> const bc_dir {"_X", "_Y", "_Z"};
 std::array<std::string, 2> const bc_face {"_left", "_right"};
 
-class ParamSetup;
-
 class IBoundaryCondition
 {
 public:

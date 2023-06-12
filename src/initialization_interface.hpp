@@ -13,8 +13,6 @@
 namespace novapp
 {
 
-class ParamSetup;
-
 class IInitializationProblem
 {
 public:
