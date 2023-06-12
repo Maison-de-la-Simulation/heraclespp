@@ -172,7 +172,7 @@ void DistributedBoundaryCondition::execute(KV_double_3d rho,
     views.emplace_back(E);
     for (int i3 = 0; i3 < fx.extent_int(3); ++i3)
     {
-        views.emplace_back(Kokkos::subview(rhou, ALL, ALL, ALL, i3));
+        views.emplace_back(Kokkos::subview(fx, ALL, ALL, ALL, i3));
     }
 
     for (int idim = 0; idim < ndim; idim++)
