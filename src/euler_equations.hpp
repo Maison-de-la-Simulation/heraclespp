@@ -18,21 +18,21 @@ namespace novapp
 struct EulerCons
 {
     double rho;
-    std::array<double, ndim> rhou;
+    Kokkos::Array<double, ndim> rhou;
     double E;
 };
 
 struct EulerFlux
 {
     double rho;
-    std::array<double, ndim> rhou;
+    Kokkos::Array<double, ndim> rhou;
     double E;
 };
 
 struct EulerPrim
 {
     double rho;
-    std::array<double, ndim> u;
+    Kokkos::Array<double, ndim> u;
     double P;
 };
 
