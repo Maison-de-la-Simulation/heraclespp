@@ -17,8 +17,8 @@ private :
     KV_double_1d m_g;
 
 public :
-    UniformGravity(
-            KV_double_1d g)
+    explicit UniformGravity(
+        KV_double_1d g)
         : m_g(g)
     {
     }
