@@ -49,7 +49,6 @@ public:
 
 class MUSCLHancockHydroReconstruction : public IHydroReconstruction
 {
-    // WARNING, needs to be shared to be captured by KOKKOS_CLASS_LAMBDA
     std::shared_ptr<IFaceReconstruction> m_face_reconstruction;
 
     std::shared_ptr<IExtrapolationReconstruction> m_hancock_reconstruction;
