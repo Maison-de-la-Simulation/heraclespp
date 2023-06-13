@@ -45,13 +45,6 @@ public :
     std::array<int, 3> Nx_block;   // Maximum size of sub-block, including ghos
     std::array<int, 3> start_cell_wg; // for local MPI process, index of starting cell wrt the global index with ghost
 
-    double xmin;
-    double xmax;
-    double ymin;
-    double ymax;
-    double zmin;
-    double zmax;
-
     Kokkos::Array<double, 3> L;
 
     std::array<std::array<std::array<int, 3>, 3>, 3> NeighborRank;

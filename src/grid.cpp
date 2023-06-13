@@ -39,18 +39,7 @@ Grid::Grid(Param const& param)
     {
         Nghost[idim] = Ng;
     }
-
-    xmin = param.xmin;
-    xmax = param.xmax;
-    ymin = param.ymin;
-    ymax = param.ymax;
-    zmin = param.zmin;
-    zmax = param.zmax;
-
-    L[0] = xmax - xmin;
-    L[1] = ymax - ymin;
-    L[2] = zmax - zmin;
-
+    
     Ncpu_x[0] = param.Ncpu_x[0];
     Ncpu_x[1] = param.Ncpu_x[1];
     Ncpu_x[2] = param.Ncpu_x[2];
