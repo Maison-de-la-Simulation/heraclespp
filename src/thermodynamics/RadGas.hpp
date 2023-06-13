@@ -63,7 +63,7 @@ public:
         double T;
         double C1 = rho * units::kb / (m_mmw * units::mh);
         double Tg = P / C1;
-        double Tr = std::pow(3 * P / units::ar, 1. / 4);
+        double Tr = Kokkos::pow(3 * P / units::ar, 1. / 4);
         double T0 = Tg;
         if (Tr > Tg)
         {
@@ -80,7 +80,7 @@ public:
             double delta_T = -f / df;
             T += delta_T;
             itr = i;
-            if (std::abs(delta_T) < 1E-6) break;
+            if (Kokkos::abs(delta_T) < 1E-6) break;
         }
         //std::cout<<"T_from_P = "<<T<<" itr = "<<itr<<std::endl;
         return T;
@@ -92,7 +92,7 @@ public:
         double T;
         double C1 = rho * units::kb / (m_mmw * units::mh * m_gamma_m1);
         double Tg = evol / C1;
-        double Tr = std::pow(evol / units::ar, 1. / 4);
+        double Tr = Kokkos::pow(evol / units::ar, 1. / 4);
         double T0 = Tg;
         if (Tr > Tg)
         {
@@ -109,7 +109,7 @@ public:
             double delta_T = -f / df;
             T += delta_T;
             itr = i;
-            if (std::abs(delta_T) < 1E-6) break;
+            if (Kokkos::abs(delta_T) < 1E-6) break;
         }
         //std::cout<<"T_from_evol = "<<T<<" itr = "<<itr<<std::endl;
         return T;
