@@ -78,7 +78,7 @@ namespace novapp
         RiemannBasedGodunovScheme(
             RiemannSolver const &riemann_solver,
             Gravity const& gravity,
-            EOS eos, 
+            EOS const& eos, 
             Grid const& grid)
             : m_riemann_solver(riemann_solver)
             , m_gravity(gravity)
@@ -241,7 +241,7 @@ namespace novapp
     inline std::unique_ptr<IGodunovScheme> factory_godunov_scheme(
         std::string const& riemann_solver,
         std::string const& gravity,
-        EOS eos, 
+        EOS const& eos, 
         Grid const& grid,
         KV_double_1d& g)
     {

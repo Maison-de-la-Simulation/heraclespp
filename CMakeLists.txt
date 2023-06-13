@@ -24,6 +24,12 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
   message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. You may need to remove CMakeCache.txt. ")
 endif()
 
+set(Novapp_EOS "" CACHE STRING "Choose the equation of state: PERFECT(Perfect Gas);RADIATIVE(Radiative)")
+set_property(CACHE Novapp_EOS PROPERTY STRINGS "PERFECT;RADIATIVE")
+if("${Novapp_EOS}" STREQUAL "")
+  message(FATAL_ERROR "Novapp_EOS is not defined")
+endif()
+
 include(CTest)
 
 add_subdirectory(vendor/googletest)
