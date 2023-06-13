@@ -1,6 +1,4 @@
 #include "array_conversion.hpp"
-#include "euler_equations.hpp"
-#include "range.hpp"
 
 namespace novapp
 {
@@ -64,7 +62,7 @@ void conv_cons_to_prim(
         {
             u(i, j, k, idim) = prim.u[idim];
         }
-    });   
+    });
 }
 
 } // namespace novapp

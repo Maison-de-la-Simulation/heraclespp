@@ -7,6 +7,7 @@
 #include <inih/INIReader.hpp>
 
 #include "ndim.hpp"
+#include "eos.hpp"
 #include "range.hpp"
 #include "eos.hpp"
 #include "kokkos_shortcut.hpp"

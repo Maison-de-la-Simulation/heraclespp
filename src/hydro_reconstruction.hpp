@@ -14,7 +14,6 @@
 #include "grid.hpp"
 #include "nova_params.hpp"
 
-
 namespace novapp
 {
 

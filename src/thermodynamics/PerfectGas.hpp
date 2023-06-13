@@ -15,7 +15,6 @@ class PerfectGas
 {
     double m_gamma;
     double m_gamma_m1;
-    double m_inv_gamma_m1;
     double m_mmw;
 
 public:
@@ -46,7 +45,7 @@ public:
     KOKKOS_FORCEINLINE_FUNCTION
     double compute_evol_from_T(double const rho, double const T) const noexcept
     {
-        return rho * units::kb * T / (m_mmw * units::mh) * m_inv_gamma_m1;
+        return rho * units::kb * T / (m_mmw * units::mh * m_gamma_m1);
     }
 
     KOKKOS_FORCEINLINE_FUNCTION

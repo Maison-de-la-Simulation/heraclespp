@@ -10,15 +10,13 @@
 
 #include "ndim.hpp"
 #include "range.hpp"
+#include "eos.hpp"
 #include "euler_equations.hpp"
 #include "grid.hpp"
 #include "gravity.hpp"
 #include "kokkos_shortcut.hpp"
 #include "kronecker.hpp"
-#include "eos.hpp"
 #include "nova_params.hpp"
-
-
 
 namespace novapp
 {
