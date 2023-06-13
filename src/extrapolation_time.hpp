@@ -213,7 +213,7 @@ inline std::unique_ptr<IExtrapolationReconstruction> factory_time_reconstruction
         std::string const& gravity,
         EOS const& eos,
         Grid const& grid,
-        KV_double_1d &g)
+        KV_double_1d g)
 {
     if (gravity == "Uniform")
     {
