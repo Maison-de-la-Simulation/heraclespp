@@ -111,6 +111,14 @@ public:
 
             for (int idim = 0; idim < ndim; ++idim)
             {
+                rho_old[0][idim] = rho_rec(i, j, k, 0, idim);
+                rho_old[1][idim] = rho_rec(i, j, k, 1, idim);
+                for (int idr = 0; idr < ndim; ++idr)
+                {
+                    rhou_old[0][idim][idr] = rhou_rec(i, j, k, 0, idim, idr);
+                    rhou_old[1][idim][idr] = rhou_rec(i, j, k, 1, idim, idr);
+                }
+                
                 for (int ifx = 0; ifx < nfx; ++ifx)
                 {
                     fx_rec(i, j, k, 0, idim, ifx) *= rho_rec(i, j, k, 0, idim);
@@ -122,16 +130,8 @@ public:
             {
                 auto const [i_p, j_p, k_p] = rindex(idim, i, j, k); // i + 1
 
-                rho_old[0][idim] = rho_rec(i, j, k, 0, idim);
-                rho_old[1][idim] = rho_rec(i, j, k, 1, idim);
-                for (int idr = 0; idr < ndim; ++idr)
-                {
-                    rhou_old[0][idim][idr] = rhou_rec(i, j, k, 0, idim, idr);
-                    rhou_old[1][idim][idr] = rhou_rec(i, j, k, 1, idim, idr);
-                }
-
                 EulerPrim minus_one; // Left, front, bottom
-                minus_one.rho = rho_rec(i, j, k, 0, idim);
+                minus_one.rho = rho_old[0][idim];
                 for (int idr = 0; idr < ndim; ++idr)
                 {
                     minus_one.u[idr] = loc_u_rec(i, j, k, 0, idim, idr);
@@ -140,7 +140,7 @@ public:
                 EulerFlux flux_minus_one = compute_flux(minus_one, idim, m_eos);
 
                 EulerPrim plus_one; // Right, back, top
-                plus_one.rho = rho_rec(i, j, k, 1, idim);
+                plus_one.rho = rho_old[1][idim];
                 for (int idr = 0; idr < ndim; ++idr)
                 {
                     plus_one.u[idr] = loc_u_rec(i, j, k, 1, idim, idr);
@@ -172,13 +172,10 @@ public:
                 // Gravity
                 for (int ipos = 0; ipos < ndim; ++ipos)
                 {
-                    for (int idr = 0; idr < ndim; ++idr)
-                    {
-                        rhou_rec(i, j, k, 0, ipos, idr) += dt_reconstruction * m_gravity(i, j, k, idr, m_grid) * rho_old[0][ipos];
-                        rhou_rec(i, j, k, 1, ipos, idr) += dt_reconstruction * m_gravity(i, j, k, idr, m_grid) * rho_old[1][ipos];
-                        E_rec(i, j, k, 0, ipos) += dt_reconstruction * m_gravity(i, j, k, idr, m_grid) * rhou_old[0][ipos][idr];
-                        E_rec(i, j, k, 1, ipos) += dt_reconstruction * m_gravity(i, j, k, idr, m_grid) * rhou_old[1][ipos][idr];
-                    }
+                    rhou_rec(i, j, k, 0, ipos, idim) += dt_reconstruction * m_gravity(i, j, k, idim, m_grid) * rho_old[0][ipos];
+                    rhou_rec(i, j, k, 1, ipos, idim) += dt_reconstruction * m_gravity(i, j, k, idim, m_grid) * rho_old[1][ipos];
+                    E_rec(i, j, k, 0, ipos) += dt_reconstruction * m_gravity(i, j, k, idim, m_grid) * rhou_old[0][ipos][idim];
+                    E_rec(i, j, k, 1, ipos) += dt_reconstruction * m_gravity(i, j, k, idim, m_grid) * rhou_old[1][ipos][idim];
                 }
 
                 // Passive scalar
