@@ -51,9 +51,9 @@ public:
 template <class Gravity>
 class ExtrapolationTimeReconstruction : public IExtrapolationReconstruction
 {
-    /* static_assert(
-            std::is_invocable_r_v<>,
-            "Invalid gravity."); */
+    static_assert(
+            std::is_invocable_r_v<void, Gravity, int, int, int, int, Grid>,
+            "Incompatible gravity.");
 
 private:
     Gravity m_gravity;
