@@ -174,11 +174,9 @@ namespace novapp
                                             - FluxR.E * m_grid.ds(i_p, j_p, k_p, idim));
 
                     // Gravity
-                    for (int idr = 0; idr < ndim; ++idr)
-                    {
-                        rhou_new(i, j, k, idr) += dt * m_gravity(i, j, k, idr, m_grid) * rho(i, j, k);
-                        E_new(i, j, k) += dt * m_gravity(i, j, k, idr, m_grid) * rhou(i, j, k, idr);
-                    }
+                    rhou_new(i, j, k, idim) += dt * m_gravity(i, j, k, idim, m_grid) * rho(i, j, k);
+                    E_new(i, j, k) += dt * m_gravity(i, j, k, idim, m_grid) * rhou(i, j, k, idim);
+                    
 
                     // Passive scalar
                     for (int ifx = 0; ifx < nfx; ++ifx)
