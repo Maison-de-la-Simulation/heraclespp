@@ -137,7 +137,7 @@ public:
                     minus_one.u[idr] = loc_u_rec(i, j, k, 0, idim, idr);
                 }
                 minus_one.P = loc_P_rec(i, j, k, 0, idim);
-                EulerFlux flux_minus_one = compute_flux(minus_one, idim, m_eos);
+                EulerFlux const flux_minus_one = compute_flux(minus_one, idim, m_eos);
 
                 EulerPrim plus_one; // Right, back, top
                 plus_one.rho = rho_old[1][idim];
@@ -146,9 +146,9 @@ public:
                     plus_one.u[idr] = loc_u_rec(i, j, k, 1, idim, idr);
                 }
                 plus_one.P = loc_P_rec(i, j, k, 1, idim);
-                EulerFlux flux_plus_one = compute_flux(plus_one, idim, m_eos);
+                EulerFlux const flux_plus_one = compute_flux(plus_one, idim, m_eos);
 
-                double dtodv = dt_reconstruction / m_grid.dv(i, j, k);
+                double const dtodv = dt_reconstruction / m_grid.dv(i, j, k);
 
                 for (int ipos = 0; ipos < ndim; ++ipos)
                 {

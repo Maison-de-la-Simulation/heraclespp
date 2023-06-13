@@ -161,7 +161,7 @@ namespace novapp
                     plus_oneL.E = E_rec(i_p, j_p, k_p, 0, idim);
                     EulerFlux const FluxR = m_riemann_solver(var_R, plus_oneL, idim, m_eos);
 
-                    double dtodv = dt / m_grid.dv(i, j, k);
+                    double const dtodv = dt / m_grid.dv(i, j, k);
 
                     rho_new(i, j, k) += dtodv * (FluxL.rho * m_grid.ds(i, j, k, idim) 
                                         - FluxR.rho * m_grid.ds(i_p, j_p, k_p, idim));
@@ -205,8 +205,8 @@ namespace novapp
                             face_R = 0;
                         }
 
-                        double flux_fx_L = fx_rec(iL_uw, jL_uw, kL_uw, face_L, idim, ifx) * FluxL.rho;
-                        double flux_fx_R = fx_rec(iR_uw, jR_uw, kR_uw, face_R, idim, ifx) * FluxR.rho;
+                        double const flux_fx_L = fx_rec(iL_uw, jL_uw, kL_uw, face_L, idim, ifx) * FluxL.rho;
+                        double const flux_fx_R = fx_rec(iR_uw, jR_uw, kR_uw, face_R, idim, ifx) * FluxR.rho;
 
                         fx_new(i, j, k, ifx) += dtodv * (flux_fx_L * m_grid.ds(i, j, k, idim)
                                                 - flux_fx_R * m_grid.ds(i_p, j_p, k_p, idim));
