@@ -193,7 +193,7 @@ void writeXML(
 
         xdmfFile << std::string(8, ' ') << "</Geometry>\n";
 
-        for (std::string const& var_name : {"rho", "P", "E", "fx"})
+        for (std::string_view var_name : {"rho", "P", "E", "fx"})
         {
             xdmfFile << std::string(8, ' ');
             xdmfFile << "<Attribute";
@@ -222,7 +222,7 @@ void writeXML(
         }
 
         std::vector<std::string> const components {"x", "y", "z"};
-        for (std::string const& var_name : {"u"})
+        for (std::string_view var_name : {"u"})
         {
             for (int icomp = 0; icomp < ndim; ++icomp)
             {
