@@ -60,7 +60,6 @@ Grid::Grid(Param const& param)
     Nx_local_ng = param.Nx_glob_ng; // default for a single MPI process
 
     MPI_Decomp();
-    Init_nodes();
     Init_grid(param);
 }
 
@@ -158,49 +157,14 @@ void Grid::MPI_Decomp()
     }
 }
 
-void Grid::Init_nodes()
-{
-    x = KDV_double_1d("Initx", Nx_local_wg[0]+1);
-    y = KDV_double_1d("Inity", Nx_local_wg[1]+1);
-    z = KDV_double_1d("Initz", Nx_local_wg[2]+1);
-
-    offsetx = range.Corner_min[0] - Nghost[0];
-    offsety = range.Corner_min[1] - Nghost[1];
-    offsetz = range.Corner_min[2] - Nghost[2];
-
-    dxloc = L[0] / Nx_glob_ng[0];
-    dyloc = L[1] / Nx_glob_ng[1];
-    dzloc = L[2] / Nx_glob_ng[2];
-
-    auto const x_h = x.h_view;
-    for (int i = 0; i < Nx_local_wg[0]+1; ++i)
-    {
-        x_h(i) = xmin + (i + offsetx) * dxloc; // Position of the left interface
-    }
-    
-    x.modify_host();
-    x.sync_device();
-    
-    auto const y_h = y.h_view;
-    for (int i = 0; i < Nx_local_wg[1]+1; ++i)
-    {
-        y_h(i) = ymin + (i + offsety) * dyloc; // Position of the left interface
-    }
-    y.modify_host();
-    y.sync_device();
-    auto const z_h = z.h_view;
-    for (int i = 0; i < Nx_local_wg[2]+1; ++i)
-    {
-        z_h(i) = zmin + (i + offsetz) * dzloc; // Position of the left interface
-    }
-    z.modify_host();
-    z.sync_device();
-}
-
 void Grid::Init_grid(Param const& param)
 {
     std::unique_ptr<IGridType> grid_type
             = factory_grid_type(param.grid_type, param);
+    
+    x = KDV_double_1d("x", Nx_local_wg[0]+1);
+    y = KDV_double_1d("y", Nx_local_wg[1]+1);
+    z = KDV_double_1d("z", Nx_local_wg[2]+1);
 
     x_center = KV_double_1d("x_center", Nx_local_wg[0]);
     y_center = KV_double_1d("y_center", Nx_local_wg[1]);

@@ -127,10 +127,12 @@ public:
         std::array<int, 3> Nx_local_wg,
         std::array<int, 3> Nx_glob_ng) const final
     {
-        double dx = m_param.xmax / (Nx_glob_ng[0]);
-        int quater_x = (Nx_glob_ng[0] / 4);
+        double Lx = m_param.xmax - m_param.xmin;
+        double dx = Lx / Nx_glob_ng[0];
+        x_glob(Nghost[0]) = m_param.xmin;
+
+        int quater_x = Nx_glob_ng[0] / 4;
         int three_quaters_x = 3 * quater_x;
-        x_glob(Nghost[0]) = 0;
 
         for (int i = Nghost[0]+1; i < x_glob.extent(0) ; i++)
         {
@@ -150,6 +152,25 @@ public:
         for (int i = Nghost[0]; i < x_glob.extent(0); ++i)
         {
             x_glob(i) = m_param.xmax * x_glob(i) / val_xmax;
+        }
+
+        // Left ghost cells
+        for(int i = Nghost[0]-1; i >= 0; i--)
+        {
+            x_glob(i) = x_glob(i+1) - dx / 4;
+        }
+
+        // Y and Z
+        double Ly = m_param.ymax - m_param.ymin;
+        double dy = Ly / Nx_glob_ng[1];
+
+        double Lz = m_param.zmax - m_param.zmin;
+        double dz = Lz / Nx_glob_ng[2];
+
+        for (int i = 0; i < y_glob.extent(0) ; i++)
+        {
+            y_glob(i) = m_param.ymin + i * dy;
+            z_glob(i) = m_param.zmin + i * dy;
         }
     }
 };

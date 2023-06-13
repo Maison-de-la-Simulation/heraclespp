@@ -20,7 +20,7 @@ inline std::unique_ptr<IGridType> factory_grid_type(
 {
     if (grid == "Regular")
     {
-        return std::make_unique<Regular>();
+        return std::make_unique<Regular>(param);
     }
     if (grid == "UserDefined")
     {

@@ -116,11 +116,24 @@ public:
             x_glob(i) = m_param.xmax * x_glob(i) / val_xmax;
         }
 
-        //reflexive X-left
+        // Reflexive X-left ghost cells
         for(int i = Nghost[0]-1; i >= 0; i--)
         {
             int mirror = Nghost[0] -  2 * i + 1; 
             x_glob(i) = x_glob(i+1) - (x_glob(i+mirror+1) - x_glob(i+mirror));
+        }
+
+        // Y and Z
+        double Ly = m_param.ymax - m_param.ymin;
+        double dy = Ly / Nx_glob_ng[1];
+
+        double Lz = m_param.zmax - m_param.zmin;
+        double dz = Lz / Nx_glob_ng[2];
+
+        for (int i = 0; i < y_glob.extent(0) ; i++)
+        {
+            y_glob(i) = m_param.ymin + i * dy;
+            z_glob(i) = m_param.zmin + i * dy;
         }
     }
 }; 
