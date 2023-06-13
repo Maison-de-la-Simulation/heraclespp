@@ -122,7 +122,6 @@ public:
 
             for (int idim = 0; idim < ndim; ++idim)
             {
-                auto const [i_m, j_m, k_m] = lindex(idim, i, j, k); // i - 1
                 auto const [i_p, j_p, k_p] = rindex(idim, i, j, k); // i + 1
 
                 rho_old[0][idim] = rho_rec(i, j, k, 0, idim);

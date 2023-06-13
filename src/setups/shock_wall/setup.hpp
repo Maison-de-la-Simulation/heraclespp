@@ -104,14 +104,14 @@ public:
     {
         double dx = m_param.xmax / (2 * Nx_glob_ng[0]);
         x_glob(Nghost[0]) = 0;
-        for (int i = Nghost[0]+1; i < x_glob.extent(0) ; i++)
+        for (int i = Nghost[0]+1; i < x_glob.extent_int(0) ; i++)
         {
             x_glob(i) = x_glob(i-1) + dx;
             dx *= 1.005;
         }
 
-        double val_xmax = x_glob(x_glob.extent(0)-1 - Nghost[0]);
-        for (int i = Nghost[0]; i < x_glob.extent(0); ++i)
+        double val_xmax = x_glob(x_glob.extent_int(0)-1 - Nghost[0]);
+        for (int i = Nghost[0]; i < x_glob.extent_int(0); ++i)
         {
             x_glob(i) = m_param.xmax * x_glob(i) / val_xmax;
         }
@@ -130,7 +130,7 @@ public:
         double Lz = m_param.zmax - m_param.zmin;
         double dz = Lz / Nx_glob_ng[2];
 
-        for (int i = 0; i < y_glob.extent(0) ; i++)
+        for (int i = 0; i < y_glob.extent_int(0) ; i++)
         {
             y_glob(i) = m_param.ymin + i * dy;
             z_glob(i) = m_param.zmin + i * dz;
