@@ -170,7 +170,7 @@ public:
         for (int i = 0; i < y_glob.extent(0) ; i++)
         {
             y_glob(i) = m_param.ymin + i * dy;
-            z_glob(i) = m_param.zmin + i * dy;
+            z_glob(i) = m_param.zmin + i * dz;
         }
     }
 };
