@@ -75,11 +75,11 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            if ((xc(i) + xc(i+1)) * units::m / 2 <= 0.3)
+            if (xc(i) * units::m <= 0.3)
             {
                 rho(i, j, k) = m_param_setup.rho0 * units::density;
             }
-            else if ((xc(i) + xc(i+1)) * units::m / 2 >= 0.7)
+            else if (xc(i) * units::m >= 0.7)
             {
                 rho(i, j, k) = m_param_setup.rho0 * units::density;
             }

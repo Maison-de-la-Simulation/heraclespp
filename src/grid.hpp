@@ -34,7 +34,6 @@ public :
     
 private:
     void MPI_Decomp();
-    void Init_nodes();
 
 public :
     int Ng;
