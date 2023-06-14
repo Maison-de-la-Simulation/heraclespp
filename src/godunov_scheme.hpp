@@ -176,7 +176,6 @@ namespace novapp
                     // Gravity
                     rhou_new(i, j, k, idim) += dt * m_gravity(i, j, k, idim, m_grid) * rho(i, j, k);
                     E_new(i, j, k) += dt * m_gravity(i, j, k, idim, m_grid) * rhou(i, j, k, idim);
-                    
 
                     // Passive scalar
                     for (int ifx = 0; ifx < nfx; ++ifx)

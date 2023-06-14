@@ -118,7 +118,7 @@ public:
                     rhou_old[0][idim][idr] = rhou_rec(i, j, k, 0, idim, idr);
                     rhou_old[1][idim][idr] = rhou_rec(i, j, k, 1, idim, idr);
                 }
-                
+
                 for (int ifx = 0; ifx < nfx; ++ifx)
                 {
                     fx_rec(i, j, k, 0, idim, ifx) *= rho_rec(i, j, k, 0, idim);
@@ -174,6 +174,7 @@ public:
                 {
                     rhou_rec(i, j, k, 0, ipos, idim) += dt_reconstruction * m_gravity(i, j, k, idim, m_grid) * rho_old[0][ipos];
                     rhou_rec(i, j, k, 1, ipos, idim) += dt_reconstruction * m_gravity(i, j, k, idim, m_grid) * rho_old[1][ipos];
+                    
                     E_rec(i, j, k, 0, ipos) += dt_reconstruction * m_gravity(i, j, k, idim, m_grid) * rhou_old[0][ipos][idim];
                     E_rec(i, j, k, 1, ipos) += dt_reconstruction * m_gravity(i, j, k, idim, m_grid) * rhou_old[1][ipos][idim];
                 }
