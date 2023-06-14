@@ -32,6 +32,7 @@ with h5py.File(args.filename, 'r') as f :
     x = f['x'][()]
     t = f['current_time'][()]
     iter = f['iter'][()]
+    gamma = f['gamma'][()]
  
 L = np.max(x) - np.min(x)
 
@@ -43,32 +44,37 @@ xc = np.zeros(len(rho))
 for i in range(len(rho)):
     xc[i] = x[i] + dx[i] / 2
 
+e = P / rho / (gamma - 1)
+
 print("Final time =", t, "s")
 print("Iteration number =", iter)
 
 # ------------------------------------------
 
-plt.figure(figsize=(15,4))
+plt.figure(figsize=(14,9))
 plt.suptitle(f'Shock wall 1d t = {t:1f} s')
-plt.subplot(131)
-plt.plot(xc, rho, 'x',label='Solver')
-plt.ylabel('Density'); plt.xlabel('Position')
+plt.subplot(221)
+plt.plot(xc, rho,label='Solver')
+plt.ylabel('Density ($kg.m^{-3}$)'); plt.xlabel('x')
+plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
 plt.legend()
-plt.subplot(132)
-plt.plot(xc, u, 'x', label='Solver')
-plt.ylabel('Velocity'); plt.xlabel('Position')
+plt.subplot(222)
+plt.plot(xc, u, label='Solver')
+plt.ylabel('Velocity ($m.s^{-1}$)'); plt.xlabel('x')
+plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
 plt.legend()
-plt.subplot(133)
-plt.plot(xc, P, 'x', label='Solver')
-plt.ylabel('Pressure'); plt.xlabel('Position')
+plt.subplot(223)
+plt.plot(xc, P, label='Solver')
+plt.ylabel('Pressure ($kg.m^{-1}.s^{-2}$)'); plt.xlabel('x')
+plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
 plt.legend()
-""" plt.subplot(224)
-plt.plot(xc, etot / 2, label='Solver')
-plt.ylabel('Energy'); plt.xlabel('Position')
-plt.xlim(0,1)
+plt.subplot(224)
+plt.plot(xc, e, label='Solver')
+plt.ylabel('Internal energy ($m^{2}.s^{-2}$)'); plt.xlabel('x')
+plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
-plt.legend() """
+plt.legend()
 plt.show()
