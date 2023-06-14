@@ -5,6 +5,11 @@
 
 #pragma once
 
+#include <array>
+#include <string>
+
+#include <inih/INIReader.hpp>
+
 namespace novapp
 {
 
