@@ -92,8 +92,6 @@ public:
         //------
 
         double L = 10;
-        double P0 = (2 * units::pi * (m_param_setup.rho0 + m_param_setup.rho1)
-                   * std::abs(g(2)) * L) * units::pressure;
         double gamma = 5. / 3;
         double hrms = 3E-4 * L;
         double H = std::sqrt((1. / 4) * (ak * ak + bk * bk + ck * ck + dk * dk)) / hrms;
@@ -107,6 +105,9 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
+            double P0 = (2 * units::pi * (m_param_setup.rho0 + m_param_setup.rho1)
+                   * std::abs(g(2)) * L) * units::pressure;
+                   
             double x = x_d(i) * units::m;
             double y = y_d(j) * units::m;
             double z = z_d(k) * units::m;
