@@ -43,9 +43,21 @@ public:
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
+    double compute_evol_from_P(double const rho, double const P) const noexcept
+    {
+        return compute_evol_from_T(rho, compute_T_from_P(rho, P));
+    }
+
+    KOKKOS_FORCEINLINE_FUNCTION
     double compute_evol_from_T(double const rho, double const T) const noexcept
     {
         return rho * units::kb * T / (m_mmw * units::mh * m_gamma_m1);
+    }
+
+    KOKKOS_FORCEINLINE_FUNCTION
+    double compute_P_from_evol(double const rho, double const evol) const noexcept
+    {
+        return compute_P_from_T(rho, compute_T_from_evol(rho, evol));
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
