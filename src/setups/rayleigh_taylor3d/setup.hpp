@@ -151,15 +151,27 @@ public:
     }
 };
 
+class GridSetup : public IGridType
+{
+public:
+    GridSetup(
+        [[maybe_unused]] Param const& param)
+        : IGridType()
+    {
+        // regular grid
+    }
+};
+
 class BoundarySetup : public IBoundaryCondition
 {
 public:
     BoundarySetup(int idim, int iface,
-        [[maybe_unused]] thermodynamics::PerfectGas const& eos,
+        [[maybe_unused]] EOS const& eos,
         [[maybe_unused]] Grid const& grid,
         [[maybe_unused]] ParamSetup const& param_setup)
         : IBoundaryCondition(idim, iface)
     {
+        // no new boundary
     }
 };
 
