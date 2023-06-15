@@ -69,10 +69,8 @@ EulerFlux compute_flux(
         EOS const& eos) noexcept
 {
     EulerFlux flux;
-    double const T = eos.compute_T_from_P(prim.rho, prim.P);
     double const volumic_total_energy
-            = compute_ek(prim)
-              + eos.compute_evol_from_T(prim.rho, T);
+            = compute_ek(prim) + eos.compute_evol_from_P(prim.rho, prim.P);
     flux.rho = prim.rho * prim.u[locdim];
     for (int idim = 0; idim < ndim; ++idim)
     {
@@ -95,8 +93,7 @@ EulerFlux compute_flux(
 {
     EulerFlux flux;
     double const evol = cons.E - compute_ek(cons);
-    double const T = eos.compute_T_from_evol(cons.rho, evol);
-    double const P = eos.compute_P_from_T(cons.rho, T);
+    double const P = eos.compute_P_from_evol(cons.rho, evol);
     double const u = cons.rhou[locdim] / cons.rho;
     flux.rho = u * cons.rho;
     for (int idim = 0; idim < ndim; ++idim)
@@ -115,13 +112,12 @@ EulerPrim to_prim(
 {
     EulerPrim prim;
     double const evol = cons.E - compute_ek(cons);
-    double const T = eos.compute_T_from_evol(cons.rho, evol);
     prim.rho = cons.rho;
     for (int idim = 0; idim < ndim; ++idim)
     {
         prim.u[idim] = cons.rhou[idim] / cons.rho;
     }
-    prim.P = eos.compute_P_from_T(cons.rho, T);
+    prim.P = eos.compute_P_from_evol(cons.rho, evol);
     return prim;
 }
 
@@ -129,13 +125,12 @@ KOKKOS_INLINE_FUNCTION
 EulerCons to_cons(EulerPrim const& prim, EOS const& eos) noexcept
 {
     EulerCons cons;
-    double T = eos.compute_T_from_P(prim.rho, prim.P);
     cons.rho = prim.rho;
     for (int idim = 0; idim < ndim; ++idim)
     {
         cons.rhou[idim] = prim.rho * prim.u[idim];
     }
-    cons.E = eos.compute_evol_from_T(prim.rho, T) 
+    cons.E = eos.compute_evol_from_P(prim.rho, prim.P) 
                 + compute_ek(prim);
     return cons;
 }
