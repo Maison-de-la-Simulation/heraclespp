@@ -41,20 +41,9 @@ public :
     double gy;
     double gz;
     double gamma;
-    double T;
     double mu;
-    std::string radiative;
     std::string bc_choice;
     std::string bc_priority;
-    double rho0;
-    double rho1;
-    double u0;
-    double u1;
-    double P0;
-    double P1;
-    double E0;
-    double E1;
-    double A;
     int nfx;
 
     explicit Param(INIReader const& reader)
@@ -99,7 +88,6 @@ public :
         gz = reader.GetReal("Gravity", "gz", 0.0);
 
         gamma = reader.GetReal("Perfect Gas", "gamma", 5./3);
-        T = reader.GetReal("Perfect Gas", "temperature", 100.);
         mu = reader.GetReal("Perfect Gas", "mu", 1.);
 
         bc_choice = reader.Get("Boundary Condition", "BC", "");
