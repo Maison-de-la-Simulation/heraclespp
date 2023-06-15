@@ -182,13 +182,16 @@ public:
                 // Passive scalar
                 for (int ifx = 0; ifx < nfx; ++ifx)
                 {
-                    double flux_fx_L = fx_rec_old(i, j, k, 0, idim, ifx) * flux_minus_one.rho;
-                    double flux_fx_R = fx_rec_old(i, j, k, 1, idim, ifx) * flux_plus_one.rho;
+                    for (int ipos = 0; ipos < ndim; ++ipos)
+                    {
+                        double flux_fx_L = fx_rec_old(i, j, k, 0, idim, ifx) * flux_minus_one.rho;
+                        double flux_fx_R = fx_rec_old(i, j, k, 1, idim, ifx) * flux_plus_one.rho;
 
-                    fx_rec(i, j, k, 0, idim, ifx) += dtodv * (flux_fx_L * m_grid.ds(i, j, k, idim) 
-                                                        - flux_fx_R * m_grid.ds(i_p, j_p, k_p, idim));
-                    fx_rec(i, j, k, 1, idim, ifx) += dtodv * (flux_fx_L * m_grid.ds(i, j, k, idim) 
-                                                        - flux_fx_R * m_grid.ds(i_p, j_p, k_p, idim));
+                        fx_rec(i, j, k, 0, ipos, ifx) += dtodv * (flux_fx_L * m_grid.ds(i, j, k, idim) 
+                                                            - flux_fx_R * m_grid.ds(i_p, j_p, k_p, idim));
+                        fx_rec(i, j, k, 1, ipos, ifx) += dtodv * (flux_fx_L * m_grid.ds(i, j, k, idim) 
+                                                            - flux_fx_R * m_grid.ds(i_p, j_p, k_p, idim));
+                    }
                 }
             }
         });
