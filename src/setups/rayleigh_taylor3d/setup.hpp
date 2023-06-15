@@ -4,16 +4,18 @@
 #include <random>
 
 #include <Kokkos_Core.hpp>
-#include <PerfectGas.hpp>
 
 #include <inih/INIReader.hpp>
 
 #include "ndim.hpp"
+#include "eos.hpp"
 #include "range.hpp"
-#include "Kokkos_shortcut.hpp"
+#include "eos.hpp"
+#include "kokkos_shortcut.hpp"
 #include "grid.hpp"
 #include "units.hpp"
 #include "initialization_interface.hpp"
+#include "nova_params.hpp"
 
 namespace novapp
 {
