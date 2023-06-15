@@ -14,9 +14,8 @@ filename = sys.argv[1]
 
 with h5py.File(str(filename), 'r') as f :
     print(f.keys())
-    fx = f['fx'][0, :, :, :]
-    fx2 = f['fx'][0,: , 0, :]
-    rho2 = f['rho'][: , 0, :]
+    fx = f['fx'][0, :, 0, :]
+    rho = f['rho'][: , 0, :]
     x = f['x'][()]
     y = f['y'][()]
     z = f['z'][()]
@@ -26,20 +25,23 @@ with h5py.File(str(filename), 'r') as f :
 print("Final time =", t, "s")
 print("Iteration number =", iter )
 
-print(rho2.shape)
+print(fx.shape)
+print(rho.shape)
+
+print(fx)
 # ------------------------------------------
 
 plt.figure(figsize=(10,8))
 plt.suptitle('Rayleigh Taylor instability')
 plt.title(f'Density t = {t:1f} s')
-plt.imshow(rho2, cmap='seismic', origin='lower', extent=[np.min(x), np.max(x), np.min(z), np.max(z)])
+plt.imshow(rho, cmap='seismic', origin='lower', extent=[np.min(x), np.max(x), np.min(z), np.max(z)])
 plt.colorbar()
 plt.xlabel('x'); plt.ylabel('y')
 
 plt.figure(figsize=(10,8))
 plt.suptitle('Rayleigh Taylor instability')
 plt.title(f'Passive scalar t = {t:1f} s')
-plt.imshow(fx2, cmap='seismic', origin='lower', extent=[np.min(x), np.max(x), np.min(z), np.max(z)])
+plt.imshow(fx, cmap='seismic', origin='lower', extent=[np.min(x), np.max(x), np.min(z), np.max(z)])
 plt.colorbar()
 plt.xlabel('x'); plt.ylabel('z')
 
