@@ -97,6 +97,17 @@ public:
     }
 };
 
+class GridSetup : public IGridType
+{
+public:
+    GridSetup(
+        [[maybe_unused]] Param const& param)
+        : IGridType()
+    {
+        // regular grid
+    }
+};
+
 class BoundarySetup : public IBoundaryCondition
 {
 public:
