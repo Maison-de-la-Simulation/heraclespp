@@ -82,8 +82,8 @@ public:
         std::cout << "ck: " << ck << std::endl;
         std::cout << "dk: " << dk << std::endl; */
 
-        std::array<int, 5> kx;
-        std::array<int, 5> ky;
+        Kokkos::Array<int, 5> kx;
+        Kokkos::Array<int, 5> ky;
         for (int i = 0; i < kx.size(); ++i)
         {
             kx[i] = i;
