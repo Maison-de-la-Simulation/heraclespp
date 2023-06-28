@@ -240,7 +240,7 @@ namespace novapp
         std::string const& gravity,
         EOS const& eos, 
         Grid const& grid,
-        KV_double_1d& g)
+        KV_double_1d const& g)
     {
         if (riemann_solver == "HLL" && gravity == "Uniform")
         {

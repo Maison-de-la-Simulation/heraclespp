@@ -68,13 +68,13 @@ int main(int argc, char** argv)
 
     EOS const eos(param.gamma, param.mu);
 
-    KV_double_1d g_array("g_array", 3);
-    Kokkos::parallel_for(1, KOKKOS_LAMBDA([[maybe_unused]] int i)
-    {
-        g_array(0) = param.gx;
-        g_array(1) = param.gy;
-        g_array(2) = param.gz;
-    });
+    KDV_double_1d g_array_dv("g_array", 3);
+    g_array_dv.h_view(0) = param.gx;
+    g_array_dv.h_view(1) = param.gx;
+    g_array_dv.h_view(2) = param.gx;
+    g_array_dv.modify_host();
+    g_array_dv.sync_device();
+    KV_double_1d g_array = g_array_dv.d_view;
 
     write_pdi_init(param.max_iter, param.output_frequency, grid, param);
 
