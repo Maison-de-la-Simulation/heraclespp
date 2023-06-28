@@ -2,17 +2,18 @@
 #pragma once
 
 #include <Kokkos_Core.hpp>
-#include <PerfectGas.hpp>
 
 #include <inih/INIReader.hpp>
 
-#include "euler_equations.hpp"
 #include "ndim.hpp"
+#include "eos.hpp"
 #include "range.hpp"
-#include "Kokkos_shortcut.hpp"
+#include "eos.hpp"
+#include "kokkos_shortcut.hpp"
 #include "grid.hpp"
 #include "units.hpp"
 #include "initialization_interface.hpp"
+#include "nova_params.hpp"
 
 namespace novapp
 {
@@ -90,6 +91,17 @@ public:
         
             P(i, j, k) = m_param_setup.P0 * units::pressure ;
         });
+    }
+};
+
+class GridSetup : public IGridType
+{
+public:
+    GridSetup(
+        [[maybe_unused]] Param const& param)
+        : IGridType()
+    {
+        // regular grid
     }
 };
 
