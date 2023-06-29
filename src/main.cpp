@@ -72,8 +72,8 @@ int main(int argc, char** argv)
 
     KDV_double_1d g_array_dv("g_array", 3);
     g_array_dv.h_view(0) = param.gx;
-    g_array_dv.h_view(1) = param.gx;
-    g_array_dv.h_view(2) = param.gx;
+    g_array_dv.h_view(1) = param.gy;
+    g_array_dv.h_view(2) = param.gz;
     g_array_dv.modify_host();
     g_array_dv.sync_device();
     KV_double_1d g_array = g_array_dv.d_view;

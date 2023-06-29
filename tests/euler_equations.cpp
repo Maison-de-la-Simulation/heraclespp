@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <euler_equations.hpp>
-#include <eos.hpp>
 
 TEST(EulerEquations, KineticEnergyFromPrim)
 {
@@ -23,7 +22,7 @@ TEST(EulerEquations, KineticEnergyFromCons)
 
 TEST(EulerEquations, PrimToConsToPrim)
 {
-    novapp::EOS eos(1.4, 1.);
+    novapp::thermodynamics::PerfectGas eos(1.4, 1.);
     novapp::EulerPrim prim;
     prim.rho = 2.;
     prim.u = {10.};
