@@ -3,9 +3,33 @@
 #include <gtest/gtest.h>
 
 #include <PerfectGas.hpp>
+#include <RadGas.hpp>
 
-TEST(Thermodynamics, GammaValidityRange)
+template <class EoS>
+class EquationOfStateFixture : public ::testing::Test
 {
+public:
+    using eos_type = EoS;
+
+    EquationOfStateFixture() = default;
+
+    EquationOfStateFixture(EquationOfStateFixture const& rhs) = default;
+
+    EquationOfStateFixture(EquationOfStateFixture&& rhs) noexcept = default;
+
+    ~EquationOfStateFixture() override = default;
+
+    EquationOfStateFixture& operator=(EquationOfStateFixture const& rhs) = default;
+
+    EquationOfStateFixture& operator=(EquationOfStateFixture&& rhs) noexcept = default;
+};
+
+using EquationOfStates = ::testing::Types<novapp::thermodynamics::PerfectGas, novapp::thermodynamics::RadGas>;
+TYPED_TEST_SUITE(EquationOfStateFixture, EquationOfStates);
+
+TYPED_TEST(EquationOfStateFixture, GammaValidityRange)
+{
+    using eos_t = typename TestFixture::eos_type;
     std::vector<double> const valid_values {
             std::nextafter(1., std::numeric_limits<double>::infinity()),
             std::numeric_limits<double>::max()};
@@ -29,16 +53,17 @@ TEST(Thermodynamics, GammaValidityRange)
     double const valid_mmw = 1;
     for (double const invalid_gamma : invalid_values)
     {
-        EXPECT_THROW(novapp::thermodynamics::PerfectGas(invalid_gamma, valid_mmw), std::domain_error);
+        EXPECT_THROW(eos_t(invalid_gamma, valid_mmw), std::domain_error);
     }
     for (double const valid_gamma : valid_values)
     {
-        EXPECT_NO_THROW(novapp::thermodynamics::PerfectGas(valid_gamma, valid_mmw));
+        EXPECT_NO_THROW(eos_t(valid_gamma, valid_mmw));
     }
 }
 
-TEST(Thermodynamics, MmwValidityRange)
+TYPED_TEST(EquationOfStateFixture, MmwValidityRange)
 {
+    using eos_t = typename TestFixture::eos_type;
     std::vector<double> const valid_values {
             std::numeric_limits<double>::denorm_min(),
             +1.,
@@ -63,28 +88,30 @@ TEST(Thermodynamics, MmwValidityRange)
     double const valid_gamma = 1.4;
     for (double const invalid_mmw : invalid_values)
     {
-        EXPECT_THROW(novapp::thermodynamics::PerfectGas(valid_gamma, invalid_mmw), std::domain_error);
+        EXPECT_THROW(eos_t(valid_gamma, invalid_mmw), std::domain_error);
     }
     for (double const valid_mmw : valid_values)
     {
-        EXPECT_NO_THROW(novapp::thermodynamics::PerfectGas(valid_gamma, valid_mmw));
+        EXPECT_NO_THROW(eos_t(valid_gamma, valid_mmw));
     }
 }
 
-TEST(Thermodynamics, Accessors)
+TYPED_TEST(EquationOfStateFixture, Accessors)
 {
+    using eos_t = typename TestFixture::eos_type;
     double const gamma = 1.4;
     double const mmw = 1;
-    novapp::thermodynamics::PerfectGas const eos(gamma, mmw);
+    eos_t const eos(gamma, mmw);
     EXPECT_DOUBLE_EQ(eos.adiabatic_index(), gamma);
     EXPECT_DOUBLE_EQ(eos.mean_molecular_weight(), mmw);
 }
 
-TEST(Thermodynamics, ValidState)
+TYPED_TEST(EquationOfStateFixture, ValidState)
 {
+    using eos_t = typename TestFixture::eos_type;
     double const gamma = 1.4;
     double const mmw = 1;
-    novapp::thermodynamics::PerfectGas const eos(gamma, mmw);
+    eos_t const eos(gamma, mmw);
 
     std::vector<double> const valid_values {
             std::numeric_limits<double>::denorm_min(),
