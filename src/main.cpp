@@ -48,6 +48,8 @@ int main(int argc, char** argv)
 
     Kokkos::ScopeGuard const guard;
 
+    Kokkos::print_configuration(std::cout);
+
     INIReader const reader(argv[1]);
 
     PC_tree_t conf;
