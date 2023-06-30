@@ -5,6 +5,7 @@
 #include <PerfectGas.hpp>
 #include <array_conversion.hpp>
 #include <euler_equations.hpp>
+#include <kokkos_shortcut.hpp>
 #include <range.hpp>
 
 TEST(Conversions, PrimToCons)
@@ -19,9 +20,9 @@ TEST(Conversions, PrimToCons)
         prim.u[idim] = -1;
     }
     prim.P = 10;
-    Kokkos::View<double***, Kokkos::LayoutLeft> rho_view("rho", n, n, n);
-    Kokkos::View<double****, Kokkos::LayoutLeft> u_view("u", n, n, n, novapp::ndim);
-    Kokkos::View<double***, Kokkos::LayoutLeft> P_view("P", n, n, n);
+    KV_double_3d rho_view("rho", n, n, n);
+    KV_double_4d u_view("u", n, n, n, novapp::ndim);
+    KV_double_3d P_view("P", n, n, n);
 
     Kokkos::deep_copy(rho_view, prim.rho);
     for (int idim = 0; idim < novapp::ndim; ++idim)
@@ -30,8 +31,8 @@ TEST(Conversions, PrimToCons)
     }
     Kokkos::deep_copy(P_view, prim.P);
 
-    Kokkos::DualView<double****, Kokkos::LayoutLeft> rhou_view("rhou", n, n, n, novapp::ndim);
-    Kokkos::DualView<double***, Kokkos::LayoutLeft> E_view("E", n, n, n);
+    KDV_double_4d rhou_view("rhou", n, n, n, novapp::ndim);
+    KDV_double_3d E_view("E", n, n, n);
     conv_prim_to_cons(
             range.all_ghosts(),
             rhou_view.view_device(),
@@ -45,8 +46,8 @@ TEST(Conversions, PrimToCons)
     rhou_view.sync_host();
     E_view.sync_host();
 
-    Kokkos::DualView<double****, Kokkos::LayoutLeft>::t_host rhou_host = rhou_view.view_host();
-    Kokkos::DualView<double***, Kokkos::LayoutLeft>::t_host E_host = E_view.view_host();
+    KDV_double_4d::t_host rhou_host = rhou_view.view_host();
+    KDV_double_3d::t_host E_host = E_view.view_host();
     novapp::EulerCons const cons = to_cons(prim, eos);
     for (int k = 0; k < n; ++k)
     {
@@ -76,9 +77,9 @@ TEST(Conversions, ConsToPrim)
         cons.rhou[idim] = -2;
     }
     cons.E = 10;
-    Kokkos::View<double***, Kokkos::LayoutLeft> rho_view("rho", n, n, n);
-    Kokkos::View<double****, Kokkos::LayoutLeft> rhou_view("rhou", n, n, n, novapp::ndim);
-    Kokkos::View<double***, Kokkos::LayoutLeft> E_view("E", n, n, n);
+    KV_double_3d rho_view("rho", n, n, n);
+    KV_double_4d rhou_view("rhou", n, n, n, novapp::ndim);
+    KV_double_3d E_view("E", n, n, n);
 
     Kokkos::deep_copy(rho_view, cons.rho);
     for (int idim = 0; idim < novapp::ndim; ++idim)
@@ -87,8 +88,8 @@ TEST(Conversions, ConsToPrim)
     }
     Kokkos::deep_copy(E_view, cons.E);
 
-    Kokkos::DualView<double****, Kokkos::LayoutLeft> u_view("u", n, n, n, novapp::ndim);
-    Kokkos::DualView<double***, Kokkos::LayoutLeft> P_view("P", n, n, n);
+    KDV_double_4d u_view("u", n, n, n, novapp::ndim);
+    KDV_double_3d P_view("P", n, n, n);
     conv_cons_to_prim(
             range.all_ghosts(),
             u_view.view_device(),
@@ -102,8 +103,8 @@ TEST(Conversions, ConsToPrim)
     u_view.sync_host();
     P_view.sync_host();
 
-    Kokkos::DualView<double****, Kokkos::LayoutLeft>::t_host u_host = u_view.view_host();
-    Kokkos::DualView<double***, Kokkos::LayoutLeft>::t_host P_host = P_view.view_host();
+    KDV_double_4d::t_host u_host = u_view.view_host();
+    KDV_double_3d::t_host P_host = P_view.view_host();
     novapp::EulerPrim const prim = to_prim(cons, eos);
     for (int k = 0; k < n; ++k)
     {
