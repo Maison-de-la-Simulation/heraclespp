@@ -20,6 +20,32 @@ TEST(EulerEquations, KineticEnergyFromCons)
     EXPECT_DOUBLE_EQ(compute_ek(cons), 100.);
 }
 
+TEST(EulerEquations, FluxFromPrim)
+{
+    novapp::thermodynamics::PerfectGas eos(1.4, 1.);
+    novapp::EulerPrim prim;
+    prim.rho = 2.;
+    prim.u = {10.};
+    prim.P = 0.;
+    novapp::EulerFlux const flux = novapp::compute_flux(prim, 0, eos);
+    EXPECT_DOUBLE_EQ(flux.rho, 20.);
+    EXPECT_DOUBLE_EQ(flux.E, 1000.);
+    EXPECT_DOUBLE_EQ(flux.rhou[0], 200.);
+}
+
+TEST(EulerEquations, FluxFromCons)
+{
+    novapp::thermodynamics::PerfectGas eos(1.4, 1.);
+    novapp::EulerCons cons;
+    cons.rho = 2.;
+    cons.rhou = {20.};
+    cons.E = 100.;
+    novapp::EulerFlux const flux = novapp::compute_flux(cons, 0, eos);
+    EXPECT_DOUBLE_EQ(flux.rho, 20.);
+    EXPECT_DOUBLE_EQ(flux.E, 1000.);
+    EXPECT_DOUBLE_EQ(flux.rhou[0], 200.);
+}
+
 TEST(EulerEquations, PrimToConsToPrim)
 {
     novapp::thermodynamics::PerfectGas eos(1.4, 1.);
