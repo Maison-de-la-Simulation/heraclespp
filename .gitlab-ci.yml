@@ -120,6 +120,5 @@ lint-test-job:
   stage: test
   needs: []
   script:
-    - echo "Linting code... This will take about 10 seconds."
-    - sleep 10
-    - echo "No lint issues found."
+    - cmake -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBUILD_TESTING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_gaussian -DNovapp_EOS=PERFECT -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_DEPRECATED_CODE_3=OFF -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -S . -B build
+    - find src tests -path src/deprecated -prune -o -name '*.cpp' -exec clang-tidy -p build -header-filter=$PWD/src/.* --checks="-*,hicpp-avoid-c-arrays" --warnings-as-errors="hicpp-avoid-c-arrays" '{}' '+'

@@ -107,7 +107,7 @@ void Grid::MPI_Decomp()
 
     range = Range(cmin, cmax, Ng);
     
-    int tmp_coord[3];
+    std::array<int, 3> tmp_coord;
     for(int i=-1; i<2; i++)
     {
         for(int j=-1; j<2; j++)
@@ -117,7 +117,7 @@ void Grid::MPI_Decomp()
                 tmp_coord[0] = mpi_rank_cart[0]+i;
                 tmp_coord[1] = mpi_rank_cart[1]+j;
                 tmp_coord[2] = mpi_rank_cart[2]+k;
-                MPI_Cart_rank(comm_cart, tmp_coord, &(NeighborRank[i+1][j+1][k+1]));
+                MPI_Cart_rank(comm_cart, tmp_coord.data(), &(NeighborRank[i+1][j+1][k+1]));
             } 
         }
     }  
