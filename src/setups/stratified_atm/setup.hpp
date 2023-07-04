@@ -68,7 +68,7 @@ public:
 
         auto const xc = m_grid.x_center;
         double mu = m_eos.mean_molecular_weight();
-        //std::cout <<"Scale = " << units::kb * m_param_setup.T / (mu * units::mh * std::abs(g(0))) << std::endl;
+        //std::cout <<"Scale = " << units::kb * m_param_setup.T / (mu * units::mh * Kokkos::fabs(g(0))) << std::endl;
         
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
@@ -76,7 +76,7 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            double x0 = units::kb * m_param_setup.T * units::Kelvin / (mu * units::mh * std::abs(g(0)) * units::acc);
+            double x0 = units::kb * m_param_setup.T * units::Kelvin / (mu * units::mh * Kokkos::fabs(g(0)) * units::acc);
             rho(i, j, k) = m_param_setup.rho0 * units::density * Kokkos::exp(- xc / x0);
             for (int idim = 0; idim < ndim; ++idim)
             {
@@ -152,7 +152,7 @@ public:
         KOKKOS_CLASS_LAMBDA(int i, int j, int k) 
         {
             double gravity = g(0) * units::acc;
-            double x0 = units::kb * m_param_setup.T * units::Kelvin / (mu * units::mh * std::abs(gravity));
+            double x0 = units::kb * m_param_setup.T * units::Kelvin / (mu * units::mh * Kokkos::fabs(gravity));
             rho(i, j, k) = m_param_setup.rho0 * units::density * Kokkos::exp(- xc / x0);
             for (int n = 0; n < rhou.extent_int(3); n++)
             {
