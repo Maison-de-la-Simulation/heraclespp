@@ -94,7 +94,7 @@ public:
         double L = 10;
         double gamma = 5. / 3;
         double hrms = 3E-4 * L;
-        double H = std::sqrt((1. / 4) * (ak * ak + bk * bk + ck * ck + dk * dk)) / hrms;
+        double H = Kokkos::sqrt((1. / 4) * (ak * ak + bk * bk + ck * ck + dk * dk)) / hrms;
 
         auto const x_d = m_grid.x.d_view;
         auto const y_d = m_grid.y.d_view;
@@ -106,7 +106,7 @@ public:
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
             double P0 = (2 * units::pi * (m_param_setup.rho0 + m_param_setup.rho1)
-                   * std::abs(g(2)) * L) * units::pressure;
+                   * Kokkos::fabs(g(2)) * L) * units::pressure;
                    
             double x = x_d(i) * units::m;
             double y = y_d(j) * units::m;
@@ -132,16 +132,16 @@ public:
 
             if(z >= h)
             {
-                rho(i, j, k) = m_param_setup.rho0 * std::pow(1 - (gamma - 1) / gamma 
-                              * (m_param_setup.rho0 * std::abs(g(2)) * z) / P0, 1. / (gamma - 1)) * units::density;
-                P(i, j, k) = P0 * std::pow(rho(i, j, k) / m_param_setup.rho0, gamma) * units::pressure;
+                rho(i, j, k) = m_param_setup.rho0 * Kokkos::pow(1 - (gamma - 1) / gamma 
+                              * (m_param_setup.rho0 * Kokkos::fabs(g(2)) * z) / P0, 1. / (gamma - 1)) * units::density;
+                P(i, j, k) = P0 * Kokkos::pow(rho(i, j, k) / m_param_setup.rho0, gamma) * units::pressure;
                 fx(i, j, k, 0) = 1;
             }
             if(z < h)
             {
-                rho(i, j, k) = m_param_setup.rho1 * std::pow(1 - (gamma - 1) / gamma 
-                              * (m_param_setup.rho1 * std::abs(g(2)) * z) / P0, 1. / (gamma - 1)) * units::density;
-                P(i, j, k) = P0 * std::pow(rho(i, j, k) / m_param_setup.rho1, gamma) * units::pressure;
+                rho(i, j, k) = m_param_setup.rho1 * Kokkos::pow(1 - (gamma - 1) / gamma 
+                              * (m_param_setup.rho1 * Kokkos::fabs(g(2)) * z) / P0, 1. / (gamma - 1)) * units::density;
+                P(i, j, k) = P0 * Kokkos::pow(rho(i, j, k) / m_param_setup.rho1, gamma) * units::pressure;
                 fx(i, j, k, 0) = 0;
             }
             for (int idim = 0; idim < ndim; ++idim)
