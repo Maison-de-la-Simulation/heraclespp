@@ -50,6 +50,12 @@ print("Final time =", t, "s")
 print("Iteration number =", iter)
 
 # ------------------------------------------
+plt.figure(figsize=(14,9))
+plt.suptitle(f'Shock wall 1d t = {t:1f} s')
+plt.plot(xc, rho, 'x', label='Solver')
+plt.ylabel('Density ($kg.m^{-3}$)'); plt.xlabel('x')
+plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
+plt.grid()
 
 plt.figure(figsize=(14,9))
 plt.suptitle(f'Shock wall 1d t = {t:1f} s')
