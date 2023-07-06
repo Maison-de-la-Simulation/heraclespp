@@ -42,7 +42,7 @@ private :
     Param m_param;
 
 public:
-    Regular(
+    explicit Regular(
         Param const& param)
         : IGridType()
         , m_param(param)
