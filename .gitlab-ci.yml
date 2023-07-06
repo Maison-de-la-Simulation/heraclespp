@@ -107,7 +107,7 @@ convergence-advection-sinusoide-test-job:serial:1:
   script:
     - ./test/run_convergence_advection_gaussian.sh
 
-format-job:
+clang-format-job:
   only: [ main, merge_requests ]
   stage: test
   needs: []
@@ -115,7 +115,7 @@ format-job:
     - find src tests -name '*.[h|c]pp' -exec clang-format --dry-run --ferror-limit=10 --Werror '{}' '+'
   allow_failure: true
 
-lint-test-job:
+clang-tidy-job:
   only: [ main, merge_requests ]
   stage: test
   needs: []
