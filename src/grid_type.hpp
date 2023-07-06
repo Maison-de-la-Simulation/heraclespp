@@ -5,6 +5,8 @@
 #pragma once
 
 #include "grid.hpp"
+#include "kokkos_shortcut.hpp"
+#include "nova_params.hpp"
 
 namespace novapp
 {
