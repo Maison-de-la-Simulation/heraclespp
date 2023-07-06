@@ -121,4 +121,4 @@ lint-test-job:
   needs: []
   script:
     - cmake -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBUILD_TESTING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_gaussian -DNovapp_EOS=PERFECT -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_DEPRECATED_CODE_3=OFF -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -S . -B build
-    - find src tests -path src/deprecated -prune -o -name '*.cpp' -exec clang-tidy -p build -header-filter=$PWD/src/.* --checks="-*,bugprone-reserved-identifier,hicpp-avoid-c-arrays" --warnings-as-errors="bugprone-reserved-identifier,hicpp-avoid-c-arrays" '{}' '+'
+    - find src tests -path src/deprecated -prune -o -name '*.cpp' -exec clang-tidy -p build -header-filter=$PWD/src/.* --checks="-*,bugprone-*,-bugprone-easily-swappable-parameters,-bugprone-exception-escape,-bugprone-implicit-widening-of-multiplication-result,-bugprone-narrowing-conversions,hicpp-*,-hicpp-member-init,-hicpp-vararg" --warnings-as-errors="*" '{}' '+'

@@ -260,7 +260,7 @@ void writeXML(
     // finalize Xdmf wrapper file
     xdmfFile << std::string(4, ' ') << "</Grid>\n";
     xdmfFile << std::string(2, ' ') << "</Domain>\n";
-    xdmfFile << std::string(0, ' ') << "</Xdmf>\n";
+    xdmfFile << "</Xdmf>\n";
 }
 
 } // namespace novapp

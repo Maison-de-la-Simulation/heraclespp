@@ -92,7 +92,10 @@ public:
             double delta_T = -f / df;
             T += delta_T;
             // itr = i;
-            if (Kokkos::abs(delta_T) < 1E-6) break;
+            if (Kokkos::abs(delta_T) < 1E-6)
+            {
+                break;
+            }
         }
         //std::cout<<"T_from_P = "<<T<<" itr = "<<itr<<std::endl;
         return T;
@@ -121,7 +124,10 @@ public:
             double delta_T = -f / df;
             T += delta_T;
             // itr = i;
-            if (Kokkos::abs(delta_T) < 1E-6) break;
+            if (Kokkos::abs(delta_T) < 1E-6)
+            {
+                break;
+            }
         }
         //std::cout<<"T_from_evol = "<<T<<" itr = "<<itr<<std::endl;
         return T;

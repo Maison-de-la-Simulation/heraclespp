@@ -141,8 +141,14 @@ void Grid::MPI_Decomp()
         is_border[i][0] = false;
         is_border[i][1] = false;
     
-        if(mpi_rank_cart[i] == 0)           is_border[i][0] = true;
-        if(mpi_rank_cart[i] == Ncpu_x[i]-1) is_border[i][1] = true;
+        if(mpi_rank_cart[i] == 0)
+        {
+            is_border[i][0] = true;
+        }
+        if(mpi_rank_cart[i] == Ncpu_x[i]-1)
+        {
+            is_border[i][1] = true;
+        }
     }
 }
 

@@ -211,7 +211,7 @@ int main(int argc, char** argv)
         float const duration = std::chrono::duration<float>(end - start).count();
         float const perf = nb_cells_updated / duration;
         std::printf("Final time = %f and number of iterations = %d  \n", t, iter);
-        std::printf("Mean performance: %f Mcell-updates/s\n", perf * 1e-6f);
+        std::printf("Mean performance: %f Mcell-updates/s\n", perf * 1e-6F);
         std::printf("--- End ---\n");
     }
     MPI_Comm_free(&(const_cast<Grid&>(grid).comm_cart));

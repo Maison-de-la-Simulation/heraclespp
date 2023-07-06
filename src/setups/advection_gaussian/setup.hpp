@@ -83,7 +83,7 @@ public:
 class GridSetup : public IGridType
 {
 public:
-    GridSetup(
+    explicit GridSetup(
         [[maybe_unused]] Param const& param)
         : IGridType()
     {
