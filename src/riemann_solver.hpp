@@ -34,39 +34,26 @@ public:
         double const wsL = Kokkos::fmin(primL.u[locdim] - cL, primR.u[locdim] - cR);
         double const wsR = Kokkos::fmax(primL.u[locdim] + cL, primR.u[locdim] + cR);
 
+        double const neg_wsL = Kokkos::fmin(wsL, 0.);
+        double const pos_wsR = Kokkos::fmax(wsR, 0.);
+
         EulerFlux const fluxL = compute_flux(primL, locdim, eos);
         EulerFlux const fluxR = compute_flux(primR, locdim, eos);
 
-        if (wsL >= 0)
+        EulerFlux flux;
+        flux.rho = FluxHLL(consL.rho, consR.rho, fluxL.rho, fluxR.rho, neg_wsL, pos_wsR);
+        for (int idim = 0; idim < ndim; ++idim)
         {
-            return fluxL;
+            flux.rhou[idim] = FluxHLL(
+                consL.rhou[idim],
+                consR.rhou[idim],
+                fluxL.rhou[idim],
+                fluxR.rhou[idim],
+                neg_wsL,
+                pos_wsR);
         }
-
-        if (wsL <= 0 && wsR >= 0)
-        {
-            EulerFlux flux;
-            flux.rho
-                    = FluxHLL(consL.rho, consR.rho, fluxL.rho, fluxR.rho, wsL, wsR);
-            for (int idim = 0; idim < ndim; ++idim)
-            {
-                flux.rhou[idim] = FluxHLL(
-                    consL.rhou[idim],
-                    consR.rhou[idim],
-                    fluxL.rhou[idim],
-                    fluxR.rhou[idim],
-                    wsL,
-                    wsR);
-            }
-            flux.E = FluxHLL(consL.E, consR.E, fluxL.E, fluxR.E, wsL, wsR);
-            return flux;
-        }
-
-        if (wsR <= 0)
-        {
-            return fluxR;
-        }
-
-        return EulerFlux {};
+        flux.E = FluxHLL(consL.E, consR.E, fluxL.E, fluxR.E, neg_wsL, pos_wsR);
+        return flux;
     }
 
     KOKKOS_INLINE_FUNCTION
