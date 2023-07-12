@@ -77,7 +77,7 @@ public:
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
             double x0 = units::kb * m_param_setup.T * units::Kelvin / (mu * units::mh * Kokkos::fabs(g(0)) * units::acc);
-            rho(i, j, k) = m_param_setup.rho0 * units::density * Kokkos::exp(- xc / x0);
+            rho(i, j, k) = m_param_setup.rho0 * units::density * Kokkos::exp(- xc(i) / x0);
             for (int idim = 0; idim < ndim; ++idim)
             {
                 u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
@@ -153,13 +153,12 @@ public:
         {
             double gravity = g(0) * units::acc;
             double x0 = units::kb * m_param_setup.T * units::Kelvin / (mu * units::mh * Kokkos::fabs(gravity));
-            rho(i, j, k) = m_param_setup.rho0 * units::density * Kokkos::exp(- xc / x0);
+            rho(i, j, k) = m_param_setup.rho0 * units::density * Kokkos::exp(- xc(i) / x0);
             for (int n = 0; n < rhou.extent_int(3); n++)
             {
                 rhou(i, j, k, n) = m_param_setup.rho0 * units::density * m_param_setup.u0 * units::velocity;
             }
-            E(i, j, k) = m_eos.compute_evol_from_T(rho(i, j, k) * units::density, param_setup.T * units::Kelvin)
-                        * m_grid.dv(i, j, k);
+            E(i, j, k) = m_eos.compute_evol_from_T(rho(i, j, k) * units::density, m_param_setup.T * units::Kelvin);
         });
     }
 };
