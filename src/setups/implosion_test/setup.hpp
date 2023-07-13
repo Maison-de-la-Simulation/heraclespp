@@ -8,7 +8,7 @@
 
 #include "ndim.hpp"
 #include "range.hpp"
-#include "Kokkos_shortcut.hpp"
+#include "kokkos_shortcut.hpp"
 #include "grid.hpp"
 #include "units.hpp"
 #include "initialization_interface.hpp"
