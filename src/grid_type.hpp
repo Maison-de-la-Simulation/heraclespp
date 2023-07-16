@@ -31,7 +31,6 @@ public:
         [[maybe_unused]] KVH_double_1d y_glob,
         [[maybe_unused]] KVH_double_1d z_glob,
         [[maybe_unused]] std::array<int, 3> Nghost,
-        [[maybe_unused]] std::array<int, 3> Nx_local_wg,
         [[maybe_unused]] std::array<int, 3> Nx_glob_ng) const 
         {
             throw std::runtime_error("Boundary not implemented");
@@ -55,9 +54,8 @@ public:
         KVH_double_1d x_glob,
         KVH_double_1d y_glob,
         KVH_double_1d z_glob,
-        [[maybe_unused]] std::array<int, 3> Nghost,
-        [[maybe_unused]] std::array<int, 3> Nx_local_wg,
-        [[maybe_unused]] std::array<int, 3> Nx_glob_ng) const final
+        std::array<int, 3> Nghost,
+        std::array<int, 3> Nx_glob_ng) const final
     {
         double Lx = m_param.xmax - m_param.xmin;
         double Ly = m_param.ymax - m_param.ymin;

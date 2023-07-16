@@ -125,7 +125,6 @@ public:
         [[maybe_unused]] KVH_double_1d y_glob,
         [[maybe_unused]] KVH_double_1d z_glob,
         std::array<int, 3> Nghost,
-        std::array<int, 3> Nx_local_wg,
         std::array<int, 3> Nx_glob_ng) const final
     {
         double Lx = m_param.xmax - m_param.xmin;

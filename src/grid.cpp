@@ -186,7 +186,7 @@ void Grid::Init_grid(Param const& param)
     Kokkos::deep_copy(Kokkos::subview(y_glob, Kokkos::pair<int, int>(start_cell_wg[1], start_cell_wg[1]+Nx_local_wg[1]+1)), y.h_view);
     Kokkos::deep_copy(Kokkos::subview(z_glob, Kokkos::pair<int, int>(start_cell_wg[2], start_cell_wg[2]+Nx_local_wg[2]+1)), z.h_view);
 
-    grid_type->execute(x_glob, y_glob, z_glob, Nghost, Nx_local_wg, Nx_glob_ng);
+    grid_type->execute(x_glob, y_glob, z_glob, Nghost, Nx_glob_ng);
 
     Kokkos::deep_copy(x.h_view, Kokkos::subview(x_glob, Kokkos::pair<int, int>(start_cell_wg[0], start_cell_wg[0]+Nx_local_wg[0]+1)));
     Kokkos::deep_copy(y.h_view, Kokkos::subview(y_glob, Kokkos::pair<int, int>(start_cell_wg[1], start_cell_wg[1]+Nx_local_wg[1]+1)));
