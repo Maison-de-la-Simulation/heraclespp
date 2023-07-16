@@ -19,14 +19,14 @@ void conv_prim_to_cons(
         EulerPrim var_prim;
         var_prim.rho = rho(i, j, k);
         var_prim.P = P(i, j, k);
-NOVA_FORCEUNROLL
+        NOVA_FORCEUNROLL
         for (int idim = 0; idim < ndim; ++idim)
         {
             var_prim.u[idim] = u(i, j, k, idim);
         }
         EulerCons cons = to_cons(var_prim, eos);
         E(i, j, k) = cons.E;
-NOVA_FORCEUNROLL
+        NOVA_FORCEUNROLL
         for (int idim = 0; idim < ndim; ++idim)
         {
             rhou(i, j, k, idim) = cons.rhou[idim];
@@ -49,14 +49,14 @@ void conv_cons_to_prim(
         EulerCons var_cons;
         var_cons.rho = rho(i, j, k);
         var_cons.E = E(i, j, k);
-NOVA_FORCEUNROLL
+        NOVA_FORCEUNROLL
         for (int idim = 0; idim < ndim; ++idim)
         {
             var_cons.rhou[idim] = rhou(i, j, k, idim);
         }
         EulerPrim prim = to_prim(var_cons, eos);
         P(i, j, k) = prim.P;
-NOVA_FORCEUNROLL
+        NOVA_FORCEUNROLL
         for (int idim = 0; idim < ndim; ++idim)
         {
             u(i, j, k, idim) = prim.u[idim];
