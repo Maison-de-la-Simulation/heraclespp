@@ -144,6 +144,13 @@ int main(int argc, char** argv)
     
     conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho.d_view, rhou.d_view, E.d_view, eos);
 
+    rho.modify_device();
+    u.modify_device();
+    P.modify_device();
+    fx.modify_device();
+    rhou.modify_device();
+    E.modify_device();
+
     std::unique_ptr<IHydroReconstruction> reconstruction 
         = std::make_unique<MUSCLHancockHydroReconstruction>(std::move(face_reconstruction), 
                                                             std::move(time_reconstruction), 
