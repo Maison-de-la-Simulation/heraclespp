@@ -18,7 +18,7 @@ public:
     //! HLL solver
     //! @param[in] 
     //! @return intercell EulerFlux
-    KOKKOS_INLINE_FUNCTION
+    KOKKOS_FORCEINLINE_FUNCTION
     EulerFlux operator()(
             EulerCons const& consL,
             EulerCons const& consR,
@@ -56,7 +56,7 @@ public:
         return flux;
     }
 
-    KOKKOS_INLINE_FUNCTION
+    KOKKOS_FORCEINLINE_FUNCTION
     static double FluxHLL(
             double const UL,
             double const UR,

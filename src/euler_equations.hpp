@@ -36,7 +36,7 @@ struct EulerPrim
     double P;
 };
 
-KOKKOS_INLINE_FUNCTION
+KOKKOS_FORCEINLINE_FUNCTION
 double compute_ek(EulerCons const& cons) noexcept
 {
     double norm_rhou = 0;
@@ -47,7 +47,7 @@ double compute_ek(EulerCons const& cons) noexcept
     return 0.5 * norm_rhou / cons.rho;
 }
 
-KOKKOS_INLINE_FUNCTION
+KOKKOS_FORCEINLINE_FUNCTION
 double compute_ek(EulerPrim const& prim) noexcept
 {
     double norm_u = 0;
@@ -62,7 +62,7 @@ double compute_ek(EulerPrim const& prim) noexcept
 //! @param[in] prim Primitive state
 //! @param[in] eos Equation of state
 //! @return flux
-KOKKOS_INLINE_FUNCTION
+KOKKOS_FORCEINLINE_FUNCTION
 EulerFlux compute_flux(
         EulerPrim const& prim,
         int locdim,
@@ -85,7 +85,7 @@ EulerFlux compute_flux(
 //! @param[in] cons Conservative state
 //! @param[in] eos Equation of state
 //! @return flux
-KOKKOS_INLINE_FUNCTION
+KOKKOS_FORCEINLINE_FUNCTION
 EulerFlux compute_flux(
         EulerCons const& cons,
         int locdim,
@@ -105,7 +105,7 @@ EulerFlux compute_flux(
     return flux;
 }
 
-KOKKOS_INLINE_FUNCTION
+KOKKOS_FORCEINLINE_FUNCTION
 EulerPrim to_prim(
         EulerCons const& cons, 
         EOS const& eos) noexcept
@@ -121,7 +121,7 @@ EulerPrim to_prim(
     return prim;
 }
 
-KOKKOS_INLINE_FUNCTION
+KOKKOS_FORCEINLINE_FUNCTION
 EulerCons to_cons(EulerPrim const& prim, EOS const& eos) noexcept
 {
     EulerCons cons;

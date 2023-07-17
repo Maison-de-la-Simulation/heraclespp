@@ -23,7 +23,7 @@ public :
     {
     }
 
-    KOKKOS_INLINE_FUNCTION
+    KOKKOS_FORCEINLINE_FUNCTION
     double operator()(
             [[maybe_unused]] int i,
             [[maybe_unused]] int j,
