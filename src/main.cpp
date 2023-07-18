@@ -68,6 +68,10 @@ int main(int argc, char** argv)
     Grid const grid(param);
     grid.print_grid();
 
+    print_info("EOS", eos_choice);
+    //print_info("GEOMETRIE", geom_choice);
+    print_info("PROBLEM", param.problem);
+
     EOS const eos(param.gamma, param.mu);
 
     KDV_double_1d g_array_dv("g_array", 3);

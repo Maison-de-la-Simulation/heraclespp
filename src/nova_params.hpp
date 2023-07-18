@@ -16,7 +16,7 @@ namespace novapp
 class Param
 {
 public :
-    std::string initialisation_problem;
+    std::string problem;
     bool restart;
     std::string restart_file;
     std::array<int, 3> Nx_glob_ng;
@@ -48,7 +48,7 @@ public :
 
     explicit Param(INIReader const& reader)
     {
-        initialisation_problem = reader.Get("Problem", "type", "ShockTube");
+        problem = reader.Get("Problem", "type", "ShockTube");
         restart = reader.GetBoolean("Problem", "restart", false);
         restart_file = reader.Get("Problem", "restart_file", "restart.h5");
 

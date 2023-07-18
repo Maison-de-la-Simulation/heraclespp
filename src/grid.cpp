@@ -7,20 +7,6 @@
 #include "kokkos_shortcut.hpp"
 #include "factories.hpp"
 
-namespace
-{
-
-template<class T>
-inline
-void print_info(std::string var_name, T var_value)
-{
-    using namespace std;
-    cout << left  << setw(40) << setfill('.') << var_name;
-    cout << right << setw(40) << setfill('.') << var_value << endl;
-}
-
-} // namespace
-
 namespace novapp
 {
 
