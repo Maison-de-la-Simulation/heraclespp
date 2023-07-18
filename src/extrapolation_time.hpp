@@ -94,31 +94,30 @@ public:
         assert(rho_rec.extent(4) == rhou_rec.extent(4));
         assert(rhou_rec.extent(4) == E_rec.extent(4));
 
-        int nfx = fx_rec.extent_int(5);
-
         KV_double_6d fx_rec_old("rho_rec_old", m_grid.Nx_local_wg[0], m_grid.Nx_local_wg[1], 
                                 m_grid.Nx_local_wg[2], 2, ndim, nfx);
         Kokkos::deep_copy(fx_rec_old, fx_rec);
 
         auto const [begin, end] = cell_range(range);
-        Kokkos::parallel_for(
-        "HancockExtrapolation",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
+        my_parallel_for(begin, end,
+        KOKKOS_CLASS_LAMBDA(int i, int j, int k) KOKKOS_IMPL_HOST_FORCEINLINE
         {
             Kokkos::Array<Kokkos::Array<double, ndim>, 2> rho_old; //rho_old[0/1][idim]
             Kokkos::Array<Kokkos::Array<Kokkos::Array<double, ndim>, ndim>, 2> rhou_old; //rhou_old[0/1][idim][idr]
 
+NOVA_FORCEUNROLL
             for (int idim = 0; idim < ndim; ++idim)
             {
                 rho_old[0][idim] = rho_rec(i, j, k, 0, idim);
                 rho_old[1][idim] = rho_rec(i, j, k, 1, idim);
+NOVA_FORCEUNROLL
                 for (int idr = 0; idr < ndim; ++idr)
                 {
                     rhou_old[0][idim][idr] = rhou_rec(i, j, k, 0, idim, idr);
                     rhou_old[1][idim][idr] = rhou_rec(i, j, k, 1, idim, idr);
                 }
 
+NOVA_FORCEUNROLL
                 for (int ifx = 0; ifx < nfx; ++ifx)
                 {
                     fx_rec(i, j, k, 0, idim, ifx) *= rho_rec(i, j, k, 0, idim);
@@ -126,6 +125,7 @@ public:
                 }
             }
 
+NOVA_FORCEUNROLL
             for (int idim = 0; idim < ndim; ++idim)
             {
                 auto const [i_p, j_p, k_p] = rindex(idim, i, j, k); // i + 1
@@ -141,6 +141,7 @@ public:
 
                 EulerPrim plus_one; // Right, back, top
                 plus_one.rho = rho_old[1][idim];
+NOVA_FORCEUNROLL
                 for (int idr = 0; idr < ndim; ++idr)
                 {
                     plus_one.u[idr] = loc_u_rec(i, j, k, 1, idim, idr);
@@ -150,12 +151,14 @@ public:
 
                 double const dtodv = dt_reconstruction / m_grid.dv(i, j, k);
 
+NOVA_FORCEUNROLL
                 for (int ipos = 0; ipos < ndim; ++ipos)
                 {
                     rho_rec(i, j, k, 0, ipos) += dtodv * (flux_minus_one.rho * m_grid.ds(i, j, k, idim) 
                                                  - flux_plus_one.rho * m_grid.ds(i_p, j_p, k_p, idim));
                     rho_rec(i, j, k, 1, ipos) += dtodv * (flux_minus_one.rho * m_grid.ds(i, j, k, idim) 
                                                  - flux_plus_one.rho * m_grid.ds(i_p, j_p, k_p, idim));
+NOVA_FORCEUNROLL
                     for (int idr = 0; idr < ndim; ++idr)
                     {
                         rhou_rec(i, j, k, 0, ipos, idr) += dtodv * (flux_minus_one.rhou[idr] * m_grid.ds(i, j, k, idim) 
@@ -170,6 +173,7 @@ public:
                 }
                 
                 // Gravity
+NOVA_FORCEUNROLL
                 for (int ipos = 0; ipos < ndim; ++ipos)
                 {
                     rhou_rec(i, j, k, 0, ipos, idim) += dt_reconstruction * m_gravity(i, j, k, idim, m_grid) * rho_old[0][ipos];
@@ -180,8 +184,10 @@ public:
                 }
 
                 // Passive scalar
+NOVA_FORCEUNROLL
                 for (int ifx = 0; ifx < nfx; ++ifx)
                 {
+NOVA_FORCEUNROLL
                     for (int ipos = 0; ipos < ndim; ++ipos)
                     {
                         double flux_fx_L = fx_rec_old(i, j, k, 0, idim, ifx) * flux_minus_one.rho;
@@ -196,13 +202,13 @@ public:
             }
         });
 
-        Kokkos::parallel_for(
-        "PassiveScalarExtrapolation",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
+        my_parallel_for(begin, end,
+        KOKKOS_CLASS_LAMBDA(int i, int j, int k) KOKKOS_IMPL_HOST_FORCEINLINE
         {
+NOVA_FORCEUNROLL
             for (int idim = 0; idim < ndim; ++idim)
             {
+NOVA_FORCEUNROLL
                 for (int ifx = 0; ifx < nfx; ++ifx)
                 {
                     fx_rec(i, j, k, 0, idim, ifx) /= rho_rec(i, j, k, 0, idim);

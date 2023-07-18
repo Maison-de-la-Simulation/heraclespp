@@ -40,6 +40,7 @@ KOKKOS_FORCEINLINE_FUNCTION
 double compute_ek(EulerCons const& cons) noexcept
 {
     double norm_rhou = 0;
+NOVA_FORCEUNROLL
     for (int idim = 0; idim < ndim; ++idim)
     {
         norm_rhou += cons.rhou[idim] * cons.rhou[idim];
@@ -51,6 +52,7 @@ KOKKOS_FORCEINLINE_FUNCTION
 double compute_ek(EulerPrim const& prim) noexcept
 {
     double norm_u = 0;
+NOVA_FORCEUNROLL
     for (int idim = 0; idim < ndim; ++idim)
     {
         norm_u += prim.u[idim] * prim.u[idim];
@@ -72,6 +74,7 @@ EulerFlux compute_flux(
     double const volumic_total_energy
             = compute_ek(prim) + eos.compute_evol_from_P(prim.rho, prim.P);
     flux.rho = prim.rho * prim.u[locdim];
+NOVA_FORCEUNROLL
     for (int idim = 0; idim < ndim; ++idim)
     {
         flux.rhou[idim] = prim.rho * prim.u[locdim] * prim.u[idim];
@@ -96,6 +99,7 @@ EulerFlux compute_flux(
     double const P = eos.compute_P_from_evol(cons.rho, evol);
     double const u = cons.rhou[locdim] / cons.rho;
     flux.rho = u * cons.rho;
+NOVA_FORCEUNROLL
     for (int idim = 0; idim < ndim; ++idim)
     {
         flux.rhou[idim] = cons.rhou[locdim] * cons.rhou[idim] / cons.rho;
@@ -113,6 +117,7 @@ EulerPrim to_prim(
     EulerPrim prim;
     double const evol = cons.E - compute_ek(cons);
     prim.rho = cons.rho;
+NOVA_FORCEUNROLL
     for (int idim = 0; idim < ndim; ++idim)
     {
         prim.u[idim] = cons.rhou[idim] / cons.rho;
@@ -126,6 +131,7 @@ EulerCons to_cons(EulerPrim const& prim, EOS const& eos) noexcept
 {
     EulerCons cons;
     cons.rho = prim.rho;
+NOVA_FORCEUNROLL
     for (int idim = 0; idim < ndim; ++idim)
     {
         cons.rhou[idim] = prim.rho * prim.u[idim];

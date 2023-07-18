@@ -103,27 +103,26 @@ namespace novapp
             KV_double_3d const E_new,
             KV_double_4d const fx_new) const final
         {
-            int nfx = fx.extent_int(3);
-
             auto const [begin, end] = cell_range(range);
-            Kokkos::parallel_for(
-            "RiemannBasedGodunovScheme",
-            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-            KOKKOS_CLASS_LAMBDA(int i, int j, int k) 
+            my_parallel_for(begin, end,
+            KOKKOS_CLASS_LAMBDA(int i, int j, int k) KOKKOS_IMPL_HOST_FORCEINLINE
             {
                 rho_new(i, j, k) = rho(i, j, k);
                 E_new(i, j, k) = E(i, j, k);
 
+NOVA_FORCEUNROLL
                 for (int idim = 0; idim < ndim; ++idim)
                 {
                     rhou_new(i, j, k, idim) = rhou(i, j, k, idim);
                 }
 
+NOVA_FORCEUNROLL
                 for (int ifx = 0; ifx < nfx; ++ifx)
                 {
                     fx_new(i, j, k, ifx) = fx(i, j, k, ifx) * rho(i, j,k);
                 }
 
+NOVA_FORCEUNROLL
                 for (int idim = 0; idim < ndim; ++idim)
                 {
                     auto const [i_m, j_m, k_m] = lindex(idim, i, j, k); // i - 1
@@ -131,6 +130,7 @@ namespace novapp
 
                     EulerCons minus_oneR; // Right, back, top (i,j,k) - 1
                     minus_oneR.rho = rho_rec(i_m, j_m, k_m, 1, idim);
+NOVA_FORCEUNROLL
                     for (int idr = 0; idr < ndim; ++idr)
                     {
                         minus_oneR.rhou[idr] = rhou_rec(i_m, j_m, k_m, 1, idim, idr);
@@ -138,6 +138,7 @@ namespace novapp
                     minus_oneR.E = E_rec(i_m, j_m, k_m, 1, idim);
                     EulerCons var_L; // Left, front, down (i,j,k)
                     var_L.rho = rho_rec(i, j, k, 0, idim);
+NOVA_FORCEUNROLL
                     for (int idr = 0; idr < ndim; ++idr)
                     {
                         var_L.rhou[idr] = rhou_rec(i, j, k, 0, idim, idr);
@@ -147,6 +148,7 @@ namespace novapp
 
                     EulerCons var_R; // Right, back, top (i,j,k)
                     var_R.rho = rho_rec(i, j, k, 1, idim);
+NOVA_FORCEUNROLL
                     for (int idr = 0; idr < ndim; ++idr)
                     {
                         var_R.rhou[idr] = rhou_rec(i, j, k, 1, idim, idr);
@@ -154,6 +156,7 @@ namespace novapp
                     var_R.E = E_rec(i, j, k, 1, idim);
                     EulerCons plus_oneL; // Left, front, down (i,j,k) + 1
                     plus_oneL.rho = rho_rec(i_p, j_p, k_p, 0, idim);
+NOVA_FORCEUNROLL
                     for (int idr = 0; idr < ndim; ++idr)
                     {
                         plus_oneL.rhou[idr] = rhou_rec(i_p, j_p, k_p, 0, idim, idr);
@@ -165,6 +168,7 @@ namespace novapp
 
                     rho_new(i, j, k) += dtodv * (FluxL.rho * m_grid.ds(i, j, k, idim) 
                                         - FluxR.rho * m_grid.ds(i_p, j_p, k_p, idim));
+NOVA_FORCEUNROLL
                     for (int idr = 0; idr < ndim; ++idr)
                     {
                         rhou_new(i, j, k, idr) += dtodv * (FluxL.rhou[idr] * m_grid.ds(i, j, k, idim) 
@@ -178,6 +182,7 @@ namespace novapp
                     E_new(i, j, k) += dt * m_gravity(i, j, k, idim, m_grid) * rhou(i, j, k, idim);
 
                     // Passive scalar
+NOVA_FORCEUNROLL
                     for (int ifx = 0; ifx < nfx; ++ifx)
                     {
                         int iL_uw = i_m; // upwind
@@ -213,11 +218,10 @@ namespace novapp
                 }
             });
 
-            Kokkos::parallel_for(
-            "PassiveScalarGodunov",
-            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
+            my_parallel_for(begin, end,
+            KOKKOS_CLASS_LAMBDA(int i, int j, int k) KOKKOS_IMPL_HOST_FORCEINLINE
             {
+NOVA_FORCEUNROLL
                 for (int ifx = 0; ifx < nfx; ++ifx)
                 {
                     fx_new(i, j, k, ifx) /= rho_new(i, j, k);

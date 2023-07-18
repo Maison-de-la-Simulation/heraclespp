@@ -78,11 +78,10 @@ public:
         assert(var.extent(2) == var_rec.extent(2));
 
         auto const [begin, end] = cell_range(range);
-        Kokkos::parallel_for(
-        "LimitedLinearFaceReconstruction",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-        KOKKOS_CLASS_LAMBDA(int i, int j, int k) 
+        my_parallel_for(begin, end,
+        KOKKOS_CLASS_LAMBDA(int i, int j, int k) KOKKOS_IMPL_HOST_FORCEINLINE
         {
+NOVA_FORCEUNROLL
             for (int idim = 0; idim < ndim; ++idim)
             {
                 auto const [i_m, j_m, k_m] = lindex(idim, i, j, k); // i - 1

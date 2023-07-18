@@ -42,6 +42,7 @@ public:
 
         EulerFlux flux;
         flux.rho = FluxHLL(consL.rho, consR.rho, fluxL.rho, fluxR.rho, neg_wsL, pos_wsR);
+NOVA_FORCEUNROLL
         for (int idim = 0; idim < ndim; ++idim)
         {
             flux.rhou[idim] = FluxHLL(
