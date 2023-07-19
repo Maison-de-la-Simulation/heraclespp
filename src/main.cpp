@@ -84,7 +84,34 @@ int main(int argc, char** argv)
 
     write_pdi_init(param.max_iter, param.output_frequency, grid, param);
 
-    DistributedBoundaryCondition const bcs(reader, eos, grid, param, param_setup);
+    std::string bc_choice_dir;
+    std::array<std::string, ndim*2> bc_choice_faces;
+    for(int idim = 0; idim < ndim; idim++)
+    {
+        bc_choice_dir = reader.Get("Boundary Condition", "BC"+bc_dir[idim], param.bc_choice);
+        for (int iface = 0; iface < 2; iface++)
+        {
+            bc_choice_faces[idim*2+iface] = reader.Get("Boundary Condition",
+                                                       "BC"+bc_dir[idim]+bc_face[iface],
+                                                       bc_choice_dir);
+            if(bc_choice_faces[idim*2+iface].empty() )
+            {
+                throw std::runtime_error("boundary condition not fully defined for dimension "
+                                         +bc_dir[idim]);
+            }
+        }
+    }
+
+    std::array<std::unique_ptr<IBoundaryCondition>, ndim * 2> bcs_array;
+    for(int idim=0; idim<ndim; idim++)
+    {
+        for(int iface=0; iface<2; iface++)
+        {
+            bcs_array[idim*2+iface] = factory_boundary_construction(bc_choice_faces[idim*2+iface], idim, iface, eos, grid, param_setup);
+        }
+    }
+
+    DistributedBoundaryCondition const bcs(reader, grid, param, std::move(bcs_array));
 
     std::unique_ptr<IInitializationProblem> initialization 
             = std::make_unique<InitializationSetup>(eos, grid, param_setup);

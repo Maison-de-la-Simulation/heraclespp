@@ -19,7 +19,6 @@
 #include "nova_params.hpp"
 #include "boundary.hpp"
 #include "factories.hpp"
-#include "setup.hpp"
 
 namespace novapp
 {
@@ -30,10 +29,8 @@ private:
     std::array<KDV_double_4d, ndim> m_mpi_buffer;
     std::array<std::unique_ptr<IBoundaryCondition>, ndim * 2> m_bcs;
     std::array<int, ndim*2> m_bc_order;
-    EOS m_eos;
     Grid m_grid;
     Param m_param;
-    ParamSetup m_param_setup;
 
     void ghostFill(std::vector<KV_double_3d> const& arrays, int bc_idim, int bc_iface) const;
 
@@ -42,10 +39,9 @@ private:
 public:
     DistributedBoundaryCondition(
             INIReader const& reader,
-            EOS const& eos,
             Grid const& grid,
             Param const& param,
-            ParamSetup const& param_setup);
+            std::array<std::unique_ptr<IBoundaryCondition>, ndim * 2> bcs);
 
     void execute(KV_double_3d rho,
                  KV_double_4d rhou,
