@@ -15,6 +15,8 @@ target_include_directories(libnova++ PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 configure_file(eos.hpp.in eos.hpp NO_SOURCE_PERMISSIONS @ONLY)
 
+configure_file(gravity_choice.hpp.in gravity_choice.hpp NO_SOURCE_PERMISSIONS @ONLY)
+
 target_compile_features(libnova++ PUBLIC cxx_std_17)
 
 find_package(PDI REQUIRED)
@@ -29,3 +31,5 @@ target_link_libraries(libnova++ PUBLIC thermodynamics)
 add_executable(nova++ main.cpp)
 target_link_libraries(nova++ PUBLIC libnova++)
 set_target_properties(nova++ PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
+
+target_compile_definitions(nova++ PUBLIC ${Novapp_GRAVITY})

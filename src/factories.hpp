@@ -29,13 +29,15 @@ inline std::unique_ptr<IGridType> factory_grid_type(
     throw std::runtime_error("Unknown grid type : " + grid + ".");
 }
 
+template <class Gravity>
 inline std::unique_ptr<IBoundaryCondition> factory_boundary_construction(
     std::string const& boundary,
     int idim,
     int iface,
     EOS const& eos,
     Grid const& grid,
-    ParamSetup const& param_setup)
+    ParamSetup const& param_setup,
+    Gravity const gravity)
 {
     if (boundary == "NullGradient")
     {
@@ -51,10 +53,9 @@ inline std::unique_ptr<IBoundaryCondition> factory_boundary_construction(
     }
     if (boundary == "UserDefined")
     {
-        return std::make_unique<BoundarySetup>(idim, iface, eos, grid, param_setup);
+        return std::make_unique<BoundarySetup<Gravity>>(idim, iface, eos, grid, param_setup, gravity);
     }
     throw std::runtime_error("Unknown boundary condition : " + boundary + ".");
 }
-
 
 } // namespace novapp

@@ -33,21 +33,25 @@ public:
     }
 };
 
+template <class Gravity>
 class InitializationSetup : public IInitializationProblem
 {
 private:
     EOS m_eos;
     Grid m_grid;
     ParamSetup m_param_setup;
+    Gravity m_gravity;
 
 public:
     InitializationSetup(
         EOS const& eos,
         Grid const& grid,
-        ParamSetup const& param_setup)
+        ParamSetup const& param_setup,
+        Gravity const& gravity)
         : m_eos(eos)
         , m_grid(grid)
         , m_param_setup(param_setup)
+        , m_gravity(gravity)
     {
     }
 
@@ -56,8 +60,7 @@ public:
         KV_double_3d const rho,
         KV_double_4d const u,
         KV_double_3d const P,
-        [[maybe_unused]] KV_double_4d fx,
-        KV_double_1d g) const final
+        [[maybe_unused]] KV_double_4d fx) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -68,7 +71,8 @@ public:
 
         auto const xc = m_grid.x_center;
         double mu = m_eos.mean_molecular_weight();
-        //std::cout <<"Scale = " << units::kb * m_param_setup.T / (mu * units::mh * Kokkos::fabs(g(0))) << std::endl;
+        /* std::cout <<"Scale = " << units::kb * m_param_setup.T
+            / (mu * units::mh * Kokkos::fabs(g(0))) << std::endl; */
         
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
@@ -76,7 +80,8 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            double x0 = units::kb * m_param_setup.T * units::Kelvin / (mu * units::mh * Kokkos::fabs(g(0)) * units::acc);
+            double x0 = units::kb * m_param_setup.T * units::Kelvin
+                    / (mu * units::mh * Kokkos::fabs(m_gravity(i, j, k, 0)) * units::acc);
             rho(i, j, k) = m_param_setup.rho0 * units::density * Kokkos::exp(- xc(i) / x0);
             for (int idim = 0; idim < ndim; ++idim)
             {
@@ -98,6 +103,7 @@ public:
     }
 };
 
+template <class Gravity>
 class BoundarySetup : public IBoundaryCondition
 {
     std::string m_label;
@@ -106,25 +112,27 @@ private:
     EOS m_eos;
     Grid m_grid;
     ParamSetup m_param_setup;
+    Gravity m_gravity;
 
 public:
     BoundarySetup(int idim, int iface,
-        EOS const& eos,
-        Grid const& grid,
-        ParamSetup const& param_setup)
+        [[maybe_unused]] EOS const& eos,
+        [[maybe_unused]] Grid const& grid,
+        [[maybe_unused]] ParamSetup const& param_setup,
+        [[maybe_unused]] Gravity const& gravity)
         : IBoundaryCondition(idim, iface)
         , m_label("UserDefined" + bc_dir[idim] + bc_face[iface])
         , m_eos(eos)
         , m_grid(grid)
         , m_param_setup(param_setup)
+        , m_gravity(gravity)
     {
     }
     
     void execute(KV_double_3d rho,
                  KV_double_4d rhou,
                  KV_double_3d E,
-                 [[maybe_unused]] KV_double_4d fx,
-                 KV_double_1d g) const final
+                 [[maybe_unused]] KV_double_4d fx) const final
     {
         assert(rho.extent(0) == rhou.extent(0));
         assert(rhou.extent(0) == E.extent(0));
@@ -151,8 +159,9 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k) 
         {
-            double gravity = g(0) * units::acc;
-            double x0 = units::kb * m_param_setup.T * units::Kelvin / (mu * units::mh * Kokkos::fabs(gravity));
+            double gravity = m_gravity(i, j, k, 0) * units::acc;
+            double x0 = units::kb * m_param_setup.T * units::Kelvin
+                    / (mu * units::mh * Kokkos::fabs(gravity));
             rho(i, j, k) = m_param_setup.rho0 * units::density * Kokkos::exp(- xc(i) / x0);
             for (int n = 0; n < rhou.extent_int(3); n++)
             {

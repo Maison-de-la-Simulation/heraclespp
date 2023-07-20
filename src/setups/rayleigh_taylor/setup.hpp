@@ -41,21 +41,25 @@ public:
     }
 };
 
+template <class Gravity>
 class InitializationSetup : public IInitializationProblem
 {
 private:
     EOS m_eos;
     Grid m_grid;
     ParamSetup m_param_setup;
+    Gravity m_gravity;
 
 public:
     InitializationSetup(
         EOS const& eos,
         Grid const& grid,
-        ParamSetup const& param_set_up)
+        ParamSetup const& param_set_up,
+        Gravity const& gravity)
         : m_eos(eos)
         , m_grid(grid)
         , m_param_setup(param_set_up)
+        , m_gravity(gravity)
     {
     }
 
@@ -64,8 +68,7 @@ public:
         KV_double_3d const rho,
         KV_double_4d const u,
         KV_double_3d const P,
-        KV_double_4d const fx,
-        KV_double_1d g) const final
+        KV_double_4d const fx) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -101,7 +104,7 @@ public:
             u(i, j, k, 1) = m_param_setup.u0 * units::velocity;
             /* u(i, j, k, 1) = (m_param_setup.A/4) * (1+Kokkos::cos(2*Kokkos::numbers::pi*x/m_grid.L[0])) 
                             * (1+Kokkos::cos(2*Kokkos::numbers::pi*y/m_grid.L[1])); */
-            P(i, j, k) = (P0 + rho(i, j, k) * g(1) * units::acc * y) * units::pressure;
+            P(i, j, k) = (P0 + rho(i, j, k) * m_gravity(i, j, k, 1) * units::acc * y) * units::pressure;
         });  
     }
 };
@@ -117,13 +120,15 @@ public:
     }
 };
 
+template <class Gravity>
 class BoundarySetup : public IBoundaryCondition
 {
 public:
     BoundarySetup(int idim, int iface,
         [[maybe_unused]] EOS const& eos,
         [[maybe_unused]] Grid const& grid,
-        [[maybe_unused]] ParamSetup const& param_setup)
+        [[maybe_unused]] ParamSetup const& param_setup,
+        [[maybe_unused]] Gravity const& gravity)
         : IBoundaryCondition(idim, iface)
     {
         // no new boundary

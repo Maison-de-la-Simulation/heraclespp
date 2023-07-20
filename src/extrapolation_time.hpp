@@ -52,24 +52,28 @@ template <class Gravity>
 class ExtrapolationTimeReconstruction : public IExtrapolationReconstruction
 {
     static_assert(
-            std::is_invocable_r_v<void, Gravity, int, int, int, int, Grid>,
+            std::is_invocable_r_v<
+                void,
+                Gravity,
+                int,
+                int,
+                int,
+                int>,
             "Incompatible gravity.");
 
 private:
-    Gravity m_gravity;
-
     EOS m_eos;
-
     Grid m_grid;
+    Gravity m_gravity;
 
 public:
     ExtrapolationTimeReconstruction(
-            Gravity const& gravity,
             EOS const& eos, 
-            Grid const& grid)
-        : m_gravity(gravity)
-        , m_eos(eos)
+            Grid const& grid,
+            Gravity const& gravity)
+        : m_eos(eos)
         , m_grid(grid)
+        , m_gravity(gravity)
     {
     }
 
@@ -172,11 +176,11 @@ public:
                 // Gravity
                 for (int ipos = 0; ipos < ndim; ++ipos)
                 {
-                    rhou_rec(i, j, k, 0, ipos, idim) += dt_reconstruction * m_gravity(i, j, k, idim, m_grid) * rho_old[0][ipos];
-                    rhou_rec(i, j, k, 1, ipos, idim) += dt_reconstruction * m_gravity(i, j, k, idim, m_grid) * rho_old[1][ipos];
+                    rhou_rec(i, j, k, 0, ipos, idim) += dt_reconstruction * m_gravity(i, j, k, idim) * rho_old[0][ipos];
+                    rhou_rec(i, j, k, 1, ipos, idim) += dt_reconstruction * m_gravity(i, j, k, idim) * rho_old[1][ipos];
                     
-                    E_rec(i, j, k, 0, ipos) += dt_reconstruction * m_gravity(i, j, k, idim, m_grid) * rhou_old[0][ipos][idim];
-                    E_rec(i, j, k, 1, ipos) += dt_reconstruction * m_gravity(i, j, k, idim, m_grid) * rhou_old[1][ipos][idim];
+                    E_rec(i, j, k, 0, ipos) += dt_reconstruction * m_gravity(i, j, k, idim) * rhou_old[0][ipos][idim];
+                    E_rec(i, j, k, 1, ipos) += dt_reconstruction * m_gravity(i, j, k, idim) * rhou_old[1][ipos][idim];
                 }
 
                 // Passive scalar
@@ -212,18 +216,5 @@ public:
         });
     }
 };
-
-inline std::unique_ptr<IExtrapolationReconstruction> factory_time_reconstruction(
-        std::string const& gravity,
-        EOS const& eos,
-        Grid const& grid,
-        KV_double_1d g)
-{
-    if (gravity == "Uniform")
-    {
-        return std::make_unique<ExtrapolationTimeReconstruction<UniformGravity>>(UniformGravity(g), eos, grid);
-    }
-    throw std::runtime_error("Unknown time reconstruction algorithm: " + gravity + ".");
-}
 
 } // namespace novapp

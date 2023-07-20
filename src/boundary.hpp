@@ -42,8 +42,7 @@ public:
     virtual void execute([[maybe_unused]] KV_double_3d rho,
                          [[maybe_unused]] KV_double_4d rhou,
                          [[maybe_unused]] KV_double_3d E,
-                         [[maybe_unused]] KV_double_4d fx,
-                         [[maybe_unused]] KV_double_1d g) const 
+                         [[maybe_unused]] KV_double_4d fx) const 
                          {
                             throw std::runtime_error("Boundary not implemented");
                          }
@@ -55,8 +54,8 @@ protected:
 
 class NullGradient : public IBoundaryCondition
 {
+private:
     std::string m_label;
-
     Grid m_grid;
 
 public:
@@ -71,8 +70,7 @@ public:
     void execute(KV_double_3d rho,
                  KV_double_4d rhou,
                  KV_double_3d E,
-                 [[maybe_unused]] KV_double_4d fx,
-                 [[maybe_unused]] KV_double_1d g) const final
+                 [[maybe_unused]] KV_double_4d fx) const final
     {
         assert(rho.extent(0) == rhou.extent(0));
         assert(rhou.extent(0) == E.extent(0));
@@ -124,8 +122,7 @@ public:
     void execute([[maybe_unused]] KV_double_3d rho,
                  [[maybe_unused]] KV_double_4d rhou,
                  [[maybe_unused]] KV_double_3d E,
-                 [[maybe_unused]] KV_double_4d fx,
-                 [[maybe_unused]] KV_double_1d g) const final
+                 [[maybe_unused]] KV_double_4d fx) const final
     {
         // do nothing
     }
@@ -134,9 +131,8 @@ public:
 
 class ReflexiveCondition : public IBoundaryCondition
 {
-    std::string m_label;
-
 private:
+    std::string m_label;
     Grid m_grid;
 
 public:
@@ -152,8 +148,7 @@ public:
     void execute(KV_double_3d rho,
                  KV_double_4d rhou,
                  KV_double_3d E,
-                 [[maybe_unused]] KV_double_4d fx,
-                 [[maybe_unused]] KV_double_1d g) const final
+                 [[maybe_unused]] KV_double_4d fx) const final
     {
         Kokkos::Array<int, 3> begin {0, 0, 0};
         Kokkos::Array<int, 3> end {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)};

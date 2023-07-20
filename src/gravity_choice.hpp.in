@@ -1,0 +1,14 @@
+
+//!
+//! @file gravity_choice.hpp
+//! File automatically generated, do not modify.
+//!
+
+#pragma once
+
+namespace novapp
+{
+
+constexpr std::string_view gravity_choice = "@Novapp_GRAVITY@";
+
+} // namespace novapp
