@@ -31,3 +31,5 @@ target_link_libraries(nova++ PUBLIC libnova++)
 set_target_properties(nova++ PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
 target_compile_definitions(nova++ PUBLIC ${Novapp_GRAVITY})
+
+target_compile_definitions(nova++ PUBLIC MY_SETUP="${Novapp_SETUP}")

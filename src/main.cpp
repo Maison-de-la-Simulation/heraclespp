@@ -71,7 +71,7 @@ int main(int argc, char** argv)
     Grid const grid(param);
     grid.print_grid();
 
-    print_info("PROBLEM", param.problem);
+    print_info("SETUP", MY_SETUP);
     print_info("EOS", eos_choice);
     //print_info("GEOMETRIE", geom_choice);
 
