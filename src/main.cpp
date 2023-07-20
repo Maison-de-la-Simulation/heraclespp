@@ -10,7 +10,6 @@
 
 #include "ndim.hpp"
 #include "eos.hpp"
-#include "gravity_choice.hpp"
 #include "PerfectGas.hpp"
 #include "RadGas.hpp"
 #include "array_conversion.hpp"
