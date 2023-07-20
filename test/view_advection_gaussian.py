@@ -6,7 +6,7 @@ import h5py
 import sys
 
 print("********************************")
-print(" Advection test : sinusoide")
+print("  Advection test : gaussian")
 print("********************************")
 
 filename = sys.argv[1]
@@ -18,6 +18,9 @@ with h5py.File(str(filename), 'r') as f :
     t = f['current_time'][()]
     iter = f['iter'][()]
 
+print("Final time =", t, "s")
+print("Iteration number =", iter )
+
 L = np.max(x) - np.min(x)
 
 dx = L / len(rho)
@@ -26,9 +29,6 @@ xc = np.zeros(len(rho))
 for i in range(len(rho)):
     xc[i] = x[i] + dx / 2
  
-print("Final time =", t, "s")
-print("Iteration number =", iter )
-
 # Analytical result ------------------------
 
 rho0 = np.zeros(len(rho))

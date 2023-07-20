@@ -19,7 +19,7 @@ parser.add_argument('-o', '--output',
 args = parser.parse_args()
 
 print("********************************")
-print("Shock wall 1d")
+print("        Shock wall")
 print("********************************")
 
 filename = sys.argv[1]
@@ -33,6 +33,9 @@ with h5py.File(args.filename, 'r') as f :
     t = f['current_time'][()]
     iter = f['iter'][()]
     gamma = f['gamma'][()]
+
+print("Final time =", t, "s")
+print("Iteration number =", iter)
  
 L = np.max(x) - np.min(x)
 
@@ -45,9 +48,6 @@ for i in range(len(rho)):
     xc[i] = x[i] + dx[i] / 2
 
 e = P / rho / (gamma - 1)
-
-print("Final time =", t, "s")
-print("Iteration number =", iter)
 
 # ------------------------------------------
 plt.figure(figsize=(14,9))
@@ -65,18 +65,21 @@ plt.ylabel('Density ($kg.m^{-3}$)'); plt.xlabel('x')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
 plt.legend()
+
 plt.subplot(222)
 plt.plot(xc, u, label='Solver')
 plt.ylabel('Velocity ($m.s^{-1}$)'); plt.xlabel('x')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
 plt.legend()
+
 plt.subplot(223)
 plt.plot(xc, P, label='Solver')
 plt.ylabel('Pressure ($kg.m^{-1}.s^{-2}$)'); plt.xlabel('x')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
 plt.legend()
+
 plt.subplot(224)
 plt.plot(xc, e, label='Solver')
 plt.ylabel('Internal energy ($m^{2}.s^{-2}$)'); plt.xlabel('x')

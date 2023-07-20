@@ -42,9 +42,4 @@ plt.title('Passive scalar')
 plt.imshow(fx, cmap='seismic', origin='lower', extent=[np.min(x), np.max(x), np.min(y), np.max(y)])
 plt.colorbar()
 plt.xlabel('x'); plt.ylabel('y')
-
-plt.figure(figsize=(10,8))
-plt.plot(Py)
-plt.xlabel('y(i)'); plt.ylabel('Py')
-
 plt.show() 

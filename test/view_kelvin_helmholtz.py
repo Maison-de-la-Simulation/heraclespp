@@ -6,7 +6,7 @@ import h5py
 import sys
 
 print("********************************")
-print("Rayleigh Taylor instability")
+print(" Kelvin-Helmholtz instability")
 print("********************************")
 
 filename = sys.argv[1]

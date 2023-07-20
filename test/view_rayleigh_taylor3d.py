@@ -25,11 +25,6 @@ with h5py.File(str(filename), 'r') as f :
 print("Final time =", t, "s")
 print("Iteration number =", iter )
 
-print(fx.shape)
-print(rho.shape)
-
-print(fx)
-
 # ------------------------------------------
 
 plt.figure(figsize=(10,8))
@@ -45,5 +40,4 @@ plt.title(f'Passive scalar t = {t:1f} s')
 plt.imshow(fx, cmap='seismic', origin='lower', extent=[np.min(x), np.max(x), np.min(z), np.max(z)])
 plt.colorbar()
 plt.xlabel('x'); plt.ylabel('z')
-
 plt.show()

@@ -1,11 +1,23 @@
-#           SEDOV BLAST-WAVE
-#           Solution exacte
+#           SEDOV BLAST WAVE
+#           Exacte solution
 #
-# Réécriture de la routine IDL : sedovana.pro
+# from IDL code, R.Teyssier
 
 import numpy as np
 
 def SolutionSedov(n, gamma):
+    """Exact Sedvov blast wave solution
+
+    input :
+    n     : int   : dimension (1 : cartesia, 2 : cylindrical, 3: spherical)
+    gamma : float : adiabatic constant
+
+    output :
+    r      : array : radius
+    d      : array : density
+    u      : array : velocity
+    p      : array : pressure
+    """
     n1 = 1_000
     n2 = 1_000
 
@@ -107,8 +119,22 @@ def SolutionSedov(n, gamma):
     p = p * chi0**2
     return r, d, u, p
 
-def ExactSedov(rho_0, E_per, t, gamma):
-    n = 1 # Cartesian
+def ExactSedov(rho_0, E_per, t, gamma, n):
+    """Input params for exact solution calculation
+
+    input :
+    rho_0 : float : initial density
+    E_per : float : energy disruption
+    t     : float : time
+    gamma : float : adiabtic constant
+    n     : int   : geometry
+
+    output :
+    r_f    : array : radius
+    rho_f  : array : denisty
+    u_f    : array : velocity
+    P_f    : array : pressure
+    """
     r, rho, u, P = SolutionSedov(n, gamma)
     r_f = r * (E_per / rho_0)**(1 / (n + 2)) * t**(2 / (n + 2))
     rho_f = rho * rho_0

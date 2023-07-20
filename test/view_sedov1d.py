@@ -21,7 +21,7 @@ parser.add_argument('-o', '--output',
 args = parser.parse_args()
 
 print("********************************")
-print("Sedov blast wave 1d")
+print("     Sedov blast wave 1d")
 print("********************************")
 
 filename = sys.argv[1]
@@ -34,7 +34,10 @@ with h5py.File(args.filename, 'r') as f :
     x = f['x'][()]
     t = f['current_time'][()]
     iter = f['iter'][()]
-    gamma = f['gamma'][()] 
+    gamma = f['gamma'][()]
+
+print("Final time =", t, "s")
+print("Iteration number =", iter)
  
 L = np.max(x) - np.min(x)
 
@@ -47,16 +50,13 @@ for i in range(len(rho)):
 xc = np.zeros(len(rho))
 for i in range(len(rho)):
     xc[i] = x[i] + dx[i] / 2
-print(x)
+
 # Analytical result ------------------------
 
 rho0 = 1
 E0 = 1
 r, rho_exact, u_exact, P_exact = ExactSedov(rho0, E0, t, gamma)
 E = 1 / 2 * rho_exact * u_exact**2 + P_exact * (gamma - 1)
-
-print("Final time =", t, "s")
-print("Iteration number =", iter)
 
 # ------------------------------------------
 
@@ -71,6 +71,7 @@ plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.xlim(0,1)
 plt.grid()
 plt.legend()
+
 plt.subplot(222)
 plt.plot(r, u_exact, label='Exact')
 plt.plot(xc, u, label='Solver')
@@ -79,6 +80,7 @@ plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.xlim(0,1)
 plt.grid()
 plt.legend()
+
 plt.subplot(223)
 plt.plot(r, P_exact, label='Exact')
 plt.plot(xc, P, label='Solver')
@@ -87,6 +89,7 @@ plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.xlim(0,1)
 plt.grid()
 plt.legend()
+
 plt.subplot(224)
 plt.plot(r, E, label='Exact')
 plt.plot(xc, etot /2, label='Solver')

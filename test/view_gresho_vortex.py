@@ -6,13 +6,13 @@ import h5py
 import sys
 
 print("********************************")
-print("Gresho Vortex problem")
+print("        Gresho Vortex")
 print("********************************")
 
 filename = sys.argv[1]
 
 with h5py.File(str(filename), 'r') as f :
-    #print(f.keys())
+    print(f.keys())
     u_x = f['ux'][0, :, :]
     u_y = f['uy'][0, :, :]
     t = f['current_time'][()]
@@ -20,7 +20,7 @@ with h5py.File(str(filename), 'r') as f :
 
 print("Final time =", t, "s")
 print("Iteration number =", iter )
-    
+
 u2d = np.sqrt(u_x**2 + u_y**2)
 
 # ------------------------------------------

@@ -6,7 +6,7 @@ import h5py
 import sys
 
 print("********************************")
-print(" Advection test : crenel")
+print("     Advection test : gap")
 print("********************************")
 
 filename = sys.argv[1]
@@ -18,6 +18,9 @@ with h5py.File(str(filename), 'r') as f :
     t = f['current_time'][()]
     iter = f['iter'][()]
 
+print("Final time =", t, "s")
+print("Iteration number =", iter )
+
 L = np.max(x) - np.min(x)
 
 dx = L / len(rho)
@@ -26,23 +29,21 @@ xc = np.zeros(len(rho))
 for i in range(len(rho)):
     xc[i] = x[i] + dx / 2
 
-print("Final time =", t, "s")
-print("Iteration number =", iter )
-
 # Analytical result ------------------------
 
 nx = 100
-dx_ad = L / nx
+dx_an = L / nx
 nface = nx + 1
 x_ad = np.zeros(nface)
+
 for i in range(nface):
-    x_ad[i] = i * dx_ad + dx_ad / 2
+    x_ad[i] = i * dx_an + dx_an / 2
 
 rho0 = np.zeros(nface)
 for i in range(nface):
-    if (x_ad[i]<= 0.3) :
+    if (x_ad[i] <= 0.3) :
         rho0[i] = 1
-    elif (x[i]>= 0.7):
+    elif (x[i] >= 0.7):
         rho0[i] = 1
     else :
         rho0[i]= 2

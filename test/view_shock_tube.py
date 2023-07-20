@@ -6,7 +6,7 @@ import h5py
 from argparse import ArgumentParser
 from pathlib import Path
 
-from exact_shockTube import CI, ExactShockTube
+from exact_shock_tube import CI, ExactShockTube
 
 parser = ArgumentParser(description="Plot shock tube.")
 parser.add_argument('filename',
@@ -20,7 +20,7 @@ parser.add_argument('-o', '--output',
 args = parser.parse_args()
 
 print("********************************")
-print("Shock tube problem")
+print("         Shock tube")
 print("********************************")
 
 with h5py.File(args.filename, 'r') as f :
@@ -34,6 +34,9 @@ with h5py.File(args.filename, 'r') as f :
     iter = f['iter'][()]
     gamma = f['gamma'][()]
 
+print("Final time =", t, "s")
+print("Iteration number =", iter )
+
 L = np.max(x) - np.min(x)
 
 e = P / rho / (gamma - 1)
@@ -46,15 +49,14 @@ xc = np.zeros(len(rho))
 for i in range(len(rho)):
     xc[i] = x[i] + dx[i] / 2
 
-print("Final time =", t, "s")
-print("Iteration number =", iter )
-
 print("Max fx =", np.max(fx), fx.shape)
 
 print("dx = ", dx)
 
-# Initialisation ------------------------
+# Analytical result ------------------------
+
 inter = 0.5 # Interface position
+
 # Left
 rho0l = 1
 u0l = 0
@@ -71,14 +73,13 @@ var0r = np.array([rho0r, u0r, P0r, c0r])
 
 Ncell = 1_000 
 dx_exact = L / Ncell
-x_exact = np.zeros(Ncell+1)
+x_exact = np.zeros(Ncell)
+
 for i in range(len(x_exact)):
-    x_exact[i] = i * dx_exact
+    x_exact[i] = i * dx_exact + dx_exact / 2
 
 rho0, u0, P0 = CI(x_exact, inter, var0l, var0r)
 e0 = P0 / rho0 / (gamma - 1)
-
-# Analytical result ------------------------
 
 rho_exact, u_exact, P_exact, e_exact = ExactShockTube(x_exact, inter, var0l, var0r, t, gamma)
 
@@ -89,12 +90,13 @@ plt.suptitle(f'Shock tube t = {t:1f} s')
 plt.subplot(221)
 plt.plot(x_exact, rho0, '--', label='t=0')
 plt.plot(x_exact,rho_exact, label='Exact')
-plt.plot(xc, rho, 'x-', label = 'Solver')#f't = {t:1f}')
+plt.plot(xc, rho, label = 'Solver')#f't = {t:1f}')
 plt.plot(xc, fx, label='scalar')
 plt.ylabel('Density ($kg.m^{-3}$)'); plt.xlabel('Position')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
 plt.legend()
+
 plt.subplot(222)
 plt.plot(x_exact, u0, '--', label='t=0')
 plt.plot(x_exact, u_exact, label='Exact')
@@ -103,6 +105,7 @@ plt.ylabel('Velocity ($m.s^{-1}$)'); plt.xlabel('Position')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
 plt.legend()
+
 plt.subplot(223)
 plt.plot(x_exact, P0,'--', label='t=0')
 plt.plot(x_exact, P_exact, label='Exact')
@@ -111,6 +114,7 @@ plt.ylabel('Pressure ($kg.m^{-1}.s^{-2}$)'); plt.xlabel('Position')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
 plt.legend()
+
 plt.subplot(224)
 plt.plot(x_exact, e0,'--', label='t=0')
 plt.plot(x_exact, e_exact, label='Exact')
@@ -129,4 +133,3 @@ if args.output is None:
     plt.show()
 else:
     plt.savefig(args.output)
-

@@ -6,7 +6,7 @@ import h5py
 import sys
 
 print("********************************")
-print("Sedov blast wave 2d")
+print("      Sedov blast wave 2d")
 print("********************************")
 
 filename = sys.argv[1]
@@ -18,6 +18,10 @@ with h5py.File(str(filename), 'r') as f :
     y = f['y'][()]
     t = f['current_time'][()]
     iter = f['iter'][()]
+
+
+print("Final time =", t, "s")
+print("Iteration number =", iter)
 
 # Analytical result ------------------------
 
@@ -31,9 +35,6 @@ theta = np.linspace(0, 2*np.pi, len(x))
 x_choc = r_choc * np.cos(theta)
 y_choc = r_choc * np.sin(theta)
 
-print("Final time =", t, "s")
-print("Iteration number =", iter)
-
 # ------------------------------------------
 
 plt.figure(figsize=(10, 5))
@@ -44,5 +45,4 @@ plt.imshow(rho, origin='lower', extent=[np.min(x), np.max(x), np.min(y), np.max(
 plt.colorbar()
 plt.plasma()
 plt.xlabel('x'); plt.ylabel('y')
-
 plt.show()

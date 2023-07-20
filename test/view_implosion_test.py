@@ -6,7 +6,7 @@ import h5py
 import sys
 
 print("********************************")
-print("Liska-Wendroff implosion test")
+print(" Liska-Wendroff implosion test")
 print("********************************")
 
 filename = sys.argv[1]
