@@ -93,23 +93,23 @@ public:
         int const offset = m_bc_iface == 0 ? end[m_bc_idim] : begin[m_bc_idim] - 1;
         int const& bc_idim = m_bc_idim;
         Kokkos::parallel_for(
-        m_label,
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-        KOKKOS_LAMBDA(int i, int j, int k) 
-        {
-            Kokkos::Array<int, 3> offsets {i, j, k};
-            offsets[bc_idim] = offset;
-            rho(i, j, k) = rho(offsets[0], offsets[1], offsets[2]);
-            for (int n = 0; n < rhou.extent_int(3); n++)
+            m_label,
+            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+            KOKKOS_LAMBDA(int i, int j, int k) 
             {
-                rhou(i, j, k, n) = rhou(offsets[0], offsets[1], offsets[2], n);
-            }
-            E(i, j, k) = E(offsets[0], offsets[1], offsets[2]);
-            for (int ifx = 0; ifx < nfx; ++ifx)
-            {
-                fx(i, j, k, ifx) = fx(offsets[0], offsets[1], offsets[2], ifx);
-            }
-        });
+                Kokkos::Array<int, 3> offsets {i, j, k};
+                offsets[bc_idim] = offset;
+                rho(i, j, k) = rho(offsets[0], offsets[1], offsets[2]);
+                for (int n = 0; n < rhou.extent_int(3); n++)
+                {
+                    rhou(i, j, k, n) = rhou(offsets[0], offsets[1], offsets[2], n);
+                }
+                E(i, j, k) = E(offsets[0], offsets[1], offsets[2]);
+                for (int ifx = 0; ifx < nfx; ++ifx)
+                {
+                    fx(i, j, k, ifx) = fx(offsets[0], offsets[1], offsets[2], ifx);
+                }
+            });
     }
 };
 
@@ -164,24 +164,24 @@ public:
         int const mirror = m_bc_iface == 0 ? (2 * ng - 1) : (2 * (rho.extent(m_bc_idim) - ng) - 1);
         int const& bc_idim = m_bc_idim;
         Kokkos::parallel_for(
-        m_label,
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-        KOKKOS_LAMBDA(int i, int j, int k) 
-        {
-            Kokkos::Array<int, 3> offsets {i, j, k};
-            offsets[bc_idim] = mirror - offsets[bc_idim];
-            rho(i, j, k) = rho(offsets[0], offsets[1], offsets[2]);
-            for (int n = 0; n < rhou.extent_int(3); n++)
+            m_label,
+            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+            KOKKOS_LAMBDA(int i, int j, int k) 
             {
-                rhou(i, j, k, n) = rhou(offsets[0], offsets[1], offsets[2], n);
-            }
-            rhou(i, j, k, bc_idim) = -rhou(i, j, k, bc_idim);
-            E(i, j, k) = E(offsets[0], offsets[1], offsets[2]);
-            for (int ifx = 0; ifx < nfx; ++ifx)
-            {
-                fx(i, j, k, ifx) = fx(offsets[0], offsets[1], offsets[2], ifx);
-            }
-        });
+                Kokkos::Array<int, 3> offsets {i, j, k};
+                offsets[bc_idim] = mirror - offsets[bc_idim];
+                rho(i, j, k) = rho(offsets[0], offsets[1], offsets[2]);
+                for (int n = 0; n < rhou.extent_int(3); n++)
+                {
+                    rhou(i, j, k, n) = rhou(offsets[0], offsets[1], offsets[2], n);
+                }
+                rhou(i, j, k, bc_idim) = -rhou(i, j, k, bc_idim);
+                E(i, j, k) = E(offsets[0], offsets[1], offsets[2]);
+                for (int ifx = 0; ifx < nfx; ++ifx)
+                {
+                    fx(i, j, k, ifx) = fx(offsets[0], offsets[1], offsets[2], ifx);
+                }
+            });
     }
 };
 

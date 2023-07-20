@@ -189,56 +189,61 @@ void Grid::Init_grid(Param const& param)
     auto const y_d = y.d_view;
     auto const z_d = z.d_view;
 
-    Kokkos::parallel_for("set_dx_xcenter",
-    Nx_local_wg[0],
-    KOKKOS_CLASS_LAMBDA(int i)
-    {
-        dx(i) = x_d(i+1) - x_d(i);
-        x_center(i) = x_d(i) + dx(i) / 2;
-    });
-
-    Kokkos::parallel_for("set_dy_ycenter",
-    Nx_local_wg[1],
-    KOKKOS_CLASS_LAMBDA(int i)
-    {
-        dy(i) = y_d(i+1) - y_d(i);
-        y_center(i) = y_d(i) + dy(i) / 2;
-    });
-
-    Kokkos::parallel_for("set_dz_zcenter",
-    Nx_local_wg[2],
-    KOKKOS_CLASS_LAMBDA(int i)
-    {
-        dz(i) = z_d(i+1) - z_d(i);
-        z_center(i) = z_d(i) + dz(i) / 2;
-    });
-
-    Kokkos::parallel_for("File_ds",
-    Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0}, 
-                            {Nx_local_wg[0], 
-                             Nx_local_wg[1],
-                             Nx_local_wg[2]}),
-    KOKKOS_CLASS_LAMBDA(int i, int j, int k)
-    {
-        for (int idim=0; idim<3; ++idim)
+    Kokkos::parallel_for(
+        "set_dx_xcenter",
+        Nx_local_wg[0],
+        KOKKOS_CLASS_LAMBDA(int i)
         {
-            dx_inter[0] = dx(i);
-            dx_inter[1] = dy(j);
-            dx_inter[2] = dz(k);
-            dx_inter[idim] = 1;
-            ds(i, j, k, idim) = dx_inter[0] * dx_inter[1] * dx_inter[2];
-        }
-    });
+            dx(i) = x_d(i+1) - x_d(i);
+            x_center(i) = x_d(i) + dx(i) / 2;
+        });
 
-    Kokkos::parallel_for("File_dv",
-    Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0}, 
-                            {Nx_local_wg[0], 
-                             Nx_local_wg[1],
-                             Nx_local_wg[2]}),
-    KOKKOS_CLASS_LAMBDA(int i, int j, int k)
-    {
-        dv(i, j, k) = dx(i) * dy(j) * dz(k);
-    });
+    Kokkos::parallel_for(
+        "set_dy_ycenter",
+        Nx_local_wg[1],
+        KOKKOS_CLASS_LAMBDA(int i)
+        {
+            dy(i) = y_d(i+1) - y_d(i);
+            y_center(i) = y_d(i) + dy(i) / 2;
+        });
+
+    Kokkos::parallel_for(
+        "set_dz_zcenter",
+        Nx_local_wg[2],
+        KOKKOS_CLASS_LAMBDA(int i)
+        {
+            dz(i) = z_d(i+1) - z_d(i);
+            z_center(i) = z_d(i) + dz(i) / 2;
+        });
+
+    Kokkos::parallel_for(
+        "File_ds",
+        Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0}, 
+                                {Nx_local_wg[0], 
+                                Nx_local_wg[1],
+                                Nx_local_wg[2]}),
+        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
+        {
+            for (int idim=0; idim<3; ++idim)
+            {
+                dx_inter[0] = dx(i);
+                dx_inter[1] = dy(j);
+                dx_inter[2] = dz(k);
+                dx_inter[idim] = 1;
+                ds(i, j, k, idim) = dx_inter[0] * dx_inter[1] * dx_inter[2];
+            }
+        });
+
+    Kokkos::parallel_for(
+        "File_dv",
+        Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0}, 
+                                {Nx_local_wg[0], 
+                                Nx_local_wg[1],
+                                Nx_local_wg[2]}),
+        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
+        {
+            dv(i, j, k) = dx(i) * dy(j) * dz(k);
+        });
 }
 
 void Grid::print_grid() const

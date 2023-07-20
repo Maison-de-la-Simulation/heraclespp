@@ -106,114 +106,114 @@ public:
 
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
-        "HancockExtrapolation",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
-        {
-            Kokkos::Array<Kokkos::Array<double, ndim>, 2> rho_old; //rho_old[0/1][idim]
-            Kokkos::Array<Kokkos::Array<Kokkos::Array<double, ndim>, ndim>, 2> rhou_old; //rhou_old[0/1][idim][idr]
-
-            for (int idim = 0; idim < ndim; ++idim)
+            "Hancock_extrapolation",
+            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
             {
-                rho_old[0][idim] = rho_rec(i, j, k, 0, idim);
-                rho_old[1][idim] = rho_rec(i, j, k, 1, idim);
-                for (int idr = 0; idr < ndim; ++idr)
+                Kokkos::Array<Kokkos::Array<double, ndim>, 2> rho_old; //rho_old[0/1][idim]
+                Kokkos::Array<Kokkos::Array<Kokkos::Array<double, ndim>, ndim>, 2> rhou_old; //rhou_old[0/1][idim][idr]
+
+                for (int idim = 0; idim < ndim; ++idim)
                 {
-                    rhou_old[0][idim][idr] = rhou_rec(i, j, k, 0, idim, idr);
-                    rhou_old[1][idim][idr] = rhou_rec(i, j, k, 1, idim, idr);
-                }
-
-                for (int ifx = 0; ifx < nfx; ++ifx)
-                {
-                    fx_rec(i, j, k, 0, idim, ifx) *= rho_rec(i, j, k, 0, idim);
-                    fx_rec(i, j, k, 1, idim, ifx) *= rho_rec(i, j, k, 1, idim);
-                }
-            }
-
-            for (int idim = 0; idim < ndim; ++idim)
-            {
-                auto const [i_p, j_p, k_p] = rindex(idim, i, j, k); // i + 1
-
-                EulerPrim minus_one; // Left, front, bottom
-                minus_one.rho = rho_old[0][idim];
-                for (int idr = 0; idr < ndim; ++idr)
-                {
-                    minus_one.u[idr] = loc_u_rec(i, j, k, 0, idim, idr);
-                }
-                minus_one.P = loc_P_rec(i, j, k, 0, idim);
-                EulerFlux const flux_minus_one = compute_flux(minus_one, idim, m_eos);
-
-                EulerPrim plus_one; // Right, back, top
-                plus_one.rho = rho_old[1][idim];
-                for (int idr = 0; idr < ndim; ++idr)
-                {
-                    plus_one.u[idr] = loc_u_rec(i, j, k, 1, idim, idr);
-                }
-                plus_one.P = loc_P_rec(i, j, k, 1, idim);
-                EulerFlux const flux_plus_one = compute_flux(plus_one, idim, m_eos);
-
-                double const dtodv = dt_reconstruction / m_grid.dv(i, j, k);
-
-                for (int ipos = 0; ipos < ndim; ++ipos)
-                {
-                    rho_rec(i, j, k, 0, ipos) += dtodv * (flux_minus_one.rho * m_grid.ds(i, j, k, idim) 
-                                                 - flux_plus_one.rho * m_grid.ds(i_p, j_p, k_p, idim));
-                    rho_rec(i, j, k, 1, ipos) += dtodv * (flux_minus_one.rho * m_grid.ds(i, j, k, idim) 
-                                                 - flux_plus_one.rho * m_grid.ds(i_p, j_p, k_p, idim));
+                    rho_old[0][idim] = rho_rec(i, j, k, 0, idim);
+                    rho_old[1][idim] = rho_rec(i, j, k, 1, idim);
                     for (int idr = 0; idr < ndim; ++idr)
                     {
-                        rhou_rec(i, j, k, 0, ipos, idr) += dtodv * (flux_minus_one.rhou[idr] * m_grid.ds(i, j, k, idim) 
-                                                           - flux_plus_one.rhou[idr] * m_grid.ds(i_p, j_p, k_p, idim));
-                        rhou_rec(i, j, k, 1, ipos, idr) += dtodv * (flux_minus_one.rhou[idr] * m_grid.ds(i, j, k, idim) 
-                                                           - flux_plus_one.rhou[idr] * m_grid.ds(i_p, j_p, k_p, idim));
+                        rhou_old[0][idim][idr] = rhou_rec(i, j, k, 0, idim, idr);
+                        rhou_old[1][idim][idr] = rhou_rec(i, j, k, 1, idim, idr);
                     }
-                    E_rec(i, j, k, 0, ipos) += dtodv * (flux_minus_one.E * m_grid.ds(i, j, k, idim) 
-                                               - flux_plus_one.E * m_grid.ds(i_p, j_p, k_p, idim));
-                    E_rec(i, j, k, 1, ipos) += dtodv * (flux_minus_one.E * m_grid.ds(i, j, k, idim) 
-                                               - flux_plus_one.E * m_grid.ds(i_p, j_p, k_p, idim));
-                }
-                
-                // Gravity
-                for (int ipos = 0; ipos < ndim; ++ipos)
-                {
-                    rhou_rec(i, j, k, 0, ipos, idim) += dt_reconstruction * m_gravity(i, j, k, idim) * rho_old[0][ipos];
-                    rhou_rec(i, j, k, 1, ipos, idim) += dt_reconstruction * m_gravity(i, j, k, idim) * rho_old[1][ipos];
-                    
-                    E_rec(i, j, k, 0, ipos) += dt_reconstruction * m_gravity(i, j, k, idim) * rhou_old[0][ipos][idim];
-                    E_rec(i, j, k, 1, ipos) += dt_reconstruction * m_gravity(i, j, k, idim) * rhou_old[1][ipos][idim];
+
+                    for (int ifx = 0; ifx < nfx; ++ifx)
+                    {
+                        fx_rec(i, j, k, 0, idim, ifx) *= rho_rec(i, j, k, 0, idim);
+                        fx_rec(i, j, k, 1, idim, ifx) *= rho_rec(i, j, k, 1, idim);
+                    }
                 }
 
-                // Passive scalar
-                for (int ifx = 0; ifx < nfx; ++ifx)
+                for (int idim = 0; idim < ndim; ++idim)
                 {
+                    auto const [i_p, j_p, k_p] = rindex(idim, i, j, k); // i + 1
+
+                    EulerPrim minus_one; // Left, front, bottom
+                    minus_one.rho = rho_old[0][idim];
+                    for (int idr = 0; idr < ndim; ++idr)
+                    {
+                        minus_one.u[idr] = loc_u_rec(i, j, k, 0, idim, idr);
+                    }
+                    minus_one.P = loc_P_rec(i, j, k, 0, idim);
+                    EulerFlux const flux_minus_one = compute_flux(minus_one, idim, m_eos);
+
+                    EulerPrim plus_one; // Right, back, top
+                    plus_one.rho = rho_old[1][idim];
+                    for (int idr = 0; idr < ndim; ++idr)
+                    {
+                        plus_one.u[idr] = loc_u_rec(i, j, k, 1, idim, idr);
+                    }
+                    plus_one.P = loc_P_rec(i, j, k, 1, idim);
+                    EulerFlux const flux_plus_one = compute_flux(plus_one, idim, m_eos);
+
+                    double const dtodv = dt_reconstruction / m_grid.dv(i, j, k);
+
                     for (int ipos = 0; ipos < ndim; ++ipos)
                     {
-                        double flux_fx_L = fx_rec_old(i, j, k, 0, idim, ifx) * flux_minus_one.rho;
-                        double flux_fx_R = fx_rec_old(i, j, k, 1, idim, ifx) * flux_plus_one.rho;
+                        rho_rec(i, j, k, 0, ipos) += dtodv * (flux_minus_one.rho * m_grid.ds(i, j, k, idim) 
+                                                    - flux_plus_one.rho * m_grid.ds(i_p, j_p, k_p, idim));
+                        rho_rec(i, j, k, 1, ipos) += dtodv * (flux_minus_one.rho * m_grid.ds(i, j, k, idim) 
+                                                    - flux_plus_one.rho * m_grid.ds(i_p, j_p, k_p, idim));
+                        for (int idr = 0; idr < ndim; ++idr)
+                        {
+                            rhou_rec(i, j, k, 0, ipos, idr) += dtodv * (flux_minus_one.rhou[idr] * m_grid.ds(i, j, k, idim) 
+                                                            - flux_plus_one.rhou[idr] * m_grid.ds(i_p, j_p, k_p, idim));
+                            rhou_rec(i, j, k, 1, ipos, idr) += dtodv * (flux_minus_one.rhou[idr] * m_grid.ds(i, j, k, idim) 
+                                                            - flux_plus_one.rhou[idr] * m_grid.ds(i_p, j_p, k_p, idim));
+                        }
+                        E_rec(i, j, k, 0, ipos) += dtodv * (flux_minus_one.E * m_grid.ds(i, j, k, idim) 
+                                                - flux_plus_one.E * m_grid.ds(i_p, j_p, k_p, idim));
+                        E_rec(i, j, k, 1, ipos) += dtodv * (flux_minus_one.E * m_grid.ds(i, j, k, idim) 
+                                                - flux_plus_one.E * m_grid.ds(i_p, j_p, k_p, idim));
+                    }
+                    
+                    // Gravity
+                    for (int ipos = 0; ipos < ndim; ++ipos)
+                    {
+                        rhou_rec(i, j, k, 0, ipos, idim) += dt_reconstruction * m_gravity(i, j, k, idim) * rho_old[0][ipos];
+                        rhou_rec(i, j, k, 1, ipos, idim) += dt_reconstruction * m_gravity(i, j, k, idim) * rho_old[1][ipos];
+                        
+                        E_rec(i, j, k, 0, ipos) += dt_reconstruction * m_gravity(i, j, k, idim) * rhou_old[0][ipos][idim];
+                        E_rec(i, j, k, 1, ipos) += dt_reconstruction * m_gravity(i, j, k, idim) * rhou_old[1][ipos][idim];
+                    }
 
-                        fx_rec(i, j, k, 0, ipos, ifx) += dtodv * (flux_fx_L * m_grid.ds(i, j, k, idim) 
-                                                            - flux_fx_R * m_grid.ds(i_p, j_p, k_p, idim));
-                        fx_rec(i, j, k, 1, ipos, ifx) += dtodv * (flux_fx_L * m_grid.ds(i, j, k, idim) 
-                                                            - flux_fx_R * m_grid.ds(i_p, j_p, k_p, idim));
+                    // Passive scalar
+                    for (int ifx = 0; ifx < nfx; ++ifx)
+                    {
+                        for (int ipos = 0; ipos < ndim; ++ipos)
+                        {
+                            double flux_fx_L = fx_rec_old(i, j, k, 0, idim, ifx) * flux_minus_one.rho;
+                            double flux_fx_R = fx_rec_old(i, j, k, 1, idim, ifx) * flux_plus_one.rho;
+
+                            fx_rec(i, j, k, 0, ipos, ifx) += dtodv * (flux_fx_L * m_grid.ds(i, j, k, idim) 
+                                                                - flux_fx_R * m_grid.ds(i_p, j_p, k_p, idim));
+                            fx_rec(i, j, k, 1, ipos, ifx) += dtodv * (flux_fx_L * m_grid.ds(i, j, k, idim) 
+                                                                - flux_fx_R * m_grid.ds(i_p, j_p, k_p, idim));
+                        }
                     }
                 }
-            }
-        });
+            });
 
         Kokkos::parallel_for(
-        "PassiveScalarExtrapolation",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
-        {
-            for (int idim = 0; idim < ndim; ++idim)
+            "passive_scalar_extrapolation",
+            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
             {
-                for (int ifx = 0; ifx < nfx; ++ifx)
+                for (int idim = 0; idim < ndim; ++idim)
                 {
-                    fx_rec(i, j, k, 0, idim, ifx) /= rho_rec(i, j, k, 0, idim);
-                    fx_rec(i, j, k, 1, idim, ifx) /= rho_rec(i, j, k, 1, idim);
+                    for (int ifx = 0; ifx < nfx; ++ifx)
+                    {
+                        fx_rec(i, j, k, 0, idim, ifx) /= rho_rec(i, j, k, 0, idim);
+                        fx_rec(i, j, k, 1, idim, ifx) /= rho_rec(i, j, k, 1, idim);
+                    }
                 }
-            }
-        });
+            });
     }
 };
 
