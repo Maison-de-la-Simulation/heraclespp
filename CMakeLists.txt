@@ -30,6 +30,12 @@ if("${Novapp_EOS}" STREQUAL "")
   message(FATAL_ERROR "Novapp_EOS is not defined")
 endif()
 
+set(Novapp_GRAVITY "" CACHE STRING "Choose the equation of state: UNIFORM(Uniform gravity);POINT_MASS(Point mass gravity)")
+set_property(CACHE Novapp_GRAVITY PROPERTY STRINGS "UNIFORM;POINT_MASS")
+if("${Novapp_GRAVITY}" STREQUAL "")
+  message(FATAL_ERROR "Novapp_GRAVITY is not defined")
+endif()
+
 include(CTest)
 
 add_subdirectory(vendor/googletest)

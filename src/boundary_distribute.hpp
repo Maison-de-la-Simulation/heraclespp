@@ -46,8 +46,7 @@ public:
     void execute(KV_double_3d rho,
                  KV_double_4d rhou,
                  KV_double_3d E,
-                 KV_double_4d fx,
-                 KV_double_1d g) const;
+                 KV_double_4d fx) const;
 };
 
 } // namespace novapp

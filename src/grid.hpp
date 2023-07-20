@@ -23,7 +23,7 @@
 namespace novapp
 {
 
-template<class T>
+template <class T>
 inline
 void print_info(std::string var_name, T var_value)
 {

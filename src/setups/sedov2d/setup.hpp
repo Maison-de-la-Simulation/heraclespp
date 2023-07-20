@@ -35,6 +35,7 @@ public:
     }
 };
 
+template <class Gravity>
 class InitializationSetup : public IInitializationProblem
 {
 private:
@@ -46,7 +47,8 @@ public:
     InitializationSetup(
         EOS const& eos,
         Grid const& grid,
-        ParamSetup const& param_set_up)
+        ParamSetup const& param_set_up,
+        Gravity const& gravity)
         : m_eos(eos)
         , m_grid(grid)
         , m_param_setup(param_set_up)
@@ -58,8 +60,7 @@ public:
         KV_double_3d const rho,
         KV_double_4d const u,
         KV_double_3d const P,
-        [[maybe_unused]] KV_double_4d const fx,
-        [[maybe_unused]] KV_double_1d g) const final
+        [[maybe_unused]] KV_double_4d const fx) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -112,13 +113,15 @@ public:
     }
 };
 
+template <class Gravity>
 class BoundarySetup : public IBoundaryCondition
 {
 public:
     BoundarySetup(int idim, int iface,
         [[maybe_unused]] EOS const& eos,
         [[maybe_unused]] Grid const& grid,
-        [[maybe_unused]] ParamSetup const& param_setup)
+        [[maybe_unused]] ParamSetup const& param_setup,
+        [[maybe_unused]] Gravity const& gravity)
         : IBoundaryCondition(idim, iface)
     {
         // no new boundary

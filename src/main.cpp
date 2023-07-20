@@ -10,6 +10,7 @@
 
 #include "ndim.hpp"
 #include "eos.hpp"
+#include "gravity_choice.hpp"
 #include "PerfectGas.hpp"
 #include "RadGas.hpp"
 #include "array_conversion.hpp"
@@ -33,6 +34,9 @@
 #include "nova_params.hpp"
 #include "factories.hpp"
 #include "setup.hpp"
+#include "gravity.hpp"
+
+#define GRAVITY
 
 using namespace novapp;
 
@@ -68,9 +72,9 @@ int main(int argc, char** argv)
     Grid const grid(param);
     grid.print_grid();
 
+    print_info("PROBLEM", param.problem);
     print_info("EOS", eos_choice);
     //print_info("GEOMETRIE", geom_choice);
-    print_info("PROBLEM", param.problem);
 
     EOS const eos(param.gamma, param.mu);
 
@@ -82,48 +86,61 @@ int main(int argc, char** argv)
     g_array_dv.sync_device();
     KV_double_1d g_array = g_array_dv.d_view;
 
+    #ifdef UNIFORM
+        UniformGravity g(make_uniform_gravity(param));
+        using Gravity = UniformGravity;
+        print_info("GRAVITY", "UNIFORM");
+    #elif defined(POINT_MASS)
+        PointMassGravity g(make_point_mass_gravity(param, grid));
+        using Gravity = PointMassGravity;
+        print_info("GRAVITY", "POINT_MASS");
+    #else
+        static_assert(false, "Gravity not defined");
+    #endif
+    
     write_pdi_init(param.max_iter, param.output_frequency, grid, param);
 
     std::string bc_choice_dir;
     std::array<std::string, ndim*2> bc_choice_faces;
     for(int idim = 0; idim < ndim; idim++)
     {
-        bc_choice_dir = reader.Get("Boundary Condition", "BC"+bc_dir[idim], param.bc_choice);
+        bc_choice_dir = reader.Get("Boundary Condition", "BC" + bc_dir[idim], param.bc_choice);
         for (int iface = 0; iface < 2; iface++)
         {
-            bc_choice_faces[idim*2+iface] = reader.Get("Boundary Condition",
-                                                       "BC"+bc_dir[idim]+bc_face[iface],
+            bc_choice_faces[idim * 2 + iface] = reader.Get("Boundary Condition",
+                                                       "BC" + bc_dir[idim]+bc_face[iface],
                                                        bc_choice_dir);
-            if(bc_choice_faces[idim*2+iface].empty() )
+            if(bc_choice_faces[idim * 2 + iface].empty() )
             {
                 throw std::runtime_error("boundary condition not fully defined for dimension "
-                                         +bc_dir[idim]);
+                                         + bc_dir[idim]);
             }
         }
     }
 
     std::array<std::unique_ptr<IBoundaryCondition>, ndim * 2> bcs_array;
-    for(int idim=0; idim<ndim; idim++)
+    for(int idim = 0; idim < ndim; idim++)
     {
-        for(int iface=0; iface<2; iface++)
+        for(int iface = 0; iface < 2; iface++)
         {
-            bcs_array[idim*2+iface] = factory_boundary_construction(bc_choice_faces[idim*2+iface], idim, iface, eos, grid, param_setup);
+            bcs_array[idim * 2 + iface] = factory_boundary_construction<Gravity>(
+                    bc_choice_faces[idim * 2 + iface], idim, iface, eos, grid, param_setup, Gravity(g));
         }
     }
 
     DistributedBoundaryCondition const bcs(reader, grid, param, std::move(bcs_array));
 
-    std::unique_ptr<IInitializationProblem> initialization 
-            = std::make_unique<InitializationSetup>(eos, grid, param_setup);
+    std::unique_ptr<IInitializationProblem> initialization
+            = std::make_unique<InitializationSetup<Gravity>>(eos, grid, param_setup, Gravity(g));
 
     std::unique_ptr<IFaceReconstruction> face_reconstruction
             = factory_face_reconstruction(param.reconstruction_type, grid);
-    
+
     std::unique_ptr<IExtrapolationReconstruction> time_reconstruction
-            = factory_time_reconstruction(param.gravity_type, eos, grid, g_array);
+            = std::make_unique<ExtrapolationTimeReconstruction<Gravity>>(eos, grid, Gravity(g));
 
     std::unique_ptr<IGodunovScheme> godunov_scheme
-            = factory_godunov_scheme(param.riemann_solver, param.gravity_type, eos, grid, g_array);
+            = factory_godunov_scheme<Gravity>(param.riemann_solver, eos, grid, Gravity(g));
 
     KDV_double_3d rho("rho",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Density
     KDV_double_4d u("u",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim); // Velocity
@@ -167,11 +184,11 @@ int main(int argc, char** argv)
     }
     else
     {
-        initialization->execute(grid.range.no_ghosts(), rho.d_view, u.d_view, P.d_view, fx.d_view, g_array);
+        initialization->execute(grid.range.no_ghosts(), rho.d_view, u.d_view, P.d_view, fx.d_view);
     }
     conv_prim_to_cons(grid.range.no_ghosts(), rhou.d_view, E.d_view, rho.d_view, u.d_view, P.d_view, eos);
 
-    bcs.execute(rho.d_view, rhou.d_view, E.d_view, fx.d_view, g_array);
+    bcs.execute(rho.d_view, rhou.d_view, E.d_view, fx.d_view);
     
     conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho.d_view, rhou.d_view, E.d_view, eos);
 
@@ -214,7 +231,7 @@ int main(int argc, char** argv)
                                 rho_rec, rhou_rec, E_rec, fx_rec,
                                 rho_new, rhou_new, E_new, fx_new);
 
-        bcs.execute(rho_new, rhou_new, E_new, fx_new, g_array);
+        bcs.execute(rho_new, rhou_new, E_new, fx_new);
 
         conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho_new, rhou_new, E_new, eos);
         Kokkos::deep_copy(rho.d_view, rho_new);

@@ -37,21 +37,25 @@ public:
     }
 };
 
+template <class Gravity>
 class InitializationSetup : public IInitializationProblem
 {
 private:
     thermodynamics::PerfectGas m_eos;
     Grid m_grid;
     ParamSetup m_param_setup;
+    Gravity m_gravity;
 
 public:
     InitializationSetup(
         thermodynamics::PerfectGas const& eos,
         Grid const& grid,
-        ParamSetup const& param_set_up)
+        ParamSetup const& param_set_up,
+        Gravity const& gravity)
         : m_eos(eos)
         , m_grid(grid)
         , m_param_setup(param_set_up)
+        , m_gravity(gravity)
     {
     }
 
@@ -60,8 +64,7 @@ public:
         KV_double_3d const rho,
         KV_double_4d const u,
         KV_double_3d const P,
-        KV_double_4d const fx,
-        KV_double_1d g) const final
+        KV_double_4d const fx) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -133,14 +136,14 @@ public:
             if(z >= h)
             {
                 rho(i, j, k) = m_param_setup.rho0 * Kokkos::pow(1 - (gamma - 1) / gamma 
-                              * (m_param_setup.rho0 * Kokkos::fabs(g(2)) * z) / P0, 1. / (gamma - 1)) * units::density;
+                              * (m_param_setup.rho0 * Kokkos::fabs(m_gravity(i, j, k, 2)) * z) / P0, 1. / (gamma - 1)) * units::density;
                 P(i, j, k) = P0 * Kokkos::pow(rho(i, j, k) / m_param_setup.rho0, gamma) * units::pressure;
                 fx(i, j, k, 0) = 1;
             }
             if(z < h)
             {
                 rho(i, j, k) = m_param_setup.rho1 * Kokkos::pow(1 - (gamma - 1) / gamma 
-                              * (m_param_setup.rho1 * Kokkos::fabs(g(2)) * z) / P0, 1. / (gamma - 1)) * units::density;
+                              * (m_param_setup.rho1 * Kokkos::fabs(m_gravity(i, j, k, 2)) * z) / P0, 1. / (gamma - 1)) * units::density;
                 P(i, j, k) = P0 * Kokkos::pow(rho(i, j, k) / m_param_setup.rho1, gamma) * units::pressure;
                 fx(i, j, k, 0) = 0;
             }
@@ -163,13 +166,15 @@ public:
     }
 };
 
+template <class Gravity>
 class BoundarySetup : public IBoundaryCondition
 {
 public:
     BoundarySetup(int idim, int iface,
         [[maybe_unused]] EOS const& eos,
         [[maybe_unused]] Grid const& grid,
-        [[maybe_unused]] ParamSetup const& param_setup)
+        [[maybe_unused]] ParamSetup const& param_setup,
+        [[maybe_unused]] Gravity const& gravity)
         : IBoundaryCondition(idim, iface)
     {
         // no new boundary

@@ -30,8 +30,7 @@ public:
         KV_double_3d rho,
         KV_double_4d u,
         KV_double_3d P,
-        KV_double_4d fx,
-        KV_double_1d g) const
+        KV_double_4d fx) const
         = 0;
 };
 

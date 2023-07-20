@@ -35,8 +35,7 @@ public :
     int max_iter;
     int output_frequency;
     std::string reconstruction_type;
-    std::string riemann_solver;    
-    std::string gravity_type;
+    std::string riemann_solver;
     double gx;
     double gy;
     double gz;
@@ -82,7 +81,6 @@ public :
         reconstruction_type = reader.Get("Hydro", "reconstruction", "VanLeer");
         riemann_solver = reader.Get("Hydro", "riemann_solver", "HLL");
 
-        gravity_type = reader.Get("Gravity", "type", "Uniform");
         gx = reader.GetReal("Gravity", "gx", 0.0);
         gy = reader.GetReal("Gravity", "gy", 0.0);
         gz = reader.GetReal("Gravity", "gz", 0.0);
