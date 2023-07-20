@@ -3,7 +3,7 @@ add_subdirectory(thermodynamics)
 add_library(libnova++ array_conversion.cpp
                       io/config.yaml.cpp
                       io/io.cpp
-                      cfl_cond.cpp
+                      time_step.cpp
                       mpi_scope_guard.cpp
                       grid.cpp
                       boundary_distribute.cpp
