@@ -70,30 +70,35 @@ public:
         assert(u.extent(2) == P.extent(2));
 
         auto const xc = m_grid.x_center;
+
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
-        "advection_gap_init",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
-        {
-            if (xc(i) * units::m <= 0.3)
+            "advection_gap_init",
+            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
             {
-                rho(i, j, k) = m_param_setup.rho0 * units::density;
-            }
-            else if (xc(i) * units::m >= 0.7)
-            {       
-                rho(i, j, k) = m_param_setup.rho0 * units::density;
-            }
-            else
-            {
-                rho(i, j, k) = m_param_setup.rho1 * units::density;
-            }
-            P(i, j, k) = m_param_setup.P0 * units::pressure;
-            for (int idim = 0; idim < ndim; ++idim)
-            {
-                u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
-            }
-        });  
+                if (xc(i) * units::m <= 0.3)
+                {
+                    rho(i, j, k) = m_param_setup.rho0 * units::density;
+                }
+
+                else if (xc(i) * units::m >= 0.7)
+                {       
+                    rho(i, j, k) = m_param_setup.rho0 * units::density;
+                }
+
+                else
+                {
+                    rho(i, j, k) = m_param_setup.rho1 * units::density;
+                }
+
+                for (int idim = 0; idim < ndim; ++idim)
+                {
+                    u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
+                }
+
+                P(i, j, k) = m_param_setup.P0 * units::pressure;
+            });
     }
 };
 

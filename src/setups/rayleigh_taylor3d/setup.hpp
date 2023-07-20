@@ -102,56 +102,64 @@ public:
         auto const x_d = m_grid.x.d_view;
         auto const y_d = m_grid.y.d_view;
         auto const z_d = m_grid.z.d_view;
+
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
-        "Rayleigh_Taylor3d_init",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
-        {
-            double P0 = (2 * units::pi * (m_param_setup.rho0 + m_param_setup.rho1)
-                   * Kokkos::fabs(g(2)) * L) * units::pressure;
-                   
-            double x = x_d(i) * units::m;
-            double y = y_d(j) * units::m;
-            double z = z_d(k) * units::m;
-            
-            double X = 2 * units::pi * x / L;
-            double Y = 2 * units::pi * y / L;
-            double h = 0;
-            for (int ik = 0; ik < kx.size(); ++ik)
+            "Rayleigh_Taylor_3D_init",
+            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
             {
-                for (int jk = 0; jk < ky.size(); ++jk)
+                double P0 = (2 * units::pi * (m_param_setup.rho0 + m_param_setup.rho1)
+                    * Kokkos::fabs(g(2)) * L) * units::pressure;
+                    
+                double x = x_d(i) * units::m;
+                double y = y_d(j) * units::m;
+                double z = z_d(k) * units::m;
+                
+                double X = 2 * units::pi * x / L;
+                double Y = 2 * units::pi * y / L;
+                double h = 0;
+
+                for (int ik = 0; ik < kx.size(); ++ik)
                 {
-                    double K = kx[ik] * kx[ik] + ky[jk] + ky[jk];
-                    if (K >= 8 && K <= 16)
+                    for (int jk = 0; jk < ky.size(); ++jk)
                     {
-                        h += (ak * Kokkos::cos(kx[ik] * X) * Kokkos::cos(ky[jk] * Y)
-                     + bk * Kokkos::cos(kx[ik] * X) * Kokkos::sin(ky[jk] * Y)
-                     + ck * Kokkos::sin(kx[ik] * X) * Kokkos::cos(ky[jk] * Y)
-                     + dk * Kokkos::sin(kx[ik] * X) * Kokkos::sin(ky[jk] * Y));
+                        double K = kx[ik] * kx[ik] + ky[jk] + ky[jk];
+                        if (K >= 8 && K <= 16)
+                        {
+                            h += (ak * Kokkos::cos(kx[ik] * X) * Kokkos::cos(ky[jk] * Y)
+                        + bk * Kokkos::cos(kx[ik] * X) * Kokkos::sin(ky[jk] * Y)
+                        + ck * Kokkos::sin(kx[ik] * X) * Kokkos::cos(ky[jk] * Y)
+                        + dk * Kokkos::sin(kx[ik] * X) * Kokkos::sin(ky[jk] * Y));
+                        }
                     }
                 }
-            }
 
-            if(z >= h)
-            {
-                rho(i, j, k) = m_param_setup.rho0 * Kokkos::pow(1 - (gamma - 1) / gamma 
-                              * (m_param_setup.rho0 * Kokkos::fabs(m_gravity(i, j, k, 2)) * z) / P0, 1. / (gamma - 1)) * units::density;
-                P(i, j, k) = P0 * Kokkos::pow(rho(i, j, k) / m_param_setup.rho0, gamma) * units::pressure;
-                fx(i, j, k, 0) = 1;
-            }
-            if(z < h)
-            {
-                rho(i, j, k) = m_param_setup.rho1 * Kokkos::pow(1 - (gamma - 1) / gamma 
-                              * (m_param_setup.rho1 * Kokkos::fabs(m_gravity(i, j, k, 2)) * z) / P0, 1. / (gamma - 1)) * units::density;
-                P(i, j, k) = P0 * Kokkos::pow(rho(i, j, k) / m_param_setup.rho1, gamma) * units::pressure;
-                fx(i, j, k, 0) = 0;
-            }
-            for (int idim = 0; idim < ndim; ++idim)
-            {
-                u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
-            }
-        });
+                if(z >= h)
+                {
+                    rho(i, j, k) = m_param_setup.rho0 * Kokkos::pow(1 - (gamma - 1) / gamma 
+                                * (m_param_setup.rho0 * Kokkos::fabs(m_gravity(i, j, k, 2)) * z) / P0, 1. / (gamma - 1)) * units::density;
+
+                    P(i, j, k) = P0 * Kokkos::pow(rho(i, j, k) / m_param_setup.rho0, gamma) * units::pressure;
+
+                    fx(i, j, k, 0) = 1;
+                }
+
+                if(z < h)
+                {
+                    rho(i, j, k) = m_param_setup.rho1 * Kokkos::pow(1 - (gamma - 1) / gamma 
+                                * (m_param_setup.rho1 * Kokkos::fabs(m_gravity(i, j, k, 2)) * z) / P0, 1. / (gamma - 1)) * units::density;
+
+                    P(i, j, k) = P0 * Kokkos::pow(rho(i, j, k) / m_param_setup.rho1, gamma) * units::pressure;
+                    
+                    fx(i, j, k, 0) = 0;
+                }
+
+                for (int idim = 0; idim < ndim; ++idim)
+                {
+                    u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
+                }
+            });
     }
 };
 

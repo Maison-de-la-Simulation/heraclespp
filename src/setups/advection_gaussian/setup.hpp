@@ -65,19 +65,22 @@ public:
         assert(u.extent(2) == P.extent(2));
 
         auto const xc = m_grid.x_center;
+
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
-        "advection_gaussian_init",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
-        {
-            rho(i, j, k) = 1 * Kokkos::exp(-15*Kokkos::pow(1./2 - xc(i), 2)) * units::density;
-            P(i, j, k) = m_param_setup.P0 * units::pressure;
-            for (int idim = 0; idim < ndim; ++idim)
+            "advection_gaussian_init",
+            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
             {
-                u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
-            }
-        });  
+                rho(i, j, k) = 1 * Kokkos::exp(- 15 * Kokkos::pow(1. / 2 - xc(i), 2)) * units::density;
+
+                for (int idim = 0; idim < ndim; ++idim)
+                {
+                    u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
+                }
+
+                P(i, j, k) = m_param_setup.P0 * units::pressure;
+            });
     }
 };
 

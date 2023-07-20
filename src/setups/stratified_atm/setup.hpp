@@ -76,19 +76,22 @@ public:
         
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
-        "stratified_atm_init",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
-        {
-            double x0 = units::kb * m_param_setup.T * units::Kelvin
-                    / (mu * units::mh * Kokkos::fabs(m_gravity(i, j, k, 0)) * units::acc);
-            rho(i, j, k) = m_param_setup.rho0 * units::density * Kokkos::exp(- xc(i) / x0);
-            for (int idim = 0; idim < ndim; ++idim)
+            "stratified_atm_init",
+            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
             {
-                u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
-            }
-            P(i, j, k) = m_eos.compute_P_from_T(rho(i, j, k), m_param_setup.T);
-        });
+                double x0 = units::kb * m_param_setup.T * units::Kelvin
+                        / (mu * units::mh * Kokkos::fabs(m_gravity(i, j, k, 0)) * units::acc);
+
+                rho(i, j, k) = m_param_setup.rho0 * units::density * Kokkos::exp(- xc(i) / x0);
+
+                for (int idim = 0; idim < ndim; ++idim)
+                {
+                    u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
+                }
+
+                P(i, j, k) = m_eos.compute_P_from_T(rho(i, j, k), m_param_setup.T);
+            });
     }
 };
 
@@ -155,20 +158,24 @@ public:
         end[m_bc_idim] = begin[m_bc_idim] + ng;
 
         Kokkos::parallel_for(
-        m_label,
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-        KOKKOS_CLASS_LAMBDA(int i, int j, int k) 
-        {
-            double gravity = m_gravity(i, j, k, 0) * units::acc;
-            double x0 = units::kb * m_param_setup.T * units::Kelvin
-                    / (mu * units::mh * Kokkos::fabs(gravity));
-            rho(i, j, k) = m_param_setup.rho0 * units::density * Kokkos::exp(- xc(i) / x0);
-            for (int n = 0; n < rhou.extent_int(3); n++)
+            m_label,
+            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+            KOKKOS_CLASS_LAMBDA(int i, int j, int k) 
             {
-                rhou(i, j, k, n) = m_param_setup.rho0 * units::density * m_param_setup.u0 * units::velocity;
-            }
-            E(i, j, k) = m_eos.compute_evol_from_T(rho(i, j, k) * units::density, m_param_setup.T * units::Kelvin);
-        });
+                double gravity = m_gravity(i, j, k, 0) * units::acc;
+
+                double x0 = units::kb * m_param_setup.T * units::Kelvin
+                        / (mu * units::mh * Kokkos::fabs(gravity));
+
+                rho(i, j, k) = m_param_setup.rho0 * units::density * Kokkos::exp(- xc(i) / x0);
+
+                for (int n = 0; n < rhou.extent_int(3); n++)
+                {
+                    rhou(i, j, k, n) = m_param_setup.rho0 * units::density * m_param_setup.u0 * units::velocity;
+                }
+                
+                E(i, j, k) = m_eos.compute_evol_from_T(rho(i, j, k) * units::density, m_param_setup.T * units::Kelvin);
+            });
     }
 };
 

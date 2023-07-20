@@ -70,41 +70,49 @@ public:
 
         auto const x_d = m_grid.x.d_view;
         auto const y_d = m_grid.y.d_view;
+
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
-        "Gresho_vortex_init",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
-        {
-            double x = x_d(i) * units::m;
-            double y = y_d(j) * units::m;
-            double r = Kokkos::sqrt(x * x + y * y);
-            double theta = Kokkos::atan2(y, x);
-            double u_theta;
-            rho(i, j, k) = m_param_setup.rho0 * units::density;
-            if (r < 0.2)
+            "Gresho_vortex_init",
+            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
             {
-                P(i, j, k) = m_param_setup.P0 * units::pressure + 12.5 * r * r;
-                u_theta = 5 * r;
-                u(i, j, k, 0) = - u_theta * Kokkos::sin(theta);
-                u(i, j, k, 1) = u_theta * Kokkos::cos(theta);
-            }          
-            else if ((r >= 0.2) && (r < 0.4))
-            {
-                P(i, j, k) = m_param_setup.P0 * units::pressure + 12.5 * r * r + 4 - 20 * r + 4 * Kokkos::log(5 * r);
-                u_theta = 2 - 5 * r;
-                u(i, j, k, 0) = - u_theta * Kokkos::sin(theta);
-                u(i, j, k, 1) = u_theta * Kokkos::cos(theta);
-            }
-            else
-            {
-                P(i, j, k) = m_param_setup.P0 * units::pressure - 2 + 4 * Kokkos::log(2);
-                for (int idim = 0; idim < ndim; ++idim)
+                double x = x_d(i) * units::m;
+                double y = y_d(j) * units::m;
+                double r = Kokkos::sqrt(x * x + y * y);
+                double theta = Kokkos::atan2(y, x);
+                double u_theta;
+                
+                rho(i, j, k) = m_param_setup.rho0 * units::density;
+
+                if (r < 0.2)
                 {
-                u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
+                    u_theta = 5 * r;
+                    u(i, j, k, 0) = - u_theta * Kokkos::sin(theta);
+                    u(i, j, k, 1) = u_theta * Kokkos::cos(theta);
+
+                    P(i, j, k) = m_param_setup.P0 * units::pressure + 12.5 * r * r;
                 }
-            }
-        });  
+
+                else if ((r >= 0.2) && (r < 0.4))
+                {
+                    u_theta = 2 - 5 * r;
+                    u(i, j, k, 0) = - u_theta * Kokkos::sin(theta);
+                    u(i, j, k, 1) = u_theta * Kokkos::cos(theta);
+
+                    P(i, j, k) = m_param_setup.P0 * units::pressure + 12.5 * r * r + 4 - 20 * r + 4 * Kokkos::log(5 * r);
+                }
+
+                else
+                {
+                    for (int idim = 0; idim < ndim; ++idim)
+                    {
+                    u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
+                    }
+
+                    P(i, j, k) = m_param_setup.P0 * units::pressure - 2 + 4 * Kokkos::log(2);
+                }
+            });
     }
 };
 

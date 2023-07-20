@@ -81,31 +81,36 @@ public:
 
         auto const x_d = m_grid.x.d_view;
         auto const y_d = m_grid.y.d_view;
+
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
-        "Rayleigh_Taylor_init",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
-        {
-            double x = x_d(i) * units::m;
-            double y = y_d(j) * units::m;
-            double h = 0.01 * Kokkos::cos(4 * Kokkos::numbers::pi * x);
-            if (y >= h)
+            "Rayleigh_Taylor_2D_init",
+            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
             {
-                rho(i, j, k) = m_param_setup.rho1 * units::density;
-                fx(i, j, k, 0) = m_param_setup.fx0;
-            }
-            if (y < h)
-            {
-                rho(i, j, k) = m_param_setup.rho0 * units::density;
-                fx(i, j, k, 0) = m_param_setup.fx1;
-            }
-            u(i, j, k, 0) = m_param_setup.u0 * units::velocity;
-            u(i, j, k, 1) = m_param_setup.u0 * units::velocity;
-            /* u(i, j, k, 1) = (m_param_setup.A/4) * (1+Kokkos::cos(2*Kokkos::numbers::pi*x/m_grid.L[0])) 
-                            * (1+Kokkos::cos(2*Kokkos::numbers::pi*y/m_grid.L[1])); */
-            P(i, j, k) = (P0 + rho(i, j, k) * m_gravity(i, j, k, 1) * units::acc * y) * units::pressure;
-        });  
+                double x = x_d(i) * units::m;
+                double y = y_d(j) * units::m;
+                double h = 0.01 * Kokkos::cos(4 * Kokkos::numbers::pi * x);
+
+                if (y >= h)
+                {
+                    rho(i, j, k) = m_param_setup.rho1 * units::density;
+                    fx(i, j, k, 0) = m_param_setup.fx0;
+                }
+
+                if (y < h)
+                {
+                    rho(i, j, k) = m_param_setup.rho0 * units::density;
+                    fx(i, j, k, 0) = m_param_setup.fx1;
+                }
+                
+                u(i, j, k, 0) = m_param_setup.u0 * units::velocity;
+                u(i, j, k, 1) = m_param_setup.u0 * units::velocity;
+                /* u(i, j, k, 1) = (m_param_setup.A/4) * (1+Kokkos::cos(2*Kokkos::numbers::pi*x/m_grid.L[0])) 
+                                * (1+Kokkos::cos(2*Kokkos::numbers::pi*y/m_grid.L[1])); */
+                                
+                P(i, j, k) = (P0 + rho(i, j, k) * m_gravity(i, j, k, 1) * units::acc * y) * units::pressure;
+            });
     }
 };
 

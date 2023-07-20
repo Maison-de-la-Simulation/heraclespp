@@ -71,30 +71,35 @@ public:
 
         auto const x_d = m_grid.x.d_view;
         auto const y_d = m_grid.y.d_view;
+        
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
-        "Implosion_test_init",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
-        {
-            double x = x_d(i) * units::m;
-            double y = y_d(j) * units::m;
-            if (x + y >  0.15)
+            "implosion_test_init",
+            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
             {
-                rho(i, j, k) = m_param_setup.rho0 * units::density;
-                P(i, j, k) = m_param_setup.P0 * units::pressure;
-            }
-            else
-            {
-                rho(i, j, k) = m_param_setup.rho1 * units::density;
-                P(i, j, k) = m_param_setup.P1 * units::pressure;
-            }
+                double x = x_d(i) * units::m;
+                double y = y_d(j) * units::m;
 
-            for (int idim = 0; idim < ndim; ++idim)
-            {
-                u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
-            }
-        });
+                if (x + y >  0.15)
+                {
+                    rho(i, j, k) = m_param_setup.rho0 * units::density;
+
+                    P(i, j, k) = m_param_setup.P0 * units::pressure;
+                }
+                
+                else
+                {
+                    rho(i, j, k) = m_param_setup.rho1 * units::density;
+
+                    P(i, j, k) = m_param_setup.P1 * units::pressure;
+                }
+
+                for (int idim = 0; idim < ndim; ++idim)
+                {
+                    u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
+                }
+            });
     }
 };
 

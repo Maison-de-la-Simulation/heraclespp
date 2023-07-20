@@ -68,21 +68,25 @@ public:
 
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
-        "ShockWallInit",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
-        {
-            rho(i, j, k) = m_param_setup.rho0 * units::density;
-            P(i, j, k) = m_param_setup.P0 * units::pressure;
-            for (int idim = 0; idim < ndim; ++idim)
+            "shock_wall_init",
+            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
             {
-                u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
-            }
-            double T = m_eos.compute_T_from_P(rho(i, j, k), P(i, j, k));
-            double Pr = units::ar * T * T * T * T / 3;
-            double Pg = rho(i, j, k)  * units::kb * T / (1 * units::mh);
-            std::cout<<"Pg = "<<Pg<<" Pr = "<<Pr<<" alpha = "<< Pr/Pg<<std::endl;
-        });
+                rho(i, j, k) = m_param_setup.rho0 * units::density;
+
+                P(i, j, k) = m_param_setup.P0 * units::pressure;
+
+                for (int idim = 0; idim < ndim; ++idim)
+                {
+                    u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
+                }
+
+                double T = m_eos.compute_T_from_P(rho(i, j, k), P(i, j, k));
+                double Pr = units::ar * T * T * T * T / 3;
+                double Pg = rho(i, j, k)  * units::kb * T / (1 * units::mh);
+
+                //std::cout<<"Pg = "<<Pg<<" Pr = "<<Pr<<" alpha = "<< Pr/Pg<<std::endl;
+            });
     }
 };
 
@@ -97,6 +101,7 @@ public:
         : IGridType()
         , m_param(param)
     {
+        // regular grid
     }
 
     void execute(

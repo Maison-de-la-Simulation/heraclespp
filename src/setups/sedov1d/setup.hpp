@@ -71,23 +71,26 @@ public:
 
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
-        "shock_tube_init",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
-        {
-            rho(i, j, k) = m_param_setup.rho0 * units::density;
-            for (int idim = 0; idim < ndim; ++idim)
+            "Sedov_1D_init",
+            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
             {
-                u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
-            }
-            double T = m_eos.compute_T_from_evol(rho(i, j, k), m_param_setup.E0 * units::evol / m_grid.dv(i, j, k));
-            P(i, j, k) = m_eos.compute_P_from_T(rho(i, j, k), T) * units::pressure;
-            if(m_grid.mpi_rank==0)
-            {
-                double Tpertub = m_eos.compute_T_from_evol(rho(i, j, k), m_param_setup.E1 * units::evol / m_grid.dv(i, j, k));
-                P(2, j, k) = m_eos.compute_P_from_T(rho(i, j, k), Tpertub) * units::pressure;
-            }
-        });  
+                rho(i, j, k) = m_param_setup.rho0 * units::density;
+
+                for (int idim = 0; idim < ndim; ++idim)
+                {
+                    u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
+                }
+
+                double T = m_eos.compute_T_from_evol(rho(i, j, k), m_param_setup.E0 * units::evol / m_grid.dv(i, j, k));
+                P(i, j, k) = m_eos.compute_P_from_T(rho(i, j, k), T) * units::pressure;
+                
+                if(m_grid.mpi_rank==0)
+                {
+                    double Tpertub = m_eos.compute_T_from_evol(rho(i, j, k), m_param_setup.E1 * units::evol / m_grid.dv(i, j, k));
+                    P(2, j, k) = m_eos.compute_P_from_T(rho(i, j, k), Tpertub) * units::pressure;
+                }
+            });
     }
 };
 

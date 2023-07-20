@@ -73,32 +73,35 @@ public:
         auto const y_d = m_grid.y.d_view;
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
-        "shock_tube_init",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
-        {
-            double x = x_d(i) * units::m;
-            double y = y_d(j) * units::m;
-            double r = Kokkos::sqrt(x * x + y * y);
+            "Sedov_2D_init",
+            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
+            {
+                double x = x_d(i) * units::m;
+                double y = y_d(j) * units::m;
+                double r = Kokkos::sqrt(x * x + y * y);
 
-            rho(i, j, k) = m_param_setup.rho0 * units::density;
-            for (int idim = 0; idim < ndim; ++idim)
-            {
-                u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
-            }
-            if (r <0.025)
-            {
-                double T = m_eos.compute_T_from_evol(rho(i, j, k), 
-                            m_param_setup.E1 * units::evol / m_grid.dv(i, j, k)) * units::Kelvin;
-                P(i, j, k) = m_eos.compute_P_from_T(rho(i, j, k), T) * units::pressure;
-            }
-            else
-            {
-                double T = m_eos.compute_T_from_evol(rho(i, j, k), 
-                            m_param_setup.E0 * units::evol / m_grid.dv(i, j, k)) * units::Kelvin;
-                P(i, j, k) = m_eos.compute_P_from_T(rho(i, j, k), T) * units::pressure;
-            } 
-        });  
+                rho(i, j, k) = m_param_setup.rho0 * units::density;
+
+                for (int idim = 0; idim < ndim; ++idim)
+                {
+                    u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
+                }
+
+                if (r <0.025)
+                {
+                    double T = m_eos.compute_T_from_evol(rho(i, j, k), 
+                                m_param_setup.E1 * units::evol / m_grid.dv(i, j, k)) * units::Kelvin;
+                    P(i, j, k) = m_eos.compute_P_from_T(rho(i, j, k), T) * units::pressure;
+                }
+                
+                else
+                {
+                    double T = m_eos.compute_T_from_evol(rho(i, j, k), 
+                                m_param_setup.E0 * units::evol / m_grid.dv(i, j, k)) * units::Kelvin;
+                    P(i, j, k) = m_eos.compute_P_from_T(rho(i, j, k), T) * units::pressure;
+                } 
+            });
     }
 };
 

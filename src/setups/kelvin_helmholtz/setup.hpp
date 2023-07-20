@@ -75,23 +75,23 @@ public:
 
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
-        "KelvinHelmholtzInit",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
-        {
-            double x = x_d(i) * units::m;
-            double y = y_d(j) * units::m;
+            "Kelvin_Helmholtz_init",
+            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
+            {
+                double x = x_d(i) * units::m;
+                double y = y_d(j) * units::m;
 
-            rho(i, j, k)  = 1 + drho_rho * (Kokkos::tanh((y - y1) / a) - Kokkos::tanh((y - y2) / a));
+                rho(i, j, k)  = 1 + drho_rho * (Kokkos::tanh((y - y1) / a) - Kokkos::tanh((y - y2) / a));
+                
+                u(i, j, k, 0) = 1 * (Kokkos::tanh((y - y1) / a) - Kokkos::tanh((y - y2) / a));
+
+                u(i, j, k, 1) = amp * Kokkos::sin(Kokkos::numbers::pi * x)
+                                * (Kokkos::exp(- (y - y1) * (y - y1) / (sigma * sigma))
+                                + Kokkos::exp(- (y - y2) * (y - y2) / (sigma * sigma))); 
             
-            u(i, j, k, 0) = 1 * (Kokkos::tanh((y - y1) / a) - Kokkos::tanh((y - y2) / a));
-
-            u(i, j, k, 1) = amp * Kokkos::sin(Kokkos::numbers::pi * x)
-                             * (Kokkos::exp(- (y - y1) * (y - y1) / (sigma * sigma))
-                            + Kokkos::exp(- (y - y2) * (y - y2) / (sigma * sigma))); 
-        
-            P(i, j, k) = m_param_setup.P0 * units::pressure ;
-        });
+                P(i, j, k) = m_param_setup.P0 * units::pressure ;
+            });
     }
 };
 
