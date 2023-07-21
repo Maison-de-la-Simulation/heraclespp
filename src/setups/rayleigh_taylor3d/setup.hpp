@@ -110,7 +110,7 @@ public:
             KOKKOS_CLASS_LAMBDA(int i, int j, int k)
             {
                 double P0 = (2 * units::pi * (m_param_setup.rho0 + m_param_setup.rho1)
-                    * Kokkos::fabs(g(2)) * L) * units::pressure;
+                    * Kokkos::fabs(m_gravity(i, j, k, 2)) * L) * units::pressure;
                     
                 double x = x_d(i) * units::m;
                 double y = y_d(j) * units::m;

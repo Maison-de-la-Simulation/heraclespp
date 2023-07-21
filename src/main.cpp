@@ -77,12 +77,12 @@ int main(int argc, char** argv)
 
     EOS const eos(param.gamma, param.mu);
 
-    #ifdef UNIFORM
-        UniformGravity g(make_uniform_gravity(param));
+    #if defined(UNIFORM)
+        UniformGravity const g(make_uniform_gravity(param));
         using Gravity = UniformGravity;
         print_info("GRAVITY", "UNIFORM");
     #elif defined(POINT_MASS)
-        PointMassGravity g(make_point_mass_gravity(param, grid));
+        PointMassGravity const g(make_point_mass_gravity(param, grid));
         using Gravity = PointMassGravity;
         print_info("GRAVITY", "POINT_MASS");
     #else
@@ -115,23 +115,23 @@ int main(int argc, char** argv)
         for(int iface = 0; iface < 2; iface++)
         {
             bcs_array[idim * 2 + iface] = factory_boundary_construction<Gravity>(
-                    bc_choice_faces[idim * 2 + iface], idim, iface, eos, grid, param_setup, Gravity(g));
+                    bc_choice_faces[idim * 2 + iface], idim, iface, eos, grid, param_setup, g);
         }
     }
 
     DistributedBoundaryCondition const bcs(reader, grid, param, std::move(bcs_array));
 
     std::unique_ptr<IInitializationProblem> initialization
-            = std::make_unique<InitializationSetup<Gravity>>(eos, grid, param_setup, Gravity(g));
+            = std::make_unique<InitializationSetup<Gravity>>(eos, grid, param_setup, g);
 
     std::unique_ptr<IFaceReconstruction> face_reconstruction
             = factory_face_reconstruction(param.reconstruction_type, grid);
 
     std::unique_ptr<IExtrapolationReconstruction> time_reconstruction
-            = std::make_unique<ExtrapolationTimeReconstruction<Gravity>>(eos, grid, Gravity(g));
+            = std::make_unique<ExtrapolationTimeReconstruction<Gravity>>(eos, grid, g);
 
     std::unique_ptr<IGodunovScheme> godunov_scheme
-            = factory_godunov_scheme<Gravity>(param.riemann_solver, eos, grid, Gravity(g));
+            = factory_godunov_scheme<Gravity>(param.riemann_solver, eos, grid, g);
 
     KDV_double_3d rho("rho",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Density
     KDV_double_4d u("u",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim); // Velocity
