@@ -1,5 +1,5 @@
 #           SEDOV BLAST WAVE
-#           Exacte solution
+#           Exact solution
 #
 # from IDL code, R.Teyssier
 
