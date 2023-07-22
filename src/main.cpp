@@ -35,8 +35,6 @@
 #include "setup.hpp"
 #include "gravity.hpp"
 
-#define GRAVITY
-
 using namespace novapp;
 
 int main(int argc, char** argv)
