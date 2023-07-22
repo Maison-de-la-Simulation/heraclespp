@@ -77,17 +77,17 @@ int main(int argc, char** argv)
 
     EOS const eos(param.gamma, param.mu);
 
-    #if defined(UNIFORM)
-        UniformGravity const g(make_uniform_gravity(param));
-        using Gravity = UniformGravity;
-        print_info("GRAVITY", "UNIFORM");
-    #elif defined(POINT_MASS)
-        PointMassGravity const g(make_point_mass_gravity(param, grid));
-        using Gravity = PointMassGravity;
-        print_info("GRAVITY", "POINT_MASS");
-    #else
-        static_assert(false, "Gravity not defined");
-    #endif
+#if defined(UNIFORM)
+    UniformGravity const g(make_uniform_gravity(param));
+    using Gravity = UniformGravity;
+    print_info("GRAVITY", "UNIFORM");
+#elif defined(POINT_MASS)
+    PointMassGravity const g(make_point_mass_gravity(param, grid));
+    using Gravity = PointMassGravity;
+    print_info("GRAVITY", "POINT_MASS");
+#else
+    static_assert(false, "Gravity not defined");
+#endif
     
     write_pdi_init(param.max_iter, param.output_frequency, grid, param);
 
@@ -114,7 +114,7 @@ int main(int argc, char** argv)
     {
         for(int iface = 0; iface < 2; iface++)
         {
-            bcs_array[idim * 2 + iface] = factory_boundary_construction<Gravity>(
+            bcs_array[idim * 2 + iface] = factory_boundary_construction(
                     bc_choice_faces[idim * 2 + iface], idim, iface, eos, grid, param_setup, g);
         }
     }
@@ -131,7 +131,7 @@ int main(int argc, char** argv)
             = std::make_unique<ExtrapolationTimeReconstruction<Gravity>>(eos, grid, g);
 
     std::unique_ptr<IGodunovScheme> godunov_scheme
-            = factory_godunov_scheme<Gravity>(param.riemann_solver, eos, grid, g);
+            = factory_godunov_scheme(param.riemann_solver, eos, grid, g);
 
     KDV_double_3d rho("rho",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Density
     KDV_double_4d u("u",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim); // Velocity
