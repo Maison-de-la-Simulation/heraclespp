@@ -37,7 +37,7 @@ inline std::unique_ptr<IBoundaryCondition> factory_boundary_construction(
     EOS const& eos,
     Grid const& grid,
     ParamSetup const& param_setup,
-    Gravity const gravity)
+    Gravity const& gravity)
 {
     if (boundary == "NullGradient")
     {

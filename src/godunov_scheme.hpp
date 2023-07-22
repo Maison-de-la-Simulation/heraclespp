@@ -240,7 +240,7 @@ inline std::unique_ptr<IGodunovScheme> factory_godunov_scheme(
     std::string const& riemann_solver,
     EOS const& eos,
     Grid const& grid,
-    Gravity const gravity)
+    Gravity const& gravity)
 {
     if (riemann_solver == "HLL")
     {
