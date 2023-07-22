@@ -129,10 +129,10 @@ DistributedBoundaryCondition::DistributedBoundaryCondition(
     generate_order();
 }
 
-void DistributedBoundaryCondition::execute(KV_double_3d rho,
-                                           KV_double_4d rhou,
-                                           KV_double_3d E,
-                                           KV_double_4d fx) const
+void DistributedBoundaryCondition::operator()(KV_double_3d rho,
+                                              KV_double_4d rhou,
+                                              KV_double_3d E,
+                                              KV_double_4d fx) const
 {
     std::vector<KV_double_3d> views;
     views.reserve(2 + rhou.extent_int(3) + fx.extent_int(3));

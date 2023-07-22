@@ -177,7 +177,7 @@ int main(int argc, char** argv)
     }
     conv_prim_to_cons(grid.range.no_ghosts(), rhou.d_view, E.d_view, rho.d_view, u.d_view, P.d_view, eos);
 
-    bcs.execute(rho.d_view, rhou.d_view, E.d_view, fx.d_view);
+    bcs(rho.d_view, rhou.d_view, E.d_view, fx.d_view);
     
     conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho.d_view, rhou.d_view, E.d_view, eos);
 
@@ -220,7 +220,7 @@ int main(int argc, char** argv)
                                 rho_rec, rhou_rec, E_rec, fx_rec,
                                 rho_new, rhou_new, E_new, fx_new);
 
-        bcs.execute(rho_new, rhou_new, E_new, fx_new);
+        bcs(rho_new, rhou_new, E_new, fx_new);
 
         conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho_new, rhou_new, E_new, eos);
         Kokkos::deep_copy(rho.d_view, rho_new);
