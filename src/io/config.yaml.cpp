@@ -185,4 +185,12 @@ pdi:
             dataset_selection:
               size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
               start: [ '$start[2]', '$start[1]', '$start[0]']
+          fx:
+            when: '$nfx>0'
+            memory_selection:
+              size: ['$nfx', '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
+              start: [0, '$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']
+            dataset_selection:
+              size: ['$nfx', '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
+              start: [ 0, '$start[2]', '$start[1]', '$start[0]']
 )IO_CONFIG";

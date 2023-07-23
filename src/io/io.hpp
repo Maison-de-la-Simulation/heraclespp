@@ -32,6 +32,7 @@ void read_pdi(std::string restart_file,
               KDV_double_3d rho,
               KDV_double_4d u,
               KDV_double_3d P,
+              KDV_double_4d fx,
               double& t,
               int& iter);
 

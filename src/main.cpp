@@ -157,7 +157,7 @@ int main(int argc, char** argv)
 
     if(param.restart)
     {   
-        read_pdi(param.restart_file, rho, u, P, t, iter); // read data into host view
+        read_pdi(param.restart_file, rho, u, P, fx, t, iter); // read data into host view
         
         rho.sync_device();
         u.sync_device();
