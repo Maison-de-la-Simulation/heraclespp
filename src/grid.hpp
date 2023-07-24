@@ -11,7 +11,6 @@
 #include <Kokkos_Core.hpp>
 #include <Kokkos_DualView.hpp>
 #include <inih/INIReader.hpp>
-#include "kokkos_shortcut.hpp"
 #include <mpi.h>
 #include <iomanip>
 #include "range.hpp"
