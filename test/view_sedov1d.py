@@ -55,8 +55,11 @@ for i in range(len(rho)):
 
 rho0 = 1
 E0 = 1
-r, rho_exact, u_exact, P_exact = ExactSedov(rho0, E0, t, gamma)
-E = 1 / 2 * rho_exact * u_exact**2 + P_exact * (gamma - 1)
+
+n = 1
+
+r, rho_exact, u_exact, P_exact = ExactSedov(rho0, E0, t, gamma, n)
+E_exact = 1 / 2 * rho_exact * u_exact**2 + P_exact / (gamma - 1)
 
 # ------------------------------------------
 
@@ -91,8 +94,8 @@ plt.grid()
 plt.legend()
 
 plt.subplot(224)
-plt.plot(r, E, label='Exact')
-plt.plot(xc, etot /2, label='Solver')
+plt.plot(r, E_exact, label='Exact')
+plt.plot(xc, etot, label='Solver')
 plt.ylabel('Energy ($kg.m^{-2}.s^{-2}$)'); plt.xlabel('x')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.xlim(0,1)
