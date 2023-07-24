@@ -54,8 +54,6 @@ public :
     std::array<int, 3> Nx_block;   // Maximum size of sub-block, including ghos
     std::array<int, 3> start_cell_wg; // for local MPI process, index of starting cell wrt the global index with ghost
 
-    Kokkos::Array<double, 3> L;
-
     std::array<std::array<std::array<int, 3>, 3>, 3> NeighborRank;
     std::array<int, Ndim*2> neighbor_src;
     std::array<int, Ndim*2> neighbor_dest;
@@ -69,16 +67,6 @@ public :
 
     Range range;
     std::array<std::array<bool, 2>,3> is_border;
-
-    std::array<KDV_double_4d, ndim> mpi_buffer;
-
-    int offsetx;
-    int offsety;
-    int offsetz;
-
-    double dxloc;
-    double dyloc;
-    double dzloc;
 
     Kokkos::View<double*, Kokkos::HostSpace> x_glob;
     Kokkos::View<double*, Kokkos::HostSpace> y_glob;
