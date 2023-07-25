@@ -1,0 +1,13 @@
+//!
+//! @file geom.hpp
+//! File automatically generated, do not modify.
+//!
+
+#pragma once
+
+namespace novapp
+{
+
+constexpr std::string_view geom_choice = "@Novapp_GEOM@";
+
+} // namespace novapp

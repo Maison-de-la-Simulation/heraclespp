@@ -19,6 +19,7 @@
 #include "gravity.hpp"
 #include "nova_params.hpp"
 #include "eos.hpp"
+#include "geom.hpp"
 
 namespace novapp
 {
@@ -104,6 +105,8 @@ public:
         KV_double_4d const fx_new) const final
     {
         int nfx = fx.extent_int(3);
+        auto const xc = m_grid.x_center;
+        auto const dv = m_grid.dv;
 
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
@@ -161,7 +164,7 @@ public:
                     plus_oneL.E = E_rec(i_p, j_p, k_p, 0, idim);
                     EulerFlux const FluxR = m_riemann_solver(var_R, plus_oneL, idim, m_eos);
 
-                    double const dtodv = dt / m_grid.dv(i, j, k);
+                    double const dtodv = dt / dv(i, j, k);
 
                     rho_new(i, j, k) += dtodv * (FluxL.rho * m_grid.ds(i, j, k, idim) 
                                         - FluxR.rho * m_grid.ds(i_p, j_p, k_p, idim));
@@ -172,6 +175,24 @@ public:
                     }
                     E_new(i, j, k) += dtodv * (FluxL.E * m_grid.ds(i, j, k, idim) 
                                             - FluxR.E * m_grid.ds(i_p, j_p, k_p, idim));
+
+                     //Spherical geometric terms
+                    if (geom_choice == "SPHERICAL")
+                    {
+                        EulerCons var_cons;
+                        var_cons.rho = rho(i, j, k);
+                        for (int idim = 0; idim < ndim; ++idim)
+                        {
+                            var_cons.rhou[idim] = rhou(i, j, k, idim);
+                        }
+                        var_cons.E = E(i, j, k);
+                        EulerPrim prim = to_prim(var_cons, m_eos);
+
+                        if (ndim == 1)
+                        {
+                            rhou_new(i, j, k, idim) += dt * 2 * prim.P / xc(i);
+                        }
+                    }
 
                     // Gravity
                     rhou_new(i, j, k, idim) += dt * m_gravity(i, j, k, idim) * rho(i, j, k);

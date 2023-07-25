@@ -46,30 +46,36 @@ UniformGravity make_uniform_gravity(
     return UniformGravity(g_array_dv.d_view);
 };
 
-/* class PointMassGravity
+class PointMassGravity
 {
+private :
+    KV_double_1d m_g;
+
 public :
+    explicit PointMassGravity(
+        KV_double_1d g)
+        : m_g(g)
+    {
+    }
+
+    KOKKOS_INLINE_FUNCTION
     double operator()(
             int i,
-            int j,
-            int k, 
-            int dir) const final
+            [[maybe_unused]] int j,
+            [[maybe_unused]] int k, 
+            [[maybe_unused]] int dir) const
     {
-        static constepr std::string_view label = "Point_mass_gravity";
+        return m_g(i);
     }
-}; */
+};
 
 KV_double_1d make_point_mass_gravity(
         Param const& param,
         Grid const& grid)
 {
-    std::string label = "POINT_MASS";
-    print_info("GRAVITY", label);
-
     KDV_double_1d g_array_dv("g_array", grid.Nx_local_wg[0]);
     auto xc = grid.x_center;
-    //double M = param_setup.M;
-    double M = 2E19;
+    double M = param.M;
     for (int i = 0; i < grid.Nx_local_wg[0]; ++i)
     {
         g_array_dv.h_view(i) = - units::G * M / (xc(i) * xc(i));

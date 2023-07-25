@@ -7,10 +7,11 @@
 
 #include <iostream>
 #include <array>
-#include <string_view>
+#include <string>
 #include <Kokkos_Core.hpp>
 #include <Kokkos_DualView.hpp>
 #include <inih/INIReader.hpp>
+#include "kokkos_shortcut.hpp"
 #include <mpi.h>
 #include <iomanip>
 #include "range.hpp"
@@ -23,7 +24,8 @@ namespace novapp
 {
 
 template <class T>
-void print_info(std::string_view const var_name, T const& var_value)
+inline
+void print_info(std::string var_name, T var_value)
 {
     using namespace std;
     cout << left  << setw(40) << setfill('.') << var_name;
@@ -82,7 +84,6 @@ public :
     KV_double_1d dy;
     KV_double_1d dz;
 
-    KV_double_1d dx_inter;
     KV_double_4d ds;
     KV_double_3d dv;
 };

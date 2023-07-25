@@ -17,6 +17,7 @@
 #include "kokkos_shortcut.hpp"
 #include "kronecker.hpp"
 #include "nova_params.hpp"
+#include "geom.hpp"
 
 namespace novapp
 {
@@ -99,6 +100,8 @@ public:
         assert(rhou_rec.extent(4) == E_rec.extent(4));
 
         int nfx = fx_rec.extent_int(5);
+        auto const xc = m_grid.x_center;
+        auto const dv = m_grid.dv;
 
         KV_double_6d fx_rec_old("rho_rec_old", m_grid.Nx_local_wg[0], m_grid.Nx_local_wg[1], 
                                 m_grid.Nx_local_wg[2], 2, ndim, nfx);
@@ -152,7 +155,7 @@ public:
                     plus_one.P = loc_P_rec(i, j, k, 1, idim);
                     EulerFlux const flux_plus_one = compute_flux(plus_one, idim, m_eos);
 
-                    double const dtodv = dt_reconstruction / m_grid.dv(i, j, k);
+                    double const dtodv = dt_reconstruction / dv(i, j, k);
 
                     for (int ipos = 0; ipos < ndim; ++ipos)
                     {
@@ -172,7 +175,20 @@ public:
                         E_rec(i, j, k, 1, ipos) += dtodv * (flux_minus_one.E * m_grid.ds(i, j, k, idim) 
                                                 - flux_plus_one.E * m_grid.ds(i_p, j_p, k_p, idim));
                     }
-                    
+
+                    //Spherical geometric terms
+                    if (geom_choice == "SPHERICAL")
+                    {
+                        if (ndim == 1)
+                        {
+                            for (int ipos = 0; ipos < ndim; ++ipos)
+                            {
+                                rhou_rec(i, j, k, 0, ipos, idim) += dt_reconstruction * 2 * minus_one.P / xc(i);
+                                rhou_rec(i, j, k, 1, ipos, idim) += dt_reconstruction * 2 * plus_one.P / xc(i);
+                            }
+                        }
+                    }
+
                     // Gravity
                     for (int ipos = 0; ipos < ndim; ++ipos)
                     {

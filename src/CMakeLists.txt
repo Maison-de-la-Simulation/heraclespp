@@ -15,6 +15,8 @@ target_include_directories(libnova++ PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 configure_file(eos.hpp.in eos.hpp NO_SOURCE_PERMISSIONS @ONLY)
 
+configure_file(geom.hpp.in geom.hpp NO_SOURCE_PERMISSIONS @ONLY)
+
 target_compile_features(libnova++ PUBLIC cxx_std_17)
 
 find_package(PDI REQUIRED)

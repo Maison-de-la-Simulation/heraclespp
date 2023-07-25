@@ -6,6 +6,7 @@
 #include "grid.hpp"
 #include "kokkos_shortcut.hpp"
 #include "factories.hpp"
+#include "geometry.hpp"
 
 namespace novapp
 {
@@ -140,6 +141,9 @@ void Grid::MPI_Decomp()
 
 void Grid::Init_grid(Param const& param)
 {
+    std::unique_ptr<IComputeGeom> grid_geometry
+            = factory_grid_geometry();
+
     std::unique_ptr<IGridType> grid_type
             = factory_grid_type(param.grid_type, param);
     
@@ -162,7 +166,6 @@ void Grid::Init_grid(Param const& param)
     dv = KV_double_3d("dv", Nx_local_wg[0], 
                             Nx_local_wg[1],
                             Nx_local_wg[2]);
-    dx_inter = KV_double_1d("dx_inter", 3);
     
     x_glob = Kokkos::View<double*, Kokkos::HostSpace>("x_glob", Nx_glob_ng[0]+2*Nghost[0]+1);
     y_glob = Kokkos::View<double*, Kokkos::HostSpace>("y_glob", Nx_glob_ng[1]+2*Nghost[1]+1);
@@ -216,34 +219,7 @@ void Grid::Init_grid(Param const& param)
             z_center(i) = z_d(i) + dz(i) / 2;
         });
 
-    Kokkos::parallel_for(
-        "File_ds",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0}, 
-                                {Nx_local_wg[0], 
-                                Nx_local_wg[1],
-                                Nx_local_wg[2]}),
-        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
-        {
-            for (int idim=0; idim<3; ++idim)
-            {
-                dx_inter[0] = dx(i);
-                dx_inter[1] = dy(j);
-                dx_inter[2] = dz(k);
-                dx_inter[idim] = 1;
-                ds(i, j, k, idim) = dx_inter[0] * dx_inter[1] * dx_inter[2];
-            }
-        });
-
-    Kokkos::parallel_for(
-        "File_dv",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0}, 
-                                {Nx_local_wg[0], 
-                                Nx_local_wg[1],
-                                Nx_local_wg[2]}),
-        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
-        {
-            dv(i, j, k) = dx(i) * dy(j) * dz(k);
-        });
+    grid_geometry->execute(x_d, y_d, dx, dy, dz, ds, dv, Nx_local_wg);
 }
 
 void Grid::print_grid() const

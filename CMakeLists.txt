@@ -33,6 +33,12 @@ if("${Novapp_GRAVITY}" STREQUAL "")
   message(FATAL_ERROR "Novapp_GRAVITY is not defined")
 endif()
 
+set(Novapp_GEOM "" CACHE STRING "Choose the geometric system: CARTESIAN(Cartesian system);SPHERICAL(Spherical system)")
+set_property(CACHE Novapp_GEOM PROPERTY STRINGS "CARTESIAN;SPHERICAL")
+if("${Novapp_GEOM}" STREQUAL "")
+  message(FATAL_ERROR "Novapp_GEOM is not defined")
+endif()
+
 include(CTest)
 
 add_subdirectory(vendor/googletest)

@@ -34,6 +34,7 @@
 #include "factories.hpp"
 #include "setup.hpp"
 #include "gravity.hpp"
+#include "geom.hpp"
 
 using namespace novapp;
 
@@ -71,7 +72,7 @@ int main(int argc, char** argv)
 
     print_info("SETUP", MY_SETUP);
     print_info("EOS", eos_choice);
-    //print_info("GEOMETRIE", geom_choice);
+    print_info("GEOMETRIE", geom_choice);
 
     EOS const eos(param.gamma, param.mu);
 
