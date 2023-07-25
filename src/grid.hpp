@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include <array>
-#include <string>
+#include <string_view>
 #include <Kokkos_Core.hpp>
 #include <Kokkos_DualView.hpp>
 #include <inih/INIReader.hpp>
@@ -24,8 +24,7 @@ namespace novapp
 {
 
 template <class T>
-inline
-void print_info(std::string var_name, T var_value)
+void print_info(std::string_view const var_name, T const var_value)
 {
     using namespace std;
     cout << left  << setw(40) << setfill('.') << var_name;
