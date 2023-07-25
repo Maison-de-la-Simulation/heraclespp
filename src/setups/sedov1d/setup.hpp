@@ -14,6 +14,7 @@
 #include "units.hpp"
 #include "initialization_interface.hpp"
 #include "nova_params.hpp"
+#include "geom.hpp"
 
 namespace novapp
 {
@@ -48,7 +49,7 @@ public:
         EOS const& eos,
         Grid const& grid,
         ParamSetup const& param_set_up,
-        Gravity const& gravit)
+        Gravity const& gravity)
         : m_eos(eos)
         , m_grid(grid)
         , m_param_setup(param_set_up)
@@ -69,6 +70,19 @@ public:
         assert(rho.extent(2) == u.extent(2));
         assert(u.extent(2) == P.extent(2));
 
+        double dv = m_grid.dv(2, 0, 0);
+        double alpha;
+
+        if (geom_choice == "CARTESIAN")
+        {
+            alpha = 0.5;
+        }
+
+        if (geom_choice == "SPHERICAL")
+        {
+            alpha = 1;
+        }
+
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
             "Sedov_1D_init",
@@ -82,13 +96,13 @@ public:
                     u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
                 }
 
-                double T = m_eos.compute_T_from_evol(rho(i, j, k), m_param_setup.E0 * units::evol / m_grid.dv(i, j, k));
+                double T = m_eos.compute_T_from_evol(rho(i, j, k), m_param_setup.E0 * units::evol / dv);
                 P(i, j, k) = m_eos.compute_P_from_T(rho(i, j, k), T) * units::pressure;
-                
-                if(m_grid.mpi_rank==0)
+
+                if(m_grid.mpi_rank == 0 && i == 2)
                 {
-                    double Tpertub = m_eos.compute_T_from_evol(rho(i, j, k), m_param_setup.E1 * units::evol / m_grid.dv(i, j, k));
-                    P(2, j, k) = m_eos.compute_P_from_T(rho(i, j, k), Tpertub) * units::pressure;
+                    double Tpertub = m_eos.compute_T_from_evol(rho(i, j, k), alpha * m_param_setup.E1 * units::evol / dv);
+                    P(i, j, k) = m_eos.compute_P_from_T(rho(i, j, k), Tpertub) * units::pressure;
                 }
             });
     }

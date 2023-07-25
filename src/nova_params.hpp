@@ -29,7 +29,6 @@ public :
     std::string grid_type;
     int Ng;
     std::array<int,3> Ncpu_x;
-    std::string system;
     double timeout;
     double cfl;
     int max_iter;
@@ -39,6 +38,7 @@ public :
     double gx;
     double gy;
     double gz;
+    double M;
     double gamma;
     double mu;
     std::string bc_choice;
@@ -70,8 +70,6 @@ public :
         Ncpu_x[1] = reader.GetInteger("Grid", "Ncpu_y", 0); // number of procs
         Ncpu_x[2] = reader.GetInteger("Grid", "Ncpu_z", 0); // number of procs
 
-        system = reader.Get("Coordinate", "system", "Cartesian");
-
         timeout = reader.GetReal("Run", "timeout", 0.2);
         cfl = reader.GetReal("Run", "cfl", 0.4);
 
@@ -84,6 +82,7 @@ public :
         gx = reader.GetReal("Gravity", "gx", 0.0);
         gy = reader.GetReal("Gravity", "gy", 0.0);
         gz = reader.GetReal("Gravity", "gz", 0.0);
+        M = reader.GetReal("Gravity", "M", 1.0);
 
         gamma = reader.GetReal("Perfect Gas", "gamma", 5./3);
         mu = reader.GetReal("Perfect Gas", "mu", 1.);
