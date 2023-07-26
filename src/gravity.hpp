@@ -82,7 +82,7 @@ PointMassGravity make_point_mass_gravity(
     }
     g_array_dv.modify_host();
     g_array_dv.sync_device();
-    return g_array_dv.d_view;
+    return PointMassGravity(g_array_dv.d_view);
 };
 
 } // namespace novapp
