@@ -69,7 +69,7 @@ public :
     }
 };
 
-KV_double_1d make_point_mass_gravity(
+PointMassGravity make_point_mass_gravity(
         Param const& param,
         Grid const& grid)
 {
