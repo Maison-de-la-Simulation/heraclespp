@@ -13,7 +13,9 @@ stages:
   - deploy
 
 build-job:serial:1:
-  only: [ main, merge_requests ]
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: build
   needs: []
   script:
@@ -26,7 +28,9 @@ build-job:serial:1:
       - bin
 
 build-job:serial:2:
-  only: [ main, merge_requests ]
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: build
   needs: []
   script:
@@ -39,7 +43,9 @@ build-job:serial:2:
       - bin
 
 build-job:serial:3:
-  only: [ main, merge_requests ]
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: build
   needs: []
   script:
@@ -52,7 +58,9 @@ build-job:serial:3:
       - bin
 
 build-job:cuda:3:
-  only: [ main, merge_requests ]
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: build
   needs: []
   script:
@@ -60,7 +68,9 @@ build-job:cuda:3:
     - cmake --build build
 
 build-job:hip:3:
-  only: [ main, merge_requests ]
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: build
   needs: []
   script:
@@ -68,7 +78,9 @@ build-job:hip:3:
     - cmake --build build
 
 unit-test-job:serial:1:
-  only: [ main, merge_requests ]
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: test
   needs: ["build-job:serial:1"]
   script:
@@ -79,7 +91,9 @@ unit-test-job:serial:1:
       junit: build/tests.xml
 
 unit-test-job:serial:2:
-  only: [ main, merge_requests ]
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: test
   needs: ["build-job:serial:2"]
   script:
@@ -90,7 +104,9 @@ unit-test-job:serial:2:
       junit: build/tests.xml
 
 unit-test-job:serial:3:
-  only: [ main, merge_requests ]
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: test
   needs: ["build-job:serial:3"]
   script:
@@ -101,14 +117,18 @@ unit-test-job:serial:3:
       junit: build/tests.xml
 
 convergence-advection-sinusoide-test-job:serial:1:
-  only: [ main, merge_requests ]
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: test
   needs: ["build-job:serial:1"]
   script:
     - ./test/run_convergence_advection_gaussian.sh
 
 clang-format-job:
-  only: [ main, merge_requests ]
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: test
   needs: []
   script:
@@ -116,7 +136,9 @@ clang-format-job:
   allow_failure: true
 
 clang-tidy-job:
-  only: [ main, merge_requests ]
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: test
   needs: []
   script:
