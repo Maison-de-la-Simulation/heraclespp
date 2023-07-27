@@ -101,6 +101,7 @@ public:
 
         int nfx = fx_rec.extent_int(5);
         auto const xc = m_grid.x_center;
+        auto const x = m_grid.x.d_view;
         auto const dv = m_grid.dv;
 
         KV_double_6d fx_rec_old("rho_rec_old", m_grid.Nx_local_wg[0], m_grid.Nx_local_wg[1], 
@@ -179,12 +180,17 @@ public:
                     //Spherical geometric terms
                     if (geom_choice == "SPHERICAL")
                     {
+                        double rm = x(i);
+                        double rp = x(i_p);
+
                         if (ndim == 1)
                         {
                             for (int ipos = 0; ipos < ndim; ++ipos)
                             {
-                                rhou_rec(i, j, k, 0, ipos, idim) += dt_reconstruction * 2 * minus_one.P / xc(i);
-                                rhou_rec(i, j, k, 1, ipos, idim) += dt_reconstruction * 2 * plus_one.P / xc(i);
+                                rhou_rec(i, j, k, 0, ipos, idim) += dt_reconstruction * 3 * minus_one.P
+                                                                    * (rp*rp - rm*rm) / (rp*rp*rp - rm*rm*rm);
+                                rhou_rec(i, j, k, 1, ipos, idim) += dt_reconstruction * 3 * plus_one.P
+                                                                    * (rp*rp - rm*rm) / (rp*rp*rp - rm*rm*rm);
                             }
                         }
                     }

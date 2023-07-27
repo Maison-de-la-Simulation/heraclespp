@@ -106,6 +106,7 @@ public:
     {
         int nfx = fx.extent_int(3);
         auto const xc = m_grid.x_center;
+        auto const x = m_grid.x.d_view;
         auto const dv = m_grid.dv;
 
         auto const [begin, end] = cell_range(range);
@@ -179,6 +180,9 @@ public:
                      //Spherical geometric terms
                     if (geom_choice == "SPHERICAL")
                     {
+                        double rm = x(i);
+                        double rp = x(i_p);
+
                         EulerCons var_cons;
                         var_cons.rho = rho(i, j, k);
                         for (int idim = 0; idim < ndim; ++idim)
@@ -190,7 +194,7 @@ public:
 
                         if (ndim == 1)
                         {
-                            rhou_new(i, j, k, idim) += dt * 2 * prim.P / xc(i);
+                            rhou_new(i, j, k, idim) += dt * 3 * prim.P * (rp*rp - rm*rm) / (rp*rp*rp - rm*rm*rm);
                         }
                     }
 
