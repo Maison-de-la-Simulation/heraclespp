@@ -102,6 +102,7 @@ public:
         int nfx = fx_rec.extent_int(5);
         auto const xc = m_grid.x_center;
         auto const x = m_grid.x.d_view;
+        auto const ds = m_grid.ds;
         auto const dv = m_grid.dv;
 
         KV_double_6d fx_rec_old("rho_rec_old", m_grid.Nx_local_wg[0], m_grid.Nx_local_wg[1], 
@@ -160,21 +161,21 @@ public:
 
                     for (int ipos = 0; ipos < ndim; ++ipos)
                     {
-                        rho_rec(i, j, k, 0, ipos) += dtodv * (flux_minus_one.rho * m_grid.ds(i, j, k, idim) 
-                                                    - flux_plus_one.rho * m_grid.ds(i_p, j_p, k_p, idim));
-                        rho_rec(i, j, k, 1, ipos) += dtodv * (flux_minus_one.rho * m_grid.ds(i, j, k, idim) 
-                                                    - flux_plus_one.rho * m_grid.ds(i_p, j_p, k_p, idim));
+                        rho_rec(i, j, k, 0, ipos) += dtodv * (flux_minus_one.rho * ds(i, j, k, idim) 
+                                                    - flux_plus_one.rho * ds(i_p, j_p, k_p, idim));
+                        rho_rec(i, j, k, 1, ipos) += dtodv * (flux_minus_one.rho * ds(i, j, k, idim) 
+                                                    - flux_plus_one.rho * ds(i_p, j_p, k_p, idim));
                         for (int idr = 0; idr < ndim; ++idr)
                         {
-                            rhou_rec(i, j, k, 0, ipos, idr) += dtodv * (flux_minus_one.rhou[idr] * m_grid.ds(i, j, k, idim) 
-                                                            - flux_plus_one.rhou[idr] * m_grid.ds(i_p, j_p, k_p, idim));
-                            rhou_rec(i, j, k, 1, ipos, idr) += dtodv * (flux_minus_one.rhou[idr] * m_grid.ds(i, j, k, idim) 
-                                                            - flux_plus_one.rhou[idr] * m_grid.ds(i_p, j_p, k_p, idim));
+                            rhou_rec(i, j, k, 0, ipos, idr) += dtodv * (flux_minus_one.rhou[idr] * ds(i, j, k, idim) 
+                                                            - flux_plus_one.rhou[idr] * ds(i_p, j_p, k_p, idim));
+                            rhou_rec(i, j, k, 1, ipos, idr) += dtodv * (flux_minus_one.rhou[idr] * ds(i, j, k, idim) 
+                                                            - flux_plus_one.rhou[idr] * ds(i_p, j_p, k_p, idim));
                         }
-                        E_rec(i, j, k, 0, ipos) += dtodv * (flux_minus_one.E * m_grid.ds(i, j, k, idim) 
-                                                - flux_plus_one.E * m_grid.ds(i_p, j_p, k_p, idim));
-                        E_rec(i, j, k, 1, ipos) += dtodv * (flux_minus_one.E * m_grid.ds(i, j, k, idim) 
-                                                - flux_plus_one.E * m_grid.ds(i_p, j_p, k_p, idim));
+                        E_rec(i, j, k, 0, ipos) += dtodv * (flux_minus_one.E * ds(i, j, k, idim) 
+                                                - flux_plus_one.E * ds(i_p, j_p, k_p, idim));
+                        E_rec(i, j, k, 1, ipos) += dtodv * (flux_minus_one.E * ds(i, j, k, idim) 
+                                                - flux_plus_one.E * ds(i_p, j_p, k_p, idim));
                     }
 
                     //Spherical geometric terms
@@ -213,10 +214,10 @@ public:
                             double flux_fx_L = fx_rec_old(i, j, k, 0, idim, ifx) * flux_minus_one.rho;
                             double flux_fx_R = fx_rec_old(i, j, k, 1, idim, ifx) * flux_plus_one.rho;
 
-                            fx_rec(i, j, k, 0, ipos, ifx) += dtodv * (flux_fx_L * m_grid.ds(i, j, k, idim) 
-                                                                - flux_fx_R * m_grid.ds(i_p, j_p, k_p, idim));
-                            fx_rec(i, j, k, 1, ipos, ifx) += dtodv * (flux_fx_L * m_grid.ds(i, j, k, idim) 
-                                                                - flux_fx_R * m_grid.ds(i_p, j_p, k_p, idim));
+                            fx_rec(i, j, k, 0, ipos, ifx) += dtodv * (flux_fx_L * ds(i, j, k, idim) 
+                                                                - flux_fx_R * ds(i_p, j_p, k_p, idim));
+                            fx_rec(i, j, k, 1, ipos, ifx) += dtodv * (flux_fx_L * ds(i, j, k, idim) 
+                                                                - flux_fx_R * ds(i_p, j_p, k_p, idim));
                         }
                     }
                 }

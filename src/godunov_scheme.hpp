@@ -107,6 +107,7 @@ public:
         int nfx = fx.extent_int(3);
         auto const xc = m_grid.x_center;
         auto const x = m_grid.x.d_view;
+        auto const ds = m_grid.ds;
         auto const dv = m_grid.dv;
 
         auto const [begin, end] = cell_range(range);
@@ -167,15 +168,15 @@ public:
 
                     double const dtodv = dt / dv(i, j, k);
 
-                    rho_new(i, j, k) += dtodv * (FluxL.rho * m_grid.ds(i, j, k, idim) 
-                                        - FluxR.rho * m_grid.ds(i_p, j_p, k_p, idim));
+                    rho_new(i, j, k) += dtodv * (FluxL.rho * ds(i, j, k, idim) 
+                                        - FluxR.rho * ds(i_p, j_p, k_p, idim));
                     for (int idr = 0; idr < ndim; ++idr)
                     {
-                        rhou_new(i, j, k, idr) += dtodv * (FluxL.rhou[idr] * m_grid.ds(i, j, k, idim) 
-                                                    - FluxR.rhou[idr] * m_grid.ds(i_p, j_p, k_p, idim));
+                        rhou_new(i, j, k, idr) += dtodv * (FluxL.rhou[idr] * ds(i, j, k, idim) 
+                                                    - FluxR.rhou[idr] * ds(i_p, j_p, k_p, idim));
                     }
-                    E_new(i, j, k) += dtodv * (FluxL.E * m_grid.ds(i, j, k, idim) 
-                                            - FluxR.E * m_grid.ds(i_p, j_p, k_p, idim));
+                    E_new(i, j, k) += dtodv * (FluxL.E * ds(i, j, k, idim) 
+                                            - FluxR.E * ds(i_p, j_p, k_p, idim));
 
                      //Spherical geometric terms
                     if (geom_choice == "SPHERICAL")
@@ -232,8 +233,8 @@ public:
                         double const flux_fx_L = fx_rec(iL_uw, jL_uw, kL_uw, face_L, idim, ifx) * FluxL.rho;
                         double const flux_fx_R = fx_rec(iR_uw, jR_uw, kR_uw, face_R, idim, ifx) * FluxR.rho;
 
-                        fx_new(i, j, k, ifx) += dtodv * (flux_fx_L * m_grid.ds(i, j, k, idim)
-                                                - flux_fx_R * m_grid.ds(i_p, j_p, k_p, idim));
+                        fx_new(i, j, k, ifx) += dtodv * (flux_fx_L * ds(i, j, k, idim)
+                                                - flux_fx_R * ds(i_p, j_p, k_p, idim));
                     }
                 }
             });
