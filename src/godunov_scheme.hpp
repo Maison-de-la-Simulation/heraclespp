@@ -41,19 +41,19 @@ public:
 
     virtual void execute(
         Range const &range,
-        double const dt,
-        KV_cdouble_3d const rho,
-        KV_cdouble_4d const rhou,
-        KV_cdouble_3d const E,
-        KV_cdouble_4d const fx,
-        KV_cdouble_5d const rho_rec,
-        KV_cdouble_6d const rhou_rec,
-        KV_cdouble_5d const E_rec,
-        KV_cdouble_6d const fx_rec,
+        double dt,
+        KV_cdouble_3d rho,
+        KV_cdouble_4d rhou,
+        KV_cdouble_3d E,
+        KV_cdouble_4d fx,
+        KV_cdouble_5d rho_rec,
+        KV_cdouble_6d rhou_rec,
+        KV_cdouble_5d E_rec,
+        KV_cdouble_6d fx_rec,
         KV_double_3d rho_new,
         KV_double_4d rhou_new,
         KV_double_3d E_new,
-        KV_double_4d const fx_new) const = 0;
+        KV_double_4d fx_new) const = 0;
 };
 
 template <class RiemannSolver, class Gravity>
