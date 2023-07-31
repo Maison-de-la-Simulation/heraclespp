@@ -32,7 +32,7 @@ private:
     Grid m_grid;
     Param m_param;
 
-    void ghostFill(std::vector<KV_double_3d> const& arrays, int bc_idim, int bc_iface) const;
+    void ghostFill(std::vector<KV_double_3d> const& views, int bc_idim, int bc_iface) const;
 
     void generate_order();
 
