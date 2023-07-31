@@ -22,15 +22,15 @@ class IHydroReconstruction
 public:
     IHydroReconstruction() = default;
 
-    IHydroReconstruction(IHydroReconstruction const& x) = default;
+    IHydroReconstruction(IHydroReconstruction const& rhs) = default;
 
-    IHydroReconstruction(IHydroReconstruction&& x) noexcept = default;
+    IHydroReconstruction(IHydroReconstruction&& rhs) noexcept = default;
 
     virtual ~IHydroReconstruction() noexcept = default;
 
-    IHydroReconstruction& operator=(IHydroReconstruction const& x) = default;
+    IHydroReconstruction& operator=(IHydroReconstruction const& rhs) = default;
 
-    IHydroReconstruction& operator=(IHydroReconstruction&& x) noexcept = default;
+    IHydroReconstruction& operator=(IHydroReconstruction&& rhs) noexcept = default;
 
     virtual void execute(
             Range const& range,

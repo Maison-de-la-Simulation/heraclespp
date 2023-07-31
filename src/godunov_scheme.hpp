@@ -29,15 +29,15 @@ class IGodunovScheme
 public:
     IGodunovScheme() = default;
 
-    IGodunovScheme(IGodunovScheme const& x) = default;
+    IGodunovScheme(IGodunovScheme const& rhs) = default;
 
-    IGodunovScheme(IGodunovScheme&& x) noexcept = default;
+    IGodunovScheme(IGodunovScheme&& rhs) noexcept = default;
 
     virtual ~IGodunovScheme() noexcept = default;
 
-    IGodunovScheme& operator=(IGodunovScheme const& x) = default;
+    IGodunovScheme& operator=(IGodunovScheme const& rhs) = default;
 
-    IGodunovScheme& operator=(IGodunovScheme&& x) noexcept = default;
+    IGodunovScheme& operator=(IGodunovScheme&& rhs) noexcept = default;
 
     virtual void execute(
         Range const &range,

@@ -15,15 +15,15 @@ class IInitializationProblem
 public:
     IInitializationProblem() = default;
 
-    IInitializationProblem(IInitializationProblem const& x) = default;
+    IInitializationProblem(IInitializationProblem const& rhs) = default;
 
-    IInitializationProblem(IInitializationProblem&& x) noexcept = default;
+    IInitializationProblem(IInitializationProblem&& rhs) noexcept = default;
 
     virtual ~IInitializationProblem() noexcept = default;
 
-    IInitializationProblem& operator=(IInitializationProblem const& x) = default;
+    IInitializationProblem& operator=(IInitializationProblem const& rhs) = default;
 
-    IInitializationProblem& operator=(IInitializationProblem&& x) noexcept = default;
+    IInitializationProblem& operator=(IInitializationProblem&& rhs) noexcept = default;
 
     virtual void execute(
         Range const& range,

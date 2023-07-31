@@ -17,15 +17,15 @@ class IComputeGeom
 public:
     IComputeGeom() = default;
 
-    IComputeGeom(IComputeGeom const& x) = default;
+    IComputeGeom(IComputeGeom const& rhs) = default;
 
-    IComputeGeom(IComputeGeom&& x) noexcept = default;
+    IComputeGeom(IComputeGeom&& rhs) noexcept = default;
 
     virtual ~IComputeGeom() noexcept = default;
 
-    IComputeGeom& operator=(IComputeGeom const& x) = default;
+    IComputeGeom& operator=(IComputeGeom const& rhs) = default;
 
-    IComputeGeom& operator=(IComputeGeom&& x) noexcept = default;
+    IComputeGeom& operator=(IComputeGeom&& rhs) noexcept = default;
 
     virtual void execute(
         [[maybe_unused]] KV_cdouble_1d const x,

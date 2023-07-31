@@ -16,15 +16,15 @@ class IGridType
 public:
     IGridType() = default;
 
-    IGridType(IGridType const& x) = default;
+    IGridType(IGridType const& rhs) = default;
 
-    IGridType(IGridType&& x) noexcept = default;
+    IGridType(IGridType&& rhs) noexcept = default;
 
     virtual ~IGridType() noexcept = default;
 
-    IGridType& operator=(IGridType const& x) = default;
+    IGridType& operator=(IGridType const& rhs) = default;
 
-    IGridType& operator=(IGridType&& x) noexcept = default;
+    IGridType& operator=(IGridType&& rhs) noexcept = default;
 
     virtual void execute(
         [[maybe_unused]] KVH_double_1d x_glob,

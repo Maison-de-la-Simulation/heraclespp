@@ -29,15 +29,15 @@ public:
         : m_bc_idim(idim)
         , m_bc_iface(iface){};
 
-    IBoundaryCondition(IBoundaryCondition const& x) = default;
+    IBoundaryCondition(IBoundaryCondition const& rhs) = default;
 
-    IBoundaryCondition(IBoundaryCondition&& x) noexcept = default;
+    IBoundaryCondition(IBoundaryCondition&& rhs) noexcept = default;
 
     virtual ~IBoundaryCondition() noexcept = default;
 
-    IBoundaryCondition& operator=(IBoundaryCondition const& x) = default;
+    IBoundaryCondition& operator=(IBoundaryCondition const& rhs) = default;
 
-    IBoundaryCondition& operator=(IBoundaryCondition&& x) noexcept = default;
+    IBoundaryCondition& operator=(IBoundaryCondition&& rhs) noexcept = default;
 
     virtual void execute([[maybe_unused]] KV_double_3d rho,
                          [[maybe_unused]] KV_double_4d rhou,
