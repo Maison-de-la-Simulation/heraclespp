@@ -94,10 +94,10 @@ class Spherical : public IComputeGeom
 {
 public:
     void execute(KV_cdouble_1d const x,
-        KV_cdouble_1d const y,
-        KV_cdouble_1d const dx,
-        KV_cdouble_1d const dy,
-        KV_cdouble_1d const dz,
+        [[maybe_unused]] KV_cdouble_1d const y,
+        [[maybe_unused]] KV_cdouble_1d const dx,
+        [[maybe_unused]] KV_cdouble_1d const dy,
+        [[maybe_unused]] KV_cdouble_1d const dz,
         KV_double_4d ds,
         KV_double_3d dv,
         std::array<int, 3> Nx_local_wg) const final
