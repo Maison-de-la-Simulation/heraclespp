@@ -5,8 +5,6 @@
 
 #pragma once
 
-#include <mpi.h>
-
 namespace novapp
 {
 

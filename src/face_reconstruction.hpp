@@ -7,13 +7,16 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
 
+#include <Kokkos_Core.hpp>
+
+#include "grid.hpp"
+#include "kokkos_shortcut.hpp"
 #include "kronecker.hpp"
 #include "ndim.hpp"
 #include "range.hpp"
 #include "slope_limiters.hpp"
-#include "kokkos_shortcut.hpp"
-#include "grid.hpp"
 
 namespace novapp
 {

@@ -1,5 +1,10 @@
 #include "array_conversion.hpp"
 
+#include "eos.hpp"
+#include "euler_equations.hpp"
+#include "kokkos_shortcut.hpp"
+#include "range.hpp"
+
 namespace novapp
 {
     

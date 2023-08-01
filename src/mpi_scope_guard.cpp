@@ -1,5 +1,6 @@
-
 #include "mpi_scope_guard.hpp"
+
+#include <mpi.h>
 
 namespace novapp
 {

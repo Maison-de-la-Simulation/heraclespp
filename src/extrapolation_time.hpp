@@ -4,20 +4,18 @@
 
 #pragma once
 
-#include <memory>
-#include <stdexcept>
-#include <string>
+#include <type_traits>
 
-#include "ndim.hpp"
-#include "range.hpp"
+#include <Kokkos_Core.hpp>
+
 #include "eos.hpp"
 #include "euler_equations.hpp"
+#include "geom.hpp"
 #include "grid.hpp"
-#include "gravity.hpp"
 #include "kokkos_shortcut.hpp"
 #include "kronecker.hpp"
-#include "nova_params.hpp"
-#include "geom.hpp"
+#include "ndim.hpp"
+#include "range.hpp"
 
 namespace novapp
 {

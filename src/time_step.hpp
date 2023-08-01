@@ -5,13 +5,8 @@
 
 #pragma once
 
-#include <mpi.h>
-
-#include "euler_equations.hpp"
-#include "range.hpp"
-#include "grid.hpp"
-#include "kokkos_shortcut.hpp"
 #include "eos.hpp"
+#include "kokkos_shortcut.hpp"
 
 namespace novapp
 {

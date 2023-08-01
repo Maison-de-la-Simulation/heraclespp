@@ -4,24 +4,20 @@
 
 #pragma once
 
-#include <algorithm>
-#include <iostream>
-#include <numeric>
-#include <sstream>
+#include <array>
+#include <memory>
 
-#include <PerfectGas.hpp>
+#include <inih/INIReader.hpp>
 
-#include "ndim.hpp"
-#include "units.hpp"
-#include "eos.hpp"
-#include "kokkos_shortcut.hpp"
 #include "grid.hpp"
+#include "kokkos_shortcut.hpp"
+#include "ndim.hpp"
 #include "nova_params.hpp"
-#include "boundary.hpp"
-#include "factories.hpp"
 
 namespace novapp
 {
+
+class IBoundaryCondition;
 
 class DistributedBoundaryCondition
 {

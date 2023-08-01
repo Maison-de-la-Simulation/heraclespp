@@ -7,19 +7,17 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
-#include <string_view>
+#include <type_traits>
 
+#include "eos.hpp"
 #include "euler_equations.hpp"
+#include "geom.hpp"
+#include "grid.hpp"
+#include "kokkos_shortcut.hpp"
 #include "kronecker.hpp"
 #include "ndim.hpp"
 #include "range.hpp"
-#include "grid.hpp"
 #include "riemann_solver.hpp"
-#include "kokkos_shortcut.hpp"
-#include "gravity.hpp"
-#include "nova_params.hpp"
-#include "eos.hpp"
-#include "geom.hpp"
 
 namespace novapp
 {

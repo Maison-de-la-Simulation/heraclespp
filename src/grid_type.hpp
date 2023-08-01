@@ -4,7 +4,9 @@
 
 #pragma once
 
-#include "grid.hpp"
+#include <array>
+#include <stdexcept>
+
 #include "kokkos_shortcut.hpp"
 #include "nova_params.hpp"
 
