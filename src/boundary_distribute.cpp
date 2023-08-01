@@ -113,7 +113,6 @@ void DistributedBoundaryCondition::generate_order()
 }
 
 DistributedBoundaryCondition::DistributedBoundaryCondition(
-    INIReader const& reader,
     Grid const& grid, 
     Param const& param,
     std::array<std::unique_ptr<IBoundaryCondition>, ndim * 2> bcs)

@@ -128,7 +128,7 @@ int main(int argc, char** argv)
         }
     }
 
-    DistributedBoundaryCondition const bcs(reader, grid, param, std::move(bcs_array));
+    DistributedBoundaryCondition const bcs(grid, param, std::move(bcs_array));
 
     std::unique_ptr<IInitializationProblem> initialization
             = std::make_unique<InitializationSetup<Gravity>>(eos, grid, param_setup, g);
