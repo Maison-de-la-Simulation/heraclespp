@@ -51,8 +51,8 @@ public:
 
 class MUSCLHancockHydroReconstruction : public IHydroReconstruction
 {
-    std::shared_ptr<IFaceReconstruction> m_face_reconstruction;
-    std::shared_ptr<IExtrapolationReconstruction> m_hancock_reconstruction;
+    std::unique_ptr<IFaceReconstruction> m_face_reconstruction;
+    std::unique_ptr<IExtrapolationReconstruction> m_hancock_reconstruction;
     EOS m_eos;
     KV_double_5d m_P_rec;
     KV_double_6d m_u_rec;
