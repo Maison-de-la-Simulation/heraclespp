@@ -1,10 +1,18 @@
 #include "io.hpp"
 
+#include <array>
 #include <fstream>
 #include <sstream>
+#include <string>
+#include <string_view>
+#include <utility>
+#include <vector>
 
 #include <pdi.h>
 #include <mpi.h>
+
+#include "grid.hpp"
+#include "nova_params.hpp"
 
 namespace novapp
 {

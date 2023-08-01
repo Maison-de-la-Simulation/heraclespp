@@ -3,11 +3,25 @@
  * Holo exchange implementation
  */
 
+#include "boundary_distribute.hpp"
+
+#include <algorithm>
 #include <array>
+#include <cstddef>
 #include <mpi.h>
+#include <numeric>
+#include <sstream>
+#include <stdexcept>
+#include <string>
 #include <vector>
 
-#include "boundary_distribute.hpp"
+#include <inih/INIReader.hpp>
+
+#include "boundary.hpp"
+#include "grid.hpp"
+#include "kokkos_shortcut.hpp"
+#include "ndim.hpp"
+#include "nova_params.hpp"
 
 namespace novapp
 {

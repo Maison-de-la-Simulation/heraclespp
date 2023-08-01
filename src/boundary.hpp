@@ -4,17 +4,13 @@
 
 #pragma once
 
-#include <algorithm>
-#include <iostream>
-#include <numeric>
-#include <sstream>
+#include <array>
+#include <stdexcept>
+#include <string>
 
-#include "kokkos_shortcut.hpp"
 #include "grid.hpp"
+#include "kokkos_shortcut.hpp"
 #include "ndim.hpp"
-#include "units.hpp"
-#include "nova_params.hpp"
-#include "eos.hpp"
 
 namespace novapp
 {

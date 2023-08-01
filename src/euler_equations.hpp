@@ -5,12 +5,9 @@
 #pragma once
 
 #include <Kokkos_Core.hpp>
-#include <PerfectGas.hpp>
-#include <RadGas.hpp>
 
-#include "kronecker.hpp"
-#include "ndim.hpp"
 #include "eos.hpp"
+#include "ndim.hpp"
 
 namespace novapp
 {

@@ -6,11 +6,17 @@
 #pragma once
 
 #include <array>
-#include "grid.hpp"
+#include <string>
+#include <utility>
+#include <vector>
+
 #include "kokkos_shortcut.hpp"
 
 namespace novapp
 {
+
+class Grid;
+class Param;
 
 bool should_output(int iter, int freq, int iter_max, double current, double dt, double time_out);
 

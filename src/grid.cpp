@@ -4,9 +4,19 @@
  */
 
 #include "grid.hpp"
-#include "kokkos_shortcut.hpp"
+
+#include <array>
+#include <memory>
+
+#include <mpi.h>
+
 #include "factories.hpp"
 #include "geometry.hpp"
+#include "grid_type.hpp"
+#include "kokkos_shortcut.hpp"
+#include "ndim.hpp"
+#include "nova_params.hpp"
+#include "range.hpp"
 
 namespace novapp
 {

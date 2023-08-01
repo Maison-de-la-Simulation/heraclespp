@@ -5,8 +5,6 @@
 
 #pragma once
 
-#include "euler_equations.hpp"
-#include "range.hpp"
 #include "eos.hpp"
 #include "kokkos_shortcut.hpp"
 

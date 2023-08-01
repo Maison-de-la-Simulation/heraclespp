@@ -5,22 +5,21 @@
 
 #pragma once
 
-#include <iostream>
 #include <array>
-#include <string_view>
-#include <Kokkos_Core.hpp>
-#include <Kokkos_DualView.hpp>
-#include <inih/INIReader.hpp>
-#include <mpi.h>
 #include <iomanip>
-#include "range.hpp"
-#include "ndim.hpp"
+#include <iostream>
+#include <string_view>
+
+#include <mpi.h>
+
 #include "kokkos_shortcut.hpp"
-#include "nova_params.hpp"
-#include "grid_type.hpp"
+#include "ndim.hpp"
+#include "range.hpp"
 
 namespace novapp
 {
+
+class Param;
 
 template <class T>
 void print_info(std::string_view const var_name, T const var_value)

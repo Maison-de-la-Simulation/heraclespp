@@ -4,10 +4,15 @@
 
 #pragma once
 
-#include "grid.hpp"
-#include "ndim.hpp"
+#include <array>
+#include <memory>
+#include <stdexcept>
+
+#include <Kokkos_Core.hpp>
+
 #include "geom.hpp"
-#include "units.hpp"
+#include "kokkos_shortcut.hpp"
+#include "ndim.hpp"
 
 namespace novapp
 {
@@ -109,7 +114,7 @@ public:
                                      Nx_local_wg[2]}),
                 KOKKOS_CLASS_LAMBDA(int i, int j, int k)
                 {
-                    ds(i, j, k, 0) = 4 * units::pi * x(i) * x(i);
+                    ds(i, j, k, 0) = 4 * Kokkos::numbers::pi * x(i) * x(i);
                 });
 
             Kokkos::parallel_for(
@@ -120,7 +125,7 @@ public:
                                          Nx_local_wg[2]}),
                 KOKKOS_CLASS_LAMBDA(int i, int j, int k)
                 {
-                    dv(i, j, k) = (4 * units::pi * (x(i+1) * x(i+1) * x(i+1)
+                    dv(i, j, k) = (4 * Kokkos::numbers::pi * (x(i+1) * x(i+1) * x(i+1)
                                 - (x(i) * x(i) * x(i)))) / 3;
                 });
             dv(0, 0, 0) = dv(3, 0, 0);

@@ -5,10 +5,11 @@
 #pragma once
 
 #include "kokkos_shortcut.hpp"
-#include "range.hpp"
 
 namespace novapp
 {
+
+class Range;
 
 class IInitializationProblem
 {

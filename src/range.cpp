@@ -3,8 +3,11 @@
  * Geom class implementation
  */
 
+#include <array>
 #include <iostream>
 #include <stdexcept>
+
+#include <Kokkos_Core.hpp>
 
 #include "ndim.hpp"
 #include "range.hpp"

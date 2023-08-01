@@ -5,8 +5,6 @@
 
 #pragma once
 
-#include <string_view>
-
 #include <Kokkos_Core.hpp>
 
 namespace novapp
