@@ -36,7 +36,7 @@ public :
     }
 };
 
-UniformGravity make_uniform_gravity(
+inline UniformGravity make_uniform_gravity(
         Param const& param)
 {
     KDV_double_1d g_array_dv("g_array", 3);
@@ -71,7 +71,7 @@ public :
     }
 };
 
-PointMassGravity make_point_mass_gravity(
+inline PointMassGravity make_point_mass_gravity(
         Param const& param,
         Grid const& grid)
 {
