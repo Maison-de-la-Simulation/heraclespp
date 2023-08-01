@@ -184,9 +184,9 @@ public:
 
                         EulerCons var_cons;
                         var_cons.rho = rho(i, j, k);
-                        for (int idim = 0; idim < ndim; ++idim)
+                        for (int idim2 = 0; idim2 < ndim; ++idim2)
                         {
-                            var_cons.rhou[idim] = rhou(i, j, k, idim);
+                            var_cons.rhou[idim2] = rhou(i, j, k, idim2);
                         }
                         var_cons.E = E(i, j, k);
                         EulerPrim prim = to_prim(var_cons, m_eos);
