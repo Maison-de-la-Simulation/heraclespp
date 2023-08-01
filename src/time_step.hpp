@@ -36,7 +36,7 @@ class Grid;
 //! @return time step
 [[nodiscard]] double time_step(
     Range const& range,
-    double const cfl,
+    double cfl,
     KV_cdouble_3d rho,
     KV_cdouble_4d u,
     KV_cdouble_3d P,

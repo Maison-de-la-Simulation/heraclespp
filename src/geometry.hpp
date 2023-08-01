@@ -28,13 +28,13 @@ public:
     IComputeGeom& operator=(IComputeGeom&& rhs) noexcept = default;
 
     virtual void execute(
-        [[maybe_unused]] KV_cdouble_1d const x,
-        [[maybe_unused]] KV_cdouble_1d const y,
-        KV_cdouble_1d const dx,
-        KV_cdouble_1d const dy,
-        KV_cdouble_1d const dz,
-        KV_double_4d const ds,
-        KV_double_3d const dv,
+        KV_cdouble_1d x,
+        KV_cdouble_1d y,
+        KV_cdouble_1d dx,
+        KV_cdouble_1d dy,
+        KV_cdouble_1d dz,
+        KV_double_4d ds,
+        KV_double_3d dv,
         std::array<int, 3> Nx_local_wg) const
         = 0;
 };
