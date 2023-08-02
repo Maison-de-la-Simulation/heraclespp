@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.20)
 
 project(Nova++ LANGUAGES CXX)
 
+set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_NO_CYCLES ON)
+
 set(DIMS "1;2;3")
 set(Novapp_NDIM "" CACHE STRING "Choose the dimension, options are ${DIMS}")
 set_property(CACHE Novapp_NDIM PROPERTY STRINGS "${DIMS}")
