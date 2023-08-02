@@ -41,7 +41,7 @@ print("Iteration number =", iter)
  
 L = np.max(x) - np.min(x)
 
-etot = 1 / 2 * rho * u**2 + P / (gamma - 1)
+E = 1 / 2 * rho * u**2 + P / (gamma - 1)
 
 dx = np.zeros(len(rho))
 for i in range(len(rho)):
@@ -96,8 +96,8 @@ plt.grid()
 plt.legend()
 
 plt.subplot(224)
-plt.plot(r, E, label='Exact')
-plt.plot(xc, E_exact, label='Solver')
+plt.plot(r, E_exact, label='Exact')
+plt.plot(xc, E, label='Solver')
 plt.ylabel('Energy ($kg.m^{-2}.s^{-2}$)'); plt.xlabel('x')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.xlim(0,1)

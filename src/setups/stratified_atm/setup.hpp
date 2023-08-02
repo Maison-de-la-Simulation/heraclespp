@@ -60,7 +60,7 @@ public:
         KV_double_3d const rho,
         KV_double_4d const u,
         KV_double_3d const P,
-        [[maybe_unused]] KV_double_4d fx) const final
+        [[maybe_unused]] KV_double_4d const fx) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));

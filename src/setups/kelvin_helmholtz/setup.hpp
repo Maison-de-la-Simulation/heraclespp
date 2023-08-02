@@ -90,7 +90,7 @@ public:
                                 * (Kokkos::exp(- (y - y1) * (y - y1) / (sigma * sigma))
                                 + Kokkos::exp(- (y - y2) * (y - y2) / (sigma * sigma))); 
             
-                P(i, j, k) = m_param_setup.P0 * units::pressure ;
+                P(i, j, k) = m_param_setup.P0 * units::pressure;
             });
     }
 };

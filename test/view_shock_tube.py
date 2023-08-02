@@ -30,6 +30,7 @@ with h5py.File(args.filename, 'r') as f :
     P = f['P'][0, 0, :]
     x = f['x'][()]
     fx = f['fx'][0, 0, 0, :]
+    T = f['T'][0, 0, :]
     t = f['current_time'][()]
     iter = f['iter'][()]
     gamma = f['gamma'][()]
@@ -127,6 +128,11 @@ plt.legend()
 plt.figure()
 plt.title('Passive scalar')
 plt.plot(xc, fx)
+plt.grid()
+
+plt.figure()
+plt.title('Temperature')
+plt.plot(xc, T)
 plt.grid()
 
 if args.output is None:

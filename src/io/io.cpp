@@ -45,21 +45,23 @@ void write_pdi(int iter,
                double gamma,
                KDV_double_3d rho,
                KDV_double_4d u,
-               KDV_double_3d P, 
+               KDV_double_3d P,
                KDV_double_3d E,
                KDV_double_1d x,
                KDV_double_1d y,
                KDV_double_1d z,
-               KDV_double_4d fx)
+               KDV_double_4d fx,
+               KDV_double_3d T)
 {
     rho.sync_host();
     u.sync_host();
     P.sync_host();
     E.sync_host();
-    fx.sync_host();
     x.sync_host();
     y.sync_host();
     z.sync_host();
+    fx.sync_host();
+    T.sync_host();
     PDI_multi_expose("write_file",
                     "iter", &iter, PDI_OUT,
                     "current_time", &t, PDI_OUT,
@@ -72,6 +74,7 @@ void write_pdi(int iter,
                     "y", y.h_view.data(), PDI_OUT,
                     "z", z.h_view.data(), PDI_OUT,
                     "fx", fx.h_view.data(), PDI_OUT,
+                    "T", T.h_view.data(), PDI_OUT,
                     NULL);
 }
 
@@ -95,6 +98,7 @@ void read_pdi(std::string restart_file,
               KDV_double_4d u,
               KDV_double_3d P,
               KDV_double_4d fx,
+              KDV_double_3d T,
               double &t, int &iter)
 {
     int filename_size = restart_file.size();
@@ -107,11 +111,13 @@ void read_pdi(std::string restart_file,
                     "u", u.h_view.data(), PDI_INOUT,
                     "P", P.h_view.data(), PDI_INOUT,
                     "fx", fx.h_view.data(), PDI_INOUT,
+                    "T", P.h_view.data(), PDI_INOUT,
                     NULL);
     rho.modify_host();
     u.modify_host();
     P.modify_host();
     fx.modify_host();
+    T.modify_host();
 }
 
 void writeXML(
