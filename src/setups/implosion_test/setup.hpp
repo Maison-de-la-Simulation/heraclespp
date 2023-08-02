@@ -87,7 +87,7 @@ public:
 
                     P(i, j, k) = m_param_setup.P0 * units::pressure;
                 }
-                
+
                 else
                 {
                     rho(i, j, k) = m_param_setup.rho1 * units::density;

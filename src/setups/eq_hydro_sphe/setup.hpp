@@ -84,11 +84,14 @@ public:
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
             double x0 = units::kb * m_param_setup.T / (mu * units::mh * units::G * m_param_setup.M);
+
             rho(i, j, k) = m_param_setup.rho0 * Kokkos::exp(1. / (xc(i) * x0));
+
             for (int idim = 0; idim < ndim; ++idim)
             {
                 u(i, j, k, idim) = m_param_setup.u0;
             }
+
             P(i, j, k) = m_eos.compute_P_from_T(rho(i, j, k), m_param_setup.T);
         });
     }

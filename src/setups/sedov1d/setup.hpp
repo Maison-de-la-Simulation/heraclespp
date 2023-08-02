@@ -101,8 +101,8 @@ public:
 
                 if(m_grid.mpi_rank == 0 && i == 2)
                 {
-                    double Tpertub = m_eos.compute_T_from_evol(rho(i, j, k), alpha * m_param_setup.E1 * units::evol / dv);
-                    P(i, j, k) = m_eos.compute_P_from_T(rho(i, j, k), Tpertub) * units::pressure;
+                    double T_perturb = m_eos.compute_T_from_evol(rho(i, j, k), alpha * m_param_setup.E1 * units::evol / dv);
+                    P(i, j, k) = m_eos.compute_P_from_T(rho(i, j, k), T_perturb) * units::pressure;
                 }
             });
     }

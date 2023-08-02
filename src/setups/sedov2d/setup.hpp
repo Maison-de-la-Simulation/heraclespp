@@ -71,6 +71,7 @@ public:
 
         auto const x_d = m_grid.x.d_view;
         auto const y_d = m_grid.y.d_view;
+
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
             "Sedov_2D_init",
@@ -100,7 +101,7 @@ public:
                     double T = m_eos.compute_T_from_evol(rho(i, j, k), 
                                 m_param_setup.E0 * units::evol / m_grid.dv(i, j, k)) * units::Kelvin;
                     P(i, j, k) = m_eos.compute_P_from_T(rho(i, j, k), T) * units::pressure;
-                } 
+                }
             });
     }
 };

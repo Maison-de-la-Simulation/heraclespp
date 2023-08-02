@@ -44,6 +44,7 @@
 #include "nova_params.hpp"
 #include "range.hpp"
 #include "setup.hpp"
+#include "temperature.hpp"
 #include "time_step.hpp"
 
 using namespace novapp;
@@ -147,6 +148,7 @@ int main(int argc, char** argv)
     KDV_double_3d P("P",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Pressure
     KDV_double_4d rhou("rhou", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim); // Momentum
     KDV_double_3d E("E",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Energy
+    KDV_double_3d T("T",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Temperature
 
     KV_double_5d rho_rec("rho_rec",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim);
     KV_double_6d rhou_rec("rhou_rec", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim, ndim);
@@ -168,12 +170,13 @@ int main(int argc, char** argv)
 
     if(param.restart)
     {   
-        read_pdi(param.restart_file, rho, u, P, fx, t, iter); // read data into host view
+        read_pdi(param.restart_file, rho, u, P, fx, T, t, iter); // read data into host view
         
         rho.sync_device();
         u.sync_device();
         P.sync_device();
-        
+        T.sync_device();
+
         if(grid.mpi_rank==0) 
         {
             std::cout<<std::endl<< std::left << std::setw(80) << std::setfill('*') << "*"<<std::endl;
@@ -189,8 +192,10 @@ int main(int argc, char** argv)
     conv_prim_to_cons(grid.range.no_ghosts(), rhou.d_view, E.d_view, rho.d_view, u.d_view, P.d_view, eos);
 
     bcs(rho.d_view, rhou.d_view, E.d_view, fx.d_view);
-    
+
     conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho.d_view, rhou.d_view, E.d_view, eos);
+
+    temperature(grid.range.all_ghosts(), eos, rho.d_view, P.d_view, T.d_view);
 
     rho.modify_device();
     u.modify_device();
@@ -198,6 +203,7 @@ int main(int argc, char** argv)
     fx.modify_device();
     rhou.modify_device();
     E.modify_device();
+    T.modify_device();
 
     std::unique_ptr<IHydroReconstruction> reconstruction 
         = std::make_unique<MUSCLHancockHydroReconstruction>(std::move(face_reconstruction), 
@@ -209,7 +215,7 @@ int main(int argc, char** argv)
     {
         outputs_record.emplace_back(iter, t);
         writeXML(grid, outputs_record, grid.x_glob, grid.y_glob, grid.z_glob);
-        write_pdi(iter, t, eos.adiabatic_index(), rho, u, P, E, grid.x, grid.y, grid.z, fx);
+        write_pdi(iter, t, eos.adiabatic_index(), rho, u, P, E, grid.x, grid.y, grid.z, fx, T);
     }
 
     std::chrono::steady_clock::time_point const start = std::chrono::steady_clock::now();
@@ -227,13 +233,16 @@ int main(int argc, char** argv)
         reconstruction->execute(grid.range.with_ghosts(1), dt/2, rho_rec, rhou_rec, E_rec, fx_rec, 
                                 rho.d_view, u.d_view, P.d_view, fx.d_view);
 
-        godunov_scheme->execute(grid.range.no_ghosts(), dt, rho.d_view, rhou.d_view, E.d_view, fx.d_view, 
+        godunov_scheme->execute(grid.range.no_ghosts(), dt, rho.d_view, rhou.d_view, E.d_view, fx.d_view,
                                 rho_rec, rhou_rec, E_rec, fx_rec,
                                 rho_new, rhou_new, E_new, fx_new);
 
         bcs(rho_new, rhou_new, E_new, fx_new);
 
         conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho_new, rhou_new, E_new, eos);
+
+        temperature(grid.range.all_ghosts(), eos, rho.d_view, P.d_view, T.d_view);
+
         Kokkos::deep_copy(rho.d_view, rho_new);
         Kokkos::deep_copy(rhou.d_view, rhou_new);
         Kokkos::deep_copy(E.d_view, E_new);
@@ -245,6 +254,7 @@ int main(int argc, char** argv)
         E.modify_device();
         rhou.modify_device();
         fx.modify_device();
+        T.modify_device();
 
         t += dt;
         iter++;
@@ -253,7 +263,7 @@ int main(int argc, char** argv)
         {
             outputs_record.emplace_back(iter, t);
             writeXML(grid, outputs_record, grid.x_glob, grid.y_glob, grid.z_glob);
-            write_pdi(iter, t, eos.adiabatic_index(), rho, u, P, E, grid.x, grid.y, grid.z, fx);
+            write_pdi(iter, t, eos.adiabatic_index(), rho, u, P, E, grid.x, grid.y, grid.z, fx, T);
         }
     }
 
