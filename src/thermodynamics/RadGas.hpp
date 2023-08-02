@@ -5,8 +5,7 @@
 #pragma once
 
 #include <Kokkos_Core.hpp>
-
-#include "../units.hpp"
+#include <units.hpp>
 
 namespace novapp::thermodynamics
 {

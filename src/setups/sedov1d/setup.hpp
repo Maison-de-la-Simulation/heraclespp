@@ -11,7 +11,7 @@
 #include "eos.hpp"
 #include "kokkos_shortcut.hpp"
 #include "grid.hpp"
-#include "units.hpp"
+#include <units.hpp>
 #include "initialization_interface.hpp"
 #include "nova_params.hpp"
 #include "geom.hpp"

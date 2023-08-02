@@ -1,3 +1,4 @@
+add_subdirectory(units)
 add_subdirectory(thermodynamics)
 
 add_library(libnova++ array_conversion.cpp
@@ -27,6 +28,7 @@ target_link_libraries(libnova++ PUBLIC Kokkos::kokkos)
 target_link_libraries(libnova++ PUBLIC PDI::PDI_C)
 target_link_libraries(libnova++ PUBLIC inih)
 target_link_libraries(libnova++ PUBLIC thermodynamics)
+target_link_libraries(libnova++ PUBLIC units)
 
 add_executable(nova++ main.cpp)
 target_link_libraries(nova++ PUBLIC libnova++)
