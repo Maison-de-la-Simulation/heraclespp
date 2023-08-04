@@ -175,6 +175,7 @@ int main(int argc, char** argv)
         rho.sync_device();
         u.sync_device();
         P.sync_device();
+        fx.sync_device();
         T.sync_device();
 
         if(grid.mpi_rank==0) 
