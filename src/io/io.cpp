@@ -98,7 +98,6 @@ void read_pdi(std::string restart_file,
               KDV_double_4d u,
               KDV_double_3d P,
               KDV_double_4d fx,
-              KDV_double_3d T,
               double &t, int &iter)
 {
     int filename_size = restart_file.size();
@@ -111,13 +110,11 @@ void read_pdi(std::string restart_file,
                     "u", u.h_view.data(), PDI_INOUT,
                     "P", P.h_view.data(), PDI_INOUT,
                     "fx", fx.h_view.data(), PDI_INOUT,
-                    "T", P.h_view.data(), PDI_INOUT,
                     NULL);
     rho.modify_host();
     u.modify_host();
     P.modify_host();
     fx.modify_host();
-    T.modify_host();
 }
 
 void writeXML(

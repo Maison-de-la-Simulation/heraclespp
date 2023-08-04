@@ -170,13 +170,12 @@ int main(int argc, char** argv)
 
     if(param.restart)
     {   
-        read_pdi(param.restart_file, rho, u, P, fx, T, t, iter); // read data into host view
+        read_pdi(param.restart_file, rho, u, P, fx, t, iter); // read data into host view
         
         rho.sync_device();
         u.sync_device();
         P.sync_device();
         fx.sync_device();
-        T.sync_device();
 
         if(grid.mpi_rank==0) 
         {
