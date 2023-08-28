@@ -72,7 +72,7 @@ public:
         auto const xc = m_grid.x_center;
         double mu = m_eos.mean_molecular_weight();
         /* std::cout <<"Scale = " << units::kb * m_param_setup.T
-            / (mu * units::mh * Kokkos::fabs(g(0))) << std::endl; */
+            / (mu * units::mp * Kokkos::fabs(g(0))) << std::endl; */
         
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
@@ -81,7 +81,7 @@ public:
             KOKKOS_CLASS_LAMBDA(int i, int j, int k)
             {
                 double x0 = units::kb * m_param_setup.T * units::Kelvin
-                        / (mu * units::mh * Kokkos::fabs(m_gravity(i, j, k, 0)) * units::acc);
+                        / (mu * units::mp * Kokkos::fabs(m_gravity(i, j, k, 0)) * units::acc);
 
                 rho(i, j, k) = m_param_setup.rho0 * units::density * Kokkos::exp(- xc(i) / x0);
 
@@ -165,7 +165,7 @@ public:
                 double gravity = m_gravity(i, j, k, 0) * units::acc;
 
                 double x0 = units::kb * m_param_setup.T * units::Kelvin
-                        / (mu * units::mh * Kokkos::fabs(gravity));
+                        / (mu * units::p * Kokkos::fabs(gravity));
 
                 rho(i, j, k) = m_param_setup.rho0 * units::density * Kokkos::exp(- xc(i) / x0);
 

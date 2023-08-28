@@ -37,15 +37,15 @@ for i in range(len(rho)):
 
 rho0 = 10
 kb = 1.38e-23
-mh = 1.67e-27
+mp = 1.67e-27
 T0 = 100
 g = -10
 mu = 1
-x0 = kb * T0 / (mu * mh * np.abs(g))
-P0 = rho0 * kb * T0 / (mu * mh)
+x0 = kb * T0 / (mu * mp * np.abs(g))
+P0 = rho0 * kb * T0 / (mu * mp)
 
 rho_tab0 = rho0 * np.exp(- xc / x0)
-P_tab0 = rho_tab0 * kb * T0 / (mh * mu)
+P_tab0 = rho_tab0 * kb * T0 / (mp * mu)
 u_tab0 = np.zeros(len(u))
 T_tab0 = np.ones(len(xc)) * T0
 

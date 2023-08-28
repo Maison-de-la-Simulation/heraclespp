@@ -37,8 +37,8 @@ namespace novapp::units
     constexpr double espe = Joule / kg; // Specific energy : m^{2}.s^{-2}
 
 //  cgs in the new basis
-    constexpr double g = 1.0E-3 / kg;
-    constexpr double cm = 1.0E-2 / m;
+    constexpr double g = 1.0E-3 / kg; // Gram
+    constexpr double cm = 1.0E-2 / m; // Centimeter
 
     constexpr double cm2 = cm * cm;
     constexpr double cm3 = cm2 * cm;
@@ -53,12 +53,12 @@ namespace novapp::units
     constexpr double espe_cgs = erg / g; // Specific energy : cm^{2}.s^{-2}
 
 // physical constants : SI
-    constexpr double kb = 1.38E-23 * Joule / Kelvin; // kg.m^{2}.s^{-2}.K^{-1}
-    constexpr double mh = 1.67E-27 * kg; // kg
-    constexpr double c = 2.99792458E8 * velocity; // m.s^{-1}
-    constexpr double G = 6.6743015E-11 * Newton * m2 / kg2; // m^{3}.kg^{-1}.s^{-2}
-    constexpr double hplanck = 6.62607015E-34 * Joule * s; // kg.m^{2}.s^{-3}
-    constexpr double eV = 1.602176634E-19 * Joule; // kg.m^{2}.s^{-2}
+    constexpr double kb = 1.38E-23 * Joule / Kelvin; // Botzman  constant : kg.m^{2}.s^{-2}.K^{-1}
+    constexpr double mp = 1.67E-27 * kg; // Proton mass : kg
+    constexpr double c = 2.99792458E8 * velocity; // Speed of light : m.s^{-1}
+    constexpr double G = 6.6743015E-11 * Newton * m2 / kg2; // Gravitational constant : m^{3}.kg^{-1}.s^{-2}
+    constexpr double hplanck = 6.62607015E-34 * Joule * s; // Planck constant : kg.m^{2}.s^{-3}
+    constexpr double eV = 1.602176634E-19 * Joule; // Electronvolt : kg.m^{2}.s^{-2}
 
     constexpr double pi = Kokkos::numbers::pi;
     constexpr double pi5 = pi * pi * pi * pi * pi;
@@ -66,22 +66,22 @@ namespace novapp::units
     constexpr double hplanck3 = hplanck * hplanck * hplanck;
     constexpr double c2 = c * c;
     constexpr double c3 = c2 * c;
-    constexpr double ar = (8 * pi5 * kb4) / (15 * hplanck3 * c3) * Joule / (m3 * K4); // kg.m^{-1}.s^{-2}.K^{-4} 
+    constexpr double ar = (8 * pi5 * kb4) / (15 * hplanck3 * c3) * Joule / (m3 * K4); // Radiative constant kg.m^{-1}.s^{-2}.K^{-4} 
 
-    constexpr double ua = 1.49597870E11* m;
-    
-    constexpr double Msol = 1.9885E30 * kg;
-    constexpr double Rsol = 6.96342E8 * m; 
-    constexpr double Lsol = 3.8268E26 * Watt;
+    constexpr double ua = 1.49597870E11 * m;
+
+    constexpr double Msol = 1.9885E30 * kg; // Solar mass
+    constexpr double Rsol = 6.96342E8 * m; // Solar radius
+    constexpr double Lsol = 3.8268E26 * Watt; // Solar luminosity
 
 // useful units
     constexpr double year = 3.155760E7 * s;
-    constexpr double Myrs = 3.155760E13 * s;
-    constexpr double Gyrs = 3.155760E16 * s;
-    constexpr double pc = 3.085677581E16 * m;
+    constexpr double Myrs = 3.155760E13 * s; // Mega year
+    constexpr double Gyrs = 3.155760E16 * s; // Giga year
+    constexpr double pc = 3.085677581E16 * m; // parsec
     constexpr double kpc = pc * 1E3;
     constexpr double Mpc = kpc * 1E3;
     constexpr double Pascal = kg / (m * s2); // kg.m^{-1}.s^{-1}
-    constexpr double H0 = 7.2E1 * m * 1E3 / Mpc; // cste de Hubble
+    constexpr double H0 = 7.2E1 * m * 1E3 / Mpc; // Hubble constant
 
 } // namespace novapp::units

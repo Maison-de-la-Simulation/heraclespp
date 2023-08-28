@@ -50,7 +50,7 @@ public:
     KOKKOS_FORCEINLINE_FUNCTION
     double compute_evol_from_T(double const rho, double const T) const noexcept
     {
-        return rho * units::kb * T / (m_mmw * units::mh * m_gamma_m1);
+        return rho * units::kb * T / (m_mmw * units::mp * m_gamma_m1);
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
@@ -62,19 +62,19 @@ public:
     KOKKOS_FORCEINLINE_FUNCTION
     double compute_P_from_T(double const rho, double const T) const noexcept
     {
-        return rho * units::kb * T / (m_mmw * units::mh);
+        return rho * units::kb * T / (m_mmw * units::mp);
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
     double compute_T_from_P(double const rho, double const P) const noexcept
     {
-        return P * m_mmw * units::mh / (rho * units::kb);
+        return P * m_mmw * units::mp / (rho * units::kb);
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
     double compute_T_from_evol(double const rho, double const evol) const noexcept
     {
-        return evol * m_mmw * units::mh * m_gamma_m1 / (rho * units::kb);
+        return evol * m_mmw * units::mp * m_gamma_m1 / (rho * units::kb);
     }
 
     KOKKOS_FORCEINLINE_FUNCTION

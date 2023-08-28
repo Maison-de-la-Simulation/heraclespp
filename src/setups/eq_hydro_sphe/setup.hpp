@@ -74,7 +74,7 @@ public:
         double const mu = m_eos.mean_molecular_weight();
 
         std::cout <<"Scale = " << units::kb * m_param_setup.T
-                / (mu * units::mh * units::G * m_param_setup.M)<< std::endl;
+                / (mu * units::mp * units::G * m_param_setup.M)<< std::endl;
         std::cout<<"L = "<<x(x.extent_int(0)-2)<<std::endl;
         
         auto const [begin, end] = cell_range(range);
@@ -83,7 +83,7 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
-            double x0 = units::kb * m_param_setup.T / (mu * units::mh * units::G * m_param_setup.M);
+            double x0 = units::kb * m_param_setup.T / (mu * units::mp * units::G * m_param_setup.M);
 
             rho(i, j, k) = m_param_setup.rho0 * Kokkos::exp(1. / (xc(i) * x0));
 
@@ -162,7 +162,7 @@ public:
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k) 
         {
-            double x0 = units::kb * m_param_setup.T / (mu * units::mh * units::G * m_param_setup.M);
+            double x0 = units::kb * m_param_setup.T / (mu * units::mp * units::G * m_param_setup.M);
             rho(i, j, k) = m_param_setup.rho0 * Kokkos::exp(1. / (xc(i) * x0));
             for (int n = 0; n < rhou.extent_int(3); n++)
             {

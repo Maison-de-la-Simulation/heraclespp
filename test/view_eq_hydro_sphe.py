@@ -37,7 +37,7 @@ print("Iteration number =", iter)
 # Analytical result ------------------------
 
 kb = 1.38e-23
-mh = 1.67e-27
+mp = 1.67e-27
 G = 6.6743015e-11
 mu = 1
 M = 2e19
@@ -52,11 +52,11 @@ rho0 = 10
 T = 100
 x0 = np.zeros(len(rho))
 for i in range(len(x0)):
-    x0[i] = kb * T / (mu * mh * g2)
-P0 = rho0 * kb * T / (mu * mh)
+    x0[i] = kb * T / (mu * mp * g2)
+P0 = rho0 * kb * T / (mu * mp)
 
 rho_tab0 = rho0 * np.exp(1 / (x0 * xc))
-P_tab0 = rho_tab0 * kb * T / (mh * mu)
+P_tab0 = rho_tab0 * kb * T / (mp * mu)
 u_tab0 = np.zeros(len(u))
 
 print("cs = ", np.sqrt(gamma * P0 / rho0))
