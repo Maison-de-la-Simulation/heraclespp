@@ -1,20 +1,18 @@
 
 #pragma once
 
-
 #include <Kokkos_Core.hpp>
+#include <units.hpp>
 
 #include <inih/INIReader.hpp>
 
-#include "ndim.hpp"
 #include "eos.hpp"
-#include "range.hpp"
-#include "eos.hpp"
-#include "kokkos_shortcut.hpp"
 #include "grid.hpp"
-#include <units.hpp>
 #include "initialization_interface.hpp"
+#include "kokkos_shortcut.hpp"
+#include "ndim.hpp"
 #include "nova_params.hpp"
+#include "range.hpp"
 
 namespace novapp
 {
