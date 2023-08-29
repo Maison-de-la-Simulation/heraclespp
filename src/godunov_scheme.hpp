@@ -44,6 +44,7 @@ public:
         KV_cdouble_4d rhou,
         KV_cdouble_3d E,
         KV_cdouble_4d fx,
+        KV_cdouble_3d T,
         KV_cdouble_5d rho_rec,
         KV_cdouble_6d rhou_rec,
         KV_cdouble_5d E_rec,
@@ -63,6 +64,8 @@ class RiemannBasedGodunovScheme : public IGodunovScheme
                 RiemannSolver,
                 EulerCons,
                 EulerCons,
+                double,
+                double,
                 int,
                 EOS>,
             "Incompatible Riemann solver.");
@@ -93,6 +96,7 @@ public:
         KV_cdouble_4d const rhou,
         KV_cdouble_3d const E,
         KV_cdouble_4d const fx,
+        KV_cdouble_3d const T,
         KV_cdouble_5d const rho_rec,
         KV_cdouble_6d const rhou_rec,
         KV_cdouble_5d const E_rec,
@@ -139,6 +143,7 @@ public:
                         minus_oneR.rhou[idr] = rhou_rec(i_m, j_m, k_m, 1, idim, idr);
                     }
                     minus_oneR.E = E_rec(i_m, j_m, k_m, 1, idim);
+                    double T_minus_one = T(i_m, j_m, k_m);
                     EulerCons var_L; // Left, front, down (i,j,k)
                     var_L.rho = rho_rec(i, j, k, 0, idim);
                     for (int idr = 0; idr < ndim; ++idr)
@@ -146,7 +151,8 @@ public:
                         var_L.rhou[idr] = rhou_rec(i, j, k, 0, idim, idr);
                     }
                     var_L.E = E_rec(i, j, k, 0, idim);
-                    EulerFlux const FluxL = m_riemann_solver(minus_oneR, var_L, idim, m_eos);
+                    double Tc = T(i, j, k);
+                    EulerFlux const FluxL = m_riemann_solver(minus_oneR, var_L, T_minus_one, Tc, idim, m_eos);
 
                     EulerCons var_R; // Right, back, top (i,j,k)
                     var_R.rho = rho_rec(i, j, k, 1, idim);
@@ -162,7 +168,8 @@ public:
                         plus_oneL.rhou[idr] = rhou_rec(i_p, j_p, k_p, 0, idim, idr);
                     }
                     plus_oneL.E = E_rec(i_p, j_p, k_p, 0, idim);
-                    EulerFlux const FluxR = m_riemann_solver(var_R, plus_oneL, idim, m_eos);
+                    double T_plus_one = T(i_p, j_p, k_p);
+                    EulerFlux const FluxR = m_riemann_solver(var_R, plus_oneL, Tc, T_plus_one, idim, m_eos);
 
                     double const dtodv = dt / dv(i, j, k);
 

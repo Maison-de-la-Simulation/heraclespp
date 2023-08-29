@@ -133,9 +133,16 @@ public:
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
-    double compute_speed_of_sound(double const rho, double const P) const noexcept
+    double compute_speed_of_sound(double const rho, double const P, double const T) const noexcept
     {
-        return Kokkos::sqrt(m_gamma * P / rho);
+        double Pg = rho * units::kb * T / (m_mmw * units::mp);
+        auto const T4 = T * T * T * T;
+        double Pr = units::ar * T4 / 3;
+        double alpha = Pr / Pg;
+        double num = m_gamma / (m_gamma - 1) + 20 * alpha + 16 * alpha * alpha;
+        double den = 1. / (m_gamma - 1) + 12 * alpha; 
+        double gamma_eff = num / den;
+        return Kokkos::sqrt(gamma_eff * P / rho);
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
