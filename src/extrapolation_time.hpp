@@ -177,7 +177,7 @@ public:
                     }
 
                     //Spherical geometric terms
-                    if (geom_choice == "SPHERICAL")
+                    if (geom_choice == "Spherical")
                     {
                         double rm = x(i);
                         double rp = x(i_p);

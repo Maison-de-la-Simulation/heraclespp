@@ -87,14 +87,14 @@ int main(int argc, char** argv)
 
     EOS const eos(param.gamma, param.mu);
 
-#if defined(UNIFORM)
+#if defined(Uniform)
     UniformGravity const g(make_uniform_gravity(param));
     using Gravity = UniformGravity;
-    print_info("GRAVITY", "UNIFORM");
-#elif defined(POINT_MASS)
+    print_info("GRAVITY", "Uniform");
+#elif defined(Point_mass)
     PointMassGravity const g(make_point_mass_gravity(param, grid));
     using Gravity = PointMassGravity;
-    print_info("GRAVITY", "POINT_MASS");
+    print_info("GRAVITY", "Point_mass");
 #else
     static_assert(false, "Gravity not defined");
 #endif

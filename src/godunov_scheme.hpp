@@ -177,7 +177,7 @@ public:
                                             - FluxR.E * ds(i_p, j_p, k_p, idim));
 
                      //Spherical geometric terms
-                    if (geom_choice == "SPHERICAL")
+                    if (geom_choice == "Spherical")
                     {
                         double rm = x(i);
                         double rp = x(i_p);

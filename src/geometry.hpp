@@ -172,11 +172,11 @@ public:
 
 inline std::unique_ptr<IComputeGeom> factory_grid_geometry()
 {
-    if (geom_choice == "CARTESIAN")
+    if (geom_choice == "Cartesian")
     {
         return std::make_unique<Cartesian>();
     }
-    if (geom_choice == "SPHERICAL")
+    if (geom_choice == "Spherical")
     {
         return std::make_unique<Spherical>();
     }

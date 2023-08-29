@@ -4,6 +4,28 @@ project(Nova++ LANGUAGES CXX)
 
 set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_NO_CYCLES ON)
 
+if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
+  message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. You may need to remove CMakeCache.txt. ")
+endif()
+
+set(Novapp_EOS "" CACHE STRING "Choose the equation of state: PerfectGas(Perfect Gas) ; Gas+Radiation(Gas+Radiation)")
+set_property(CACHE Novapp_EOS PROPERTY STRINGS "PerfectGas;Gas+Radiation")
+if("${Novapp_EOS}" STREQUAL "")
+  message(FATAL_ERROR "Novapp_EOS is not defined")
+endif()
+
+set(Novapp_GEOM "" CACHE STRING "Choose the geometric system: Cartesian(Cartesian system) ; Spherical(Spherical system)")
+set_property(CACHE Novapp_GEOM PROPERTY STRINGS "Cartesian;Spherical")
+if("${Novapp_GEOM}" STREQUAL "")
+  message(FATAL_ERROR "Novapp_GEOM is not defined")
+endif()
+
+set(Novapp_GRAVITY "" CACHE STRING "Choose the equation of state: Uniform(Uniform gravity) ; Point_mass(Point mass gravity)")
+set_property(CACHE Novapp_GRAVITY PROPERTY STRINGS "Uniform;Point_mass")
+if("${Novapp_GRAVITY}" STREQUAL "")
+  message(FATAL_ERROR "Novapp_GRAVITY is not defined")
+endif()
+
 set(DIMS "1;2;3")
 set(Novapp_NDIM "" CACHE STRING "Choose the dimension, options are ${DIMS}")
 set_property(CACHE Novapp_NDIM PROPERTY STRINGS "${DIMS}")
@@ -17,28 +39,6 @@ set_property(CACHE Novapp_SETUP PROPERTY STRINGS "${sub-dirs-name}")
 
 if (NOT("${Novapp_SETUP}" IN_LIST sub-dirs-name))
   message(FATAL_ERROR "Novapp_SETUP is not defined, available setups are: ${sub-dirs-name}")
-endif()
-
-if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
-  message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. You may need to remove CMakeCache.txt. ")
-endif()
-
-set(Novapp_EOS "" CACHE STRING "Choose the equation of state: PERFECT(Perfect Gas);RADIATIVE(Radiative)")
-set_property(CACHE Novapp_EOS PROPERTY STRINGS "PERFECT;RADIATIVE")
-if("${Novapp_EOS}" STREQUAL "")
-  message(FATAL_ERROR "Novapp_EOS is not defined")
-endif()
-
-set(Novapp_GRAVITY "" CACHE STRING "Choose the equation of state: UNIFORM(Uniform gravity);POINT_MASS(Point mass gravity)")
-set_property(CACHE Novapp_GRAVITY PROPERTY STRINGS "UNIFORM;POINT_MASS")
-if("${Novapp_GRAVITY}" STREQUAL "")
-  message(FATAL_ERROR "Novapp_GRAVITY is not defined")
-endif()
-
-set(Novapp_GEOM "" CACHE STRING "Choose the geometric system: CARTESIAN(Cartesian system);SPHERICAL(Spherical system)")
-set_property(CACHE Novapp_GEOM PROPERTY STRINGS "CARTESIAN;SPHERICAL")
-if("${Novapp_GEOM}" STREQUAL "")
-  message(FATAL_ERROR "Novapp_GEOM is not defined")
 endif()
 
 include(CTest)

@@ -73,12 +73,12 @@ public:
         double dv = m_grid.dv(2, 0, 0);
         double alpha;
 
-        if (geom_choice == "CARTESIAN")
+        if (geom_choice == "Cartesian")
         {
             alpha = 0.5;
         }
 
-        if (geom_choice == "SPHERICAL")
+        if (geom_choice == "Spherical")
         {
             alpha = 1;
         }
