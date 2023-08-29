@@ -22,14 +22,16 @@ public:
     EulerFlux operator()(
             EulerCons const& consL,
             EulerCons const& consR,
+            double const TL,
+            double const TR,
             int locdim,
             EOS const& eos) const noexcept
     {
         EulerPrim const primL = to_prim(consL, eos);
         EulerPrim const primR = to_prim(consR, eos);
 
-        double const cL = eos.compute_speed_of_sound(primL.rho, primL.P);
-        double const cR = eos.compute_speed_of_sound(primR.rho, primR.P);
+        double const cL = eos.compute_speed_of_sound(primL.rho, primL.P, TL);
+        double const cR = eos.compute_speed_of_sound(primR.rho, primR.P, TR);
 
         double const wsL = Kokkos::fmin(primL.u[locdim] - cL, primR.u[locdim] - cR);
         double const wsR = Kokkos::fmax(primL.u[locdim] + cL, primR.u[locdim] + cR);

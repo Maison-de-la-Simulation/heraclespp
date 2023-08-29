@@ -4,10 +4,6 @@ project(Nova++ LANGUAGES CXX)
 
 set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_NO_CYCLES ON)
 
-if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
-  message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. You may need to remove CMakeCache.txt. ")
-endif()
-
 set(Novapp_EOS "" CACHE STRING "Choose the equation of state: PerfectGas(Perfect Gas) ; Gas+Radiation(Gas+Radiation)")
 set_property(CACHE Novapp_EOS PROPERTY STRINGS "PerfectGas;Gas+Radiation")
 if("${Novapp_EOS}" STREQUAL "")
@@ -31,6 +27,10 @@ set(Novapp_NDIM "" CACHE STRING "Choose the dimension, options are ${DIMS}")
 set_property(CACHE Novapp_NDIM PROPERTY STRINGS "${DIMS}")
 if(NOT ("${Novapp_NDIM}"  IN_LIST DIMS))
   message(FATAL_ERROR "Novapp_NDIM is not defined, available dimensions are ${DIMS}")
+endif()
+
+if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
+  message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. You may need to remove CMakeCache.txt. ")
 endif()
 
 set(Novapp_SETUP "" CACHE STRING "Choose the setup")

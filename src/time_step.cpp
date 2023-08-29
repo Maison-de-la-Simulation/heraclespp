@@ -18,6 +18,7 @@ double time_step(
     KV_cdouble_3d rho,
     KV_cdouble_4d u,
     KV_cdouble_3d P,
+    KV_cdouble_3d T,
     EOS const& eos,
     Grid const& grid)
 {
@@ -29,7 +30,7 @@ double time_step(
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_LAMBDA(int i, int j, int k, double& local_a)
         {
-            double const sound = eos.compute_speed_of_sound(rho(i, j, k), P(i, j, k));
+            double const sound = eos.compute_speed_of_sound(rho(i, j, k), P(i, j, k), T(i, j, k));
             
             double dt_loc_inverse = 0;
             for(int idim = 0; idim < ndim; idim++)
