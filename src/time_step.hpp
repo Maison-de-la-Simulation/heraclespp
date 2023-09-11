@@ -35,7 +35,6 @@ class Grid;
     KV_cdouble_3d rho,
     KV_cdouble_4d u,
     KV_cdouble_3d P,
-    KV_cdouble_3d T,
     EOS const& eos,
     Grid const& grid);
 

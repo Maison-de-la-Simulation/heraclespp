@@ -222,7 +222,7 @@ int main(int argc, char** argv)
 
     while (!should_exit && t < param.timeout && iter < param.max_iter)
     {
-        double dt = time_step(grid.range.all_ghosts(), param.cfl, rho.d_view, u.d_view, P.d_view, T.d_view, eos, grid);
+        double dt = time_step(grid.range.all_ghosts(), param.cfl, rho.d_view, u.d_view, P.d_view, eos, grid);
         bool const make_output = should_output(iter, param.output_frequency, param.max_iter, t, dt, param.timeout);
         if ((t + dt) > param.timeout)
         {
@@ -233,7 +233,7 @@ int main(int argc, char** argv)
         reconstruction->execute(grid.range.with_ghosts(1), dt/2, rho_rec, rhou_rec, E_rec, fx_rec, 
                                 rho.d_view, u.d_view, P.d_view, fx.d_view);
 
-        godunov_scheme->execute(grid.range.no_ghosts(), dt, rho.d_view, rhou.d_view, E.d_view, fx.d_view, T.d_view,
+        godunov_scheme->execute(grid.range.no_ghosts(), dt, rho.d_view, rhou.d_view, E.d_view, fx.d_view,
                                 rho_rec, rhou_rec, E_rec, fx_rec,
                                 rho_new, rhou_new, E_new, fx_new);
 

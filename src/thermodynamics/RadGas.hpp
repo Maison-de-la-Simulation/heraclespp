@@ -133,8 +133,9 @@ public:
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
-    double compute_speed_of_sound(double const rho, double const P, double const T) const noexcept
+    double compute_speed_of_sound(double const rho, double const P) const noexcept
     {
+        double T = compute_T_from_P(rho, P);
         double Pg = rho * units::kb * T / (m_mmw * units::mp);
         auto const T4 = T * T * T * T;
         double Pr = units::ar * T4 / 3;
