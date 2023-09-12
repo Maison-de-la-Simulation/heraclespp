@@ -26,7 +26,51 @@
 namespace novapp
 {
 
-void DistributedBoundaryCondition::ghostFill(
+namespace {
+
+void generate_order(std::array<int, ndim * 2>& bc_order, std::string const& bc_priority)
+{
+    if (bc_priority.empty()) {
+        std::iota(bc_order.begin(), bc_order.end(), 0); // bc_order = {0,1,2,3,4,5};
+        return;
+    }
+    std::array<std::string, ndim * 2> tmp_arr;
+    std::stringstream ssin(bc_priority);
+    for (int i = 0; i < ndim * 2 && ssin.good(); i++) {
+        ssin >> tmp_arr[i];
+    }
+
+    int counter = 0;
+    for (int i = 0; i < ndim * 2; i++) {
+        if (tmp_arr[i] == "X_left") {
+            bc_order[0] = i;
+            counter++;
+        } else if (tmp_arr[i] == "X_right") {
+            bc_order[1] = i;
+            counter++;
+        } else if (tmp_arr[i] == "Y_left" && ndim >= 2) {
+            bc_order[2] = i;
+            counter++;
+        } else if (tmp_arr[i] == "Y_right" && ndim >= 2) {
+            bc_order[3] = i;
+            counter++;
+        } else if (tmp_arr[i] == "Z_left" && ndim == 3) {
+            bc_order[4] = i;
+            counter++;
+        } else if (tmp_arr[i] == "Z_right" && ndim == 3) {
+            bc_order[5] = i;
+            counter++;
+        }
+    }
+    std::reverse(bc_order.begin(), bc_order.end());
+    if (counter != ndim * 2) {
+        throw std::runtime_error("boundary priority not fully defined !");
+    }
+}
+
+} // namespace
+
+void DistributedBoundaryCondition::ghost_sync(
     std::vector<KV_double_3d> const& views,
     int bc_idim,
     int bc_iface) const
@@ -81,37 +125,6 @@ void DistributedBoundaryCondition::ghostFill(
     }
 }
 
-void DistributedBoundaryCondition::generate_order()
-{
-    if(m_param.bc_priority.empty())
-    {
-        std::iota(m_bc_order.begin(), m_bc_order.end(), 0); // m_bc_order = {0,1,2,3,4,5};
-        return;
-    }
-    std::array<std::string, ndim*2> tmp_arr;
-    std::stringstream ssin(m_param.bc_priority);
-    for(int i=0; i<ndim*2 && ssin.good(); i++)
-    {
-        ssin >> tmp_arr[i];
-    }
-
-    int counter=0;
-    for(int i=0; i<ndim*2; i++)
-    {
-        if(tmp_arr[i] == "X_left") {m_bc_order[0] = i; counter++;}
-        else if(tmp_arr[i] == "X_right") {m_bc_order[1] = i; counter++;}
-        else if(tmp_arr[i] == "Y_left" && ndim>=2) {m_bc_order[2] = i; counter++;}
-        else if(tmp_arr[i] == "Y_right" && ndim>=2) {m_bc_order[3] = i; counter++;}
-        else if(tmp_arr[i] == "Z_left" && ndim==3) {m_bc_order[4] = i; counter++;}
-        else if(tmp_arr[i] == "Z_right" && ndim==3) {m_bc_order[5] = i; counter++;}
-    }
-    std::reverse(m_bc_order.begin(), m_bc_order.end());
-    if(counter!=ndim*2)
-    {
-        throw std::runtime_error("boundary priority not fully defined !");
-    }
-}
-
 DistributedBoundaryCondition::DistributedBoundaryCondition(
     Grid const& grid, 
     Param const& param,
@@ -139,7 +152,7 @@ DistributedBoundaryCondition::DistributedBoundaryCondition(
         buf_size[idim] = grid.Nx_local_wg[idim];
     }
 
-    generate_order();
+    generate_order(m_bc_order, m_param.bc_priority);
 }
 
 void DistributedBoundaryCondition::operator()(KV_double_3d rho,
@@ -164,7 +177,7 @@ void DistributedBoundaryCondition::operator()(KV_double_3d rho,
     {
         for (int iface = 0; iface < 2; iface++)
         {
-            ghostFill(views, idim, iface);
+            ghost_sync(views, idim, iface);
         }
     }
 
