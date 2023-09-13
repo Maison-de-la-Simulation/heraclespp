@@ -21,9 +21,9 @@ pdi:
     restart_filename_size: int
     restart_filename: { type: array, subtype: char, size: $restart_filename_size }
     grid_communicator: MPI_Comm
-    
 
-  data: # this describe the data that will be send by each proc
+
+  data: # this describes the data that is local to each process
     u:   { type: array, subtype: double, size: ['$ndim', '$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]'] }
     rho: { type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]' ] }
     P:   { type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]' ] }
@@ -44,7 +44,7 @@ pdi:
         collision_policy: replace
         communicator: '$grid_communicator'
         on_event: write_file
-        datasets: # this is the global data size (data in the final h5 fil)
+        datasets: # this describes the global data (data in the final h5 file)
           ux:  {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
           uy:  {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
           uz:  {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
