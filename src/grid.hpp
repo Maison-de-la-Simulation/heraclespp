@@ -35,13 +35,13 @@ public :
     static constexpr int Ndim = ndim;
 
     explicit Grid(Param const& param);
-    void Init_grid(Param const& param);
     void print_grid() const;
     
 private:
     void MPI_Decomp();
 
 public :
+    void set_grid(KVH_double_1d x_glob, KVH_double_1d y_glob, KVH_double_1d z_glob, Param const& param);
     int Ng;
     std::array<int, 3> Nghost;    // Number of ghost cells in each direction (default is 2)
     std::array<int, 3> Nx_glob_ng;    // Total number of cells in each directions (excluding ghost)
@@ -64,10 +64,6 @@ public :
 
     Range range;
     std::array<std::array<bool, 2>,3> is_border;
-
-    Kokkos::View<double*, Kokkos::HostSpace> x_glob;
-    Kokkos::View<double*, Kokkos::HostSpace> y_glob;
-    Kokkos::View<double*, Kokkos::HostSpace> z_glob;
 
     KDV_double_1d x;
     KDV_double_1d y;

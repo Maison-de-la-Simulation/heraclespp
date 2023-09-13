@@ -164,7 +164,7 @@ public:
                 double gravity = m_gravity(i, j, k, 0) * units::acc;
 
                 double x0 = units::kb * m_param_setup.T * units::Kelvin
-                        / (mu * units::p * Kokkos::fabs(gravity));
+                        / (mu * units::mp * Kokkos::fabs(gravity));
 
                 rho(i, j, k) = m_param_setup.rho0 * units::density * Kokkos::exp(- xc(i) / x0);
 

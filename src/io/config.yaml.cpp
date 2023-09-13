@@ -28,9 +28,9 @@ pdi:
     rho: { type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]' ] }
     P:   { type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]' ] }
     E:   { type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]' ] }
-    x:   { type: array, subtype: double, size: ['$nx_local_wg[0]+1'] }
-    y:   { type: array, subtype: double, size: ['$nx_local_wg[1]+1'] }
-    z:   { type: array, subtype: double, size: ['$nx_local_wg[2]+1'] }
+    x:   { type: array, subtype: double, size: ['$nx_glob_ng[0]+2*$n_ghost[0]+1'] }
+    y:   { type: array, subtype: double, size: ['$nx_glob_ng[1]+2*$n_ghost[1]+1'] }
+    z:   { type: array, subtype: double, size: ['$nx_glob_ng[2]+2*$n_ghost[2]+1'] }
     fx:  { type: array, subtype: double, size: ['$nfx', '$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]' ] }
     T:   { type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]' ] }
 
@@ -51,9 +51,6 @@ pdi:
           rho: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
           P:   {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
           E:   {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
-          x:   {type: array, subtype: double, size: ['$nx_glob_ng[0]+1'] }
-          y:   {type: array, subtype: double, size: ['$nx_glob_ng[1]+1'] }
-          z:   {type: array, subtype: double, size: ['$nx_glob_ng[2]+1'] }
           fx:  {type: array, subtype: double, size: ['$nfx', '$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
           T:   {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
         write:
@@ -108,26 +105,8 @@ pdi:
               size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
               start: [ '$start[2]', '$start[1]', '$start[0]']
           x:
-            memory_selection:
-              size: ['$nx_local_ng[0]+1']
-              start: ['$n_ghost[0]']
-            dataset_selection:
-              size: ['$nx_local_ng[0]+1']
-              start: ['$start[0]']
           y:
-            memory_selection:
-              size: ['$nx_local_ng[1]+1']
-              start: ['$n_ghost[1]']
-            dataset_selection:
-              size: ['$nx_local_ng[1]+1']
-              start: ['$start[1]']
           z:
-            memory_selection:
-              size: ['$nx_local_ng[2]+1']
-              start: ['$n_ghost[2]']
-            dataset_selection:
-              size: ['$nx_local_ng[2]+1']
-              start: ['$start[2]']
           fx:
             when: '$nfx>0'
             memory_selection:
@@ -202,4 +181,7 @@ pdi:
             dataset_selection:
               size: ['$nfx', '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
               start: [ 0, '$start[2]', '$start[1]', '$start[0]']
+          x:
+          y:
+          z:
 )IO_CONFIG";

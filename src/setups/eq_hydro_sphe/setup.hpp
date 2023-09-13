@@ -28,7 +28,7 @@ public:
     explicit ParamSetup(INIReader const& reader)
         : rho0(reader.GetReal("Initialisation", "rho0", 1.0))
         , u0(reader.GetReal("Initialisation", "u0", 1.0))
-        , T(reader.GetReal("Perfect Gas", "temperature", 100.))
+        , T(reader.GetReal("Initialisation", "T", 100.))
         , M(reader.GetReal("Gravity", "M", 1.0))
     {
     }
