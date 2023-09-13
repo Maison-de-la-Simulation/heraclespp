@@ -27,7 +27,7 @@ print("********************************")
 filename = sys.argv[1]
 
 with h5py.File(args.filename, 'r') as f :
-    print(f.keys())
+    #print(f.keys())
     rho = f['rho'][0, 0, :]
     u = f['ux'][0, 0, :]
     P = f['P'][0, 0, :]
@@ -36,20 +36,22 @@ with h5py.File(args.filename, 'r') as f :
     iter = f['iter'][()]
     gamma = f['gamma'][()]
 
-print("Final time =", t, "s")
-print("Iteration number =", iter)
+print(f"Final time = {t:.1f} s")
+print(f"Iteration number = {iter}")
  
-L = np.max(x) - np.min(x)
+xmin = x[2]
+xmax = x[len(rho)+2]
+L = xmax - xmin
 
 E = 1 / 2 * rho * u**2 + P / (gamma - 1)
 
 dx = np.zeros(len(rho))
-for i in range(len(rho)):
-    dx[i] = x[i+1] - x[i]
+for i in range(2, len(rho)+2):
+    dx[i-2] = x[i+1] - x[i]
 
 xc = np.zeros(len(rho))
-for i in range(len(rho)):
-    xc[i] = x[i] + dx[i] / 2
+for i in range(2, len(rho)+2):
+    xc[i-2] = x[i] + dx[i-2] / 2
 
 # Analytical result ------------------------
 
@@ -65,7 +67,7 @@ E_exact = 1 / 2 * rho_exact * u_exact**2 + P_exact / (gamma - 1)
 # ------------------------------------------
 
 plt.figure(figsize=(10,8))
-plt.suptitle(f'Sedov blast wave 1d t = {t:1f} s')
+plt.suptitle(f'Sedov blast wave 1d at t = {t:.1f} s')
 
 plt.subplot(221)
 plt.plot(r,rho_exact, label='Exact')
@@ -98,7 +100,7 @@ plt.legend()
 plt.subplot(224)
 plt.plot(r, E_exact, label='Exact')
 plt.plot(xc, E, label='Solver')
-plt.ylabel('Energy ($kg.m^{-2}.s^{-2}$)'); plt.xlabel('x')
+plt.ylabel('Volumic energy ($kg.m^{-1}.s^{-2}$)'); plt.xlabel('x')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.xlim(0,1)
 plt.grid()

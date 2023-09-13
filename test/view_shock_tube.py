@@ -24,7 +24,7 @@ print("         Shock tube")
 print("********************************")
 
 with h5py.File(args.filename, 'r') as f :
-    print(f.keys())
+    #print(f.keys())
     rho = f['rho'][0, 0, :]
     u = f['ux'][0, 0, :]
     P = f['P'][0, 0, :]
@@ -35,24 +35,26 @@ with h5py.File(args.filename, 'r') as f :
     iter = f['iter'][()]
     gamma = f['gamma'][()]
 
-print("Final time =", t, "s")
-print("Iteration number =", iter )
+print(f"Final time = {t:.1f} s")
+print(f"Iteration number = {iter}")
 
-L = np.max(x) - np.min(x)
+print("Max fx =", np.max(fx))
+
+xmin = x[2]
+xmax = x[len(x)-3]
+L = xmax - xmin
 
 e = P / rho / (gamma - 1)
 
 dx = np.zeros(len(rho))
-for i in range(len(rho)):
-    dx[i] = x[i+1] - x[i]
+for i in range(2, len(rho)+2):
+    dx[i-2] = x[i+1] - x[i]
 
 xc = np.zeros(len(rho))
-for i in range(len(rho)):
-    xc[i] = x[i] + dx[i] / 2
+for i in range(2, len(rho)+2):
+    xc[i-2] = x[i] + dx[i-2] / 2
 
-print("Max fx =", np.max(fx), fx.shape)
-
-print("dx = ", dx)
+print("dx =", dx)
 
 # Analytical result ------------------------
 
@@ -87,12 +89,12 @@ rho_exact, u_exact, P_exact, e_exact = ExactShockTube(x_exact, inter, var0l, var
 # ------------------------------------------
 
 plt.figure(figsize=(10,8))
-plt.suptitle(f'Shock tube t = {t:1f} s')
+plt.suptitle(f'Shock tube t = {t:.1f} s')
 plt.subplot(221)
 plt.plot(x_exact, rho0, '--', label='t=0')
 plt.plot(x_exact,rho_exact, label='Exact')
 plt.plot(xc, rho, label = 'Solver')#f't = {t:1f}')
-plt.plot(xc, fx, label='scalar')
+plt.plot(xc, fx, label='Scalar')
 plt.ylabel('Density ($kg.m^{-3}$)'); plt.xlabel('Position')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()

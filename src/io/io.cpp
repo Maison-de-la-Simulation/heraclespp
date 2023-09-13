@@ -47,9 +47,9 @@ void write_pdi(int iter,
                KDV_double_4d u,
                KDV_double_3d P,
                KDV_double_3d E,
-               KDV_double_1d x,
-               KDV_double_1d y,
-               KDV_double_1d z,
+               KVH_double_1d x,
+               KVH_double_1d y,
+               KVH_double_1d z,
                KDV_double_4d fx,
                KDV_double_3d T)
 {
@@ -57,9 +57,6 @@ void write_pdi(int iter,
     u.sync_host();
     P.sync_host();
     E.sync_host();
-    x.sync_host();
-    y.sync_host();
-    z.sync_host();
     fx.sync_host();
     T.sync_host();
     PDI_multi_expose("write_file",
@@ -70,9 +67,9 @@ void write_pdi(int iter,
                     "u", u.h_view.data(), PDI_OUT,
                     "P", P.h_view.data(), PDI_OUT,
                     "E", E.h_view.data(), PDI_OUT,
-                    "x", x.h_view.data(), PDI_OUT,
-                    "y", y.h_view.data(), PDI_OUT,
-                    "z", z.h_view.data(), PDI_OUT,
+                    "x", x.data(), PDI_OUT,
+                    "y", y.data(), PDI_OUT,
+                    "z", z.data(), PDI_OUT,
                     "fx", fx.h_view.data(), PDI_OUT,
                     "T", T.h_view.data(), PDI_OUT,
                     NULL);
@@ -98,6 +95,9 @@ void read_pdi(std::string restart_file,
               KDV_double_4d u,
               KDV_double_3d P,
               KDV_double_4d fx,
+              KVH_double_1d x_glob,
+              KVH_double_1d y_glob,
+              KVH_double_1d z_glob,
               double &t, int &iter)
 {
     int filename_size = restart_file.size();
@@ -110,6 +110,9 @@ void read_pdi(std::string restart_file,
                     "u", u.h_view.data(), PDI_INOUT,
                     "P", P.h_view.data(), PDI_INOUT,
                     "fx", fx.h_view.data(), PDI_INOUT,
+                    "x", x_glob.data(), PDI_INOUT,
+                    "y", y_glob.data(), PDI_INOUT,
+                    "z", z_glob.data(), PDI_INOUT,
                     NULL);
     rho.modify_host();
     u.modify_host();

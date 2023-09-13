@@ -25,7 +25,7 @@ print("********************************")
 filename = sys.argv[1]
 
 with h5py.File(args.filename, 'r') as f :
-    print(f.keys())
+    #print(f.keys())
     rho = f['rho'][0, 0, :]
     u = f['ux'][0, 0, :]
     P = f['P'][0, 0, :]
@@ -37,21 +37,23 @@ with h5py.File(args.filename, 'r') as f :
 print("Final time =", t, "s")
 print("Iteration number =", iter)
  
-L = np.max(x) - np.min(x)
+xmin = x[2]
+xmax = x[len(rho)+2]
+L = xmax - xmin
 
 dx = np.zeros(len(rho))
-for i in range(len(rho)):
-    dx[i] = x[i+1] - x[i]
+for i in range(2, len(rho)+2):
+    dx[i-2] = x[i+1] - x[i]
 
 xc = np.zeros(len(rho))
-for i in range(len(rho)):
-    xc[i] = x[i] + dx[i] / 2
+for i in range(2, len(rho)+2):
+    xc[i-2] = x[i] + dx[i-2] / 2
 
 e = P / rho / (gamma - 1)
 
 # ------------------------------------------
 plt.figure(figsize=(14,9))
-plt.suptitle(f'Shock wall 1d t = {t:1f} s')
+plt.suptitle(f'Shock wall 1d t = {t:.1f} s')
 plt.plot(xc, rho, 'x', label='Solver')
 plt.ylabel('Density ($kg.m^{-3}$)'); plt.xlabel('x')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])

@@ -46,7 +46,6 @@ Grid::Grid(Param const& param)
     Nx_local_ng = param.Nx_glob_ng; // default for a single MPI process
 
     MPI_Decomp();
-    Init_grid(param);
 }
 
 /* ****************************************************************
@@ -149,14 +148,8 @@ void Grid::MPI_Decomp()
     }
 }
 
-void Grid::Init_grid(Param const& param)
+void Grid::set_grid(KVH_double_1d x_glob, KVH_double_1d y_glob, KVH_double_1d z_glob, Param const& param)
 {
-    std::unique_ptr<IComputeGeom> grid_geometry
-            = factory_grid_geometry();
-
-    std::unique_ptr<IGridType> grid_type
-            = factory_grid_type(param.grid_type, param);
-    
     x = KDV_double_1d("x", Nx_local_wg[0]+1);
     y = KDV_double_1d("y", Nx_local_wg[1]+1);
     z = KDV_double_1d("z", Nx_local_wg[2]+1);
@@ -176,16 +169,6 @@ void Grid::Init_grid(Param const& param)
     dv = KV_double_3d("dv", Nx_local_wg[0], 
                             Nx_local_wg[1],
                             Nx_local_wg[2]);
-    
-    x_glob = Kokkos::View<double*, Kokkos::HostSpace>("x_glob", Nx_glob_ng[0]+2*Nghost[0]+1);
-    y_glob = Kokkos::View<double*, Kokkos::HostSpace>("y_glob", Nx_glob_ng[1]+2*Nghost[1]+1);
-    z_glob = Kokkos::View<double*, Kokkos::HostSpace>("z_glob", Nx_glob_ng[2]+2*Nghost[2]+1);
-
-    Kokkos::deep_copy(Kokkos::subview(x_glob, Kokkos::pair<int, int>(start_cell_wg[0], start_cell_wg[0]+Nx_local_wg[0]+1)), x.h_view);
-    Kokkos::deep_copy(Kokkos::subview(y_glob, Kokkos::pair<int, int>(start_cell_wg[1], start_cell_wg[1]+Nx_local_wg[1]+1)), y.h_view);
-    Kokkos::deep_copy(Kokkos::subview(z_glob, Kokkos::pair<int, int>(start_cell_wg[2], start_cell_wg[2]+Nx_local_wg[2]+1)), z.h_view);
-
-    grid_type->execute(x_glob, y_glob, z_glob, Nghost, Nx_glob_ng);
 
     Kokkos::deep_copy(x.h_view, Kokkos::subview(x_glob, Kokkos::pair<int, int>(start_cell_wg[0], start_cell_wg[0]+Nx_local_wg[0]+1)));
     Kokkos::deep_copy(y.h_view, Kokkos::subview(y_glob, Kokkos::pair<int, int>(start_cell_wg[1], start_cell_wg[1]+Nx_local_wg[1]+1)));
@@ -228,6 +211,9 @@ void Grid::Init_grid(Param const& param)
             dz(i) = z_d(i+1) - z_d(i);
             z_center(i) = z_d(i) + dz(i) / 2;
         });
+
+    std::unique_ptr<IComputeGeom> grid_geometry
+            = factory_grid_geometry();
 
     grid_geometry->execute(x_d, y_d, dx, dy, dz, ds, dv, Nx_local_wg);
 }

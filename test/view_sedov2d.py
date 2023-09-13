@@ -12,16 +12,20 @@ print("********************************")
 filename = sys.argv[1]
 
 with h5py.File(str(filename), 'r') as f :
-    print(f.keys())
+    #print(f.keys())
     rho = f['rho'][0, :, :]
     x = f['x'][()]
     y = f['y'][()]
     t = f['current_time'][()]
     iter = f['iter'][()]
 
+print(f"Final time = {t:.1f} s")
+print(f"Iteration number = {iter}")
 
-print("Final time =", t, "s")
-print("Iteration number =", iter)
+xmin = x[2]
+xmax = x[len(x)-3]
+ymin = y[2]
+ymax = y[len(y)-3]
 
 # Analytical result ------------------------
 
@@ -41,7 +45,7 @@ plt.figure(figsize=(10, 5))
 plt.suptitle(f'Sedov blast wave 2d t = {t:1f} s')
 plt.title('Density')
 plt.plot(x_choc, y_choc, label='Theorical radius')
-plt.imshow(rho, origin='lower', extent=[np.min(x), np.max(x), np.min(y), np.max(y)])
+plt.imshow(rho, origin='lower', extent=[xmin, xmax, ymin, ymax])
 plt.colorbar()
 plt.plasma()
 plt.xlabel('x'); plt.ylabel('y')

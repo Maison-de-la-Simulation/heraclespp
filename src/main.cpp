@@ -78,7 +78,7 @@ int main(int argc, char** argv)
 
     Param const param(reader);
     ParamSetup const param_setup(reader);
-    Grid const grid(param);
+    Grid grid(param);
     grid.print_grid();
 
     print_info("SETUP", MY_SETUP);
@@ -87,18 +87,6 @@ int main(int argc, char** argv)
 
     EOS const eos(param.gamma, param.mu);
 
-#if defined(Uniform)
-    UniformGravity const g(make_uniform_gravity(param));
-    using Gravity = UniformGravity;
-    print_info("GRAVITY", "Uniform");
-#elif defined(Point_mass)
-    PointMassGravity const g(make_point_mass_gravity(param, grid));
-    using Gravity = PointMassGravity;
-    print_info("GRAVITY", "Point_mass");
-#else
-    static_assert(false, "Gravity not defined");
-#endif
-    
     write_pdi_init(param.max_iter, param.output_frequency, grid, param);
 
     std::string bc_choice_dir;
@@ -118,30 +106,6 @@ int main(int argc, char** argv)
             }
         }
     }
-
-    std::array<std::unique_ptr<IBoundaryCondition>, ndim * 2> bcs_array;
-    for(int idim = 0; idim < ndim; idim++)
-    {
-        for(int iface = 0; iface < 2; iface++)
-        {
-            bcs_array[idim * 2 + iface] = factory_boundary_construction(
-                    bc_choice_faces[idim * 2 + iface], idim, iface, eos, grid, param_setup, g);
-        }
-    }
-
-    DistributedBoundaryCondition const bcs(grid, param, std::move(bcs_array));
-
-    std::unique_ptr<IInitializationProblem> initialization
-            = std::make_unique<InitializationSetup<Gravity>>(eos, grid, param_setup, g);
-
-    std::unique_ptr<IFaceReconstruction> face_reconstruction
-            = factory_face_reconstruction(param.reconstruction_type, grid);
-
-    std::unique_ptr<IExtrapolationReconstruction> time_reconstruction
-            = std::make_unique<ExtrapolationTimeReconstruction<Gravity>>(eos, grid, g);
-
-    std::unique_ptr<IGodunovScheme> godunov_scheme
-            = factory_godunov_scheme(param.riemann_solver, eos, grid, g);
 
     KDV_double_3d rho("rho",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Density
     KDV_double_4d u("u",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim); // Velocity
@@ -168,10 +132,31 @@ int main(int argc, char** argv)
     int iter = 0;
     bool should_exit = false;
 
+    KVH_double_1d x_glob("x_glob", grid.Nx_glob_ng[0]+2*grid.Nghost[0]+1);
+    KVH_double_1d y_glob("y_glob", grid.Nx_glob_ng[1]+2*grid.Nghost[1]+1);
+    KVH_double_1d z_glob("z_glob", grid.Nx_glob_ng[2]+2*grid.Nghost[2]+1);
+
+#if defined(Uniform)
+    using Gravity = UniformGravity;
+    print_info("GRAVITY", "Uniform");
+#elif defined(Point_mass)
+    using Gravity = PointMassGravity;
+    print_info("GRAVITY", "Point_mass");
+#else
+    static_assert(false, "Gravity not defined");
+#endif
+    std::unique_ptr<Gravity> g;
+
     if(param.restart)
     {   
-        read_pdi(param.restart_file, rho, u, P, fx, t, iter); // read data into host view
-        
+        read_pdi(param.restart_file, rho, u, P, fx, x_glob, y_glob, z_glob, t, iter); // read data into host view
+        grid.set_grid(x_glob, y_glob, z_glob, param);
+#if defined(Uniform)
+        g = std::make_unique<Gravity>(make_uniform_gravity(param));
+#elif defined(Point_mass)
+        g = std::make_unique<Gravity>(make_point_mass_gravity(param, grid));
+#endif
+
         rho.sync_device();
         u.sync_device();
         P.sync_device();
@@ -187,8 +172,40 @@ int main(int argc, char** argv)
     }
     else
     {
+        std::unique_ptr<IGridType> grid_type = factory_grid_type(param.grid_type, param);
+        grid_type->execute(x_glob, y_glob, z_glob, grid.Nghost, grid.Nx_glob_ng);
+        grid.set_grid(x_glob, y_glob, z_glob, param);
+#if defined(Uniform)
+        g = std::make_unique<Gravity>(make_uniform_gravity(param));
+#elif defined(Point_mass)
+        g = std::make_unique<Gravity>(make_point_mass_gravity(param, grid));
+#endif
+        std::unique_ptr<IInitializationProblem> initialization
+            = std::make_unique<InitializationSetup<Gravity>>(eos, grid, param_setup, *g);
         initialization->execute(grid.range.no_ghosts(), rho.d_view, u.d_view, P.d_view, fx.d_view);
     }
+
+    std::array<std::unique_ptr<IBoundaryCondition>, ndim * 2> bcs_array;
+    for(int idim = 0; idim < ndim; idim++)
+    {
+        for(int iface = 0; iface < 2; iface++)
+        {
+            bcs_array[idim * 2 + iface] = factory_boundary_construction(
+                    bc_choice_faces[idim * 2 + iface], idim, iface, eos, grid, param_setup, *g);
+        }
+    }
+
+    DistributedBoundaryCondition const bcs(grid, param, std::move(bcs_array));
+
+    std::unique_ptr<IFaceReconstruction> face_reconstruction
+            = factory_face_reconstruction(param.reconstruction_type, grid);
+
+    std::unique_ptr<IExtrapolationReconstruction> time_reconstruction
+            = std::make_unique<ExtrapolationTimeReconstruction<Gravity>>(eos, grid, *g);
+
+    std::unique_ptr<IGodunovScheme> godunov_scheme
+            = factory_godunov_scheme(param.riemann_solver, eos, grid, *g);
+
     conv_prim_to_cons(grid.range.no_ghosts(), rhou.d_view, E.d_view, rho.d_view, u.d_view, P.d_view, eos);
 
     bcs(rho.d_view, rhou.d_view, E.d_view, fx.d_view);
@@ -214,8 +231,8 @@ int main(int argc, char** argv)
     if (param.output_frequency > 0)
     {
         outputs_record.emplace_back(iter, t);
-        writeXML(grid, outputs_record, grid.x_glob, grid.y_glob, grid.z_glob);
-        write_pdi(iter, t, eos.adiabatic_index(), rho, u, P, E, grid.x, grid.y, grid.z, fx, T);
+        writeXML(grid, outputs_record, x_glob, y_glob, z_glob);
+        write_pdi(iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
     }
 
     std::chrono::steady_clock::time_point const start = std::chrono::steady_clock::now();
@@ -262,8 +279,8 @@ int main(int argc, char** argv)
         if(make_output)
         {
             outputs_record.emplace_back(iter, t);
-            writeXML(grid, outputs_record, grid.x_glob, grid.y_glob, grid.z_glob);
-            write_pdi(iter, t, eos.adiabatic_index(), rho, u, P, E, grid.x, grid.y, grid.z, fx, T);
+            writeXML(grid, outputs_record, x_glob, y_glob, z_glob);
+            write_pdi(iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
         }
     }
 

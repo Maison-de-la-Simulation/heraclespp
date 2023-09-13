@@ -22,10 +22,12 @@ with h5py.File(str(filename), 'r') as f :
     iter = f['iter'][()]
     gamma = f['gamma'][()]
 
-print("Final time =", t, "s")
-print("Iteration number =", iter )
+print(f"Final time = {t:.1f} s")
+print(f"Iteration number = {iter}")
 
-L = np.max(x) - np.min(x)
+xmin = x[2]
+xmax = x[len(rho)+2]
+L = xmax - xmin
 
 dx = L / len(rho)
 
@@ -51,43 +53,43 @@ T_tab0 = np.ones(len(xc)) * T0
 
 cs = np.sqrt(gamma * P0 / rho0)
 
-print("cs = ", cs)
-print("tff = ", np.sqrt(2*L / np.abs(g)))
+print(f"Sound speed = {cs:.1f} s")
+print(f"Free fall time = {np.sqrt(2*L / np.abs(g)):.1f} s")
 
 # ------------------------------------------
 
 plt.figure(figsize=(22,5))
 plt.suptitle('Stratified atmopshere')
 plt.subplot(131)
-plt.plot(xc / np.max(xc), rho_tab0,  label='t = 0')
-plt.plot(xc / np.max(xc), rho,  label =f't = {t:1f}')
-#plt.plot(xc / np.max(xc), np.abs(rho - rho_tab0) / rho_tab0,  label =f't = {t:1f}')
+plt.plot(xc / np.max(xc), rho_tab0,  label='t = 0 s')
+plt.plot(xc / np.max(xc), rho,  label =f't = {t:.1f} s')
+#plt.plot(xc / np.max(xc), np.abs(rho - rho_tab0) / rho_tab0,  label =f't = {t:.1f} s')
 plt.xlabel('x / $x_{max}$'); plt.ylabel('Density ($kg.m^{-3}$)')
 plt.yscale('log')
 plt.grid()
 plt.legend()
 
 plt.subplot(132)
-plt.plot(xc / np.max(xc), P_tab0,  label='t = 0')
-plt.plot(xc / np.max(xc), P, label = f't = {t:1f}')
-#plt.plot(xc / np.max(xc), np.abs(P - P_tab0) / P_tab0, label = f't = {t:1f}')
+plt.plot(xc / np.max(xc), P_tab0,  label='t = 0 s')
+plt.plot(xc / np.max(xc), P, label = f't = {t:.1f} s')
+#plt.plot(xc / np.max(xc), np.abs(P - P_tab0) / P_tab0, label = f't = {t:.1f} s')
 plt.xlabel('x /$x_{max}$'); plt.ylabel('Pressure ($kg.m^{-1}.s^{-2}$)')
 plt.yscale('log')
 plt.grid()
 plt.legend()
 
 plt.subplot(133)
-plt.plot(xc / np.max(xc), u_tab0,  label='t = 0')
-plt.plot(xc / np.max(xc), u, label = f't = {t:1f}')
-#plt.plot(xc / np.max(xc), u / cs, label = f't = {t:1f}')
+plt.plot(xc / np.max(xc), u_tab0,  label='t = 0 s')
+plt.plot(xc / np.max(xc), u, label = f't = {t:.1f} s')
+#plt.plot(xc / np.max(xc), u / cs, label = f't = {t:.1f} s')
 plt.xlabel('x /$x_{max}$'); plt.ylabel('Velocity ($m.s^{-1}$)')
 plt.grid()
 plt.legend()
 
 plt.figure()
 plt.title('Temperature')
-plt.plot(xc / np.max(xc), T_tab0, label='t = 0')
-plt.plot(xc / np.max(xc), T, label = f't = {t:1f}')
+plt.plot(xc / np.max(xc), T_tab0, label='t = 0 s')
+plt.plot(xc / np.max(xc), T, label = f't = {t:.1f} s')
 plt.ylim(99.5, 100.5)
 plt.legend()
 plt.show()
