@@ -3,10 +3,10 @@
 #include <Kokkos_Core.hpp>
 #include <Kokkos_DualView.hpp>
 #include <PerfectGas.hpp>
-#include <array_conversion.hpp>
-#include <euler_equations.hpp>
+#include <hydro/array_conversion.hpp>
+#include <hydro/euler_equations.hpp>
 #include <kokkos_shortcut.hpp>
-#include <range.hpp>
+#include <mesh/range.hpp>
 
 TEST(Conversions, PrimToCons)
 {

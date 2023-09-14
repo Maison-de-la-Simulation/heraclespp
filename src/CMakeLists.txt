@@ -1,14 +1,14 @@
 add_subdirectory(units)
 add_subdirectory(thermodynamics)
 
-add_library(libnova++ array_conversion.cpp
+add_library(libnova++ hydro/array_conversion.cpp
+                      hydro/time_step.cpp
                       io/config.yaml.cpp
                       io/io.cpp
-                      time_step.cpp
+                      mesh/grid.cpp
+                      mesh/range.cpp
                       mpi_scope_guard.cpp
-                      grid.cpp
-                      boundary_distribute.cpp
-                      range.cpp)
+                      boundary_distribute.cpp)
 target_include_directories(libnova++ PUBLIC setups/${Novapp_SETUP}/)
 configure_file(ndim.hpp.in ndim.hpp NO_SOURCE_PERMISSIONS @ONLY)
 target_include_directories(libnova++ PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

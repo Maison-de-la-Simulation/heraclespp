@@ -5,8 +5,8 @@
 #pragma once
 
 #include "eos.hpp"
-#include "kokkos_shortcut.hpp"
-#include "range.hpp"
+#include "../kokkos_shortcut.hpp"
+#include "../mesh/range.hpp"
 
 namespace novapp
 {

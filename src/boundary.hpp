@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <string>
 
-#include "grid.hpp"
+#include "mesh/grid.hpp"
 #include "kokkos_shortcut.hpp"
 #include "ndim.hpp"
 

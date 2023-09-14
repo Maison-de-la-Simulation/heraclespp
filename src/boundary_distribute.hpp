@@ -9,7 +9,7 @@
 
 #include <inih/INIReader.hpp>
 
-#include "grid.hpp"
+#include "mesh/grid.hpp"
 #include "kokkos_shortcut.hpp"
 #include "ndim.hpp"
 #include "nova_params.hpp"

@@ -1,5 +1,5 @@
 //!
-//! @file grid_factory.hpp
+//! @file boundary_factory.hpp
 //!
 
 #pragma once
@@ -10,28 +10,11 @@
 
 #include "boundary.hpp"
 #include "eos.hpp"
-#include "grid.hpp"
-#include "grid_type.hpp"
-#include "nova_params.hpp"
+#include "mesh/grid.hpp"
 #include "setup.hpp"
 
 namespace novapp
 {
-
-inline std::unique_ptr<IGridType> factory_grid_type(
-    std::string const& grid,
-    Param const& param)
-{
-    if (grid == "Regular")
-    {
-        return std::make_unique<Regular>(param);
-    }
-    if (grid == "UserDefined")
-    {
-        return std::make_unique<GridSetup>(param);
-    }
-    throw std::runtime_error("Unknown grid type : " + grid + ".");
-}
 
 template <class Gravity>
 inline std::unique_ptr<IBoundaryCondition> factory_boundary_construction(

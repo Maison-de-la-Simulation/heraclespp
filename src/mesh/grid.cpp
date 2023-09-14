@@ -10,12 +10,12 @@
 
 #include <mpi.h>
 
-#include "factories.hpp"
+#include "../boundary_factory.hpp"
 #include "geometry.hpp"
 #include "grid_type.hpp"
-#include "kokkos_shortcut.hpp"
+#include "../kokkos_shortcut.hpp"
 #include "ndim.hpp"
-#include "nova_params.hpp"
+#include "../nova_params.hpp"
 #include "range.hpp"
 
 namespace novapp

@@ -5,9 +5,9 @@
 
 #include "eos.hpp"
 #include "euler_equations.hpp"
-#include "grid.hpp"
-#include "kronecker.hpp"
-#include "range.hpp"
+#include "../mesh/grid.hpp"
+#include "../kronecker.hpp"
+#include "../mesh/range.hpp"
 
 namespace novapp
 {
