@@ -11,8 +11,8 @@
 #include <pdi.h>
 #include <mpi.h>
 
-#include "grid.hpp"
-#include "nova_params.hpp"
+#include "../mesh/grid.hpp"
+#include "../nova_params.hpp"
 
 namespace novapp
 {

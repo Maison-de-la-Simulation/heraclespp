@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <euler_equations.hpp>
+#include <hydro/euler_equations.hpp>
 
 TEST(EulerEquations, KineticEnergyFromPrim)
 {
