@@ -22,28 +22,17 @@ namespace novapp
 {
 
 Grid::Grid(Param const& param)
-    : Nghost {0, 0, 0}
-    , Ncpu_x {1, 1, 1}
+    : Ng(param.Ng)
+    , Nghost {0, 0, 0}
+    , Nx_glob_ng(param.Nx_glob_ng)
+    , Nx_local_ng(param.Nx_glob_ng)
+    , Ncpu_x(param.Ncpu_x)
     , mpi_rank_cart {0, 0, 0}
 {
-    Ng = param.Ng;
-
-    Nx_glob_ng[0] = param.Nx_glob_ng[0];
-    Nx_glob_ng[1] = param.Nx_glob_ng[1];
-    Nx_glob_ng[2] = param.Nx_glob_ng[2];
-
     for (int idim = 0; idim < Ndim; idim++)
     {
         Nghost[idim] = Ng;
     }
-    
-    Ncpu_x[0] = param.Ncpu_x[0];
-    Ncpu_x[1] = param.Ncpu_x[1];
-    Ncpu_x[2] = param.Ncpu_x[2];
-
-    //!    Type of boundary conditions possibilities are : 
-    //!    "Internal", "Periodic", "Reflexive", NullGradient", UserDefined", "Null" (undefined) 
-    Nx_local_ng = param.Nx_glob_ng; // default for a single MPI process
 
     MPI_Decomp();
 }
@@ -86,9 +75,9 @@ void Grid::MPI_Decomp()
         Nx_local_wg[i] = Nx_local_ng[i] + 2*Nghost[i];
     }
     
-    std::array<int, 3> remain_dims= {false, false, false};
-    std::array<int, 3> cmin{0, 0, 0};
-    std::array<int, 3> cmax{0, 0, 0};
+    std::array<int, 3> remain_dims {0, 0, 0};
+    std::array<int, 3> cmin {0, 0, 0};
+    std::array<int, 3> cmax {0, 0, 0};
     for(int i=0; i<3; i++)
     {
         remain_dims[i]=true;
@@ -126,9 +115,7 @@ void Grid::MPI_Decomp()
         }
     }
 
-    NBlock[0] = 1; // Default is no sub-block 
-    NBlock[1] = 1; // Default is no sub-block 
-    NBlock[2] = 1; // Default is no sub-block 
+    std::fill(NBlock.begin(), NBlock.end(), 1); // Default is no sub-block
 
     Nx_block = Nx_local_wg;
 
