@@ -151,7 +151,7 @@ int main(int argc, char** argv)
     if(param.restart)
     {   
         read_pdi(param.restart_file, rho, u, P, fx, x_glob, y_glob, z_glob, t, iter); // read data into host view
-        grid.set_grid(x_glob, y_glob, z_glob, param);
+        grid.set_grid(x_glob, y_glob, z_glob);
 #if defined(Uniform)
         g = std::make_unique<Gravity>(make_uniform_gravity(param));
 #elif defined(Point_mass)
@@ -175,7 +175,7 @@ int main(int argc, char** argv)
     {
         std::unique_ptr<IGridType> grid_type = factory_grid_type(param.grid_type, param);
         grid_type->execute(x_glob, y_glob, z_glob, grid.Nghost, grid.Nx_glob_ng);
-        grid.set_grid(x_glob, y_glob, z_glob, param);
+        grid.set_grid(x_glob, y_glob, z_glob);
 #if defined(Uniform)
         g = std::make_unique<Gravity>(make_uniform_gravity(param));
 #elif defined(Point_mass)

@@ -148,7 +148,7 @@ void Grid::MPI_Decomp()
     }
 }
 
-void Grid::set_grid(KVH_double_1d x_glob, KVH_double_1d y_glob, KVH_double_1d z_glob, Param const& param)
+void Grid::set_grid(KVH_double_1d x_glob, KVH_double_1d y_glob, KVH_double_1d z_glob)
 {
     x = KDV_double_1d("x", Nx_local_wg[0]+1);
     y = KDV_double_1d("y", Nx_local_wg[1]+1);
