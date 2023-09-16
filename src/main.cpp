@@ -204,6 +204,11 @@ int main(int argc, char** argv)
     std::unique_ptr<IExtrapolationReconstruction> time_reconstruction
             = std::make_unique<ExtrapolationTimeReconstruction<Gravity>>(eos, grid, *g);
 
+    std::unique_ptr<IHydroReconstruction> reconstruction 
+        = std::make_unique<MUSCLHancockHydroReconstruction>(std::move(face_reconstruction), 
+                                                            std::move(time_reconstruction), 
+                                                            eos, P_rec, u_rec);
+
     std::unique_ptr<IGodunovScheme> godunov_scheme
             = factory_godunov_scheme(param.riemann_solver, eos, grid, *g);
 
@@ -222,11 +227,6 @@ int main(int argc, char** argv)
     rhou.modify_device();
     E.modify_device();
     T.modify_device();
-
-    std::unique_ptr<IHydroReconstruction> reconstruction 
-        = std::make_unique<MUSCLHancockHydroReconstruction>(std::move(face_reconstruction), 
-                                                            std::move(time_reconstruction), 
-                                                            eos, P_rec, u_rec);
 
     std::vector<std::pair<int, double>> outputs_record;
     if (param.output_frequency > 0)
