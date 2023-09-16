@@ -15,6 +15,8 @@
 namespace novapp
 {
 
+Range::Range() = default;
+
 Range::Range(std::array<int, 3> const& Cmin, std::array<int, 3> const& Cmax, int Ng)
     : Corner_min(Cmin)
     , Corner_max(Cmax)
@@ -82,6 +84,27 @@ Range::Range(std::array<int, 3> const& Cmin, std::array<int, 3> const& Cmax, int
     }
 }
 
+Range Range::no_ghosts() const
+{
+    return with_ghosts(0);
+}
+
+Range Range::all_ghosts() const
+{
+    return with_ghosts(Ng);
+}
+
+Range Range::with_ghosts(int const NgEff) const
+{
+    Range rng(*this);
+    if (NgEff > Ng)
+    {
+        throw std::runtime_error("NgEff > Ng");
+    }
+    rng.NgEff = NgEff;
+    return rng;
+}
+
 std::ostream& operator<<(std::ostream& os, Range const& rng)
 {
     for (int idim = 0; idim < 3; ++idim)
@@ -93,6 +116,25 @@ std::ostream& operator<<(std::ostream& os, Range const& rng)
         }
     }
     return os;
+}
+
+std::array<Kokkos::Array<int, 3>, 2> cell_range(Range const& range)
+{
+    Kokkos::Array<int, 3> begin;
+    Kokkos::Array<int, 3> end;
+    for (int idim = 0; idim < ndim; ++idim)
+    {
+        begin[idim] = range.Nghost[idim] - range.NgEff;
+        end[idim] = range.Nghost[idim] + range.Corner_max[idim] - range.Corner_min[idim] + range.NgEff;
+    }
+
+    for (int idim = ndim; idim < 3; ++idim)
+    {
+        begin[idim] = range.Nghost[idim];
+        end[idim] = range.Nghost[idim] + range.Corner_max[idim] - range.Corner_min[idim];
+    }
+
+    return std::array<Kokkos::Array<int, 3>, 2> {begin, end};
 }
 
 } // namespace novapp
