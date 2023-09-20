@@ -158,10 +158,7 @@ int main(int argc, char** argv)
         g = std::make_unique<Gravity>(make_point_mass_gravity(param, grid));
 #endif
 
-        rho.sync_device();
-        u.sync_device();
-        P.sync_device();
-        fx.sync_device();
+        sync_device(rho, u, P, fx);
 
         if(grid.mpi_rank==0) 
         {
@@ -232,13 +229,7 @@ int main(int argc, char** argv)
 
     temperature(grid.range.all_ghosts(), eos, rho.d_view, P.d_view, T.d_view);
 
-    rho.modify_device();
-    u.modify_device();
-    P.modify_device();
-    fx.modify_device();
-    rhou.modify_device();
-    E.modify_device();
-    T.modify_device();
+    modify_device(rho, u, P, fx, rhou, E, T);
 
     std::vector<std::pair<int, double>> outputs_record;
     if (param.output_frequency > 0)
@@ -278,13 +269,7 @@ int main(int argc, char** argv)
         Kokkos::deep_copy(E.d_view, E_new);
         Kokkos::deep_copy(fx.d_view, fx_new);
 
-        rho.modify_device();
-        u.modify_device();
-        P.modify_device();
-        E.modify_device();
-        rhou.modify_device();
-        fx.modify_device();
-        T.modify_device();
+        modify_device(rho, u, P, E, rhou, fx, T);
 
         t += dt;
         iter++;
