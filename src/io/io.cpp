@@ -53,12 +53,7 @@ void write_pdi(int iter,
                KDV_double_4d fx,
                KDV_double_3d T)
 {
-    rho.sync_host();
-    u.sync_host();
-    P.sync_host();
-    E.sync_host();
-    fx.sync_host();
-    T.sync_host();
+    sync_host(rho, u, P, E, fx, T);
     PDI_multi_expose("write_file",
                     "iter", &iter, PDI_OUT,
                     "current_time", &t, PDI_OUT,
@@ -114,10 +109,7 @@ void read_pdi(std::string restart_file,
                     "y", y_glob.data(), PDI_INOUT,
                     "z", z_glob.data(), PDI_INOUT,
                     NULL);
-    rho.modify_host();
-    u.modify_host();
-    P.modify_host();
-    fx.modify_host();
+    modify_host(rho, u, P, fx);
 }
 
 void writeXML(
