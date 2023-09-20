@@ -173,7 +173,12 @@ int main(int argc, char** argv)
     }
     else
     {
-        std::unique_ptr<IGridType> grid_type = factory_grid_type(param.grid_type, param);
+        std::unique_ptr<IGridType> grid_type;
+        if (param.grid_type == "UserDefined")
+        {
+            grid_type = std::make_unique<GridSetup>(param);
+        }
+        grid_type = factory_grid_type(param.grid_type, param);
         grid_type->execute(x_glob, y_glob, z_glob, grid.Nghost, grid.Nx_glob_ng);
         grid.set_grid(x_glob, y_glob, z_glob);
 #if defined(Uniform)
@@ -191,8 +196,15 @@ int main(int argc, char** argv)
     {
         for(int iface = 0; iface < 2; iface++)
         {
-            bcs_array[idim * 2 + iface] = factory_boundary_construction(
-                    bc_choice_faces[idim * 2 + iface], idim, iface, eos, grid, param_setup, *g);
+            if (bc_choice_faces[idim * 2 + iface] == "UserDefined")
+            {
+                bcs_array[idim * 2 + iface] = std::make_unique<BoundarySetup<Gravity>>(idim, iface, eos, grid, param_setup, *g);
+            }
+            else
+            {
+                bcs_array[idim * 2 + iface] = factory_boundary_construction(
+                    bc_choice_faces[idim * 2 + iface], idim, iface, grid);
+            }
         }
     }
 

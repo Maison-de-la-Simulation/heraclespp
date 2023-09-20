@@ -22,10 +22,6 @@ inline std::unique_ptr<IGridType> factory_grid_type(
     {
         return std::make_unique<Regular>(param);
     }
-    if (grid == "UserDefined")
-    {
-        return std::make_unique<GridSetup>(param);
-    }
     throw std::runtime_error("Unknown grid type : " + grid + ".");
 }
 
