@@ -7,6 +7,9 @@
 #include <Kokkos_Core.hpp>
 #include <Kokkos_DualView.hpp>
 
+namespace novapp
+{
+
 using Kokkos::ALL;
 
 using KV_double_1d=Kokkos::View<double*, Kokkos::LayoutLeft>;
@@ -38,4 +41,4 @@ using KDV_double_4d=Kokkos::DualView<double****, Kokkos::LayoutLeft>;
 using KDV_cdouble_3d=Kokkos::DualView<const double***, Kokkos::LayoutLeft>;
 using KDV_cdouble_4d=Kokkos::DualView<const double****, Kokkos::LayoutLeft>;
 
-
+} // namespace novapp
