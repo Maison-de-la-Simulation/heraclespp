@@ -161,12 +161,8 @@ void Grid::set_grid(KVH_double_1d x_glob, KVH_double_1d y_glob, KVH_double_1d z_
     Kokkos::deep_copy(y.h_view, Kokkos::subview(y_glob, Kokkos::pair<int, int>(start_cell_wg[1], start_cell_wg[1]+Nx_local_wg[1]+1)));
     Kokkos::deep_copy(z.h_view, Kokkos::subview(z_glob, Kokkos::pair<int, int>(start_cell_wg[2], start_cell_wg[2]+Nx_local_wg[2]+1)));
 
-    x.modify_host();
-    x.sync_device();
-    y.modify_host();
-    y.sync_device();
-    z.modify_host();
-    z.sync_device();
+    modify_host(x, y, z);
+    sync_device(x, y, z);
 
     auto const x_d = x.d_view;
     auto const y_d = y.d_view;

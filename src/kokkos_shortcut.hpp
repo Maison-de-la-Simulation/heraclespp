@@ -41,4 +41,28 @@ using KDV_double_4d=Kokkos::DualView<double****, Kokkos::LayoutLeft>;
 using KDV_cdouble_3d=Kokkos::DualView<const double***, Kokkos::LayoutLeft>;
 using KDV_cdouble_4d=Kokkos::DualView<const double****, Kokkos::LayoutLeft>;
 
+template <class... DualViews>
+void modify_host(DualViews&... views)
+{
+    (views.modify_host(),...);
+}
+
+template <class... DualViews>
+void modify_device(DualViews&... views)
+{
+    (views.modify_device(),...);
+}
+
+template <class... DualViews>
+void sync_host(DualViews&... views)
+{
+    (views.sync_host(),...);
+}
+
+template <class... DualViews>
+void sync_device(DualViews&... views)
+{
+    (views.sync_device(),...);
+}
+
 } // namespace novapp
