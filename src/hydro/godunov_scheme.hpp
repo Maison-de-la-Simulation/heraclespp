@@ -105,7 +105,7 @@ public:
     {
         int nfx = fx.extent_int(3);
         auto const xc = m_grid.x_center;
-        auto const x = m_grid.x.d_view;
+        auto const x = m_grid.x;
         auto const ds = m_grid.ds;
         auto const dv = m_grid.dv;
 

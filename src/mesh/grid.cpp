@@ -134,11 +134,11 @@ void Grid::MPI_Decomp()
     }
 }
 
-void Grid::set_grid(KVH_double_1d x_glob, KVH_double_1d y_glob, KVH_double_1d z_glob)
+void Grid::set_grid(KV_double_1d x_glob, KV_double_1d y_glob, KV_double_1d z_glob)
 {
-    x = KDV_double_1d("x", Nx_local_wg[0]+1);
-    y = KDV_double_1d("y", Nx_local_wg[1]+1);
-    z = KDV_double_1d("z", Nx_local_wg[2]+1);
+    x = KV_double_1d("x", Nx_local_wg[0]+1);
+    y = KV_double_1d("y", Nx_local_wg[1]+1);
+    z = KV_double_1d("z", Nx_local_wg[2]+1);
 
     x_center = KV_double_1d("x_center", Nx_local_wg[0]);
     y_center = KV_double_1d("y_center", Nx_local_wg[1]);
@@ -156,24 +156,17 @@ void Grid::set_grid(KVH_double_1d x_glob, KVH_double_1d y_glob, KVH_double_1d z_
                             Nx_local_wg[1],
                             Nx_local_wg[2]);
 
-    Kokkos::deep_copy(x.h_view, Kokkos::subview(x_glob, Kokkos::pair<int, int>(start_cell_wg[0], start_cell_wg[0]+Nx_local_wg[0]+1)));
-    Kokkos::deep_copy(y.h_view, Kokkos::subview(y_glob, Kokkos::pair<int, int>(start_cell_wg[1], start_cell_wg[1]+Nx_local_wg[1]+1)));
-    Kokkos::deep_copy(z.h_view, Kokkos::subview(z_glob, Kokkos::pair<int, int>(start_cell_wg[2], start_cell_wg[2]+Nx_local_wg[2]+1)));
-
-    modify_host(x, y, z);
-    sync_device(x, y, z);
-
-    auto const x_d = x.d_view;
-    auto const y_d = y.d_view;
-    auto const z_d = z.d_view;
+    Kokkos::deep_copy(x, Kokkos::subview(x_glob, Kokkos::pair<int, int>(start_cell_wg[0], start_cell_wg[0]+Nx_local_wg[0]+1)));
+    Kokkos::deep_copy(y, Kokkos::subview(y_glob, Kokkos::pair<int, int>(start_cell_wg[1], start_cell_wg[1]+Nx_local_wg[1]+1)));
+    Kokkos::deep_copy(z, Kokkos::subview(z_glob, Kokkos::pair<int, int>(start_cell_wg[2], start_cell_wg[2]+Nx_local_wg[2]+1)));
 
     Kokkos::parallel_for(
         "set_dx_xcenter",
         Nx_local_wg[0],
         KOKKOS_CLASS_LAMBDA(int i)
         {
-            dx(i) = x_d(i+1) - x_d(i);
-            x_center(i) = x_d(i) + dx(i) / 2;
+            dx(i) = x(i+1) - x(i);
+            x_center(i) = x(i) + dx(i) / 2;
         });
 
     Kokkos::parallel_for(
@@ -181,8 +174,8 @@ void Grid::set_grid(KVH_double_1d x_glob, KVH_double_1d y_glob, KVH_double_1d z_
         Nx_local_wg[1],
         KOKKOS_CLASS_LAMBDA(int i)
         {
-            dy(i) = y_d(i+1) - y_d(i);
-            y_center(i) = y_d(i) + dy(i) / 2;
+            dy(i) = y(i+1) - y(i);
+            y_center(i) = y(i) + dy(i) / 2;
         });
 
     Kokkos::parallel_for(
@@ -190,14 +183,14 @@ void Grid::set_grid(KVH_double_1d x_glob, KVH_double_1d y_glob, KVH_double_1d z_
         Nx_local_wg[2],
         KOKKOS_CLASS_LAMBDA(int i)
         {
-            dz(i) = z_d(i+1) - z_d(i);
-            z_center(i) = z_d(i) + dz(i) / 2;
+            dz(i) = z(i+1) - z(i);
+            z_center(i) = z(i) + dz(i) / 2;
         });
 
     std::unique_ptr<IComputeGeom> grid_geometry
             = factory_grid_geometry();
 
-    grid_geometry->execute(x_d, y_d, dx, dy, dz, ds, dv, Nx_local_wg);
+    grid_geometry->execute(x, y, dx, dy, dz, ds, dv, Nx_local_wg);
 }
 
 void Grid::print_grid() const
