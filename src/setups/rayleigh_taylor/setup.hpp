@@ -79,8 +79,8 @@ public:
 
         double P0 = (10. / 7 + 1. / 4) * units::pressure;
 
-        auto const x_d = m_grid.x.d_view;
-        auto const y_d = m_grid.y.d_view;
+        auto const x_d = m_grid.x;
+        auto const y_d = m_grid.y;
 
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(

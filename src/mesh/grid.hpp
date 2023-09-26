@@ -42,7 +42,7 @@ private:
     void MPI_Decomp();
 
 public :
-    void set_grid(KVH_double_1d x_glob, KVH_double_1d y_glob, KVH_double_1d z_glob);
+    void set_grid(KV_double_1d x_glob, KV_double_1d y_glob, KV_double_1d z_glob);
     int Ng;
     std::array<int, 3> Nghost;    // Number of ghost cells in each direction (default is 2)
     std::array<int, 3> Nx_glob_ng;    // Total number of cells in each directions (excluding ghost)
@@ -66,9 +66,9 @@ public :
     Range range;
     std::array<std::array<bool, 2>,3> is_border;
 
-    KDV_double_1d x;
-    KDV_double_1d y;
-    KDV_double_1d z;
+    KV_double_1d x;
+    KV_double_1d y;
+    KV_double_1d z;
 
     KV_double_1d x_center;
     KV_double_1d y_center;

@@ -67,8 +67,8 @@ public:
         assert(rho.extent(2) == u.extent(2));
         assert(u.extent(2) == P.extent(2));
 
-        auto const x_d = m_grid.x.d_view;
-        auto const y_d = m_grid.y.d_view;
+        auto const x_d = m_grid.x;
+        auto const y_d = m_grid.y;
 
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(

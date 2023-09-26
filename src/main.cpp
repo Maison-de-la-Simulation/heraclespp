@@ -135,9 +135,9 @@ int main(int argc, char** argv)
     int iter = 0;
     bool should_exit = false;
 
-    KVH_double_1d x_glob("x_glob", grid.Nx_glob_ng[0]+2*grid.Nghost[0]+1);
-    KVH_double_1d y_glob("y_glob", grid.Nx_glob_ng[1]+2*grid.Nghost[1]+1);
-    KVH_double_1d z_glob("z_glob", grid.Nx_glob_ng[2]+2*grid.Nghost[2]+1);
+    KDV_double_1d x_glob("x_glob", grid.Nx_glob_ng[0]+2*grid.Nghost[0]+1);
+    KDV_double_1d y_glob("y_glob", grid.Nx_glob_ng[1]+2*grid.Nghost[1]+1);
+    KDV_double_1d z_glob("z_glob", grid.Nx_glob_ng[2]+2*grid.Nghost[2]+1);
 
 #if defined(Uniform)
     using Gravity = UniformGravity;
@@ -153,7 +153,8 @@ int main(int argc, char** argv)
     if(param.restart)
     {   
         read_pdi(param.restart_file, rho, u, P, fx, x_glob, y_glob, z_glob, t, iter); // read data into host view
-        grid.set_grid(x_glob, y_glob, z_glob);
+        sync_device(x_glob, y_glob, z_glob);
+        grid.set_grid(x_glob.d_view, y_glob.d_view, z_glob.d_view);
 #if defined(Uniform)
         g = std::make_unique<Gravity>(make_uniform_gravity(param));
 #elif defined(Point_mass)
@@ -178,8 +179,10 @@ int main(int argc, char** argv)
             grid_type = std::make_unique<GridSetup>(param);
         }
         grid_type = factory_grid_type(param.grid_type, param);
-        grid_type->execute(x_glob, y_glob, z_glob, grid.Nghost, grid.Nx_glob_ng);
-        grid.set_grid(x_glob, y_glob, z_glob);
+        grid_type->execute(x_glob.h_view, y_glob.h_view, z_glob.h_view, grid.Nghost, grid.Nx_glob_ng);
+        modify_host(x_glob, y_glob, z_glob);
+        sync_device(x_glob, y_glob, z_glob);
+        grid.set_grid(x_glob.d_view, y_glob.d_view, z_glob.d_view);
 #if defined(Uniform)
         g = std::make_unique<Gravity>(make_uniform_gravity(param));
 #elif defined(Point_mass)

@@ -98,9 +98,9 @@ public:
         double hrms = 3E-4 * L;
         double H = Kokkos::sqrt((1. / 4) * (ak * ak + bk * bk + ck * ck + dk * dk)) / hrms;
 
-        auto const x_d = m_grid.x.d_view;
-        auto const y_d = m_grid.y.d_view;
-        auto const z_d = m_grid.z.d_view;
+        auto const x_d = m_grid.x;
+        auto const y_d = m_grid.y;
+        auto const z_d = m_grid.z;
 
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(

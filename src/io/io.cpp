@@ -47,13 +47,13 @@ void write_pdi(int iter,
                KDV_double_4d u,
                KDV_double_3d P,
                KDV_double_3d E,
-               KVH_double_1d x,
-               KVH_double_1d y,
-               KVH_double_1d z,
+               KDV_double_1d x,
+               KDV_double_1d y,
+               KDV_double_1d z,
                KDV_double_4d fx,
                KDV_double_3d T)
 {
-    sync_host(rho, u, P, E, fx, T);
+    sync_host(rho, u, P, E, fx, T, x, y, z);
     PDI_multi_expose("write_file",
                     "iter", &iter, PDI_OUT,
                     "current_time", &t, PDI_OUT,
@@ -62,9 +62,9 @@ void write_pdi(int iter,
                     "u", u.h_view.data(), PDI_OUT,
                     "P", P.h_view.data(), PDI_OUT,
                     "E", E.h_view.data(), PDI_OUT,
-                    "x", x.data(), PDI_OUT,
-                    "y", y.data(), PDI_OUT,
-                    "z", z.data(), PDI_OUT,
+                    "x", x.h_view.data(), PDI_OUT,
+                    "y", y.h_view.data(), PDI_OUT,
+                    "z", z.h_view.data(), PDI_OUT,
                     "fx", fx.h_view.data(), PDI_OUT,
                     "T", T.h_view.data(), PDI_OUT,
                     NULL);
@@ -90,9 +90,9 @@ void read_pdi(std::string restart_file,
               KDV_double_4d u,
               KDV_double_3d P,
               KDV_double_4d fx,
-              KVH_double_1d x_glob,
-              KVH_double_1d y_glob,
-              KVH_double_1d z_glob,
+              KDV_double_1d x_glob,
+              KDV_double_1d y_glob,
+              KDV_double_1d z_glob,
               double &t, int &iter)
 {
     int filename_size = restart_file.size();
@@ -105,20 +105,21 @@ void read_pdi(std::string restart_file,
                     "u", u.h_view.data(), PDI_INOUT,
                     "P", P.h_view.data(), PDI_INOUT,
                     "fx", fx.h_view.data(), PDI_INOUT,
-                    "x", x_glob.data(), PDI_INOUT,
-                    "y", y_glob.data(), PDI_INOUT,
-                    "z", z_glob.data(), PDI_INOUT,
+                    "x", x_glob.h_view.data(), PDI_INOUT,
+                    "y", y_glob.h_view.data(), PDI_INOUT,
+                    "z", z_glob.h_view.data(), PDI_INOUT,
                     NULL);
-    modify_host(rho, u, P, fx);
+    modify_host(rho, u, P, fx, x_glob, y_glob, z_glob);
 }
 
 void writeXML(
         Grid const& grid,
         std::vector<std::pair<int, double>> const& outputs_record,
-        KVH_double_1d x,
-        KVH_double_1d y,
-        KVH_double_1d z)
+        KDV_double_1d x,
+        KDV_double_1d y,
+        KDV_double_1d z)
 {
+    sync_host(x, y, z);
     if (grid.mpi_rank != 0)
     {
         return;
@@ -181,7 +182,7 @@ void writeXML(
         auto nghost = grid.range.Nghost;
         for (int idim = 0; idim < 3; ++idim)
         {
-            auto arrays = {x, y, z};
+            auto arrays = {x.h_view, y.h_view, z.h_view};
             auto array = arrays.begin()[idim];
             xdmfFile << std::string(10, ' ');
             xdmfFile << "<DataItem";

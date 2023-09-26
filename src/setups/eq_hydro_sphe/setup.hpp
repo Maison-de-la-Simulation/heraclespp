@@ -70,12 +70,10 @@ public:
         assert(u.extent(2) == P.extent(2));
 
         auto const xc = m_grid.x_center;
-        auto const x = m_grid.x.h_view;
         double const mu = m_eos.mean_molecular_weight();
 
         std::cout <<"Scale = " << units::kb * m_param_setup.T
                 / (mu * units::mp * units::G * m_param_setup.M)<< std::endl;
-        std::cout<<"L = "<<x(x.extent_int(0)-2)<<std::endl;
         
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
