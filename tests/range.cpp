@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <ndim.hpp>
-#include <mesh/range.hpp>
+#include <range.hpp>
 
 constexpr std::array<int, 3> dim_mask(
         std::array<int, 3> const lhs,

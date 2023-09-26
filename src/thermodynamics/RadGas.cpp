@@ -1,8 +1,8 @@
-#include "RadGas.hpp"
-
 #include <stdexcept>
 
 #include <Kokkos_Core.hpp>
+
+#include "RadGas.hpp"
 
 namespace novapp::thermodynamics
 {

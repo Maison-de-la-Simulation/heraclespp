@@ -8,8 +8,9 @@
 #include <stdexcept>
 #include <string>
 
-#include "mesh/grid_type.hpp"
-#include "nova_params.hpp"
+#include <nova_params.hpp>
+
+#include "grid_type.hpp"
 
 namespace novapp
 {

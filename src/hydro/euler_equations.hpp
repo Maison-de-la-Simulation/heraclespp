@@ -5,9 +5,8 @@
 #pragma once
 
 #include <Kokkos_Core.hpp>
-
-#include "eos.hpp"
-#include "ndim.hpp"
+#include <eos.hpp>
+#include <ndim.hpp>
 
 namespace novapp
 {

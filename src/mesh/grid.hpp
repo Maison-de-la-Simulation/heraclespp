@@ -5,15 +5,16 @@
 
 #pragma once
 
+#include <mpi.h>
+
 #include <array>
 #include <iomanip>
 #include <iostream>
 #include <string_view>
 
-#include <mpi.h>
+#include <kokkos_shortcut.hpp>
+#include <ndim.hpp>
 
-#include "kokkos_shortcut.hpp"
-#include "ndim.hpp"
 #include "range.hpp"
 
 namespace novapp

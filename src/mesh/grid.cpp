@@ -3,19 +3,18 @@
  * Grid class implementation
  */
 
-#include "grid.hpp"
+#include <mpi.h>
 
 #include <array>
 #include <memory>
 
-#include <mpi.h>
+#include <kokkos_shortcut.hpp>
+#include <ndim.hpp>
+#include <nova_params.hpp>
 
-#include "../boundary_factory.hpp"
 #include "geometry.hpp"
+#include "grid.hpp"
 #include "grid_type.hpp"
-#include "../kokkos_shortcut.hpp"
-#include "ndim.hpp"
-#include "../nova_params.hpp"
 #include "range.hpp"
 
 namespace novapp

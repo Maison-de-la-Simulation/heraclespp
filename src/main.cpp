@@ -3,6 +3,8 @@
  * Code d'hydrodynamique radiative en devenir...
  */
 
+#include <mpi.h>
+
 #include <array>
 #include <chrono>
 #include <cstdio>
@@ -15,38 +17,38 @@
 #include <vector>
 
 #include <inih/INIReader.hpp>
-#include <mpi.h>
+
+#include <PerfectGas.hpp>
+#include <RadGas.hpp>
+#include <array_conversion.hpp>
+#include <config.yaml.hpp>
+#include <eos.hpp>
+#include <euler_equations.hpp>
+#include <extrapolation_time.hpp>
+#include <face_reconstruction.hpp>
+#include <geom.hpp>
+#include <godunov_scheme.hpp>
+#include <gravity.hpp>
+#include <grid.hpp>
+#include <grid_factory.hpp>
+#include <hydro_reconstruction.hpp>
+#include <io.hpp>
+#include <kokkos_shortcut.hpp>
+#include <kronecker.hpp>
+#include <ndim.hpp>
+#include <nova_params.hpp>
 #include <paraconf.h>
 #include <pdi.h>
+#include <range.hpp>
+#include <temperature.hpp>
+#include <time_step.hpp>
 
-#include "PerfectGas.hpp"
-#include "RadGas.hpp"
-#include "hydro/array_conversion.hpp"
 #include "boundary.hpp"
 #include "boundary_distribute.hpp"
 #include "boundary_factory.hpp"
-#include "eos.hpp"
-#include "hydro/euler_equations.hpp"
-#include "hydro/extrapolation_time.hpp"
-#include "hydro/face_reconstruction.hpp"
-#include "geom.hpp"
-#include "hydro/godunov_scheme.hpp"
-#include "gravity/gravity.hpp"
-#include "mesh/grid.hpp"
-#include "mesh/grid_factory.hpp"
-#include "hydro/hydro_reconstruction.hpp"
 #include "initialization_interface.hpp"
-#include "io/config.yaml.hpp"
-#include "io/io.hpp"
-#include "kokkos_shortcut.hpp"
-#include "kronecker.hpp"
 #include "mpi_scope_guard.hpp"
-#include "ndim.hpp"
-#include "nova_params.hpp"
-#include "mesh/range.hpp"
 #include "setup.hpp"
-#include "analysis/temperature.hpp"
-#include "hydro/time_step.hpp"
 
 using namespace novapp;
 

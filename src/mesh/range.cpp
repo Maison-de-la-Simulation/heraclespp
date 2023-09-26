@@ -8,8 +8,8 @@
 #include <stdexcept>
 
 #include <Kokkos_Core.hpp>
+#include <ndim.hpp>
 
-#include "ndim.hpp"
 #include "range.hpp"
 
 namespace novapp

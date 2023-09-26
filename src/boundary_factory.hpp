@@ -8,8 +8,9 @@
 #include <stdexcept>
 #include <string>
 
+#include <grid.hpp>
+
 #include "boundary.hpp"
-#include "mesh/grid.hpp"
 
 namespace novapp
 {

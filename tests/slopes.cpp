@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <hydro/slope_limiters.hpp>
+#include <slope_limiters.hpp>
 
 TEST(NullSlopeLimiter, Zero)
 {

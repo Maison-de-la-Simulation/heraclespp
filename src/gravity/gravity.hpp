@@ -4,12 +4,11 @@
 
 #pragma once
 
+#include <grid.hpp>
+#include <kokkos_shortcut.hpp>
+#include <ndim.hpp>
+#include <nova_params.hpp>
 #include <units.hpp>
-
-#include "../mesh/grid.hpp"
-#include "kokkos_shortcut.hpp"
-#include "ndim.hpp"
-#include "nova_params.hpp"
 
 namespace novapp
 {

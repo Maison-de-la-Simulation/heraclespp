@@ -8,9 +8,9 @@
 #include <stdexcept>
 #include <string>
 
-#include "mesh/grid.hpp"
-#include "kokkos_shortcut.hpp"
-#include "ndim.hpp"
+#include <grid.hpp>
+#include <kokkos_shortcut.hpp>
+#include <ndim.hpp>
 
 namespace novapp
 {

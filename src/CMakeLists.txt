@@ -1,34 +1,28 @@
-add_subdirectory(units)
-add_subdirectory(thermodynamics)
-
-add_library(libnova++ hydro/array_conversion.cpp
-                      hydro/time_step.cpp
-                      io/config.yaml.cpp
-                      io/io.cpp
-                      mesh/grid.cpp
-                      mesh/range.cpp
-                      mpi_scope_guard.cpp
-                      boundary_distribute.cpp)
-target_include_directories(libnova++ PUBLIC setups/${Novapp_SETUP}/)
-configure_file(ndim.hpp.in ndim.hpp NO_SOURCE_PERMISSIONS @ONLY)
-target_include_directories(libnova++ PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_include_directories(libnova++ PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
-
-configure_file(eos.hpp.in eos.hpp NO_SOURCE_PERMISSIONS @ONLY)
-
-configure_file(geom.hpp.in geom.hpp NO_SOURCE_PERMISSIONS @ONLY)
-
-target_compile_features(libnova++ PUBLIC cxx_std_17)
-
 find_package(PDI REQUIRED)
 find_package(MPI REQUIRED)
+
+add_subdirectory(analysis)
+add_subdirectory(gravity)
+add_subdirectory(hydro)
+add_subdirectory(io)
+add_subdirectory(mesh)
+add_subdirectory(thermodynamics)
+add_subdirectory(units)
+add_subdirectory(utils)
+
+add_library(libnova++ mpi_scope_guard.cpp
+                      boundary_distribute.cpp)
+target_include_directories(libnova++ PUBLIC setups/${Novapp_SETUP}/)
+target_include_directories(libnova++ PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+target_compile_features(libnova++ PUBLIC cxx_std_17)
 
 target_link_libraries(libnova++ PUBLIC MPI::MPI_CXX)
 target_link_libraries(libnova++ PUBLIC Kokkos::kokkos)
 target_link_libraries(libnova++ PUBLIC PDI::PDI_C)
 target_link_libraries(libnova++ PUBLIC inih)
 target_link_libraries(libnova++ PUBLIC thermodynamics)
-target_link_libraries(libnova++ PUBLIC units)
+target_link_libraries(libnova++ PUBLIC analysis gravity hydro io mesh units utils)
 
 add_executable(nova++ main.cpp)
 target_link_libraries(nova++ PUBLIC libnova++)

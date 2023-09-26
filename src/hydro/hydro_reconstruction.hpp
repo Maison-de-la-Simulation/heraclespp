@@ -8,14 +8,14 @@
 #include <utility>
 
 #include <Kokkos_Core.hpp>
+#include <eos.hpp>
+#include <kokkos_shortcut.hpp>
+#include <ndim.hpp>
+#include <range.hpp>
 
 #include "array_conversion.hpp"
-#include "eos.hpp"
 #include "extrapolation_time.hpp"
 #include "face_reconstruction.hpp"
-#include "../kokkos_shortcut.hpp"
-#include "ndim.hpp"
-#include "../mesh/range.hpp"
 
 namespace novapp
 {

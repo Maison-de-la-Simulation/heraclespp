@@ -8,13 +8,13 @@
 
 #include "eos.hpp"
 #include "geom.hpp"
-#include "../../mesh/grid.hpp"
-#include "../../mesh/grid_type.hpp"
+#include <grid.hpp>
+#include <grid_type.hpp>
 #include "initialization_interface.hpp"
 #include "kokkos_shortcut.hpp"
 #include "ndim.hpp"
 #include "nova_params.hpp"
-#include "../../mesh/range.hpp"
+#include <range.hpp>
 
 namespace novapp
 {
