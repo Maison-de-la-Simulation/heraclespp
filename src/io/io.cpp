@@ -1,4 +1,4 @@
-#include "io.hpp"
+#include <mpi.h>
 
 #include <array>
 #include <fstream>
@@ -8,11 +8,11 @@
 #include <utility>
 #include <vector>
 
+#include <grid.hpp>
+#include <nova_params.hpp>
 #include <pdi.h>
-#include <mpi.h>
 
-#include "../mesh/grid.hpp"
-#include "../nova_params.hpp"
+#include "io.hpp"
 
 namespace novapp
 {

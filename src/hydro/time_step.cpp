@@ -1,13 +1,13 @@
-#include "time_step.hpp"
-
-#include <Kokkos_Core.hpp>
 #include <mpi.h>
 
-#include "eos.hpp"
+#include <Kokkos_Core.hpp>
+#include <eos.hpp>
+#include <grid.hpp>
+#include <kronecker.hpp>
+#include <range.hpp>
+
 #include "euler_equations.hpp"
-#include "../mesh/grid.hpp"
-#include "../kronecker.hpp"
-#include "../mesh/range.hpp"
+#include "time_step.hpp"
 
 namespace novapp
 {

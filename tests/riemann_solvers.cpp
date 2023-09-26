@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <hydro/godunov_scheme.hpp>
+#include <godunov_scheme.hpp>
 
 template <class RiemannSolver>
 class RiemannSolverFixture : public ::testing::Test

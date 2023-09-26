@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "eos.hpp"
-#include "../kokkos_shortcut.hpp"
-#include "../mesh/range.hpp"
+#include <eos.hpp>
+#include <kokkos_shortcut.hpp>
+#include <range.hpp>
 
 namespace novapp
 {

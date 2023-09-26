@@ -9,14 +9,15 @@
 #include <string>
 #include <type_traits>
 
-#include "eos.hpp"
+#include <eos.hpp>
+#include <geom.hpp>
+#include <grid.hpp>
+#include <kokkos_shortcut.hpp>
+#include <kronecker.hpp>
+#include <ndim.hpp>
+#include <range.hpp>
+
 #include "euler_equations.hpp"
-#include "geom.hpp"
-#include "../mesh/grid.hpp"
-#include "../kokkos_shortcut.hpp"
-#include "../kronecker.hpp"
-#include "ndim.hpp"
-#include "../mesh/range.hpp"
 #include "riemann_solver.hpp"
 
 namespace novapp

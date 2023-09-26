@@ -10,12 +10,12 @@
 #include <type_traits>
 
 #include <Kokkos_Core.hpp>
+#include <grid.hpp>
+#include <kokkos_shortcut.hpp>
+#include <kronecker.hpp>
+#include <ndim.hpp>
+#include <range.hpp>
 
-#include "../mesh/grid.hpp"
-#include "kokkos_shortcut.hpp"
-#include "kronecker.hpp"
-#include "ndim.hpp"
-#include "../mesh/range.hpp"
 #include "slope_limiters.hpp"
 
 namespace novapp

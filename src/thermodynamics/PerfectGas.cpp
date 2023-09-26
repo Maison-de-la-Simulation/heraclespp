@@ -1,8 +1,8 @@
-#include "PerfectGas.hpp"
-
 #include <stdexcept>
 
 #include <Kokkos_Core.hpp>
+
+#include "PerfectGas.hpp"
 
 namespace novapp::thermodynamics
 {

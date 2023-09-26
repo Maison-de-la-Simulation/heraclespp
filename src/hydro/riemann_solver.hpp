@@ -5,9 +5,9 @@
 #pragma once
 
 #include <Kokkos_Core.hpp>
+#include <eos.hpp>
 
 #include "euler_equations.hpp"
-#include "eos.hpp"
 
 namespace novapp
 {

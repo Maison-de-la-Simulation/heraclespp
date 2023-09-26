@@ -9,10 +9,9 @@
 #include <stdexcept>
 
 #include <Kokkos_Core.hpp>
-
-#include "geom.hpp"
-#include "../kokkos_shortcut.hpp"
-#include "ndim.hpp"
+#include <geom.hpp>
+#include <kokkos_shortcut.hpp>
+#include <ndim.hpp>
 
 namespace novapp
 {

@@ -3,12 +3,11 @@
  * Holo exchange implementation
  */
 
-#include "boundary_distribute.hpp"
+#include <mpi.h>
 
 #include <algorithm>
 #include <array>
 #include <cstddef>
-#include <mpi.h>
 #include <numeric>
 #include <sstream>
 #include <stdexcept>
@@ -17,11 +16,13 @@
 
 #include <inih/INIReader.hpp>
 
+#include <grid.hpp>
+#include <kokkos_shortcut.hpp>
+#include <ndim.hpp>
+#include <nova_params.hpp>
+
 #include "boundary.hpp"
-#include "mesh/grid.hpp"
-#include "kokkos_shortcut.hpp"
-#include "ndim.hpp"
-#include "nova_params.hpp"
+#include "boundary_distribute.hpp"
 
 namespace novapp
 {
