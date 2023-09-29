@@ -35,7 +35,7 @@ public:
         [[maybe_unused]] std::array<int, 3> Nghost,
         [[maybe_unused]] std::array<int, 3> Nx_glob_ng) const 
         {
-            throw std::runtime_error("Boundary not implemented");
+            throw std::runtime_error("Grid not implemented");
         }
 };
 

@@ -37,7 +37,7 @@ public:
 
     virtual void execute(
         Range const& range,
-        double dt_reconstruction,
+        double const dt_reconstruction,
         KV_double_5d rho_rec,
         KV_double_6d rhou_rec,
         KV_double_5d E_rec,
