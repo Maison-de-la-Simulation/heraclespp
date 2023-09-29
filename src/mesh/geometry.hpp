@@ -34,6 +34,7 @@ public:
     virtual void execute(
         KV_cdouble_1d x,
         KV_cdouble_1d y,
+        KV_cdouble_1d z,
         KV_cdouble_1d dx,
         KV_cdouble_1d dy,
         KV_cdouble_1d dz,
@@ -49,6 +50,7 @@ public:
     void execute(
         [[maybe_unused]] KV_cdouble_1d const x,
         [[maybe_unused]] KV_cdouble_1d const y,
+        [[maybe_unused]] KV_cdouble_1d const z,
         KV_cdouble_1d const dx,
         KV_cdouble_1d const dy,
         KV_cdouble_1d const dz,
@@ -94,6 +96,7 @@ class Spherical : public IComputeGeom
 public:
     void execute(KV_cdouble_1d const x,
         [[maybe_unused]] KV_cdouble_1d const y,
+        [[maybe_unused]] KV_cdouble_1d const z,
         [[maybe_unused]] KV_cdouble_1d const dx,
         [[maybe_unused]] KV_cdouble_1d const dy,
         [[maybe_unused]] KV_cdouble_1d const dz,

@@ -190,7 +190,7 @@ void Grid::set_grid(KV_double_1d x_glob, KV_double_1d y_glob, KV_double_1d z_glo
     std::unique_ptr<IComputeGeom> grid_geometry
             = factory_grid_geometry();
 
-    grid_geometry->execute(x, y, dx, dy, dz, ds, dv, Nx_local_wg);
+    grid_geometry->execute(x, y, z, dx, dy, dz, ds, dv, Nx_local_wg);
 }
 
 void Grid::print_grid() const
@@ -201,7 +201,7 @@ void Grid::print_grid() const
         print_info("Nghost[0]", Nghost[0]);
         print_info("Nghost[1]", Nghost[1]);
         print_info("Nghost[2]", Nghost[2]);
-        
+
         print_info("Ncpu", Ncpu);
 
         print_info("Ncpu_x[0]", Ncpu_x[0]);
