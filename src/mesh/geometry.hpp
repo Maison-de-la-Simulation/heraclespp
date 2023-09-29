@@ -109,7 +109,7 @@ public:
             // theta = pi
             // phi = 2 * pi
             Kokkos::parallel_for(
-                "Fill_ds_1dspherical",
+                "fill_ds_1dspherical",
                 Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0}, 
                                     {Nx_local_wg[0], 
                                      Nx_local_wg[1],
@@ -120,7 +120,7 @@ public:
                 });
 
             Kokkos::parallel_for(
-                "Fill_dv_1dspherical",
+                "fill_dv_1dspherical",
                 Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0}, 
                                         {Nx_local_wg[0], 
                                          Nx_local_wg[1],
@@ -130,8 +130,13 @@ public:
                     dv(i, j, k) = (4 * Kokkos::numbers::pi * (x(i+1) * x(i+1) * x(i+1)
                                 - (x(i) * x(i) * x(i)))) / 3;
                 });
-            dv(0, 0, 0) = dv(3, 0, 0);
-            dv(1, 0, 0) = dv(2, 0, 0);
+
+            Kokkos::parallel_for(
+                1, KOKKOS_CLASS_LAMBDA(int i)
+                {
+                    dv(0, 0, 0) = dv(3, 0, 0);
+                    dv(1, 0, 0) = dv(2, 0, 0);
+                });
         }
 
         /* if (ndim == 3)
