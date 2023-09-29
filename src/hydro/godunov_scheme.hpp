@@ -40,7 +40,7 @@ public:
 
     virtual void execute(
         Range const &range,
-        double const dt,
+        double dt,
         KV_cdouble_3d rho,
         KV_cdouble_4d rhou,
         KV_cdouble_3d E,
