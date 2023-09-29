@@ -58,7 +58,6 @@ public:
         KV_double_3d dv,
         std::array<int, 3> Nx_local_wg) const final
     {
-        KV_double_1d dx_inter("dx_inter", 3);
 
         Kokkos::parallel_for(
             "fill_ds_cartesian",
@@ -68,6 +67,7 @@ public:
                                  Nx_local_wg[2]}),
             KOKKOS_CLASS_LAMBDA(int i, int j, int k)
             {
+                Kokkos::Array<double, 3> dx_inter;
                 for (int idim = 0; idim < 3; ++idim)
                 {
                     dx_inter[0] = dx(i);
