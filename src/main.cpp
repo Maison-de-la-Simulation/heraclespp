@@ -178,7 +178,10 @@ int main(int argc, char** argv)
         {
             grid_type = std::make_unique<GridSetup>(param);
         }
-        grid_type = factory_grid_type(param.grid_type, param);
+        else
+        {
+            grid_type = factory_grid_type(param.grid_type, param);
+        }
         grid_type->execute(x_glob.h_view, y_glob.h_view, z_glob.h_view, grid.Nghost, grid.Nx_glob_ng);
         modify_host(x_glob, y_glob, z_glob);
         sync_device(x_glob, y_glob, z_glob);
