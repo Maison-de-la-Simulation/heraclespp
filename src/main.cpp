@@ -249,7 +249,7 @@ int main(int argc, char** argv)
 
     std::chrono::steady_clock::time_point const start = std::chrono::steady_clock::now();
 
-    while (!should_exit && t < param.timeout && iter < param.max_iter)
+    while (!should_exit)
     {
         double dt = time_step(grid.range.all_ghosts(), param.cfl, rho.d_view, u.d_view, P.d_view, eos, grid);
         bool const make_output = should_output(iter, param.output_frequency, param.max_iter, t, dt, param.timeout);
@@ -258,7 +258,11 @@ int main(int argc, char** argv)
             dt = param.timeout - t;
             should_exit = true;
         }
-        
+        if ((iter + 1) > param.max_iter)
+        {
+            should_exit = true;
+        }
+
         reconstruction->execute(grid.range.with_ghosts(1), dt/2, rho_rec, rhou_rec, E_rec, fx_rec, 
                                 rho.d_view, u.d_view, P.d_view, fx.d_view);
 
