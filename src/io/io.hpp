@@ -18,7 +18,17 @@ namespace novapp
 class Grid;
 class Param;
 
-bool should_output(int iter, int freq, int iter_max, double current, double dt, double time_out);
+class should_output_fn
+{
+    int m_freq;
+    int m_iter_max;
+    double m_time_out;
+
+public:
+    should_output_fn(int freq, int iter_max, double time_out);
+
+    [[nodiscard]] bool operator()(int iter, double current, double dt) const;
+};
 
 void write_pdi_init(int max_iter, int frequency, Grid const& grid, Param const& param);
 

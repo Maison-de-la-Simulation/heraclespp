@@ -247,12 +247,14 @@ int main(int argc, char** argv)
         write_pdi(iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
     }
 
+    should_output_fn const should_output(param.output_frequency, param.max_iter, param.timeout);
+
     std::chrono::steady_clock::time_point const start = std::chrono::steady_clock::now();
 
     while (!should_exit)
     {
         double dt = time_step(grid.range.all_ghosts(), param.cfl, rho.d_view, u.d_view, P.d_view, eos, grid);
-        bool const make_output = should_output(iter, param.output_frequency, param.max_iter, t, dt, param.timeout);
+        bool const make_output = should_output(iter, t, dt);
         if ((t + dt) > param.timeout)
         {
             dt = param.timeout - t;
