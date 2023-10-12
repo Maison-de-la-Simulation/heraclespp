@@ -6,13 +6,13 @@
 
 #include <inih/INIReader.hpp>
 
-#include <eos.hpp>
+#include "eos.hpp"
 #include <grid.hpp>
-#include <grid_type.hpp>
 #include "initialization_interface.hpp"
-#include <kokkos_shortcut.hpp>
-#include <ndim.hpp>
-#include <nova_params.hpp>
+#include "kokkos_shortcut.hpp"
+#include "ndim.hpp"
+#include "nova_params.hpp"
+#include "default_grid_setup.hpp"
 #include <range.hpp>
 
 namespace novapp
@@ -92,17 +92,6 @@ public:
 
             P(i, j, k) = m_eos.compute_P_from_T(rho(i, j, k), m_param_setup.T);
         });
-    }
-};
-
-class GridSetup : public IGridType
-{
-public:
-    GridSetup(
-        [[maybe_unused]] Param const& param)
-        : IGridType()
-    {
-        // regular grid
     }
 };
 
