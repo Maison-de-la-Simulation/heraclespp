@@ -45,6 +45,7 @@ public :
     std::string bc_priority;
     int nfx;
     std::string user_step;
+    bool mpi_device_aware;
 
     explicit Param(INIReader const& reader)
     {
@@ -94,6 +95,7 @@ public :
         nfx = reader.GetInteger("Passive Scalar", "nfx", 0);
 
         user_step = reader.Get("User step", "user_step", "Off");
+        mpi_device_aware = reader.GetBoolean("Parallelization", "mpi_device_aware", false);
     }
 };
 

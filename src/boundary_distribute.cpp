@@ -96,13 +96,23 @@ void DistributedBoundaryCondition::ghost_sync(
     }
 
     buf.modify_device();
-    buf.sync_host();
+
+    double* ptr = nullptr;
+    if (!m_param.mpi_device_aware)
+    {
+        buf.sync_host();
+        ptr = buf.h_view.data();
+    }
+    else
+    {
+        ptr = buf.d_view.data();
+    }
 
     int src, dst;
     MPI_Cart_shift(m_grid.comm_cart, bc_idim, bc_iface == 0 ? -1 : 1, &src, &dst);
 
     MPI_Sendrecv_replace(
-            buf.h_view.data(),
+            ptr,
             buf.h_view.size(),
             MPI_DOUBLE,
             dst,
@@ -112,8 +122,11 @@ void DistributedBoundaryCondition::ghost_sync(
             m_grid.comm_cart,
             MPI_STATUS_IGNORE);
 
-    buf.modify_host();
-    buf.sync_device();
+    if (!m_param.mpi_device_aware)
+    {
+        buf.modify_host();
+        buf.sync_device();
+    }
 
     KRange[bc_idim].first = bc_iface == 0 ? views[0].extent_int(bc_idim) - ng : 0;
     KRange[bc_idim].second = KRange[bc_idim].first + ng;
