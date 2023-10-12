@@ -44,6 +44,7 @@ public :
     std::string bc_choice;
     std::string bc_priority;
     int nfx;
+    std::string user_step;
 
     explicit Param(INIReader const& reader)
     {
@@ -91,6 +92,8 @@ public :
         bc_priority = reader.Get("Boundary Condition", "priority", "");
 
         nfx = reader.GetInteger("Passive Scalar", "nfx", 0);
+
+        user_step = reader.Get("User step", "user_step", "Off");
     }
 };
 

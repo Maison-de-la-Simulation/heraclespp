@@ -50,6 +50,8 @@
 #include "mpi_scope_guard.hpp"
 #include "setup.hpp"
 
+#include <user_step.hpp>
+
 using namespace novapp;
 
 int main(int argc, char** argv)
@@ -149,6 +151,15 @@ int main(int argc, char** argv)
     static_assert(false, "Gravity not defined");
 #endif
     std::unique_ptr<Gravity> g;
+
+    std::unique_ptr<I_User_Step> user_step
+        = factory_user_step(param.user_step);
+
+    if (param.user_step == "UserDefined")
+    {
+        user_step = std::make_unique<User_Step>();
+    }
+    print_info("USER STEP", param.user_step);
 
     if(param.restart)
     {   
@@ -271,6 +282,8 @@ int main(int argc, char** argv)
         godunov_scheme->execute(grid.range.no_ghosts(), dt, rho.d_view, rhou.d_view, E.d_view, fx.d_view,
                                 rho_rec, rhou_rec, E_rec, fx_rec,
                                 rho_new, rhou_new, E_new, fx_new);
+
+        user_step->execute(grid.range.no_ghosts(), t, dt, rho_new, E_new, fx_new);
 
         bcs(rho_new, rhou_new, E_new, fx_new);
 
