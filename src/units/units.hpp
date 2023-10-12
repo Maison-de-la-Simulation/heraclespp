@@ -53,12 +53,14 @@ namespace novapp::units
     constexpr double espe_cgs = erg / g; // Specific energy : cm^{2}.s^{-2}
 
 // physical constants : SI
-    constexpr double kb = 1.38E-23 * Joule / Kelvin; // Botzman  constant : kg.m^{2}.s^{-2}.K^{-1}
-    constexpr double mp = 1.67E-27 * kg; // Proton mass : kg
+    constexpr double kb = 1.380649E-23 * Joule / Kelvin; // Botzman  constant : kg.m^{2}.s^{-2}.K^{-1}
+    constexpr double mp = 1.672649E-27 * kg; // Proton mass : kg
     constexpr double c = 2.99792458E8 * velocity; // Speed of light : m.s^{-1}
     constexpr double G = 6.6743015E-11 * Newton * m2 / kg2; // Gravitational constant : m^{3}.kg^{-1}.s^{-2}
     constexpr double hplanck = 6.62607015E-34 * Joule * s; // Planck constant : kg.m^{2}.s^{-3}
     constexpr double eV = 1.602176634E-19 * Joule; // Electronvolt : kg.m^{2}.s^{-2}
+    constexpr double MeV = eV * 1E6;
+    constexpr double atomic_mass_unit = 1.66053906660E-27 * kg; // Mass atomic unitaire : kg
 
     constexpr double pi = Kokkos::numbers::pi;
     constexpr double pi5 = pi * pi * pi * pi * pi;
@@ -70,11 +72,14 @@ namespace novapp::units
 
     constexpr double ua = 1.49597870E11 * m;
 
-    constexpr double Msol = 1.9885E30 * kg; // Solar mass
-    constexpr double Rsol = 6.96342E8 * m; // Solar radius
-    constexpr double Lsol = 3.8268E26 * Watt; // Solar luminosity
+    constexpr double Msun = 1.9885E30 * kg; // Solar mass
+    constexpr double Rsun = 6.96342E8 * m; // Solar radius
+    constexpr double Lsun = 3.8268E26 * Watt; // Solar luminosity
 
 // useful units
+    constexpr double minute = 60 * s;
+    constexpr double hour = 60 * minute;
+    constexpr double day = 24 * hour;
     constexpr double year = 3.155760E7 * s;
     constexpr double Myrs = 3.155760E13 * s; // Mega year
     constexpr double Gyrs = 3.155760E16 * s; // Giga year

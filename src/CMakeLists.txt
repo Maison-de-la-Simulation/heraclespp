@@ -8,6 +8,7 @@ add_subdirectory(io)
 add_subdirectory(mesh)
 add_subdirectory(thermodynamics)
 add_subdirectory(units)
+add_subdirectory(user_step)
 add_subdirectory(utils)
 
 add_library(libnova++ mpi_scope_guard.cpp
@@ -22,7 +23,7 @@ target_link_libraries(libnova++ PUBLIC Kokkos::kokkos)
 target_link_libraries(libnova++ PUBLIC PDI::PDI_C)
 target_link_libraries(libnova++ PUBLIC inih)
 target_link_libraries(libnova++ PUBLIC thermodynamics)
-target_link_libraries(libnova++ PUBLIC analysis gravity hydro io mesh units utils)
+target_link_libraries(libnova++ PUBLIC analysis gravity hydro io mesh units user_step utils)
 
 add_executable(nova++ main.cpp)
 target_link_libraries(nova++ PUBLIC libnova++)

@@ -24,21 +24,15 @@ class ParamSetup
 {
 public:
     double rho0;
-    double rho1;
     double u0;
-    double P0;
-    double A;
+    double T0;
     double fx0;
-    double fx1;
 
     explicit ParamSetup(INIReader const& reader)
         : rho0(reader.GetReal("Initialisation", "rho0", 1.0))
-        , rho1(reader.GetReal("Initialisation", "rho1", 1.0))
         , u0(reader.GetReal("Initialisation", "u0", 1.0))
-        , P0(reader.GetReal("Initialisation", "P0", 1.0))
-        , A(reader.GetReal("Initialisation", "A", 1.0))
+        , T0(reader.GetReal("Initialisation", "T0", 1.0))
         , fx0(reader.GetReal("Initialisation", "fx0", 1.0))
-        , fx1(reader.GetReal("Initialisation", "fx1", 1.0))
     {
     }
 };
@@ -50,7 +44,6 @@ private:
     EOS m_eos;
     Grid m_grid;
     ParamSetup m_param_setup;
-    Gravity m_gravity;
 
 public:
     InitializationSetup(
@@ -61,7 +54,6 @@ public:
         : m_eos(eos)
         , m_grid(grid)
         , m_param_setup(param_set_up)
-        , m_gravity(gravity)
     {
     }
 
@@ -79,39 +71,24 @@ public:
         assert(rho.extent(2) == u.extent(2));
         assert(u.extent(2) == P.extent(2));
 
-        double P0 = (10. / 7 + 1. / 4) * units::pressure;
-
-        auto const x_d = m_grid.x;
-        auto const y_d = m_grid.y;
-
+        auto const xc = m_grid.x_center;
+        
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
-            "Rayleigh_Taylor_2D_init",
+            "heat_nickel_init",
             Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
             KOKKOS_CLASS_LAMBDA(int i, int j, int k)
             {
-                double x = x_d(i) * units::m;
-                double y = y_d(j) * units::m;
-                double h = 0.01 * Kokkos::cos(4 * Kokkos::numbers::pi * x);
+                rho(i, j, k) = m_param_setup.rho0 * units::density;
 
-                if (y >= h)
+                P(i, j, k) = m_eos.compute_P_from_T(rho(i, j, k), m_param_setup.T0) * units::pressure;
+
+                for (int idim = 0; idim < ndim; ++idim)
                 {
-                    rho(i, j, k) = m_param_setup.rho1 * units::density;
-                    fx(i, j, k, 0) = m_param_setup.fx0;
+                    u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
                 }
 
-                if (y < h)
-                {
-                    rho(i, j, k) = m_param_setup.rho0 * units::density;
-                    fx(i, j, k, 0) = m_param_setup.fx1;
-                }
-                
-                u(i, j, k, 0) = m_param_setup.u0 * units::velocity;
-                u(i, j, k, 1) = m_param_setup.u0 * units::velocity;
-                /* u(i, j, k, 1) = (m_param_setup.A/4) * (1+Kokkos::cos(2*Kokkos::numbers::pi*x/m_grid.L[0])) 
-                                * (1+Kokkos::cos(2*Kokkos::numbers::pi*y/m_grid.L[1])); */
-                                
-                P(i, j, k) = (P0 + rho(i, j, k) * m_gravity(i, j, k, 1) * units::acc * y) * units::pressure;
+                fx(i, j, k, 0) = m_param_setup.fx0;
             });
     }
 };
