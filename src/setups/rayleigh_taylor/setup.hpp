@@ -8,11 +8,12 @@
 
 #include "eos.hpp"
 #include <grid.hpp>
-#include <grid_type.hpp>
 #include "initialization_interface.hpp"
 #include "kokkos_shortcut.hpp"
 #include "ndim.hpp"
 #include "nova_params.hpp"
+#include "default_boundary_setup.hpp"
+#include "default_grid_setup.hpp"
 #include <range.hpp>
 
 namespace novapp
@@ -111,32 +112,6 @@ public:
                                 
                 P(i, j, k) = (P0 + rho(i, j, k) * m_gravity(i, j, k, 1) * units::acc * y) * units::pressure;
             });
-    }
-};
-
-class GridSetup : public IGridType
-{
-public:
-    GridSetup(
-        [[maybe_unused]] Param const& param)
-        : IGridType()
-    {
-        // regular grid
-    }
-};
-
-template <class Gravity>
-class BoundarySetup : public IBoundaryCondition
-{
-public:
-    BoundarySetup(int idim, int iface,
-        [[maybe_unused]] EOS const& eos,
-        [[maybe_unused]] Grid const& grid,
-        [[maybe_unused]] ParamSetup const& param_setup,
-        [[maybe_unused]] Gravity const& gravity)
-        : IBoundaryCondition(idim, iface)
-    {
-        // no new boundary
     }
 };
 

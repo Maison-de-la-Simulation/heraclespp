@@ -8,11 +8,11 @@
 
 #include "eos.hpp"
 #include <grid.hpp>
-#include <grid_type.hpp>
 #include "initialization_interface.hpp"
 #include "kokkos_shortcut.hpp"
 #include "ndim.hpp"
 #include "nova_params.hpp"
+#include "default_boundary_setup.hpp"
 #include <range.hpp>
 
 namespace novapp
@@ -175,21 +175,6 @@ public:
             y_glob(i) = m_param.ymin + i * dy;
             z_glob(i) = m_param.zmin + i * dz;
         }
-    }
-};
-
-template <class Gravity>
-class BoundarySetup : public IBoundaryCondition
-{
-public:
-    BoundarySetup(int idim, int iface,
-        [[maybe_unused]] EOS const& eos,
-        [[maybe_unused]] Grid const& grid,
-        [[maybe_unused]] ParamSetup const& param_setup,
-        [[maybe_unused]] Gravity const& gravity)
-        : IBoundaryCondition(idim, iface)
-    {
-        // no new boundary
     }
 };
 
