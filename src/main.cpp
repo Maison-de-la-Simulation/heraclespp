@@ -42,6 +42,7 @@
 #include <range.hpp>
 #include <temperature.hpp>
 #include <time_step.hpp>
+#include <user_step.hpp>
 
 #include "boundary.hpp"
 #include "boundary_distribute.hpp"
@@ -49,8 +50,6 @@
 #include "initialization_interface.hpp"
 #include "mpi_scope_guard.hpp"
 #include "setup.hpp"
-
-#include <user_step.hpp>
 
 using namespace novapp;
 
