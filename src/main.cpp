@@ -245,13 +245,14 @@ int main(int argc, char** argv)
 
     conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho.d_view, rhou.d_view, E.d_view, eos);
 
-    temperature(grid.range.all_ghosts(), eos, rho.d_view, P.d_view, T.d_view);
-
-    modify_device(rho, u, P, fx, rhou, E, T);
+    modify_device(rho, u, P, fx, rhou, E);
 
     std::vector<std::pair<int, double>> outputs_record;
     if (param.output_frequency > 0)
     {
+        temperature(grid.range.all_ghosts(), eos, rho.d_view, P.d_view, T.d_view);
+        modify_device(T);
+
         outputs_record.emplace_back(iter, t);
         writeXML(grid, outputs_record, x_glob, y_glob, z_glob);
         write_pdi(iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
@@ -288,20 +289,21 @@ int main(int argc, char** argv)
 
         conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho_new, rhou_new, E_new, eos);
 
-        temperature(grid.range.all_ghosts(), eos, rho.d_view, P.d_view, T.d_view);
-
         Kokkos::deep_copy(rho.d_view, rho_new);
         Kokkos::deep_copy(rhou.d_view, rhou_new);
         Kokkos::deep_copy(E.d_view, E_new);
         Kokkos::deep_copy(fx.d_view, fx_new);
 
-        modify_device(rho, u, P, E, rhou, fx, T);
+        modify_device(rho, u, P, E, rhou, fx);
 
         t += dt;
         iter++;
 
         if(make_output)
         {
+            temperature(grid.range.all_ghosts(), eos, rho.d_view, P.d_view, T.d_view);
+            modify_device(T);
+
             outputs_record.emplace_back(iter, t);
             writeXML(grid, outputs_record, x_glob, y_glob, z_glob);
             write_pdi(iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
