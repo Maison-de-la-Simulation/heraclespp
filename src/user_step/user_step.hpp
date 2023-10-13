@@ -16,20 +16,20 @@
 namespace novapp
 {
 
-class I_User_Step
+class IUserStep
 {
 public:
-    I_User_Step() = default;
+    IUserStep() = default;
 
-    I_User_Step(I_User_Step const& rhs) = default;
+    IUserStep(IUserStep const& rhs) = default;
 
-    I_User_Step(I_User_Step&& rhs) noexcept = default;
+    IUserStep(IUserStep&& rhs) noexcept = default;
 
-    virtual ~I_User_Step() noexcept = default;
+    virtual ~IUserStep() noexcept = default;
 
-    I_User_Step& operator=(I_User_Step const& rhs) = default;
+    IUserStep& operator=(IUserStep const& rhs) = default;
 
-    I_User_Step& operator=(I_User_Step&& rhs) noexcept = default;
+    IUserStep& operator=(IUserStep&& rhs) noexcept = default;
 
     virtual void execute(
         [[maybe_unused]] Range const &range,
@@ -43,13 +43,9 @@ public:
         }
 };
 
-class No_User_Step : public I_User_Step
+class NoUserStep : public IUserStep
 {
 public:
-    explicit No_User_Step()
-    : I_User_Step()
-    {}
-
     void execute(
         [[maybe_unused]] Range const &range,
         [[maybe_unused]] double const t,
@@ -60,13 +56,9 @@ public:
     {}
 };
 
-class Heat_56_Nickel_Step : public I_User_Step
+class HeatNickelStep : public IUserStep
 {
 public:
-    explicit Heat_56_Nickel_Step()
-    : I_User_Step()
-    {}
-
     void execute(
         Range const &range,
         double const t,
@@ -101,19 +93,18 @@ public:
     }
 };
 
-inline std::unique_ptr<I_User_Step> factory_user_step(
+inline std::unique_ptr<IUserStep> factory_user_step(
     std::string const& user_step)
 {
     if (user_step == "Off")
     {
-        return std::make_unique<No_User_Step>();
+        return std::make_unique<NoUserStep>();
     }
     if (user_step == "Heat_nickel")
     {
-        return std::make_unique<Heat_56_Nickel_Step>();
+        return std::make_unique<HeatNickelStep>();
     }
     throw std::runtime_error("Unknown user step: " + user_step + ".");
 }
-
 
 } // namespace novapp
