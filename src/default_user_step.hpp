@@ -5,12 +5,9 @@
 namespace novapp
 {
 
-class User_Step : public I_User_Step
+class UserStep : public IUserStep
 {
 public:
-    explicit User_Step()
-    : I_User_Step()
-    {}
 };
 
 } // namespace novapp

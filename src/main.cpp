@@ -151,12 +151,14 @@ int main(int argc, char** argv)
 #endif
     std::unique_ptr<Gravity> g;
 
-    std::unique_ptr<I_User_Step> user_step
-        = factory_user_step(param.user_step);
-
+    std::unique_ptr<IUserStep> user_step;
     if (param.user_step == "UserDefined")
     {
-        user_step = std::make_unique<User_Step>();
+        user_step = std::make_unique<UserStep>();
+    }
+    else
+    {
+        user_step = factory_user_step(param.user_step);
     }
     print_info("USER STEP", param.user_step);
 
