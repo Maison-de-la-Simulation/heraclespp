@@ -103,7 +103,7 @@ public:
         auto const ds = m_grid.ds;
         auto const dv = m_grid.dv;
 
-        KV_double_6d fx_rec_old("rho_rec_old", m_grid.Nx_local_wg[0], m_grid.Nx_local_wg[1], 
+        KV_double_6d fx_rec_old("fx_rec_old", m_grid.Nx_local_wg[0], m_grid.Nx_local_wg[1], 
                                 m_grid.Nx_local_wg[2], 2, ndim, nfx);
         Kokkos::deep_copy(fx_rec_old, fx_rec);
 
