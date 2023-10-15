@@ -20,10 +20,14 @@ std::array<std::string, 2> const bc_face {"_left", "_right"};
 
 class IBoundaryCondition
 {
+protected:
+    int m_bc_idim;
+    int m_bc_iface;
+
 public:
     IBoundaryCondition(int idim, int iface)
         : m_bc_idim(idim)
-        , m_bc_iface(iface){};
+        , m_bc_iface(iface){}
 
     IBoundaryCondition(IBoundaryCondition const& rhs) = default;
 
@@ -42,10 +46,6 @@ public:
                          {
                             throw std::runtime_error("Boundary not implemented");
                          }
-
-protected:
-    int m_bc_idim;
-    int m_bc_iface;
 };
 
 class NullGradient : public IBoundaryCondition
