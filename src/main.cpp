@@ -85,9 +85,13 @@ int main(int argc, char** argv)
     Grid grid(param);
     grid.print_grid();
 
-    print_info("SETUP", MY_SETUP);
-    print_info("EOS", eos_choice);
-    print_info("GEOMETRIE", geom_choice);
+    if(grid.mpi_rank==0)
+    {
+        print_info("SETUP", MY_SETUP);
+        print_info("EOS", eos_choice);
+        print_info("GEOMETRIE", geom_choice);
+    }
+
 
     EOS const eos(param.gamma, param.mu);
 
@@ -142,10 +146,16 @@ int main(int argc, char** argv)
 
 #if defined(Uniform)
     using Gravity = UniformGravity;
-    print_info("GRAVITY", "Uniform");
+    if(grid.mpi_rank==0)
+    {
+        print_info("GRAVITY", "Uniform");
+    }
 #elif defined(Point_mass)
     using Gravity = PointMassGravity;
-    print_info("GRAVITY", "Point_mass");
+    if(grid.mpi_rank==0)
+    {
+        print_info("GRAVITY", "Point_mass");
+    }
 #else
     static_assert(false, "Gravity not defined");
 #endif
@@ -160,7 +170,10 @@ int main(int argc, char** argv)
     {
         user_step = factory_user_step(param.user_step);
     }
-    print_info("USER STEP", param.user_step);
+    if(grid.mpi_rank==0)
+    {
+        print_info("USER_STEP", param.user_step);
+    }
 
     if(param.restart)
     {   
