@@ -2,20 +2,21 @@
 #pragma once
 
 #include <Kokkos_Core.hpp>
+#include <mpi.h>
 #include <units.hpp>
 #include <random>
 
 #include <inih/INIReader.hpp>
 
+#include "default_boundary_setup.hpp"
+#include "default_grid_setup.hpp"
+#include "default_user_step.hpp"
 #include "eos.hpp"
 #include <grid.hpp>
 #include "initialization_interface.hpp"
 #include "kokkos_shortcut.hpp"
 #include "ndim.hpp"
 #include "nova_params.hpp"
-#include "default_boundary_setup.hpp"
-#include "default_grid_setup.hpp"
-#include "default_user_step.hpp"
 #include <range.hpp>
 
 namespace novapp
@@ -74,17 +75,34 @@ public:
         assert(rho.extent(2) == u.extent(2));
         assert(u.extent(2) == P.extent(2));
 
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_real_distribution<double> dist(-1.0, 1.0);
-        double ak = dist(rd);
-        double bk = dist(rd);
-        double ck = dist(rd);
-        double dk = dist(rd);
-        /* std::cout << "ak: " << ak << std::endl;
-        std::cout << "bk: " << bk << std::endl;
-        std::cout << "ck: " << ck << std::endl;
-        std::cout << "dk: " << dk << std::endl; */
+        int mpi_rank = m_grid.mpi_rank;
+        MPI_Comm comm_cart = m_grid.comm_cart;
+        MPI_Comm_rank(comm_cart, &mpi_rank);
+        std::array<double, 4> data_to_broadcast;
+
+        if (mpi_rank == 0)
+        {
+            std::random_device rd;
+            std::mt19937 gen(rd());
+            std::uniform_real_distribution<double> dist(-1.0, 1.0);
+
+            for(int i = 0; i < data_to_broadcast.size() ; ++i)
+            {
+                data_to_broadcast[i] = dist(rd);
+            }
+        }
+
+        MPI_Bcast(data_to_broadcast.data(), 4, MPI_DOUBLE, 0, comm_cart);
+
+        double ak = data_to_broadcast[0];
+        double bk = data_to_broadcast[1];
+        double ck = data_to_broadcast[2];
+        double dk = data_to_broadcast[3];
+
+        /* std::cout << "[MPI process "<< mpi_rank <<"] ak = " << ak << std::endl;
+        std::cout << "[MPI process "<< mpi_rank <<"] bk = " << bk << std::endl;
+        std::cout << "[MPI process "<< mpi_rank <<"] ck = " << ck << std::endl;
+        std::cout << "[MPI process "<< mpi_rank <<"] dk = " << dk << std::endl; */
 
         Kokkos::Array<int, 5> kx;
         Kokkos::Array<int, 5> ky;
