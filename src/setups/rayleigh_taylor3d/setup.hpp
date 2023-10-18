@@ -77,7 +77,7 @@ public:
 
         int mpi_rank = m_grid.mpi_rank;
         MPI_Comm comm_cart = m_grid.comm_cart;
-        MPI_Comm_rank(comm_cart, &mpi_rank);
+
         std::array<double, 4> data_to_broadcast;
 
         if (mpi_rank == 0)
