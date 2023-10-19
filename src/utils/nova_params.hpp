@@ -56,11 +56,8 @@ public :
         Nx_glob_ng[0] = reader.GetInteger("Grid", "Nx_glob", 0); // Cell number
         Nx_glob_ng[1] = reader.GetInteger("Grid", "Ny_glob", 0); // Cell number
         Nx_glob_ng[2] = reader.GetInteger("Grid", "Nz_glob", 0); // Cell number
-
         grid_type = reader.Get("Grid", "type", "Regular");
-
         Ng = reader.GetInteger("Grid", "Nghost", 2);
-
         xmin = reader.GetReal("Grid", "xmin", 0.0);
         xmax = reader.GetReal("Grid", "xmax", 1.0);
         ymin = reader.GetReal("Grid", "ymin", 0.0);
@@ -68,9 +65,10 @@ public :
         zmin = reader.GetReal("Grid", "zmin", 0.0);
         zmax = reader.GetReal("Grid", "zmax", 1.0);
 
-        Ncpu_x[0] = reader.GetInteger("Grid", "Ncpu_x", 0); // number of procs, default 0=>defined by MPI
-        Ncpu_x[1] = reader.GetInteger("Grid", "Ncpu_y", 0); // number of procs
-        Ncpu_x[2] = reader.GetInteger("Grid", "Ncpu_z", 0); // number of procs
+        mpi_device_aware = reader.GetBoolean("Parallelization", "mpi_device_aware", false);
+        Ncpu_x[0] = reader.GetInteger("Parallelization", "Ncpu_x", 0); // number of procs, default 0=>defined by MPI
+        Ncpu_x[1] = reader.GetInteger("Parallelization", "Ncpu_y", 0); // number of procs
+        Ncpu_x[2] = reader.GetInteger("Parallelization", "Ncpu_z", 0); // number of procs
 
         timeout = reader.GetReal("Run", "timeout", 0.2);
         cfl = reader.GetReal("Run", "cfl", 0.4);
@@ -95,7 +93,6 @@ public :
         nfx = reader.GetInteger("Passive Scalar", "nfx", 0);
 
         user_step = reader.Get("User step", "user_step", "Off");
-        mpi_device_aware = reader.GetBoolean("Parallelization", "mpi_device_aware", false);
     }
 };
 
