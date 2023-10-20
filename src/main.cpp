@@ -8,11 +8,14 @@
 #include <array>
 #include <chrono>
 #include <cstdio>
+#include <filesystem>
 #include <iomanip>
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -53,26 +56,48 @@
 
 using namespace novapp;
 
+namespace
+{
+
+void display_help_message(std::filesystem::path executable)
+{
+    std::cout << "usage: " << executable.filename().native() << " <path to the ini file> [options]\n";
+}
+
+}
+
 int main(int argc, char** argv)
 {
     if (argc < 2)
     {
-        std::cout << "usage: " << argv[0] << " <path to the ini file> [<path to the yaml file>]\n";
+        display_help_message(argv[0]);
         return EXIT_FAILURE;
     }
 
-    MpiScopeGuard const mpi_guard;
+    MpiScopeGuard const mpi_guard(argc, argv);
 
-    Kokkos::ScopeGuard const guard;
+    Kokkos::ScopeGuard const guard(argc, argv);
 
     Kokkos::print_configuration(std::cout);
 
     INIReader const reader(argv[1]);
 
-    PC_tree_t conf;
-    if (argc == 3)
+    std::optional<std::filesystem::path> io_config_path;
+    for(int iarg = 2; iarg < argc; ++iarg)
     {
-        conf = PC_parse_path(argv[2]);
+        std::string_view const option(argv[iarg]);
+        std::string_view const prefix("--io-config=");
+        if (std::string_view::size_type const pos = option.find_first_of(prefix);
+            pos != std::string_view::npos)
+        {
+            io_config_path = option.substr(pos);
+        }
+    }
+
+    PC_tree_t conf;
+    if (io_config_path)
+    {
+        conf = PC_parse_path(io_config_path->c_str());
     }
     else
     {
