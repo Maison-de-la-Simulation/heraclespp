@@ -12,7 +12,6 @@
 #include <iomanip>
 #include <iostream>
 #include <memory>
-#include <optional>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -59,7 +58,7 @@ using namespace novapp;
 namespace
 {
 
-void display_help_message(std::filesystem::path executable)
+void display_help_message(std::filesystem::path const& executable)
 {
     std::cout << "usage: " << executable.filename().native() << " <path to the ini file> [options]\n";
 }
@@ -82,7 +81,7 @@ int main(int argc, char** argv)
 
     INIReader const reader(argv[1]);
 
-    std::optional<std::filesystem::path> io_config_path;
+    std::filesystem::path io_config_path;
     for(int iarg = 2; iarg < argc; ++iarg)
     {
         std::string_view const option(argv[iarg]);
@@ -95,9 +94,9 @@ int main(int argc, char** argv)
     }
 
     PC_tree_t conf;
-    if (io_config_path)
+    if (!io_config_path.empty())
     {
-        conf = PC_parse_path(io_config_path->c_str());
+        conf = PC_parse_path(io_config_path.c_str());
     }
     else
     {
