@@ -356,12 +356,16 @@ int main(int argc, char** argv)
 
     if (grid.mpi_rank == 0)
     {
-        float const nb_cells = grid.Nx_glob_ng[0] * grid.Nx_glob_ng[1] * grid.Nx_glob_ng[2];
-        float const nb_cells_updated = iter * nb_cells;
-        float const duration = std::chrono::duration<float>(end - start).count();
-        float const perf = nb_cells_updated / duration;
+        double const nx_glob_ng = grid.Nx_glob_ng[0];
+        double const ny_glob_ng = grid.Nx_glob_ng[1];
+        double const nz_glob_ng = grid.Nx_glob_ng[2];
+        double const nb_cells = nx_glob_ng * ny_glob_ng * nz_glob_ng;
+        double const nb_iter = iter;
+        double const duration = std::chrono::duration<double>(end - start).count();
+        double const nb_cell_updates_per_sec = nb_iter * nb_cells / duration;
+        double const mega = 1E-6;
         std::printf("Final time = %f and number of iterations = %d  \n", t, iter);
-        std::printf("Mean performance: %f Mcell-updates/s\n", perf * 1e-6F);
+        std::printf("Mean performance: %f Mcell-updates/s\n", mega * nb_cell_updates_per_sec);
         std::printf("--- End ---\n");
     }
     MPI_Comm_free(&(const_cast<Grid&>(grid).comm_cart));
