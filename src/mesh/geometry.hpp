@@ -40,7 +40,8 @@ public:
         KV_cdouble_1d dz,
         KV_double_4d ds,
         KV_double_3d dv,
-        std::array<int, 3> Nx_local_wg) const
+        std::array<int, 3> Nx_local_wg,
+        std::array<int, 3> Nghost) const
         = 0;
 };
 
@@ -56,7 +57,8 @@ public:
         KV_cdouble_1d const dz,
         KV_double_4d ds,
         KV_double_3d dv,
-        std::array<int, 3> Nx_local_wg) const final
+        std::array<int, 3> Nx_local_wg,
+        [[maybe_unused]] std::array<int, 3> Nghost) const final
     {
 
         Kokkos::parallel_for(
@@ -102,7 +104,8 @@ public:
         [[maybe_unused]] KV_cdouble_1d const dz,
         KV_double_4d ds,
         KV_double_3d dv,
-        std::array<int, 3> Nx_local_wg) const final
+        std::array<int, 3> Nx_local_wg,
+        std::array<int, 3> Nghost) const final
     {
         if (ndim == 1)
         {
@@ -130,12 +133,14 @@ public:
                     dv(i, j, k) = (4 * Kokkos::numbers::pi * (x(i+1) * x(i+1) * x(i+1)
                                 - (x(i) * x(i) * x(i)))) / 3;
                 });
-
+            
             Kokkos::parallel_for(
-                1, KOKKOS_CLASS_LAMBDA(int i)
+                "dv_1d_spherical",
+                Nghost[0],
+                KOKKOS_CLASS_LAMBDA(int i)
                 {
-                    dv(0, 0, 0) = dv(3, 0, 0);
-                    dv(1, 0, 0) = dv(2, 0, 0);
+                    int mirror = 2 * Nghost[0] - 1;
+                    dv(i, 0, 0) = dv(mirror - i, 0, 0);
                 });
         }
 

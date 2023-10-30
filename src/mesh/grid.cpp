@@ -190,7 +190,7 @@ void Grid::set_grid(KV_double_1d x_glob, KV_double_1d y_glob, KV_double_1d z_glo
     std::unique_ptr<IComputeGeom> grid_geometry
             = factory_grid_geometry();
 
-    grid_geometry->execute(x, y, z, dx, dy, dz, ds, dv, Nx_local_wg);
+    grid_geometry->execute(x, y, z, dx, dy, dz, ds, dv, Nx_local_wg, Nghost);
 }
 
 void Grid::print_grid() const
