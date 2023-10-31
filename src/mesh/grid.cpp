@@ -13,6 +13,7 @@
 #include <nova_params.hpp>
 
 #include "geometry.hpp"
+#include "geometry_factory.hpp"
 #include "grid.hpp"
 #include "grid_type.hpp"
 #include "range.hpp"
