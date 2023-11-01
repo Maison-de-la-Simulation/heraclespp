@@ -1,7 +1,9 @@
 # pragma once
 
-#include "eos.hpp"
+#include <eos.hpp>
 #include <grid.hpp>
+
+#include "boundary.hpp"
 
 namespace novapp
 {
@@ -18,7 +20,8 @@ public:
         [[maybe_unused]] ParamSetup const& param_setup,
         [[maybe_unused]] Gravity const& gravity)
         : IBoundaryCondition(idim, iface)
-    {}
+    {
+    }
 };
 
 } // namespace novapp
