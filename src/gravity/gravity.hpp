@@ -19,8 +19,7 @@ private :
     KV_double_1d m_g;
 
 public :
-    explicit UniformGravity(
-        KV_double_1d g)
+    explicit UniformGravity(KV_double_1d const g)
         : m_g(g)
     {
     }
@@ -54,17 +53,16 @@ private :
     KV_double_1d m_g;
 
 public :
-    explicit PointMassGravity(
-        KV_double_1d g)
+    explicit PointMassGravity(KV_double_1d const g)
         : m_g(g)
     {
     }
 
-    KOKKOS_INLINE_FUNCTION
+    KOKKOS_FORCEINLINE_FUNCTION
     double operator()(
             int i,
             [[maybe_unused]] int j,
-            [[maybe_unused]] int k, 
+            [[maybe_unused]] int k,
             [[maybe_unused]] int dir) const
     {
         return m_g(i);
@@ -76,13 +74,13 @@ inline PointMassGravity make_point_mass_gravity(
         Grid const& grid)
 {
     KDV_double_1d g_array_dv("g_array", grid.Nx_local_wg[0]);
-    double M = param.M;
-    
+    double const M = param.M;
+
     Kokkos::parallel_for(
             "t_test", grid.Nx_local_wg[0],
             KOKKOS_LAMBDA(int i)
             {
-                    auto xc = grid.x_center(i);
+                auto const xc = grid.x_center(i);
                 g_array_dv.d_view(i) = - units::G * M / (xc * xc);
             });
     g_array_dv.modify_host();
