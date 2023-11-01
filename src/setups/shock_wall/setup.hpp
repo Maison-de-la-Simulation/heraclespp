@@ -10,6 +10,7 @@
 #include "default_user_step.hpp"
 #include "eos.hpp"
 #include <grid.hpp>
+#include <grid_type.hpp>
 #include "initialization_interface.hpp"
 #include "kokkos_shortcut.hpp"
 #include "ndim.hpp"
