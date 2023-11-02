@@ -32,17 +32,7 @@ void print_info(std::string_view const var_name, T const var_value)
 
 class Grid
 {
-public :
-    static constexpr int Ndim = ndim;
-
-    explicit Grid(Param const& param);
-    void print_grid() const;
-    
-private:
-    void MPI_Decomp();
-
-public :
-    void set_grid(KV_double_1d x_glob, KV_double_1d y_glob, KV_double_1d z_glob);
+public:
     int Ng;
     std::array<int, 3> Nghost;    // Number of ghost cells in each direction (default is 2)
     std::array<int, 3> Nx_glob_ng;    // Total number of cells in each directions (excluding ghost)
@@ -53,8 +43,8 @@ public :
     std::array<int, 3> start_cell_wg; // for local MPI process, index of starting cell wrt the global index with ghost
 
     std::array<std::array<std::array<int, 3>, 3>, 3> NeighborRank;
-    std::array<int, Ndim*2> neighbor_src;
-    std::array<int, Ndim*2> neighbor_dest;
+    std::array<int, ndim*2> neighbor_src;
+    std::array<int, ndim*2> neighbor_dest;
     std::array<int,3> Ncpu_x;
     int Ncpu;
 
@@ -80,6 +70,15 @@ public :
 
     KV_double_4d ds;
     KV_double_3d dv;
+
+    explicit Grid(Param const& param);
+
+    void print_grid() const;
+
+    void set_grid(KV_double_1d const& x_glob, KV_double_1d const& y_glob, KV_double_1d const& z_glob);
+
+private:
+    void MPI_Decomp();
 };
 
 } // namespace novapp

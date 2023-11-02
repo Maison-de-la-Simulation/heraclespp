@@ -9,6 +9,7 @@
 #include <vector>
 
 #include <grid.hpp>
+#include <ndim.hpp>
 #include <nova_params.hpp>
 #include <pdi.h>
 
@@ -21,7 +22,7 @@ void write_pdi_init(int max_iter, int frequency, Grid const& grid, Param const& 
 {
     int mpi_rank = grid.mpi_rank;
     int mpi_size = grid.mpi_size;
-    int simu_ndim = grid.Ndim;
+    int simu_ndim = ndim;
     int simu_nfx = param.nfx;
 
     PDI_multi_expose("init_PDI",

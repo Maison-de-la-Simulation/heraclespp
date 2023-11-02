@@ -21,6 +21,38 @@
 namespace novapp
 {
 
+namespace
+{
+
+void compute_cell_size(KV_cdouble_1d const& x, KV_double_1d const& dx)
+{
+    assert(x.extent_int(0) == dx.extent_int(0) + 1);
+    Kokkos::parallel_for(
+        "fill_cell_size_array",
+        dx.extent_int(0),
+        KOKKOS_LAMBDA(int i)
+        {
+            dx(i) = x(i+1) - x(i);
+        });
+}
+
+void compute_cell_center(KV_cdouble_1d const& x,
+                         KV_cdouble_1d const& dx,
+                         KV_double_1d const& x_center)
+{
+    assert(x.extent_int(0) == dx.extent_int(0) + 1);
+    assert(dx.extent_int(0) == x_center.extent_int(0));
+    Kokkos::parallel_for(
+        "fill_cell_center_array",
+        x_center.extent_int(0),
+        KOKKOS_LAMBDA(int i)
+        {
+            x_center(i) = x(i) + dx(i) / 2;
+        });
+}
+
+}
+
 Grid::Grid(Param const& param)
     : Ng(param.Ng)
     , Nghost {0, 0, 0}
@@ -29,7 +61,7 @@ Grid::Grid(Param const& param)
     , Ncpu_x(param.Ncpu_x)
     , mpi_rank_cart {0, 0, 0}
 {
-    for (int idim = 0; idim < Ndim; idim++)
+    for (int idim = 0; idim < ndim; idim++)
     {
         Nghost[idim] = Ng;
     }
@@ -40,14 +72,14 @@ Grid::Grid(Param const& param)
 /* ****************************************************************
 This routine distribute the cpu over the various direction in an optimum way
 Ncpu_x  : Number of cpu along each direction, output
-          Ncpu = Ncpu_x[0] * Ncpu_x[1] * Ncpu_x[2]  
+          Ncpu = Ncpu_x[0] * Ncpu_x[1] * Ncpu_x[2]
 */
-void Grid::MPI_Decomp() 
+void Grid::MPI_Decomp()
 {
     MPI_Comm_size(MPI_COMM_WORLD, &Ncpu);
 
-    MPI_Dims_create(Ncpu, Ndim, Ncpu_x.data());
-    for(int n=Ndim; n<3; n++)
+    MPI_Dims_create(Ncpu, ndim, Ncpu_x.data());
+    for(int n=ndim; n<3; n++)
     {
         Ncpu_x[n] = 1;
     }
@@ -66,15 +98,15 @@ void Grid::MPI_Decomp()
         if(mpi_rank_cart[i]<Nx_glob_ng[i]%Ncpu_x[i])
         {
             Nx_local_ng[i]+=1;
-            start_cell_wg[i] += mpi_rank_cart[i]; 
-        } 
+            start_cell_wg[i] += mpi_rank_cart[i];
+        }
         else
         {
             start_cell_wg[i] += Nx_glob_ng[i]%Ncpu_x[i];
-        } 
+        }
         Nx_local_wg[i] = Nx_local_ng[i] + 2*Nghost[i];
     }
-    
+
     std::array<int, 3> remain_dims {0, 0, 0};
     std::array<int, 3> cmin {0, 0, 0};
     std::array<int, 3> cmax {0, 0, 0};
@@ -86,12 +118,12 @@ void Grid::MPI_Decomp()
         MPI_Exscan(&Nx_local_ng[i], &cmin[i], 1, MPI_INT, MPI_SUM, comm_cart_1d);
         MPI_Comm_free(&comm_cart_1d);
         cmax[i] = cmin[i] + Nx_local_ng[i];
-        
+
         remain_dims[i]=false;
     }
 
     range = Range(cmin, cmax, Ng);
-    
+
     std::array<int, 3> tmp_coord;
     for(int i=-1; i<2; i++)
     {
@@ -103,9 +135,9 @@ void Grid::MPI_Decomp()
                 tmp_coord[1] = mpi_rank_cart[1]+j;
                 tmp_coord[2] = mpi_rank_cart[2]+k;
                 MPI_Cart_rank(comm_cart, tmp_coord.data(), &(NeighborRank[i+1][j+1][k+1]));
-            } 
+            }
         }
-    }  
+    }
     for(int idim=0; idim<ndim; idim++)
     {
         for(int iface=0; iface<2; iface++)
@@ -121,21 +153,12 @@ void Grid::MPI_Decomp()
 
     for(int i=0; i<3; i++)
     {
-        is_border[i][0] = false;
-        is_border[i][1] = false;
-    
-        if(mpi_rank_cart[i] == 0)
-        {
-            is_border[i][0] = true;
-        }
-        if(mpi_rank_cart[i] == Ncpu_x[i]-1)
-        {
-            is_border[i][1] = true;
-        }
+        is_border[i][0] = (mpi_rank_cart[i] == 0);
+        is_border[i][1] = (mpi_rank_cart[i] == Ncpu_x[i]-1);
     }
 }
 
-void Grid::set_grid(KV_double_1d x_glob, KV_double_1d y_glob, KV_double_1d z_glob)
+void Grid::set_grid(KV_double_1d const& x_glob, KV_double_1d const& y_glob, KV_double_1d const& z_glob)
 {
     x = KV_double_1d("x", Nx_local_wg[0]+1);
     y = KV_double_1d("y", Nx_local_wg[1]+1);
@@ -149,48 +172,33 @@ void Grid::set_grid(KV_double_1d x_glob, KV_double_1d y_glob, KV_double_1d z_glo
     dy = KV_double_1d("dy", Nx_local_wg[1]);
     dz = KV_double_1d("dz", Nx_local_wg[2]);
 
-    ds = KV_double_4d("ds", Nx_local_wg[0], 
+    ds = KV_double_4d("ds", Nx_local_wg[0],
                             Nx_local_wg[1],
                             Nx_local_wg[2],
                             3);
-    dv = KV_double_3d("dv", Nx_local_wg[0], 
+    dv = KV_double_3d("dv", Nx_local_wg[0],
                             Nx_local_wg[1],
                             Nx_local_wg[2]);
 
+    // Filling x, y, z
     Kokkos::deep_copy(x, Kokkos::subview(x_glob, Kokkos::pair<int, int>(start_cell_wg[0], start_cell_wg[0]+Nx_local_wg[0]+1)));
     Kokkos::deep_copy(y, Kokkos::subview(y_glob, Kokkos::pair<int, int>(start_cell_wg[1], start_cell_wg[1]+Nx_local_wg[1]+1)));
     Kokkos::deep_copy(z, Kokkos::subview(z_glob, Kokkos::pair<int, int>(start_cell_wg[2], start_cell_wg[2]+Nx_local_wg[2]+1)));
 
-    Kokkos::parallel_for(
-        "set_dx_xcenter",
-        Nx_local_wg[0],
-        KOKKOS_CLASS_LAMBDA(int i)
-        {
-            dx(i) = x(i+1) - x(i);
-            x_center(i) = x(i) + dx(i) / 2;
-        });
+    // Filling dx, dy, dz
+    compute_cell_size(x, dx);
+    compute_cell_size(y, dy);
+    compute_cell_size(z, dz);
 
-    Kokkos::parallel_for(
-        "set_dy_ycenter",
-        Nx_local_wg[1],
-        KOKKOS_CLASS_LAMBDA(int i)
-        {
-            dy(i) = y(i+1) - y(i);
-            y_center(i) = y(i) + dy(i) / 2;
-        });
-
-    Kokkos::parallel_for(
-        "set_dz_zcenter",
-        Nx_local_wg[2],
-        KOKKOS_CLASS_LAMBDA(int i)
-        {
-            dz(i) = z(i+1) - z(i);
-            z_center(i) = z(i) + dz(i) / 2;
-        });
+    // Filling x_center, y_center, z_center
+    compute_cell_center(x, dx, x_center);
+    compute_cell_center(y, dy, y_center);
+    compute_cell_center(z, dz, z_center);
 
     std::unique_ptr<IComputeGeom> grid_geometry
             = factory_grid_geometry();
 
+    // Filling ds, dv
     grid_geometry->execute(x, y, z, dx, dy, dz, ds, dv, Nx_local_wg, Nghost);
 }
 
@@ -198,7 +206,7 @@ void Grid::print_grid() const
 {
     if(mpi_rank==0)
     {
-        print_info("Ndim", Ndim);
+        print_info("Ndim", ndim);
         print_info("Nghost[0]", Nghost[0]);
         print_info("Nghost[1]", Nghost[1]);
         print_info("Nghost[2]", Nghost[2]);
