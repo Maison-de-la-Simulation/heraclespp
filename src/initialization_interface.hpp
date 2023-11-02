@@ -14,17 +14,17 @@ class Range;
 class IInitializationProblem
 {
 public:
-    IInitializationProblem() = default;
+    IInitializationProblem();
 
-    IInitializationProblem(IInitializationProblem const& rhs) = default;
+    IInitializationProblem(IInitializationProblem const& rhs);
 
-    IInitializationProblem(IInitializationProblem&& rhs) noexcept = default;
+    IInitializationProblem(IInitializationProblem&& rhs) noexcept;
 
-    virtual ~IInitializationProblem() noexcept = default;
+    virtual ~IInitializationProblem() noexcept;
 
-    IInitializationProblem& operator=(IInitializationProblem const& rhs) = default;
+    IInitializationProblem& operator=(IInitializationProblem const& rhs);
 
-    IInitializationProblem& operator=(IInitializationProblem&& rhs) noexcept = default;
+    IInitializationProblem& operator=(IInitializationProblem&& rhs) noexcept;
 
     virtual void execute(
         Range const& range,
