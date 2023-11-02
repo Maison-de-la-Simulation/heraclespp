@@ -8,9 +8,19 @@ before_script:
   - git config --global --add safe.directory /builds/lrousselhard/nova/vendor/kokkos
 
 stages:
+  - build-full
   - build
   - test
   - deploy
+
+build-job:full:
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  stage: build-full
+  needs: []
+  script:
+    - bash ./test_suite_full.sh
 
 build-job:serial:1:
   rules:
