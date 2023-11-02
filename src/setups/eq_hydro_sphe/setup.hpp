@@ -49,7 +49,7 @@ public:
         EOS const& eos,
         Grid const& grid,
         ParamSetup const& param_setup,
-        Gravity const& gravity)
+        [[maybe_unused]] Gravity const& gravity)
         : m_eos(eos)
         , m_grid(grid)
         , m_param_setup(param_setup)
@@ -111,7 +111,7 @@ public:
         EOS const& eos,
         Grid const& grid,
         ParamSetup const& param_setup,
-        Gravity const& gravity)
+        [[maybe_unused]] Gravity const& gravity)
         : IBoundaryCondition(idim, iface)
         , m_label("UserDefined" + bc_dir[idim] + bc_face[iface])
         , m_eos(eos)

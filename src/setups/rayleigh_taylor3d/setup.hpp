@@ -115,8 +115,8 @@ public:
 
         double L = 10;
         double gamma = 5. / 3;
-        double hrms = 3E-4 * L;
-        double H = Kokkos::sqrt((1. / 4) * (ak * ak + bk * bk + ck * ck + dk * dk)) / hrms;
+        // double hrms = 3E-4 * L;
+        // double H = Kokkos::sqrt((1. / 4) * (ak * ak + bk * bk + ck * ck + dk * dk)) / hrms;
 
         auto const x_d = m_grid.x;
         auto const y_d = m_grid.y;

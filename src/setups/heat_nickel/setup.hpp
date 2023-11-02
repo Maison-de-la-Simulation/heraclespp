@@ -50,7 +50,7 @@ public:
         EOS const& eos,
         Grid const& grid,
         ParamSetup const& param_set_up,
-        Gravity const& gravity)
+        [[maybe_unused]] Gravity const& gravity)
         : m_eos(eos)
         , m_grid(grid)
         , m_param_setup(param_set_up)
@@ -71,7 +71,7 @@ public:
         assert(rho.extent(2) == u.extent(2));
         assert(u.extent(2) == P.extent(2));
 
-        auto const xc = m_grid.x_center;
+        // auto const xc = m_grid.x_center;
         
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(

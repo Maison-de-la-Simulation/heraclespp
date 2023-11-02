@@ -48,7 +48,7 @@ public:
         EOS const& eos,
         Grid const& grid,
         ParamSetup const& param_set_up,
-        Gravity const& gravity)
+        [[maybe_unused]] Gravity const& gravity)
         : m_eos(eos)
         , m_grid(grid)
         , m_param_setup(param_set_up)
@@ -84,9 +84,9 @@ public:
                     u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
                 }
 
-                double T = m_eos.compute_T_from_P(rho(i, j, k), P(i, j, k));
-                double Pr = units::ar * T * T * T * T / 3;
-                double Pg = rho(i, j, k)  * units::kb * T / (1 * units::mp);
+                // double T = m_eos.compute_T_from_P(rho(i, j, k), P(i, j, k));
+                // double Pr = units::ar * T * T * T * T / 3;
+                // double Pg = rho(i, j, k)  * units::kb * T / (1 * units::mp);
 
                 //std::cout<<"Pg = "<<Pg<<" Pr = "<<Pr<<" alpha = "<< Pr/Pg<<std::endl;
             });
