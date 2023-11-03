@@ -35,7 +35,7 @@ void write_pdi_init(int max_iter, int frequency, Grid const& grid, Param const& 
 void write_pdi(int iter,
                double t,
                double gamma,
-               KDV_double_3d rho, 
+               KDV_double_3d rho,
                KDV_double_4d u,
                KDV_double_3d P,
                KDV_double_3d E,
