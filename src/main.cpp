@@ -44,7 +44,7 @@
 #include <range.hpp>
 #include <temperature.hpp>
 #include <time_step.hpp>
-#include <user_step.hpp>
+#include <user_step_factory.hpp>
 
 #include "boundary.hpp"
 #include "boundary_distribute.hpp"
