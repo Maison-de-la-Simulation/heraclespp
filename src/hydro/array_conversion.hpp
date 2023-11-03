@@ -21,11 +21,11 @@ class RadGas;
 
 class Range;
 
-//! Conversion primary to conservative variables
+//! Conversion from primitive to conservative variables
 //! @param[inout] rhou momentum array 3D
-//! @param[inout] E energy array 3D
+//! @param[inout] E total energy array 3D
 //! @param[inout] rho density array 3D
-//! @param[in] u speed array 3D
+//! @param[in] u velocity array 3D
 //! @param[in] P pressure array 3D
 //! @param[in] eos equation of state
 void conv_prim_to_cons(
@@ -38,12 +38,12 @@ void conv_prim_to_cons(
     EOS const& eos);
 
 
-//! Conversion conservative to primary variables
-//! @param[inout] rho density array 3D
-//! @param[inout] rhou momentum array 3D
-//! @param[inout] E energy array 3D
-//! @param[in] u speed array 3D
-//! @param[in] P pressure array 3D
+//! Conversion from conservative to primitive variables
+//! @param[inout] u velocity array 3D
+//! @param[inout] P pressure array 3D
+//! @param[in] rho density array 3D
+//! @param[in] rhou momentum array 3D
+//! @param[in] E total energy array 3D
 //! @param[in] eos equation of state
 void conv_cons_to_prim(
     Range const& range,
