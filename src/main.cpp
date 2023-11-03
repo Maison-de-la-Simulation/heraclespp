@@ -168,13 +168,13 @@ int main(int argc, char** argv)
     KDV_double_1d y_glob("y_glob", grid.Nx_glob_ng[1]+2*grid.Nghost[1]+1);
     KDV_double_1d z_glob("z_glob", grid.Nx_glob_ng[2]+2*grid.Nghost[2]+1);
 
-#if defined(Uniform)
+#if defined(NOVAPP_GRAVITY_Uniform)
     using Gravity = UniformGravity;
     if(grid.mpi_rank==0)
     {
         print_info("GRAVITY", "Uniform");
     }
-#elif defined(Point_mass)
+#elif defined(NOVAPP_GRAVITY_Point_mass)
     using Gravity = PointMassGravity;
     if(grid.mpi_rank==0)
     {
@@ -204,9 +204,9 @@ int main(int argc, char** argv)
         read_pdi(param.restart_file, rho, u, P, fx, x_glob, y_glob, z_glob, t, iter); // read data into host view
         sync_device(x_glob, y_glob, z_glob);
         grid.set_grid(x_glob.d_view, y_glob.d_view, z_glob.d_view);
-#if defined(Uniform)
+#if defined(NOVAPP_GRAVITY_Uniform)
         g = std::make_unique<Gravity>(make_uniform_gravity(param));
-#elif defined(Point_mass)
+#elif defined(NOVAPP_GRAVITY_Point_mass)
         g = std::make_unique<Gravity>(make_point_mass_gravity(param, grid));
 #endif
 
@@ -235,9 +235,9 @@ int main(int argc, char** argv)
         modify_host(x_glob, y_glob, z_glob);
         sync_device(x_glob, y_glob, z_glob);
         grid.set_grid(x_glob.d_view, y_glob.d_view, z_glob.d_view);
-#if defined(Uniform)
+#if defined(NOVAPP_GRAVITY_Uniform)
         g = std::make_unique<Gravity>(make_uniform_gravity(param));
-#elif defined(Point_mass)
+#elif defined(NOVAPP_GRAVITY_Point_mass)
         g = std::make_unique<Gravity>(make_point_mass_gravity(param, grid));
 #endif
         std::unique_ptr<IInitializationProblem> initialization
