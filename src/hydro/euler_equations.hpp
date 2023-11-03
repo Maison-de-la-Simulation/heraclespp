@@ -64,6 +64,8 @@ EulerFlux compute_flux(
         int locdim,
         EOS const& eos) noexcept
 {
+    assert(locdim >= 0);
+    assert(locdim < ndim);
     EulerFlux flux;
     double const volumic_total_energy
             = compute_ek(prim) + eos.compute_evol_from_P(prim.rho, prim.P);
@@ -87,6 +89,8 @@ EulerFlux compute_flux(
         int locdim,
         EOS const& eos) noexcept
 {
+    assert(locdim >= 0);
+    assert(locdim < ndim);
     EulerFlux flux;
     double const evol = cons.E - compute_ek(cons);
     double const P = eos.compute_P_from_evol(cons.rho, evol);
