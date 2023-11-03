@@ -15,13 +15,11 @@ namespace thermodynamics
 {
 
 class PerfectGas;
-
 class RadGas;
 
 } // namespace thermodynamics
 
 class Range;
-
 class Grid;
 
 //! Time step with the cfl condition
