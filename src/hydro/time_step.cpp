@@ -22,7 +22,7 @@ double time_step(
     Grid const& grid)
 {
     double inverse_dt = 0;
-    
+
     auto const [begin, end] = cell_range(range);
     Kokkos::parallel_reduce(
         "time_step",
@@ -30,7 +30,7 @@ double time_step(
         KOKKOS_LAMBDA(int i, int j, int k, double& local_a)
         {
             double const sound = eos.compute_speed_of_sound(rho(i, j, k), P(i, j, k));
-            
+
             double dt_loc_inverse = 0;
             for(int idim = 0; idim < ndim; idim++)
             {

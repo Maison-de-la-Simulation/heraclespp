@@ -10,7 +10,7 @@
 
 namespace novapp
 {
-    
+
 inline void temperature(
     Range const& range,
     EOS const& eos,

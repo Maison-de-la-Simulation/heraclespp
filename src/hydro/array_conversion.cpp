@@ -7,7 +7,7 @@
 
 namespace novapp
 {
-    
+
 void conv_prim_to_cons(
     Range const& range,
     Kokkos::View<double****, Kokkos::LayoutStride> const rhou,
@@ -39,7 +39,7 @@ void conv_prim_to_cons(
             }
         });
 }
- 
+
 void conv_cons_to_prim(
     Range const& range,
     KV_double_4d const u,
@@ -62,7 +62,7 @@ void conv_cons_to_prim(
             {
                 var_cons.rhou[idim] = rhou(i, j, k, idim);
             }
-            
+
             EulerPrim prim = to_prim(var_cons, eos);
             P(i, j, k) = prim.P;
             for (int idim = 0; idim < ndim; ++idim)

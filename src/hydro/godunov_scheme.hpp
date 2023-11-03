@@ -73,12 +73,12 @@ private:
     Gravity m_gravity;
     EOS m_eos;
     Grid m_grid;
-    
+
 public:
     RiemannBasedGodunovScheme(
         RiemannSolver const &riemann_solver,
         Gravity const& gravity,
-        EOS const& eos, 
+        EOS const& eos,
         Grid const& grid)
         : m_riemann_solver(riemann_solver)
         , m_gravity(gravity)
@@ -113,7 +113,7 @@ public:
         Kokkos::parallel_for(
             "Riemann_based_Godunov_scheme",
             Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-            KOKKOS_CLASS_LAMBDA(int i, int j, int k) 
+            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
             {
                 rho_new(i, j, k) = rho(i, j, k);
                 E_new(i, j, k) = E(i, j, k);
@@ -167,14 +167,14 @@ public:
 
                     double const dtodv = dt / dv(i, j, k);
 
-                    rho_new(i, j, k) += dtodv * (FluxL.rho * ds(i, j, k, idim) 
+                    rho_new(i, j, k) += dtodv * (FluxL.rho * ds(i, j, k, idim)
                                         - FluxR.rho * ds(i_p, j_p, k_p, idim));
                     for (int idr = 0; idr < ndim; ++idr)
                     {
-                        rhou_new(i, j, k, idr) += dtodv * (FluxL.rhou[idr] * ds(i, j, k, idim) 
+                        rhou_new(i, j, k, idr) += dtodv * (FluxL.rhou[idr] * ds(i, j, k, idim)
                                                     - FluxR.rhou[idr] * ds(i_p, j_p, k_p, idim));
                     }
-                    E_new(i, j, k) += dtodv * (FluxL.E * ds(i, j, k, idim) 
+                    E_new(i, j, k) += dtodv * (FluxL.E * ds(i, j, k, idim)
                                             - FluxR.E * ds(i_p, j_p, k_p, idim));
 
                      //Spherical geometric terms
@@ -246,7 +246,7 @@ public:
                 for (int ifx = 0; ifx < nfx; ++ifx)
                 {
                     fx_new(i, j, k, ifx) /= rho_new(i, j, k);
-                
+
                     if (fx_new(i, j, k, ifx) > 1)
                     {
                         fx_new(i, j, k, ifx) = 1;

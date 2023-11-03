@@ -103,7 +103,7 @@ EulerFlux compute_flux(
 
 KOKKOS_FORCEINLINE_FUNCTION
 EulerPrim to_prim(
-        EulerCons const& cons, 
+        EulerCons const& cons,
         EOS const& eos) noexcept
 {
     EulerPrim prim;
@@ -126,7 +126,7 @@ EulerCons to_cons(EulerPrim const& prim, EOS const& eos) noexcept
     {
         cons.rhou[idim] = prim.rho * prim.u[idim];
     }
-    cons.E = eos.compute_evol_from_P(prim.rho, prim.P) 
+    cons.E = eos.compute_evol_from_P(prim.rho, prim.P)
                 + compute_ek(prim);
     return cons;
 }

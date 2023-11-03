@@ -67,7 +67,7 @@ private:
 
 public:
     ExtrapolationTimeReconstruction(
-            EOS const& eos, 
+            EOS const& eos,
             Grid const& grid,
             Gravity const& gravity)
         : m_eos(eos)
@@ -103,7 +103,7 @@ public:
         auto const ds = m_grid.ds;
         auto const dv = m_grid.dv;
 
-        KV_double_6d fx_rec_old("fx_rec_old", m_grid.Nx_local_wg[0], m_grid.Nx_local_wg[1], 
+        KV_double_6d fx_rec_old("fx_rec_old", m_grid.Nx_local_wg[0], m_grid.Nx_local_wg[1],
                                 m_grid.Nx_local_wg[2], 2, ndim, nfx);
         Kokkos::deep_copy(fx_rec_old, fx_rec);
 
@@ -159,20 +159,20 @@ public:
 
                     for (int ipos = 0; ipos < ndim; ++ipos)
                     {
-                        rho_rec(i, j, k, 0, ipos) += dtodv * (flux_minus_one.rho * ds(i, j, k, idim) 
+                        rho_rec(i, j, k, 0, ipos) += dtodv * (flux_minus_one.rho * ds(i, j, k, idim)
                                                     - flux_plus_one.rho * ds(i_p, j_p, k_p, idim));
-                        rho_rec(i, j, k, 1, ipos) += dtodv * (flux_minus_one.rho * ds(i, j, k, idim) 
+                        rho_rec(i, j, k, 1, ipos) += dtodv * (flux_minus_one.rho * ds(i, j, k, idim)
                                                     - flux_plus_one.rho * ds(i_p, j_p, k_p, idim));
                         for (int idr = 0; idr < ndim; ++idr)
                         {
-                            rhou_rec(i, j, k, 0, ipos, idr) += dtodv * (flux_minus_one.rhou[idr] * ds(i, j, k, idim) 
+                            rhou_rec(i, j, k, 0, ipos, idr) += dtodv * (flux_minus_one.rhou[idr] * ds(i, j, k, idim)
                                                             - flux_plus_one.rhou[idr] * ds(i_p, j_p, k_p, idim));
-                            rhou_rec(i, j, k, 1, ipos, idr) += dtodv * (flux_minus_one.rhou[idr] * ds(i, j, k, idim) 
+                            rhou_rec(i, j, k, 1, ipos, idr) += dtodv * (flux_minus_one.rhou[idr] * ds(i, j, k, idim)
                                                             - flux_plus_one.rhou[idr] * ds(i_p, j_p, k_p, idim));
                         }
-                        E_rec(i, j, k, 0, ipos) += dtodv * (flux_minus_one.E * ds(i, j, k, idim) 
+                        E_rec(i, j, k, 0, ipos) += dtodv * (flux_minus_one.E * ds(i, j, k, idim)
                                                 - flux_plus_one.E * ds(i_p, j_p, k_p, idim));
-                        E_rec(i, j, k, 1, ipos) += dtodv * (flux_minus_one.E * ds(i, j, k, idim) 
+                        E_rec(i, j, k, 1, ipos) += dtodv * (flux_minus_one.E * ds(i, j, k, idim)
                                                 - flux_plus_one.E * ds(i_p, j_p, k_p, idim));
                     }
 
@@ -199,7 +199,7 @@ public:
                     {
                         rhou_rec(i, j, k, 0, ipos, idim) += dt_reconstruction * m_gravity(i, j, k, idim) * rho_old[0][ipos];
                         rhou_rec(i, j, k, 1, ipos, idim) += dt_reconstruction * m_gravity(i, j, k, idim) * rho_old[1][ipos];
-                        
+
                         E_rec(i, j, k, 0, ipos) += dt_reconstruction * m_gravity(i, j, k, idim) * rhou_old[0][ipos][idim];
                         E_rec(i, j, k, 1, ipos) += dt_reconstruction * m_gravity(i, j, k, idim) * rhou_old[1][ipos][idim];
                     }
@@ -212,9 +212,9 @@ public:
                             double flux_fx_L = fx_rec_old(i, j, k, 0, idim, ifx) * flux_minus_one.rho;
                             double flux_fx_R = fx_rec_old(i, j, k, 1, idim, ifx) * flux_plus_one.rho;
 
-                            fx_rec(i, j, k, 0, ipos, ifx) += dtodv * (flux_fx_L * ds(i, j, k, idim) 
+                            fx_rec(i, j, k, 0, ipos, ifx) += dtodv * (flux_fx_L * ds(i, j, k, idim)
                                                                 - flux_fx_R * ds(i_p, j_p, k_p, idim));
-                            fx_rec(i, j, k, 1, ipos, ifx) += dtodv * (flux_fx_L * ds(i, j, k, idim) 
+                            fx_rec(i, j, k, 1, ipos, ifx) += dtodv * (flux_fx_L * ds(i, j, k, idim)
                                                                 - flux_fx_R * ds(i_p, j_p, k_p, idim));
                         }
                     }

@@ -68,7 +68,7 @@ namespace novapp::units
     constexpr double hplanck3 = hplanck * hplanck * hplanck;
     constexpr double c2 = c * c;
     constexpr double c3 = c2 * c;
-    constexpr double ar = (8 * pi5 * kb4) / (15 * hplanck3 * c3) * Joule / (m3 * K4); // Radiative constant kg.m^{-1}.s^{-2}.K^{-4} 
+    constexpr double ar = (8 * pi5 * kb4) / (15 * hplanck3 * c3) * Joule / (m3 * K4); // Radiative constant kg.m^{-1}.s^{-2}.K^{-4}
 
     constexpr double ua = 1.49597870E11 * m;
 

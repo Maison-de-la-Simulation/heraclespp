@@ -51,9 +51,9 @@ class LimitedLinearReconstruction : public IFaceReconstruction
 {
     static_assert(
             std::is_invocable_r_v<
-            double, 
-            SlopeLimiter, 
-            double, 
+            double,
+            SlopeLimiter,
+            double,
             double>,
             "Invalid slope limiter.");
 
@@ -83,23 +83,23 @@ public:
         Kokkos::parallel_for(
             "face_reconstruction",
             Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-            KOKKOS_CLASS_LAMBDA(int i, int j, int k) 
+            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
             {
                 for (int idim = 0; idim < ndim; ++idim)
                 {
                     auto const [i_m, j_m, k_m] = lindex(idim, i, j, k); // i - 1
                     auto const [i_p, j_p, k_p] = rindex(idim, i, j, k); // i + 1
-                    double dx = kron(idim,0) * m_grid.dx(i) 
-                                + kron(idim,1) * m_grid.dy(j) 
+                    double dx = kron(idim,0) * m_grid.dx(i)
+                                + kron(idim,1) * m_grid.dy(j)
                                 + kron(idim,2) * m_grid.dz(k);
-                    
+
                     double const slope = m_slope_limiter(
                         (var(i_p, j_p, k_p) - var(i, j, k)) / dx,
                         (var(i, j, k) - var(i_m, j_m, k_m)) / dx);
 
                     var_rec(i, j, k, 0, idim) =  var(i, j, k) - (dx / 2) * slope;
                     var_rec(i, j, k, 1, idim) =  var(i, j, k) + (dx / 2) * slope;
-                } 
+                }
             });
     }
 };

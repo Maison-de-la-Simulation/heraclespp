@@ -16,7 +16,7 @@ class HLL
 {
 public:
     //! HLL solver
-    //! @param[in] 
+    //! @param[in]
     //! @return intercell EulerFlux
     KOKKOS_FORCEINLINE_FUNCTION
     EulerFlux operator()(

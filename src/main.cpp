@@ -200,7 +200,7 @@ int main(int argc, char** argv)
     }
 
     if(param.restart)
-    {   
+    {
         read_pdi(param.restart_file, rho, u, P, fx, x_glob, y_glob, z_glob, t, iter); // read data into host view
         sync_device(x_glob, y_glob, z_glob);
         grid.set_grid(x_glob.d_view, y_glob.d_view, z_glob.d_view);
@@ -212,7 +212,7 @@ int main(int argc, char** argv)
 
         sync_device(rho, u, P, fx);
 
-        if(grid.mpi_rank==0) 
+        if(grid.mpi_rank==0)
         {
             std::cout<<std::endl<< std::left << std::setw(80) << std::setfill('*') << "*"<<std::endl;
             std::cout<<"read from file "<<param.restart_file<<std::endl;
@@ -270,9 +270,9 @@ int main(int argc, char** argv)
     std::unique_ptr<IExtrapolationReconstruction> time_reconstruction
             = std::make_unique<ExtrapolationTimeReconstruction<Gravity>>(eos, grid, *g);
 
-    std::unique_ptr<IHydroReconstruction> reconstruction 
-        = std::make_unique<MUSCLHancockHydroReconstruction>(std::move(face_reconstruction), 
-                                                            std::move(time_reconstruction), 
+    std::unique_ptr<IHydroReconstruction> reconstruction
+        = std::make_unique<MUSCLHancockHydroReconstruction>(std::move(face_reconstruction),
+                                                            std::move(time_reconstruction),
                                                             eos, P_rec, u_rec);
 
     std::unique_ptr<IGodunovScheme> godunov_scheme
@@ -315,7 +315,7 @@ int main(int argc, char** argv)
             should_exit = true;
         }
 
-        reconstruction->execute(grid.range.with_ghosts(1), dt/2, rho_rec, rhou_rec, E_rec, fx_rec, 
+        reconstruction->execute(grid.range.with_ghosts(1), dt/2, rho_rec, rhou_rec, E_rec, fx_rec,
                                 rho.d_view, u.d_view, P.d_view, fx.d_view);
 
         godunov_scheme->execute(grid.range.no_ghosts(), dt, rho.d_view, rhou.d_view, E.d_view, fx.d_view,
