@@ -140,7 +140,7 @@ void DistributedBoundaryCondition::ghost_sync(
 }
 
 DistributedBoundaryCondition::DistributedBoundaryCondition(
-    Grid const& grid, 
+    Grid const& grid,
     Param const& param,
     std::array<std::unique_ptr<IBoundaryCondition>, ndim * 2> bcs)
     : m_bcs(std::move(bcs))
