@@ -13,9 +13,12 @@
 
 namespace novapp
 {
-    constexpr std::string_view eos_choice = "@Novapp_EOS@";
 
-    using EOS = std::conditional_t<eos_choice == "PerfectGas", thermodynamics::PerfectGas,
-                                             thermodynamics::RadGas>;
+inline constexpr std::string_view eos_choice = "@Novapp_EOS@";
+
+using EOS = std::conditional_t<
+        eos_choice == "PerfectGas",
+        thermodynamics::PerfectGas,
+        thermodynamics::RadGas>;
 
 } // namespace novapp

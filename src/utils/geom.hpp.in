@@ -10,6 +10,6 @@
 namespace novapp
 {
 
-constexpr std::string_view geom_choice = "@Novapp_GEOM@";
+inline constexpr std::string_view geom_choice = "@Novapp_GEOM@";
 
 } // namespace novapp
