@@ -42,8 +42,8 @@ void Cartesian::execute(
 {
     Kokkos::parallel_for(
         "fill_ds_cartesian",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0}, 
-                            {Nx_local_wg[0], 
+        Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0},
+                            {Nx_local_wg[0],
                                 Nx_local_wg[1],
                                 Nx_local_wg[2]}),
         KOKKOS_LAMBDA(int i, int j, int k)
@@ -61,8 +61,8 @@ void Cartesian::execute(
 
     Kokkos::parallel_for(
         "fill_dv_cartesian",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0}, 
-                                {Nx_local_wg[0], 
+        Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0},
+                                {Nx_local_wg[0],
                                     Nx_local_wg[1],
                                     Nx_local_wg[2]}),
         KOKKOS_LAMBDA(int i, int j, int k)
@@ -88,8 +88,8 @@ void Spherical::execute(KV_cdouble_1d const x,
         // phi = 2 * pi
         Kokkos::parallel_for(
             "fill_ds_1dspherical",
-            Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0}, 
-                                {Nx_local_wg[0], 
+            Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0},
+                                {Nx_local_wg[0],
                                     Nx_local_wg[1],
                                     Nx_local_wg[2]}),
             KOKKOS_LAMBDA(int i, int j, int k)
@@ -99,8 +99,8 @@ void Spherical::execute(KV_cdouble_1d const x,
 
         Kokkos::parallel_for(
             "fill_dv_1dspherical",
-            Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0}, 
-                                    {Nx_local_wg[0], 
+            Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0},
+                                    {Nx_local_wg[0],
                                         Nx_local_wg[1],
                                         Nx_local_wg[2]}),
             KOKKOS_LAMBDA(int i, int j, int k)
@@ -123,8 +123,8 @@ void Spherical::execute(KV_cdouble_1d const x,
     {
         Kokkos::parallel_for(
         "Fill_ds_3dspherical",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0}, 
-                            {Nx_local_wg[0], 
+        Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0},
+                            {Nx_local_wg[0],
                                 Nx_local_wg[1],
                                 Nx_local_wg[2]}),
         KOKKOS_LAMBDA(int i, int j, int k)
@@ -138,14 +138,14 @@ void Spherical::execute(KV_cdouble_1d const x,
 
         Kokkos::parallel_for(
         "Fill_dv_3dspherical",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0}, 
-                                {Nx_local_wg[0], 
+        Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0},
+                                {Nx_local_wg[0],
                                     Nx_local_wg[1],
                                     Nx_local_wg[2]}),
         KOKKOS_LAMBDA(int i, int j, int k)
         {
             double dcost = Kokkos::cos(y(j)) - Kokkos::cos(y(j+1));
-            dv(i, j, k) = (1 / 3) * (x(i+1) * x(i+1) * x(i+1)) 
+            dv(i, j, k) = (1 / 3) * (x(i+1) * x(i+1) * x(i+1))
                             - (x(i) * x(i) * x(i)) * dcost * dz(k);
         });
     }
