@@ -45,7 +45,7 @@ inline UniformGravity make_uniform_gravity(
     g_array_dv.modify_host();
     g_array_dv.sync_device();
     return UniformGravity(g_array_dv.d_view);
-};
+}
 
 class PointMassGravity
 {
@@ -86,6 +86,6 @@ inline PointMassGravity make_point_mass_gravity(
     g_array_dv.modify_host();
     g_array_dv.sync_device();
     return PointMassGravity(g_array_dv.d_view);
-};
+}
 
 } // namespace novapp
