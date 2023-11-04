@@ -183,14 +183,14 @@ public:
                         double rm = x(i);
                         double rp = x(i_p);
 
-                        EulerCons var_cons;
-                        var_cons.rho = rho(i, j, k);
+                        EulerCons cons;
+                        cons.rho = rho(i, j, k);
                         for (int idim2 = 0; idim2 < ndim; ++idim2)
                         {
-                            var_cons.rhou[idim2] = rhou(i, j, k, idim2);
+                            cons.rhou[idim2] = rhou(i, j, k, idim2);
                         }
-                        var_cons.E = E(i, j, k);
-                        EulerPrim prim = to_prim(var_cons, m_eos);
+                        cons.E = E(i, j, k);
+                        EulerPrim prim = to_prim(cons, m_eos);
 
                         if (ndim == 1)
                         {

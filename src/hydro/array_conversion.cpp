@@ -23,15 +23,15 @@ void conv_prim_to_cons(
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_LAMBDA(int i, int j, int k)
         {
-            EulerPrim var_prim;
-            var_prim.rho = rho(i, j, k);
-            var_prim.P = P(i, j, k);
+            EulerPrim prim;
+            prim.rho = rho(i, j, k);
+            prim.P = P(i, j, k);
             for (int idim = 0; idim < ndim; ++idim)
             {
-                var_prim.u[idim] = u(i, j, k, idim);
+                prim.u[idim] = u(i, j, k, idim);
             }
 
-            EulerCons cons = to_cons(var_prim, eos);
+            EulerCons cons = to_cons(prim, eos);
             E(i, j, k) = cons.E;
             for (int idim = 0; idim < ndim; ++idim)
             {
@@ -55,15 +55,15 @@ void conv_cons_to_prim(
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
         KOKKOS_LAMBDA(int i, int j, int k)
         {
-            EulerCons var_cons;
-            var_cons.rho = rho(i, j, k);
-            var_cons.E = E(i, j, k);
+            EulerCons cons;
+            cons.rho = rho(i, j, k);
+            cons.E = E(i, j, k);
             for (int idim = 0; idim < ndim; ++idim)
             {
-                var_cons.rhou[idim] = rhou(i, j, k, idim);
+                cons.rhou[idim] = rhou(i, j, k, idim);
             }
 
-            EulerPrim prim = to_prim(var_cons, eos);
+            EulerPrim prim = to_prim(cons, eos);
             P(i, j, k) = prim.P;
             for (int idim = 0; idim < ndim; ++idim)
             {
