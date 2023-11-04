@@ -25,6 +25,8 @@ public:
             int locdim,
             EOS const& eos) const noexcept
     {
+        assert(locdim >= 0);
+        assert(locdim < ndim);
         EulerPrim const primL = to_prim(consL, eos);
         EulerPrim const primR = to_prim(consR, eos);
 
