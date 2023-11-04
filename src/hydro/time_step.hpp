@@ -24,7 +24,7 @@ class Grid;
 
 //! Time step with the cfl condition
 //! @param[in] rho density array 3D
-//! @param[in] u celerity array 3D
+//! @param[in] u velocity array 3D
 //! @param[in] P pressure array 3D
 //! @return time step
 [[nodiscard]] double time_step(

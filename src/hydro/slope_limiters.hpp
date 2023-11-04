@@ -72,7 +72,7 @@ public:
 class VanAlbada
 {
 public:
-    //! The Minmod formula.
+    //! The Van Albada formula.
     //! @param[in] diffR float (U_{i+1}^{n} - U_{i}^{n}) / dx
     //! @param[in] diffL float (U_{i}^{n} - U_{i-1}^{n}) / dx
     //! @return slope
