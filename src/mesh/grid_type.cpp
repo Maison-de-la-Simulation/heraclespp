@@ -12,6 +12,25 @@
 
 namespace novapp {
 
+namespace
+{
+
+void compute_regular_mesh_1d(
+        KVH_double_1d const& x,
+        int const ng,
+        double const xmin,
+        double const dx) noexcept
+{
+    int const istart = 0;
+    int const iend = x.extent_int(0);
+    for (int i = istart; i < iend; ++i)
+    {
+        x(i) = xmin + (i - ng) * dx;
+    }
+}
+
+}
+
 IGridType::IGridType() = default;
 
 IGridType::IGridType([[maybe_unused]] IGridType const& rhs) = default;
@@ -34,6 +53,7 @@ void IGridType::execute(
     throw std::runtime_error("Boundary not implemented");
 }
 
+
 Regular::Regular(Param const& param)
    : m_param(param)
 {
@@ -46,44 +66,9 @@ void Regular::execute(
     std::array<int, 3> Nghost,
     std::array<int, 3> Nx_glob_ng) const
 {
-    double Lx = m_param.xmax - m_param.xmin;
-    double Ly = m_param.ymax - m_param.ymin;
-    double Lz = m_param.zmax - m_param.zmin;
-
-    double dx = Lx / Nx_glob_ng[0];
-    double dy = Ly / Nx_glob_ng[1];
-    double dz = Lz / Nx_glob_ng[2];
-
-    x_glob(Nghost[0]) = m_param.xmin;
-    y_glob(Nghost[1]) = m_param.ymin;
-    z_glob(Nghost[2]) = m_param.zmin;
-
-    for (int i = Nghost[0]+1; i < x_glob.extent_int(0) ; i++)
-    {
-        x_glob(i) = x_glob(i-1) + dx;
-    }
-    for (int i = Nghost[1]+1; i < y_glob.extent_int(0) ; i++)
-    {
-        y_glob(i) = y_glob(i-1) + dy;
-    }
-    for (int i = Nghost[2]+1; i < z_glob.extent_int(0) ; i++)
-    {
-        z_glob(i) = z_glob(i-1) + dz;
-    }
-
-    // Left ghost cells
-    for(int i = Nghost[0]-1; i >= 0; i--)
-    {
-        x_glob(i) = x_glob(i+1) - dx;
-    }
-    for(int i = Nghost[1]-1; i >= 0; i--)
-    {
-        y_glob(i) = y_glob(i+1) - dy;
-    }
-    for(int i = Nghost[2]-1; i >= 0; i--)
-    {
-        z_glob(i) = z_glob(i+1) - dz;
-    }
+    compute_regular_mesh_1d(x_glob, Nghost[0], m_param.xmin, (m_param.xmax - m_param.xmin) / Nx_glob_ng[0]);
+    compute_regular_mesh_1d(y_glob, Nghost[1], m_param.ymin, (m_param.ymax - m_param.ymin) / Nx_glob_ng[1]);
+    compute_regular_mesh_1d(z_glob, Nghost[2], m_param.zmin, (m_param.zmax - m_param.zmin) / Nx_glob_ng[2]);
 }
 
 } // namespace novapp
