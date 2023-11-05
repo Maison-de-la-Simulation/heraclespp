@@ -14,12 +14,12 @@ namespace novapp
 
 double time_step(
     Range const& range,
+    EOS const& eos,
+    Grid const& grid,
     double const cfl,
     KV_cdouble_3d rho,
     KV_cdouble_4d u,
-    KV_cdouble_3d P,
-    EOS const& eos,
-    Grid const& grid)
+    KV_cdouble_3d P)
 {
     double inverse_dt = 0;
 

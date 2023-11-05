@@ -97,14 +97,15 @@ bool should_output_fn::operator()(int iter, double current, double dt) const
 }
 
 void read_pdi(std::string restart_file,
+              int& iter,
+              double& t,
               KDV_double_3d rho,
               KDV_double_4d u,
               KDV_double_3d P,
               KDV_double_4d fx,
               KDV_double_1d x_glob,
               KDV_double_1d y_glob,
-              KDV_double_1d z_glob,
-              double &t, int &iter)
+              KDV_double_1d z_glob)
 {
     int filename_size = restart_file.size();
     PDI_multi_expose("read_file",

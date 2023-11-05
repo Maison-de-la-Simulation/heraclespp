@@ -28,11 +28,11 @@ public:
     IGridType& operator=(IGridType&& rhs) noexcept;
 
     virtual void execute(
+        std::array<int, 3> Nghost,
+        std::array<int, 3> Nx_glob_ng,
         KVH_double_1d x_glob,
         KVH_double_1d y_glob,
-        KVH_double_1d z_glob,
-        std::array<int, 3> Nghost,
-        std::array<int, 3> Nx_glob_ng) const;
+        KVH_double_1d z_glob) const;
 };
 
 class Regular : public IGridType
@@ -44,11 +44,11 @@ public:
     explicit Regular(Param const& param);
 
     void execute(
+        std::array<int, 3> Nghost,
+        std::array<int, 3> Nx_glob_ng,
         KVH_double_1d x_glob,
         KVH_double_1d y_glob,
-        KVH_double_1d z_glob,
-        std::array<int, 3> Nghost,
-        std::array<int, 3> Nx_glob_ng) const final;
+        KVH_double_1d z_glob) const final;
 };
 
 } // namespace novapp

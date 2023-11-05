@@ -35,12 +35,12 @@ TEST(Conversions, PrimToCons)
     novapp::KDV_double_3d E_view("E", n, n, n);
     conv_prim_to_cons(
             range.all_ghosts(),
-            rhou_view.view_device(),
-            E_view.view_device(),
+            eos,
             rho_view,
             u_view,
             P_view,
-            eos);
+            rhou_view.view_device(),
+            E_view.view_device());
     rhou_view.modify_device();
     E_view.modify_device();
     rhou_view.sync_host();
@@ -92,12 +92,12 @@ TEST(Conversions, ConsToPrim)
     novapp::KDV_double_3d P_view("P", n, n, n);
     conv_cons_to_prim(
             range.all_ghosts(),
-            u_view.view_device(),
-            P_view.view_device(),
+            eos,
             rho_view,
             rhou_view,
             E_view,
-            eos);
+            u_view.view_device(),
+            P_view.view_device());
     u_view.modify_device();
     P_view.modify_device();
     u_view.sync_host();

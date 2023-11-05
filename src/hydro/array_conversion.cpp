@@ -10,12 +10,12 @@ namespace novapp
 
 void conv_prim_to_cons(
     Range const& range,
-    Kokkos::View<double****, Kokkos::LayoutStride> const rhou,
-    Kokkos::View<double***, Kokkos::LayoutStride> const E,
+    EOS const& eos,
     Kokkos::View<const double***, Kokkos::LayoutStride> const rho,
     Kokkos::View<const double****, Kokkos::LayoutStride> const u,
     Kokkos::View<const double***, Kokkos::LayoutStride> const P,
-    EOS const& eos)
+    Kokkos::View<double****, Kokkos::LayoutStride> const rhou,
+    Kokkos::View<double***, Kokkos::LayoutStride> const E)
 {
     auto const [begin, end] = cell_range(range);
     Kokkos::parallel_for(
@@ -42,12 +42,12 @@ void conv_prim_to_cons(
 
 void conv_cons_to_prim(
     Range const& range,
-    KV_double_4d const u,
-    KV_double_3d const P,
+    EOS const& eos,
     KV_cdouble_3d const rho,
     KV_cdouble_4d const rhou,
     KV_cdouble_3d const E,
-    EOS const& eos)
+    KV_double_4d const u,
+    KV_double_3d const P)
 {
     auto const [begin, end] = cell_range(range);
     Kokkos::parallel_for(

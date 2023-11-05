@@ -29,6 +29,8 @@ IComputeGeom& IComputeGeom::operator=([[maybe_unused]] IComputeGeom const& rhs) 
 IComputeGeom& IComputeGeom::operator=([[maybe_unused]] IComputeGeom&& rhs) noexcept = default;
 
 void Cartesian::execute(
+    std::array<int, 3> Nx_local_wg,
+    [[maybe_unused]] std::array<int, 3> Nghost,
     [[maybe_unused]] KV_cdouble_1d const x,
     [[maybe_unused]] KV_cdouble_1d const y,
     [[maybe_unused]] KV_cdouble_1d const z,
@@ -36,9 +38,7 @@ void Cartesian::execute(
     KV_cdouble_1d const dy,
     KV_cdouble_1d const dz,
     KV_double_4d ds,
-    KV_double_3d dv,
-    std::array<int, 3> Nx_local_wg,
-    [[maybe_unused]] std::array<int, 3> Nghost) const
+    KV_double_3d dv) const
 {
     Kokkos::parallel_for(
         "fill_ds_cartesian",
@@ -71,16 +71,17 @@ void Cartesian::execute(
         });
 }
 
-void Spherical::execute(KV_cdouble_1d const x,
+void Spherical::execute(
+    std::array<int, 3> Nx_local_wg,
+    std::array<int, 3> Nghost,
+    KV_cdouble_1d const x,
     [[maybe_unused]] KV_cdouble_1d const y,
     [[maybe_unused]] KV_cdouble_1d const z,
     [[maybe_unused]] KV_cdouble_1d const dx,
     [[maybe_unused]] KV_cdouble_1d const dy,
     [[maybe_unused]] KV_cdouble_1d const dz,
     KV_double_4d ds,
-    KV_double_3d dv,
-    std::array<int, 3> Nx_local_wg,
-    std::array<int, 3> Nghost) const
+    KV_double_3d dv) const
 {
     if (ndim == 1)
     {

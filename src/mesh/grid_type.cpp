@@ -44,11 +44,11 @@ IGridType& IGridType::operator=([[maybe_unused]] IGridType const& rhs) = default
 IGridType& IGridType::operator=([[maybe_unused]] IGridType&& rhs) noexcept = default;
 
 void IGridType::execute(
+        [[maybe_unused]] std::array<int, 3> Nghost,
+        [[maybe_unused]] std::array<int, 3> Nx_glob_ng,
         [[maybe_unused]] KVH_double_1d x_glob,
         [[maybe_unused]] KVH_double_1d y_glob,
-        [[maybe_unused]] KVH_double_1d z_glob,
-        [[maybe_unused]] std::array<int, 3> Nghost,
-        [[maybe_unused]] std::array<int, 3> Nx_glob_ng) const
+        [[maybe_unused]] KVH_double_1d z_glob) const
 {
     throw std::runtime_error("Boundary not implemented");
 }
@@ -60,11 +60,11 @@ Regular::Regular(Param const& param)
 }
 
 void Regular::execute(
+    std::array<int, 3> Nghost,
+    std::array<int, 3> Nx_glob_ng,
     KVH_double_1d x_glob,
     KVH_double_1d y_glob,
-    KVH_double_1d z_glob,
-    std::array<int, 3> Nghost,
-    std::array<int, 3> Nx_glob_ng) const
+    KVH_double_1d z_glob) const
 {
     compute_regular_mesh_1d(x_glob, Nghost[0], m_param.xmin, (m_param.xmax - m_param.xmin) / Nx_glob_ng[0]);
     compute_regular_mesh_1d(y_glob, Nghost[1], m_param.ymin, (m_param.ymax - m_param.ymin) / Nx_glob_ng[1]);
