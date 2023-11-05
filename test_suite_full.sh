@@ -12,61 +12,49 @@ fi
 trap 'rm -rf -- "$DIRECTORY"' EXIT
 set -xe
 
-SETUP_NAME="advection_gap"
-cmake -DBUILD_TESTING=OFF -DNovapp_SETUP="$SETUP_NAME" -DNovapp_NDIM=1 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian -S . -B "$DIRECTORY/build_$SETUP_NAME"
-cmake --build "$DIRECTORY/build_$SETUP_NAME"
+BUILD_DIRECTORY="$DIRECTORY/build"
 
-SETUP_NAME="advection_gaussian"
-cmake -DBUILD_TESTING=OFF -DNovapp_SETUP="$SETUP_NAME" -DNovapp_NDIM=1 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian -S . -B "$DIRECTORY/build_$SETUP_NAME"
-cmake --build "$DIRECTORY/build_$SETUP_NAME"
+cmake -DBUILD_TESTING=OFF -DNovapp_SETUP=advection_gap -DNovapp_NDIM=1 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian -S . -B "$BUILD_DIRECTORY"
+cmake --build "$BUILD_DIRECTORY"
 
-SETUP_NAME="eq_hydro_sphe"
-cmake -DBUILD_TESTING=OFF -DNovapp_SETUP="$SETUP_NAME" -DNovapp_NDIM=1 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Point_mass -DNovapp_GEOM=Spherical -S . -B "$DIRECTORY/build_$SETUP_NAME"
-cmake --build "$DIRECTORY/build_$SETUP_NAME"
+cmake -DBUILD_TESTING=OFF -DNovapp_SETUP=advection_gaussian -DNovapp_NDIM=1 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian -S . -B "$BUILD_DIRECTORY"
+cmake --build "$BUILD_DIRECTORY"
 
-SETUP_NAME="gresho_vortex"
-cmake -DBUILD_TESTING=OFF -DNovapp_SETUP="$SETUP_NAME" -DNovapp_NDIM=2 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian -S . -B "$DIRECTORY/build_$SETUP_NAME"
-cmake --build "$DIRECTORY/build_$SETUP_NAME"
+cmake -DBUILD_TESTING=OFF -DNovapp_SETUP=sedov1d -DNovapp_NDIM=1 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian -S . -B "$BUILD_DIRECTORY"
+cmake --build "$BUILD_DIRECTORY"
 
-SETUP_NAME="heat_nickel"
-cmake -DBUILD_TESTING=OFF -DNovapp_SETUP="$SETUP_NAME" -DNovapp_NDIM=2 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian -S . -B "$DIRECTORY/build_$SETUP_NAME"
-cmake --build "$DIRECTORY/build_$SETUP_NAME"
+cmake -DBUILD_TESTING=OFF -DNovapp_SETUP=shock_tube -DNovapp_NDIM=1 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian -S . -B "$BUILD_DIRECTORY"
+cmake --build "$BUILD_DIRECTORY"
 
-SETUP_NAME="implosion_test"
-cmake -DBUILD_TESTING=OFF -DNovapp_SETUP="$SETUP_NAME" -DNovapp_NDIM=2 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian -S . -B "$DIRECTORY/build_$SETUP_NAME"
-cmake --build "$DIRECTORY/build_$SETUP_NAME"
+cmake -DBUILD_TESTING=OFF -DNovapp_SETUP=shock_wall -DNovapp_NDIM=1 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian -S . -B "$BUILD_DIRECTORY"
+cmake --build "$BUILD_DIRECTORY"
 
-SETUP_NAME="kelvin_helmholtz"
-cmake -DBUILD_TESTING=OFF -DNovapp_SETUP="$SETUP_NAME" -DNovapp_NDIM=2 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian -S . -B "$DIRECTORY/build_$SETUP_NAME"
-cmake --build "$DIRECTORY/build_$SETUP_NAME"
+cmake -DBUILD_TESTING=OFF -DNovapp_SETUP=stratified_atm -DNovapp_NDIM=1 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian -S . -B "$BUILD_DIRECTORY"
+cmake --build "$BUILD_DIRECTORY"
 
-SETUP_NAME="rayleigh_taylor"
-cmake -DBUILD_TESTING=OFF -DNovapp_SETUP="$SETUP_NAME" -DNovapp_NDIM=2 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian -S . -B "$DIRECTORY/build_$SETUP_NAME"
-cmake --build "$DIRECTORY/build_$SETUP_NAME"
+cmake -DBUILD_TESTING=OFF -DNovapp_SETUP=eq_hydro_sphe -DNovapp_NDIM=1 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Point_mass -DNovapp_GEOM=Spherical -S . -B "$BUILD_DIRECTORY"
+cmake --build "$BUILD_DIRECTORY"
 
-SETUP_NAME="rayleigh_taylor3d"
-cmake -DBUILD_TESTING=OFF -DNovapp_SETUP="$SETUP_NAME" -DNovapp_NDIM=3 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian -S . -B "$DIRECTORY/build_$SETUP_NAME"
-cmake --build "$DIRECTORY/build_$SETUP_NAME"
+cmake -DBUILD_TESTING=OFF -DNovapp_SETUP=gresho_vortex -DNovapp_NDIM=2 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian -S . -B "$BUILD_DIRECTORY"
+cmake --build "$BUILD_DIRECTORY"
 
-SETUP_NAME="sedov1d"
-cmake -DBUILD_TESTING=OFF -DNovapp_SETUP="$SETUP_NAME" -DNovapp_NDIM=1 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian -S . -B "$DIRECTORY/build_$SETUP_NAME"
-cmake --build "$DIRECTORY/build_$SETUP_NAME"
+cmake -DBUILD_TESTING=OFF -DNovapp_SETUP=heat_nickel -DNovapp_NDIM=2 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian -S . -B "$BUILD_DIRECTORY"
+cmake --build "$BUILD_DIRECTORY"
 
-SETUP_NAME="sedov2d"
-cmake -DBUILD_TESTING=OFF -DNovapp_SETUP="$SETUP_NAME" -DNovapp_NDIM=2 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian -S . -B "$DIRECTORY/build_$SETUP_NAME"
-cmake --build "$DIRECTORY/build_$SETUP_NAME"
+cmake -DBUILD_TESTING=OFF -DNovapp_SETUP=implosion_test -DNovapp_NDIM=2 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian -S . -B "$BUILD_DIRECTORY"
+cmake --build "$BUILD_DIRECTORY"
 
-SETUP_NAME="shock_tube"
-cmake -DBUILD_TESTING=OFF -DNovapp_SETUP="$SETUP_NAME" -DNovapp_NDIM=1 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian -S . -B "$DIRECTORY/build_$SETUP_NAME"
-cmake --build "$DIRECTORY/build_$SETUP_NAME"
+cmake -DBUILD_TESTING=OFF -DNovapp_SETUP=kelvin_helmholtz -DNovapp_NDIM=2 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian -S . -B "$BUILD_DIRECTORY"
+cmake --build "$BUILD_DIRECTORY"
 
-SETUP_NAME="shock_wall"
-cmake -DBUILD_TESTING=OFF -DNovapp_SETUP="$SETUP_NAME" -DNovapp_NDIM=1 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian -S . -B "$DIRECTORY/build_$SETUP_NAME"
-cmake --build "$DIRECTORY/build_$SETUP_NAME"
+cmake -DBUILD_TESTING=OFF -DNovapp_SETUP=rayleigh_taylor -DNovapp_NDIM=2 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian -S . -B "$BUILD_DIRECTORY"
+cmake --build "$BUILD_DIRECTORY"
 
-SETUP_NAME="stratified_atm"
-cmake -DBUILD_TESTING=OFF -DNovapp_SETUP="$SETUP_NAME" -DNovapp_NDIM=1 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian -S . -B "$DIRECTORY/build_$SETUP_NAME"
-cmake --build "$DIRECTORY/build_$SETUP_NAME"
+cmake -DBUILD_TESTING=OFF -DNovapp_SETUP=sedov2d -DNovapp_NDIM=2 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian -S . -B "$BUILD_DIRECTORY"
+cmake --build "$BUILD_DIRECTORY"
+
+cmake -DBUILD_TESTING=OFF -DNovapp_SETUP=rayleigh_taylor3d -DNovapp_NDIM=3 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian -S . -B "$BUILD_DIRECTORY"
+cmake --build "$BUILD_DIRECTORY"
 
 rm -rf -- "$DIRECTORY"
 
