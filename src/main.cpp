@@ -315,8 +315,8 @@ int main(int argc, char** argv)
             should_exit = true;
         }
 
-        reconstruction->execute(grid.range.with_ghosts(1), dt/2, rho_rec, rhou_rec, E_rec, fx_rec,
-                                rho.d_view, u.d_view, P.d_view, fx.d_view);
+        reconstruction->execute(grid.range.with_ghosts(1), dt/2, rho.d_view, u.d_view, P.d_view, fx.d_view,
+                                rho_rec, rhou_rec, E_rec, fx_rec);
 
         godunov_scheme->execute(grid.range.no_ghosts(), dt, rho.d_view, rhou.d_view, E.d_view, fx.d_view,
                                 rho_rec, rhou_rec, E_rec, fx_rec,

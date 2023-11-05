@@ -38,14 +38,14 @@ public:
     virtual void execute(
             Range const& range,
             double dt,
-            KV_double_5d rho_rec,
-            KV_double_6d rhou_rec,
-            KV_double_5d E_rec,
-            KV_double_6d fx_rec,
             KV_cdouble_3d rho,
             KV_cdouble_4d u,
             KV_cdouble_3d P,
-            KV_cdouble_4d fx) const
+            KV_cdouble_4d fx,
+            KV_double_5d rho_rec,
+            KV_double_6d rhou_rec,
+            KV_double_5d E_rec,
+            KV_double_6d fx_rec) const
             = 0;
 };
 
@@ -75,14 +75,14 @@ public:
     void execute(
             Range const& range,
             double const dt,
-            KV_double_5d const rho_rec,
-            KV_double_6d const rhou_rec,
-            KV_double_5d const E_rec,
-            KV_double_6d const fx_rec,
             KV_cdouble_3d const rho,
             KV_cdouble_4d const u,
             KV_cdouble_3d const P,
-            KV_cdouble_4d const fx) const final
+            KV_cdouble_4d const fx,
+            KV_double_5d const rho_rec,
+            KV_double_6d const rhou_rec,
+            KV_double_5d const E_rec,
+            KV_double_6d const fx_rec) const final
     {
         m_face_reconstruction->execute(range, rho, rho_rec);
         m_face_reconstruction->execute(range, P, m_P_rec);
