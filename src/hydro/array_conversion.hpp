@@ -23,7 +23,7 @@ class Range;
 
 //! Conversion from primitive to conservative variables
 //! @param[in] eos equation of state
-//! @param[inout] rho density array 3D
+//! @param[in] rho density array 3D
 //! @param[in] u velocity array 3D
 //! @param[in] P pressure array 3D
 //! @param[inout] rhou momentum array 3D
