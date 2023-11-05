@@ -201,7 +201,7 @@ int main(int argc, char** argv)
 
     if(param.restart)
     {
-        read_pdi(param.restart_file, rho, u, P, fx, x_glob, y_glob, z_glob, t, iter); // read data into host view
+        read_pdi(param.restart_file, iter, t, rho, u, P, fx, x_glob, y_glob, z_glob); // read data into host view
         sync_device(x_glob, y_glob, z_glob);
         grid.set_grid(x_glob.d_view, y_glob.d_view, z_glob.d_view);
 #if defined(NOVAPP_GRAVITY_Uniform)
@@ -231,7 +231,7 @@ int main(int argc, char** argv)
         {
             grid_type = factory_grid_type(param.grid_type, param);
         }
-        grid_type->execute(x_glob.h_view, y_glob.h_view, z_glob.h_view, grid.Nghost, grid.Nx_glob_ng);
+        grid_type->execute(grid.Nghost, grid.Nx_glob_ng, x_glob.h_view, y_glob.h_view, z_glob.h_view);
         modify_host(x_glob, y_glob, z_glob);
         sync_device(x_glob, y_glob, z_glob);
         grid.set_grid(x_glob.d_view, y_glob.d_view, z_glob.d_view);
@@ -278,11 +278,11 @@ int main(int argc, char** argv)
     std::unique_ptr<IGodunovScheme> godunov_scheme
             = factory_godunov_scheme(param.riemann_solver, eos, grid, *g);
 
-    conv_prim_to_cons(grid.range.no_ghosts(), rhou.d_view, E.d_view, rho.d_view, u.d_view, P.d_view, eos);
+    conv_prim_to_cons(grid.range.no_ghosts(), eos, rho.d_view, u.d_view, P.d_view, rhou.d_view, E.d_view);
 
     bcs(rho.d_view, rhou.d_view, E.d_view, fx.d_view);
 
-    conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho.d_view, rhou.d_view, E.d_view, eos);
+    conv_cons_to_prim(grid.range.all_ghosts(), eos, rho.d_view, rhou.d_view, E.d_view, u.d_view, P.d_view);
 
     modify_device(rho, u, P, fx, rhou, E);
 
@@ -303,7 +303,7 @@ int main(int argc, char** argv)
 
     while (!should_exit)
     {
-        double dt = time_step(grid.range.all_ghosts(), param.cfl, rho.d_view, u.d_view, P.d_view, eos, grid);
+        double dt = time_step(grid.range.all_ghosts(), eos, grid, param.cfl, rho.d_view, u.d_view, P.d_view);
         bool const make_output = should_output(iter, t, dt);
         if ((t + dt) > param.timeout)
         {
@@ -326,7 +326,7 @@ int main(int argc, char** argv)
 
         bcs(rho_new, rhou_new, E_new, fx_new);
 
-        conv_cons_to_prim(grid.range.all_ghosts(), u.d_view, P.d_view, rho_new, rhou_new, E_new, eos);
+        conv_cons_to_prim(grid.range.all_ghosts(), eos, rho_new, rhou_new, E_new, u.d_view, P.d_view);
 
         Kokkos::deep_copy(rho.d_view, rho_new);
         Kokkos::deep_copy(rhou.d_view, rhou_new);

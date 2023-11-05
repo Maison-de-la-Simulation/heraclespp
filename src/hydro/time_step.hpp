@@ -29,11 +29,11 @@ class Grid;
 //! @return time step
 [[nodiscard]] double time_step(
     Range const& range,
+    EOS const& eos,
+    Grid const& grid,
     double cfl,
     KV_cdouble_3d rho,
     KV_cdouble_4d u,
-    KV_cdouble_3d P,
-    EOS const& eos,
-    Grid const& grid);
+    KV_cdouble_3d P);
 
 } // namespace novapp

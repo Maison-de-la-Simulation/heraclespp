@@ -108,16 +108,16 @@ public:
             {
                 conv_prim_to_cons(
                         range,
-                        Kokkos::subview(rhou_rec, ALL, ALL, ALL, iside, idim, ALL),
-                        Kokkos::subview(E_rec, ALL, ALL, ALL, iside, idim),
+                        m_eos,
                         Kokkos::subview(rho_rec, ALL, ALL, ALL, iside, idim),
                         Kokkos::subview(m_u_rec, ALL, ALL, ALL, iside, idim, ALL),
                         Kokkos::subview(m_P_rec, ALL, ALL, ALL, iside, idim),
-                        m_eos);
+                        Kokkos::subview(rhou_rec, ALL, ALL, ALL, iside, idim, ALL),
+                        Kokkos::subview(E_rec, ALL, ALL, ALL, iside, idim));
             }
         }
 
-        m_hancock_reconstruction->execute(range, dt, rho_rec, rhou_rec, E_rec, m_u_rec, m_P_rec, fx_rec);
+        m_hancock_reconstruction->execute(range, dt, m_u_rec, m_P_rec, rho_rec, rhou_rec, E_rec, fx_rec);
     }
 };
 

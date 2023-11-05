@@ -108,11 +108,11 @@ public:
     }
 
     void execute(
+        std::array<int, 3> Nghost,
+        std::array<int, 3> Nx_glob_ng,
         KVH_double_1d x_glob,
         [[maybe_unused]] KVH_double_1d y_glob,
-        [[maybe_unused]] KVH_double_1d z_glob,
-        std::array<int, 3> Nghost,
-        std::array<int, 3> Nx_glob_ng) const final
+        [[maybe_unused]] KVH_double_1d z_glob) const final
     {
         double dx = m_param.xmax / (2 * Nx_glob_ng[0]);
         x_glob(Nghost[0]) = 0;

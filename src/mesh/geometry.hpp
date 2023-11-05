@@ -27,6 +27,8 @@ public:
     IComputeGeom& operator=(IComputeGeom&& rhs) noexcept;
 
     virtual void execute(
+        std::array<int, 3> Nx_local_wg,
+        std::array<int, 3> Nghost,
         KV_cdouble_1d x,
         KV_cdouble_1d y,
         KV_cdouble_1d z,
@@ -34,9 +36,7 @@ public:
         KV_cdouble_1d dy,
         KV_cdouble_1d dz,
         KV_double_4d ds,
-        KV_double_3d dv,
-        std::array<int, 3> Nx_local_wg,
-        std::array<int, 3> Nghost) const
+        KV_double_3d dv) const
         = 0;
 };
 
@@ -44,6 +44,8 @@ class Cartesian : public IComputeGeom
 {
 public:
     void execute(
+        std::array<int, 3> Nx_local_wg,
+        std::array<int, 3> Nghost,
         KV_cdouble_1d x,
         KV_cdouble_1d y,
         KV_cdouble_1d z,
@@ -51,15 +53,15 @@ public:
         KV_cdouble_1d dy,
         KV_cdouble_1d dz,
         KV_double_4d ds,
-        KV_double_3d dv,
-        std::array<int, 3> Nx_local_wg,
-        std::array<int, 3> Nghost) const final;
+        KV_double_3d dv) const final;
 };
 
 class Spherical : public IComputeGeom
 {
 public:
     void execute(
+        std::array<int, 3> Nx_local_wg,
+        std::array<int, 3> Nghost,
         KV_cdouble_1d x,
         KV_cdouble_1d y,
         KV_cdouble_1d z,
@@ -67,9 +69,7 @@ public:
         KV_cdouble_1d dy,
         KV_cdouble_1d dz,
         KV_double_4d ds,
-        KV_double_3d dv,
-        std::array<int, 3> Nx_local_wg,
-        std::array<int, 3> Nghost) const final;
+        KV_double_3d dv) const final;
 };
 
 } // namespace novapp
