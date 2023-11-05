@@ -69,10 +69,9 @@ public:
         assert(rho.extent(2) == u.extent(2));
         assert(u.extent(2) == P.extent(2));
 
-        auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
             "shock_wall_init",
-            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+            cell_mdrange(range),
             KOKKOS_CLASS_LAMBDA(int i, int j, int k)
             {
                 rho(i, j, k) = m_param_setup.rho0 * units::density;

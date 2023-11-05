@@ -122,10 +122,9 @@ public:
         auto const y_d = m_grid.y;
         auto const z_d = m_grid.z;
 
-        auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
             "Rayleigh_Taylor_3D_init",
-            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+            cell_mdrange(range),
             KOKKOS_CLASS_LAMBDA(int i, int j, int k)
             {
                 double P0 = (2 * units::pi * (m_param_setup.rho0 + m_param_setup.rho1)

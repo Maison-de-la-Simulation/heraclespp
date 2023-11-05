@@ -70,10 +70,9 @@ void HeatNickelStep::execute(
                     + Q_co56_tot *  Kokkos::exp(- t / tau_co56); // Total energy rate created
     epsilon *= fac_decay;
 
-    auto const [begin, end] = cell_range(range);
     Kokkos::parallel_for(
         "Heating_Ni56",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+        cell_mdrange(range),
         KOKKOS_LAMBDA(int i, int j, int k)
         {
             double edep = fx(i, j, k, 0) * rho(i, j, k) * epsilon;

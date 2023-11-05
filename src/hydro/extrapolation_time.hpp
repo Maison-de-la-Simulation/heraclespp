@@ -107,10 +107,9 @@ public:
                                 m_grid.Nx_local_wg[2], 2, ndim, nfx);
         Kokkos::deep_copy(fx_rec_old, fx_rec);
 
-        auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
             "Hancock_extrapolation",
-            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+            cell_mdrange(range),
             KOKKOS_CLASS_LAMBDA(int i, int j, int k)
             {
                 Kokkos::Array<Kokkos::Array<double, ndim>, 2> rho_old; //rho_old[0/1][idim]
@@ -223,7 +222,7 @@ public:
 
         Kokkos::parallel_for(
             "passive_scalar_extrapolation",
-            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+            cell_mdrange(range),
             KOKKOS_CLASS_LAMBDA(int i, int j, int k)
             {
                 for (int idim = 0; idim < ndim; ++idim)

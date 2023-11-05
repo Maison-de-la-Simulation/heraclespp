@@ -73,10 +73,9 @@ public:
 
         auto const xc = m_grid.x_center;
 
-        auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
             "advection_gap_init",
-            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+            cell_mdrange(range),
             KOKKOS_CLASS_LAMBDA(int i, int j, int k)
             {
                 if (xc(i) * units::m <= 0.3)

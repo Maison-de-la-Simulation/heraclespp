@@ -109,10 +109,9 @@ public:
         auto const ds = m_grid.ds;
         auto const dv = m_grid.dv;
 
-        auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
             "Riemann_based_Godunov_scheme",
-            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+            cell_mdrange(range),
             KOKKOS_CLASS_LAMBDA(int i, int j, int k)
             {
                 rho_new(i, j, k) = rho(i, j, k);
@@ -240,7 +239,7 @@ public:
 
         Kokkos::parallel_for(
             "passive_scalar_Godunov",
-            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+            cell_mdrange(range),
             KOKKOS_CLASS_LAMBDA(int i, int j, int k)
             {
                 for (int ifx = 0; ifx < nfx; ++ifx)

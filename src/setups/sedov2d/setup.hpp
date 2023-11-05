@@ -74,10 +74,9 @@ public:
         auto const x_d = m_grid.x;
         auto const y_d = m_grid.y;
 
-        auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
             "Sedov_2D_init",
-            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+            cell_mdrange(range),
             KOKKOS_CLASS_LAMBDA(int i, int j, int k)
             {
                 double x = x_d(i) * units::m;

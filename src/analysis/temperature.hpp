@@ -18,10 +18,9 @@ inline void temperature(
     KV_cdouble_3d const P,
     KV_double_3d const T)
 {
-    auto const [begin, end] = cell_range(range);
     Kokkos::parallel_for(
         "fill_temperature_array",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+        cell_mdrange(range),
         KOKKOS_LAMBDA(int i, int j, int k)
         {
             T(i, j, k) = eos.compute_T_from_P(rho(i, j, k), P(i, j, k));

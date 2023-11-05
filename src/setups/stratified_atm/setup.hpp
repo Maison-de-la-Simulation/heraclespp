@@ -75,10 +75,9 @@ public:
         /* std::cout <<"Scale = " << units::kb * m_param_setup.T
             / (mu * units::mp * Kokkos::fabs(g(0))) << std::endl; */
         
-        auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
             "stratified_atm_init",
-            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+            cell_mdrange(range),
             KOKKOS_CLASS_LAMBDA(int i, int j, int k)
             {
                 double x0 = units::kb * m_param_setup.T * units::Kelvin
