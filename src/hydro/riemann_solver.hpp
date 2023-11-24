@@ -165,4 +165,57 @@ public:
     }
 };
 
+class Splitting
+{
+public:
+    KOKKOS_FORCEINLINE_FUNCTION
+    EulerFlux operator()(
+            EulerCons const& consL,
+            EulerCons const& consR,
+            int locdim,
+            EOS const& eos) const noexcept
+    {
+        assert(locdim >= 0);
+        assert(locdim < ndim);
+        EulerPrim const primL = to_prim(consL, eos);
+        EulerPrim const primR = to_prim(consR, eos);
+
+        double const cL = eos.compute_speed_of_sound(primL.rho, primL.P);
+        double const cR = eos.compute_speed_of_sound(primR.rho, primR.P);
+
+        double const wsL = Kokkos::fmin(primL.u[locdim] - cL, primR.u[locdim] - cR);
+        double const wsR = Kokkos::fmax(primL.u[locdim] + cL, primR.u[locdim] + cR);
+
+        double const neg_wsL = Kokkos::fmin(wsL, 0.);
+        double const pos_wsR = Kokkos::fmax(wsR, 0.);
+
+        // Low Mach correction
+        double a = 1.1 * Kokkos::fmax(primL.rho * cL, primR.rho * cR);
+        double ustar = (primL.u[locdim] + primR.u[locdim]) / 2 - 1 / (2 * a) * (primR.P - primL.P);
+        double Ma = std::abs(ustar) / Kokkos::fmin(cL, cR);
+        double theta = Kokkos::fmin(1, Ma);
+        double Pstar = (primL.P + primR.P) / 2 - (theta * a) / 2 * (primR.u[locdim] - primL.u[locdim]);
+
+        EulerCons cons_state;
+        if (ustar > 0)
+        {
+            cons_state = consL;
+        }
+        else
+        {
+            cons_state = consR;
+        }
+
+        EulerFlux flux;
+        flux.rho = ustar * cons_state.rho;
+        for (int idim = 0; idim < ndim; ++idim)
+        {
+            flux.rhou[idim] = ustar * cons_state.rhou[idim];
+        }
+        flux.rhou[locdim] += Pstar;
+        flux.E = ustar * cons_state.E + Pstar * ustar;
+        return flux;
+    }
+};
+
 } // namespace novapp
