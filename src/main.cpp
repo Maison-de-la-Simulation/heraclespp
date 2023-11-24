@@ -109,14 +109,6 @@ int main(int argc, char** argv)
     Grid grid(param);
     grid.print_grid();
 
-    if(grid.mpi_rank==0)
-    {
-        print_info("SETUP", MY_SETUP);
-        print_info("EOS", eos_choice);
-        print_info("GEOMETRIE", geom_choice);
-    }
-
-
     EOS const eos(param.gamma, param.mu);
 
     write_pdi_init(param.max_iter, param.output_frequency, grid, param);
@@ -168,6 +160,13 @@ int main(int argc, char** argv)
     KDV_double_1d y_glob("y_glob", grid.Nx_glob_ng[1]+2*grid.Nghost[1]+1);
     KDV_double_1d z_glob("z_glob", grid.Nx_glob_ng[2]+2*grid.Nghost[2]+1);
 
+     if(grid.mpi_rank==0)
+    {
+        print_info("SETUP", MY_SETUP);
+        print_info("EOS", eos_choice);
+        print_info("GEOMETRIE", geom_choice);
+    }
+
 #if defined(NOVAPP_GRAVITY_Uniform)
     using Gravity = UniformGravity;
     if(grid.mpi_rank==0)
@@ -196,6 +195,7 @@ int main(int argc, char** argv)
     }
     if(grid.mpi_rank==0)
     {
+        print_info("RIEMANN_SOLVER", param.riemann_solver);
         print_info("USER_STEP", param.user_step);
     }
 

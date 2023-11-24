@@ -272,6 +272,12 @@ inline std::unique_ptr<IGodunovScheme> factory_godunov_scheme(
         return std::make_unique<RiemannBasedGodunovScheme<HLL, Gravity>>
                 (HLL(), gravity, eos, grid);
     }
+
+    if (riemann_solver == "HLLC")
+    {
+        return std::make_unique<RiemannBasedGodunovScheme<HLLC, Gravity>>
+                (HLLC(), gravity, eos, grid);
+    }
     throw std::runtime_error("Invalid riemann solver: " + riemann_solver + ".");
 }
 
