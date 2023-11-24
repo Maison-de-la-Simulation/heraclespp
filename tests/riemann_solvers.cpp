@@ -21,7 +21,7 @@ public:
     RiemannSolverFixture& operator=(RiemannSolverFixture&& rhs) noexcept = default;
 };
 
-using RiemannSolvers = ::testing::Types<novapp::HLL>;
+using RiemannSolvers = ::testing::Types<novapp::HLL, novapp::HLLC>;
 TYPED_TEST_SUITE(RiemannSolverFixture, RiemannSolvers);
 
 TYPED_TEST(RiemannSolverFixture, Consistency)
