@@ -73,10 +73,9 @@ public:
 
         // auto const xc = m_grid.x_center;
         
-        auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
             "heat_nickel_init",
-            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+            cell_mdrange(range),
             KOKKOS_CLASS_LAMBDA(int i, int j, int k)
             {
                 rho(i, j, k) = m_param_setup.rho0 * units::density;

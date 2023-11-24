@@ -17,10 +17,9 @@ void conv_prim_to_cons(
     Kokkos::View<double****, Kokkos::LayoutStride> const rhou,
     Kokkos::View<double***, Kokkos::LayoutStride> const E)
 {
-    auto const [begin, end] = cell_range(range);
     Kokkos::parallel_for(
         "conv_prim_to_cons_array",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+        cell_mdrange(range),
         KOKKOS_LAMBDA(int i, int j, int k)
         {
             EulerPrim prim;
@@ -49,10 +48,9 @@ void conv_cons_to_prim(
     KV_double_4d const u,
     KV_double_3d const P)
 {
-    auto const [begin, end] = cell_range(range);
     Kokkos::parallel_for(
         "conv_cons_to_prim_array",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+        cell_mdrange(range),
         KOKKOS_LAMBDA(int i, int j, int k)
         {
             EulerCons cons;

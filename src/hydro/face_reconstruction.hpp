@@ -79,10 +79,9 @@ public:
         assert(var.extent(1) == var_rec.extent(1));
         assert(var.extent(2) == var_rec.extent(2));
 
-        auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
             "face_reconstruction",
-            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+            cell_mdrange(range),
             KOKKOS_CLASS_LAMBDA(int i, int j, int k)
             {
                 for (int idim = 0; idim < ndim; ++idim)

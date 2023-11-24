@@ -50,4 +50,7 @@ std::ostream& operator<<(std::ostream& os, Range const& rng);
 
 std::array<Kokkos::Array<int, 3>, 2> cell_range(Range const& range);
 
+Kokkos::MDRangePolicy<Kokkos::Rank<3, Kokkos::Iterate::Left, Kokkos::Iterate::Left>> cell_mdrange(
+        Range const& range);
+
 } // namespace novapp

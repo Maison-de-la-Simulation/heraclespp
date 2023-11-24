@@ -23,10 +23,9 @@ double time_step(
 {
     double inverse_dt = 0;
 
-    auto const [begin, end] = cell_range(range);
     Kokkos::parallel_reduce(
         "time_step",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+        cell_mdrange(range),
         KOKKOS_LAMBDA(int i, int j, int k, double& local_a)
         {
             double const sound = eos.compute_speed_of_sound(rho(i, j, k), P(i, j, k));

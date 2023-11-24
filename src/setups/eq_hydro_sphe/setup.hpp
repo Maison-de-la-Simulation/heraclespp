@@ -76,10 +76,9 @@ public:
         std::cout <<"Scale = " << units::kb * m_param_setup.T
                 / (mu * units::mp * units::G * m_param_setup.M)<< std::endl;
         
-        auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
         "eq_hydro_init",
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+        cell_mdrange(range),
         KOKKOS_CLASS_LAMBDA(int i, int j, int k)
         {
             double x0 = units::kb * m_param_setup.T / (mu * units::mp * units::G * m_param_setup.M);
