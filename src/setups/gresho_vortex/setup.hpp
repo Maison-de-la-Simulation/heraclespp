@@ -25,12 +25,12 @@ class ParamSetup
 public:
     double rho0;
     double u0;
-    double P0;
+    double Ma;
 
     explicit ParamSetup(INIReader const& reader)
         : rho0(reader.GetReal("Initialisation", "rho0", 1.0))
         , u0(reader.GetReal("Initialisation", "u0", 1.0))
-        , P0(reader.GetReal("Initialisation", "P0", 1.0))
+        , Ma(reader.GetReal("Initialisation", "Ma", 1.0))
     {
     }
 };
@@ -83,6 +83,7 @@ public:
                 double r = Kokkos::sqrt(x * x + y * y);
                 double theta = Kokkos::atan2(y, x);
                 double u_theta;
+                double P0 = 1. / (m_eos.adiabatic_index() * m_param_setup.Ma * m_param_setup.Ma);
                 
                 rho(i, j, k) = m_param_setup.rho0 * units::density;
 
@@ -92,7 +93,7 @@ public:
                     u(i, j, k, 0) = - u_theta * Kokkos::sin(theta);
                     u(i, j, k, 1) = u_theta * Kokkos::cos(theta);
 
-                    P(i, j, k) = m_param_setup.P0 * units::pressure + 12.5 * r * r;
+                    P(i, j, k) = P0 * units::pressure + 12.5 * r * r;
                 }
 
                 else if ((r >= 0.2) && (r < 0.4))
@@ -101,7 +102,7 @@ public:
                     u(i, j, k, 0) = - u_theta * Kokkos::sin(theta);
                     u(i, j, k, 1) = u_theta * Kokkos::cos(theta);
 
-                    P(i, j, k) = m_param_setup.P0 * units::pressure + 12.5 * r * r + 4 - 20 * r + 4 * Kokkos::log(5 * r);
+                    P(i, j, k) = P0 * units::pressure + 12.5 * r * r + 4 - 20 * r + 4 * Kokkos::log(5 * r);
                 }
 
                 else
@@ -111,7 +112,7 @@ public:
                     u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
                     }
 
-                    P(i, j, k) = m_param_setup.P0 * units::pressure - 2 + 4 * Kokkos::log(2);
+                    P(i, j, k) = P0 * units::pressure - 2 + 4 * Kokkos::log(2);
                 }
             });
     }
