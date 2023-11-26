@@ -92,9 +92,6 @@ public:
         double const wsL = Kokkos::fmin(primL.u[locdim] - cL, primR.u[locdim] - cR);
         double const wsR = Kokkos::fmax(primL.u[locdim] + cL, primR.u[locdim] + cR);
 
-        double const neg_wsL = Kokkos::fmin(wsL, 0.);
-        double const pos_wsR = Kokkos::fmax(wsR, 0.);
-
         EulerFlux const fluxL = compute_flux(primL, locdim, eos);
         EulerFlux const fluxR = compute_flux(primR, locdim, eos);
 
@@ -183,16 +180,10 @@ public:
         double const cL = eos.compute_speed_of_sound(primL.rho, primL.P);
         double const cR = eos.compute_speed_of_sound(primR.rho, primR.P);
 
-        double const wsL = Kokkos::fmin(primL.u[locdim] - cL, primR.u[locdim] - cR);
-        double const wsR = Kokkos::fmax(primL.u[locdim] + cL, primR.u[locdim] + cR);
-
-        double const neg_wsL = Kokkos::fmin(wsL, 0.);
-        double const pos_wsR = Kokkos::fmax(wsR, 0.);
-
         // Low Mach correction
         double a = 1.1 * Kokkos::fmax(primL.rho * cL, primR.rho * cR);
         double ustar = (primL.u[locdim] + primR.u[locdim]) / 2 - 1 / (2 * a) * (primR.P - primL.P);
-        double Ma = std::abs(ustar) / Kokkos::fmin(cL, cR);
+        double Ma = Kokkos::fabs(ustar) / Kokkos::fmin(cL, cR);
         double theta = Kokkos::fmin(1, Ma);
         double Pstar = (primL.P + primR.P) / 2 - (theta * a) / 2 * (primR.u[locdim] - primL.u[locdim]);
 
