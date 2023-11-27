@@ -83,11 +83,13 @@ public:
 
         auto const x_d = m_grid.x;
         auto const y_d = m_grid.y;
+        auto const& gravity = m_gravity;
+        auto const& param_setup = m_param_setup;
 
         Kokkos::parallel_for(
             "Rayleigh_Taylor_2D_init",
             cell_mdrange(range),
-            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
+            KOKKOS_LAMBDA(int i, int j, int k)
             {
                 double x = x_d(i) * units::m;
                 double y = y_d(j) * units::m;
@@ -95,22 +97,22 @@ public:
 
                 if (y >= h)
                 {
-                    rho(i, j, k) = m_param_setup.rho1 * units::density;
-                    fx(i, j, k, 0) = m_param_setup.fx0;
+                    rho(i, j, k) = param_setup.rho1 * units::density;
+                    fx(i, j, k, 0) = param_setup.fx0;
                 }
 
                 if (y < h)
                 {
-                    rho(i, j, k) = m_param_setup.rho0 * units::density;
-                    fx(i, j, k, 0) = m_param_setup.fx1;
+                    rho(i, j, k) = param_setup.rho0 * units::density;
+                    fx(i, j, k, 0) = param_setup.fx1;
                 }
                 
-                u(i, j, k, 0) = m_param_setup.u0 * units::velocity;
-                u(i, j, k, 1) = m_param_setup.u0 * units::velocity;
-                /* u(i, j, k, 1) = (m_param_setup.A/4) * (1+Kokkos::cos(2*Kokkos::numbers::pi*x/m_grid.L[0])) 
+                u(i, j, k, 0) = param_setup.u0 * units::velocity;
+                u(i, j, k, 1) = param_setup.u0 * units::velocity;
+                /* u(i, j, k, 1) = (param_setup.A/4) * (1+Kokkos::cos(2*Kokkos::numbers::pi*x/m_grid.L[0])) 
                                 * (1+Kokkos::cos(2*Kokkos::numbers::pi*y/m_grid.L[1])); */
                                 
-                P(i, j, k) = (P0 + rho(i, j, k) * m_gravity(i, j, k, 1) * units::acc * y) * units::pressure;
+                P(i, j, k) = (P0 + rho(i, j, k) * gravity(i, j, k, 1) * units::acc * y) * units::pressure;
             });
     }
 };

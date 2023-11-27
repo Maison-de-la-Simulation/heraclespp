@@ -71,6 +71,8 @@ public:
         assert(u.extent(2) == P.extent(2));
 
         auto const xc = m_grid.x_center;
+        auto const& eos = m_eos;
+        auto const& param_setup = m_param_setup;
         double const mu = m_eos.mean_molecular_weight();
 
         std::cout <<"Scale = " << units::kb * m_param_setup.T
@@ -79,18 +81,18 @@ public:
         Kokkos::parallel_for(
         "eq_hydro_init",
         cell_mdrange(range),
-        KOKKOS_CLASS_LAMBDA(int i, int j, int k)
+        KOKKOS_LAMBDA(int i, int j, int k)
         {
-            double x0 = units::kb * m_param_setup.T / (mu * units::mp * units::G * m_param_setup.M);
+            double x0 = units::kb * param_setup.T / (mu * units::mp * units::G * param_setup.M);
 
-            rho(i, j, k) = m_param_setup.rho0 * Kokkos::exp(1. / (xc(i) * x0));
+            rho(i, j, k) = param_setup.rho0 * Kokkos::exp(1. / (xc(i) * x0));
 
             for (int idim = 0; idim < ndim; ++idim)
             {
-                u(i, j, k, idim) = m_param_setup.u0;
+                u(i, j, k, idim) = param_setup.u0;
             }
 
-            P(i, j, k) = m_eos.compute_P_from_T(rho(i, j, k), m_param_setup.T);
+            P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), param_setup.T);
         });
     }
 };
@@ -135,6 +137,8 @@ public:
         Kokkos::Array<int, 3> end {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)};
 
         auto const xc = m_grid.x_center;
+        auto const& eos = m_eos;
+        auto const& param_setup = m_param_setup;
         double const mu = m_eos.mean_molecular_weight();
 
         int const ng = m_grid.Nghost[m_bc_idim];
@@ -147,15 +151,15 @@ public:
         Kokkos::parallel_for(
         m_label,
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-        KOKKOS_CLASS_LAMBDA(int i, int j, int k) 
+        KOKKOS_LAMBDA(int i, int j, int k) 
         {
-            double x0 = units::kb * m_param_setup.T / (mu * units::mp * units::G * m_param_setup.M);
-            rho(i, j, k) = m_param_setup.rho0 * Kokkos::exp(1. / (xc(i) * x0));
+            double x0 = units::kb * param_setup.T / (mu * units::mp * units::G * param_setup.M);
+            rho(i, j, k) = param_setup.rho0 * Kokkos::exp(1. / (xc(i) * x0));
             for (int n = 0; n < rhou.extent_int(3); n++)
             {
-                rhou(i, j, k, n) = m_param_setup.rho0 * m_param_setup.u0;
+                rhou(i, j, k, n) = param_setup.rho0 * param_setup.u0;
             }
-            E(i, j, k) = m_eos.compute_evol_from_T(rho(i, j, k), m_param_setup.T);
+            E(i, j, k) = eos.compute_evol_from_T(rho(i, j, k), param_setup.T);
         });
     }
 };

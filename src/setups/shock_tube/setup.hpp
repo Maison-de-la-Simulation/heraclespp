@@ -80,32 +80,33 @@ public:
         assert(u.extent(2) == P.extent(2));
 
         auto const xc = m_grid.x_center;
+        auto const& param_setup = m_param_setup;
         
         Kokkos::parallel_for(
             "shock_tube_init",
             cell_mdrange(range),
-            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
+            KOKKOS_LAMBDA(int i, int j, int k)
             {
                 if(xc(i) * units::m <= 0.5)
                 {
-                    rho(i, j, k) = m_param_setup.rho0 * units::density;
-                    P(i, j, k) = m_param_setup.P0 * units::pressure;
+                    rho(i, j, k) = param_setup.rho0 * units::density;
+                    P(i, j, k) = param_setup.P0 * units::pressure;
                     for (int idim = 0; idim < ndim; ++idim)
                     {
-                        u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
+                        u(i, j, k, idim) = param_setup.u0 * units::velocity;
                     }
-                    fx(i, j, k, 0) = m_param_setup.fx0;
+                    fx(i, j, k, 0) = param_setup.fx0;
                 }
 
                 else
                 {
-                    rho(i, j, k) = m_param_setup.rho1 * units::density;
-                    P(i, j, k) = m_param_setup.P1 * units::pressure;
+                    rho(i, j, k) = param_setup.rho1 * units::density;
+                    P(i, j, k) = param_setup.P1 * units::pressure;
                     for (int idim = 0; idim < ndim; ++idim)
                     {
-                        u(i, j, k, idim) = m_param_setup.u1 * units::velocity;
+                        u(i, j, k, idim) = param_setup.u1 * units::velocity;
                     }
-                    fx(i, j, k, 0) = m_param_setup.fx1;
+                    fx(i, j, k, 0) = param_setup.fx1;
                 }
             });
     }

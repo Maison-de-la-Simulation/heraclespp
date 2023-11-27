@@ -71,20 +71,22 @@ public:
 
         auto const x_d = m_grid.x;
         auto const y_d = m_grid.y;
+        auto const& eos = m_eos;
+        auto const& param_setup = m_param_setup;
 
         Kokkos::parallel_for(
             "Gresho_vortex_init",
             cell_mdrange(range),
-            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
+            KOKKOS_LAMBDA(int i, int j, int k)
             {
                 double x = x_d(i) * units::m;
                 double y = y_d(j) * units::m;
                 double r = Kokkos::sqrt(x * x + y * y);
                 double theta = Kokkos::atan2(y, x);
                 double u_theta;
-                double P0 = 1. / (m_eos.adiabatic_index() * m_param_setup.Ma * m_param_setup.Ma);
+                double P0 = 1. / (eos.adiabatic_index() * param_setup.Ma * param_setup.Ma);
                 
-                rho(i, j, k) = m_param_setup.rho0 * units::density;
+                rho(i, j, k) = param_setup.rho0 * units::density;
 
                 if (r < 0.2)
                 {
@@ -108,7 +110,7 @@ public:
                 {
                     for (int idim = 0; idim < ndim; ++idim)
                     {
-                    u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
+                    u(i, j, k, idim) = param_setup.u0 * units::velocity;
                     }
 
                     P(i, j, k) = P0 * units::pressure - 2 + 4 * Kokkos::log(2);

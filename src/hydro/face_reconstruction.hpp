@@ -79,20 +79,23 @@ public:
         assert(var.extent(1) == var_rec.extent(1));
         assert(var.extent(2) == var_rec.extent(2));
 
+        auto const& grid = m_grid;
+        auto const& slope_limiter = m_slope_limiter;
+
         Kokkos::parallel_for(
             "face_reconstruction",
             cell_mdrange(range),
-            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
+            KOKKOS_LAMBDA(int i, int j, int k)
             {
                 for (int idim = 0; idim < ndim; ++idim)
                 {
                     auto const [i_m, j_m, k_m] = lindex(idim, i, j, k); // i - 1
                     auto const [i_p, j_p, k_p] = rindex(idim, i, j, k); // i + 1
-                    double dx = kron(idim,0) * m_grid.dx(i)
-                                + kron(idim,1) * m_grid.dy(j)
-                                + kron(idim,2) * m_grid.dz(k);
+                    double dx = kron(idim,0) * grid.dx(i)
+                                + kron(idim,1) * grid.dy(j)
+                                + kron(idim,2) * grid.dz(k);
 
-                    double const slope = m_slope_limiter(
+                    double const slope = slope_limiter(
                         (var(i_p, j_p, k_p) - var(i, j, k)) / dx,
                         (var(i, j, k) - var(i_m, j_m, k_m)) / dx);
 

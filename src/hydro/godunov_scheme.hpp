@@ -108,11 +108,14 @@ public:
         auto const x = m_grid.x;
         auto const ds = m_grid.ds;
         auto const dv = m_grid.dv;
+        auto const& eos = m_eos;
+        auto const& gravity = m_gravity;
+        auto const& riemann_solver = m_riemann_solver;
 
         Kokkos::parallel_for(
             "Riemann_based_Godunov_scheme",
             cell_mdrange(range),
-            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
+            KOKKOS_LAMBDA(int i, int j, int k)
             {
                 rho_new(i, j, k) = rho(i, j, k);
                 E_new(i, j, k) = E(i, j, k);
@@ -146,7 +149,7 @@ public:
                         var_L.rhou[idr] = rhou_rec(i, j, k, 0, idim, idr);
                     }
                     var_L.E = E_rec(i, j, k, 0, idim);
-                    EulerFlux const FluxL = m_riemann_solver(minus_oneR, var_L, idim, m_eos);
+                    EulerFlux const FluxL = riemann_solver(minus_oneR, var_L, idim, eos);
 
                     EulerCons var_R; // Right, back, top (i,j,k)
                     var_R.rho = rho_rec(i, j, k, 1, idim);
@@ -162,7 +165,7 @@ public:
                         plus_oneL.rhou[idr] = rhou_rec(i_p, j_p, k_p, 0, idim, idr);
                     }
                     plus_oneL.E = E_rec(i_p, j_p, k_p, 0, idim);
-                    EulerFlux const FluxR = m_riemann_solver(var_R, plus_oneL, idim, m_eos);
+                    EulerFlux const FluxR = riemann_solver(var_R, plus_oneL, idim, eos);
 
                     double const dtodv = dt / dv(i, j, k);
 
@@ -189,7 +192,7 @@ public:
                             cons.rhou[idim2] = rhou(i, j, k, idim2);
                         }
                         cons.E = E(i, j, k);
-                        EulerPrim prim = to_prim(cons, m_eos);
+                        EulerPrim prim = to_prim(cons, eos);
 
                         if (ndim == 1)
                         {
@@ -198,8 +201,8 @@ public:
                     }
 
                     // Gravity
-                    rhou_new(i, j, k, idim) += dt * m_gravity(i, j, k, idim) * rho(i, j, k);
-                    E_new(i, j, k) += dt * m_gravity(i, j, k, idim) * rhou(i, j, k, idim);
+                    rhou_new(i, j, k, idim) += dt * gravity(i, j, k, idim) * rho(i, j, k);
+                    E_new(i, j, k) += dt * gravity(i, j, k, idim) * rhou(i, j, k, idim);
 
                     // Passive scalar
                     for (int ifx = 0; ifx < nfx; ++ifx)
@@ -240,7 +243,7 @@ public:
         Kokkos::parallel_for(
             "passive_scalar_Godunov",
             cell_mdrange(range),
-            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
+            KOKKOS_LAMBDA(int i, int j, int k)
             {
                 for (int ifx = 0; ifx < nfx; ++ifx)
                 {

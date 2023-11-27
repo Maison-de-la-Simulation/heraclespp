@@ -75,32 +75,33 @@ public:
 
         auto const x_d = m_grid.x;
         auto const y_d = m_grid.y;
+        auto const& param_setup = m_param_setup;
         
         Kokkos::parallel_for(
             "implosion_test_init",
             cell_mdrange(range),
-            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
+            KOKKOS_LAMBDA(int i, int j, int k)
             {
                 double x = x_d(i) * units::m;
                 double y = y_d(j) * units::m;
 
                 if (x + y >  0.15)
                 {
-                    rho(i, j, k) = m_param_setup.rho0 * units::density;
+                    rho(i, j, k) = param_setup.rho0 * units::density;
 
-                    P(i, j, k) = m_param_setup.P0 * units::pressure;
+                    P(i, j, k) = param_setup.P0 * units::pressure;
                 }
 
                 else
                 {
-                    rho(i, j, k) = m_param_setup.rho1 * units::density;
+                    rho(i, j, k) = param_setup.rho1 * units::density;
 
-                    P(i, j, k) = m_param_setup.P1 * units::pressure;
+                    P(i, j, k) = param_setup.P1 * units::pressure;
                 }
 
                 for (int idim = 0; idim < ndim; ++idim)
                 {
-                    u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
+                    u(i, j, k, idim) = param_setup.u0 * units::velocity;
                 }
             });
     }
