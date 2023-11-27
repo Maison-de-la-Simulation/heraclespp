@@ -67,6 +67,7 @@ public:
 
         auto const x_d = m_grid.x;
         auto const y_d = m_grid.y;
+        auto const& param_setup = m_param_setup;
 
         double drho_rho = 1;
         double a = 0.05;
@@ -78,7 +79,7 @@ public:
         Kokkos::parallel_for(
             "Kelvin_Helmholtz_init",
             cell_mdrange(range),
-            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
+            KOKKOS_LAMBDA(int i, int j, int k)
             {
                 double x = x_d(i) * units::m;
                 double y = y_d(j) * units::m;
@@ -91,7 +92,7 @@ public:
                                 * (Kokkos::exp(- (y - y1) * (y - y1) / (sigma * sigma))
                                 + Kokkos::exp(- (y - y2) * (y - y2) / (sigma * sigma))); 
             
-                P(i, j, k) = m_param_setup.P0 * units::pressure;
+                P(i, j, k) = param_setup.P0 * units::pressure;
             });
     }
 };

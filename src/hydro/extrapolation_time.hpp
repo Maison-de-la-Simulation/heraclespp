@@ -102,6 +102,8 @@ public:
         auto const x = m_grid.x;
         auto const ds = m_grid.ds;
         auto const dv = m_grid.dv;
+        auto const& eos = m_eos;
+        auto const& gravity = m_gravity;
 
         KV_double_6d fx_rec_old("fx_rec_old", m_grid.Nx_local_wg[0], m_grid.Nx_local_wg[1],
                                 m_grid.Nx_local_wg[2], 2, ndim, nfx);
@@ -110,7 +112,7 @@ public:
         Kokkos::parallel_for(
             "Hancock_extrapolation",
             cell_mdrange(range),
-            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
+            KOKKOS_LAMBDA(int i, int j, int k)
             {
                 Kokkos::Array<Kokkos::Array<double, ndim>, 2> rho_old; //rho_old[0/1][idim]
                 Kokkos::Array<Kokkos::Array<Kokkos::Array<double, ndim>, ndim>, 2> rhou_old; //rhou_old[0/1][idim][idr]
@@ -143,7 +145,7 @@ public:
                         minus_one.u[idr] = loc_u_rec(i, j, k, 0, idim, idr);
                     }
                     minus_one.P = loc_P_rec(i, j, k, 0, idim);
-                    EulerFlux const flux_minus_one = compute_flux(minus_one, idim, m_eos);
+                    EulerFlux const flux_minus_one = compute_flux(minus_one, idim, eos);
 
                     EulerPrim plus_one; // Right, back, top
                     plus_one.rho = rho_old[1][idim];
@@ -152,7 +154,7 @@ public:
                         plus_one.u[idr] = loc_u_rec(i, j, k, 1, idim, idr);
                     }
                     plus_one.P = loc_P_rec(i, j, k, 1, idim);
-                    EulerFlux const flux_plus_one = compute_flux(plus_one, idim, m_eos);
+                    EulerFlux const flux_plus_one = compute_flux(plus_one, idim, eos);
 
                     double const dtodv = dt_reconstruction / dv(i, j, k);
 
@@ -196,11 +198,11 @@ public:
                     // Gravity
                     for (int ipos = 0; ipos < ndim; ++ipos)
                     {
-                        rhou_rec(i, j, k, 0, ipos, idim) += dt_reconstruction * m_gravity(i, j, k, idim) * rho_old[0][ipos];
-                        rhou_rec(i, j, k, 1, ipos, idim) += dt_reconstruction * m_gravity(i, j, k, idim) * rho_old[1][ipos];
+                        rhou_rec(i, j, k, 0, ipos, idim) += dt_reconstruction * gravity(i, j, k, idim) * rho_old[0][ipos];
+                        rhou_rec(i, j, k, 1, ipos, idim) += dt_reconstruction * gravity(i, j, k, idim) * rho_old[1][ipos];
 
-                        E_rec(i, j, k, 0, ipos) += dt_reconstruction * m_gravity(i, j, k, idim) * rhou_old[0][ipos][idim];
-                        E_rec(i, j, k, 1, ipos) += dt_reconstruction * m_gravity(i, j, k, idim) * rhou_old[1][ipos][idim];
+                        E_rec(i, j, k, 0, ipos) += dt_reconstruction * gravity(i, j, k, idim) * rhou_old[0][ipos][idim];
+                        E_rec(i, j, k, 1, ipos) += dt_reconstruction * gravity(i, j, k, idim) * rhou_old[1][ipos][idim];
                     }
 
                     // Passive scalar
@@ -223,7 +225,7 @@ public:
         Kokkos::parallel_for(
             "passive_scalar_extrapolation",
             cell_mdrange(range),
-            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
+            KOKKOS_LAMBDA(int i, int j, int k)
             {
                 for (int idim = 0; idim < ndim; ++idim)
                 {

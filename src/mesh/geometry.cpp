@@ -110,12 +110,12 @@ void Spherical::execute(
                             - (x(i) * x(i) * x(i)))) / 3;
             });
 
+        int const mirror = 2 * Nghost[0] - 1;
         Kokkos::parallel_for(
             "dv_1d_spherical",
             Nghost[0],
             KOKKOS_LAMBDA(int i)
             {
-                int mirror = 2 * Nghost[0] - 1;
                 dv(i, 0, 0) = dv(mirror - i, 0, 0);
             });
     }

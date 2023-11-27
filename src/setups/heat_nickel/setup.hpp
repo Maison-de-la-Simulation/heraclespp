@@ -71,23 +71,24 @@ public:
         assert(rho.extent(2) == u.extent(2));
         assert(u.extent(2) == P.extent(2));
 
-        // auto const xc = m_grid.x_center;
+        auto const& eos = m_eos;
+        auto const& param_setup = m_param_setup;
         
         Kokkos::parallel_for(
             "heat_nickel_init",
             cell_mdrange(range),
-            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
+            KOKKOS_LAMBDA(int i, int j, int k)
             {
-                rho(i, j, k) = m_param_setup.rho0 * units::density;
+                rho(i, j, k) = param_setup.rho0 * units::density;
 
-                P(i, j, k) = m_eos.compute_P_from_T(rho(i, j, k), m_param_setup.T0) * units::pressure;
+                P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), param_setup.T0) * units::pressure;
 
                 for (int idim = 0; idim < ndim; ++idim)
                 {
-                    u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
+                    u(i, j, k, idim) = param_setup.u0 * units::velocity;
                 }
 
-                fx(i, j, k, 0) = m_param_setup.fx0;
+                fx(i, j, k, 0) = param_setup.fx0;
             });
     }
 };

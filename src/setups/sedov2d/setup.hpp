@@ -73,35 +73,38 @@ public:
 
         auto const x_d = m_grid.x;
         auto const y_d = m_grid.y;
+        auto const& dv = m_grid.dv;
+        auto const& eos = m_eos;
+        auto const& param_setup = m_param_setup;
 
         Kokkos::parallel_for(
             "Sedov_2D_init",
             cell_mdrange(range),
-            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
+            KOKKOS_LAMBDA(int i, int j, int k)
             {
                 double x = x_d(i) * units::m;
                 double y = y_d(j) * units::m;
                 double r = Kokkos::sqrt(x * x + y * y);
 
-                rho(i, j, k) = m_param_setup.rho0 * units::density;
+                rho(i, j, k) = param_setup.rho0 * units::density;
 
                 for (int idim = 0; idim < ndim; ++idim)
                 {
-                    u(i, j, k, idim) = m_param_setup.u0 * units::velocity;
+                    u(i, j, k, idim) = param_setup.u0 * units::velocity;
                 }
 
                 if (r <0.025)
                 {
-                    double T = m_eos.compute_T_from_evol(rho(i, j, k), 
-                                m_param_setup.E1 * units::evol / m_grid.dv(i, j, k)) * units::Kelvin;
-                    P(i, j, k) = m_eos.compute_P_from_T(rho(i, j, k), T) * units::pressure;
+                    double T = eos.compute_T_from_evol(rho(i, j, k), 
+                                param_setup.E1 * units::evol / dv(i, j, k)) * units::Kelvin;
+                    P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), T) * units::pressure;
                 }
                 
                 else
                 {
-                    double T = m_eos.compute_T_from_evol(rho(i, j, k), 
-                                m_param_setup.E0 * units::evol / m_grid.dv(i, j, k)) * units::Kelvin;
-                    P(i, j, k) = m_eos.compute_P_from_T(rho(i, j, k), T) * units::pressure;
+                    double T = eos.compute_T_from_evol(rho(i, j, k), 
+                                param_setup.E0 * units::evol / dv(i, j, k)) * units::Kelvin;
+                    P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), T) * units::pressure;
                 }
             });
     }
