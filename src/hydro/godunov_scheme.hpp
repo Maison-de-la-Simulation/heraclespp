@@ -104,8 +104,8 @@ public:
         KV_double_4d const fx_new) const final
     {
         int nfx = fx.extent_int(3);
-        auto const xc = m_grid.x_center;
         auto const x = m_grid.x;
+        auto const y = m_grid.y;
         auto const ds = m_grid.ds;
         auto const dv = m_grid.dv;
         auto const& eos = m_eos;
@@ -149,7 +149,7 @@ public:
                         var_L.rhou[idr] = rhou_rec(i, j, k, 0, idim, idr);
                     }
                     var_L.E = E_rec(i, j, k, 0, idim);
-                    EulerFlux const FluxL = riemann_solver(minus_oneR, var_L, idim, m_eos);
+                    EulerFlux const FluxL = riemann_solver(minus_oneR, var_L, idim, eos);
 
                     EulerCons var_R; // Right, back, top (i,j,k)
                     var_R.rho = rho_rec(i, j, k, 1, idim);
@@ -165,7 +165,7 @@ public:
                         plus_oneL.rhou[idr] = rhou_rec(i_p, j_p, k_p, 0, idim, idr);
                     }
                     plus_oneL.E = E_rec(i_p, j_p, k_p, 0, idim);
-                    EulerFlux const FluxR = riemann_solver(var_R, plus_oneL, idim, m_eos);
+                    EulerFlux const FluxR = riemann_solver(var_R, plus_oneL, idim, eos);
 
                     double const dtodv = dt / dv(i, j, k);
 
@@ -182,14 +182,65 @@ public:
                     //Spherical geometric terms
                     if (geom_choice == "Spherical")
                     {
-                        EulerPrim primL = to_prim(var_L, m_eos);
-                        EulerPrim primR = to_prim(var_R, m_eos);
+                        EulerPrim primL = to_prim(var_L, eos);
+                        EulerPrim primR = to_prim(var_R, eos);
 
                         if (ndim == 1)
                         {
                             // Pressure term (e_{r}): 2 * P_{rr} / r
                             rhou_new(i, j, k, 0) += dtodv * (primL.P + primR.P) / 2 
                                                     * (ds(i_p, j_p, k_p, 0) - ds(i, j, k, 0));
+                        }
+                        if (ndim == 3)
+                        {
+                            double sm = Kokkos::sin(y(j));
+                            double sp = Kokkos::sin(y(j+1));
+
+                            if (idim == 0)
+                            {
+                                // Pressure term (e_{r}): 2 * P_{rr} / r
+                                rhou_new(i, j, k, 0) += dtodv * (primL.P + primR.P) / 2 
+                                                            * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim)) / 2;
+
+                                // Velocity term (e_{r}): rho * u_{th} * u_{th} / r
+                                rhou_new(i, j, k, 0) += dtodv * (primL.rho * primL.u[1] * primL.u[1] 
+                                                            + primR.rho * primR.u[1] * primR.u[1]) / 2
+                                                            * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim)) / 2;
+
+                                // Velocity term (e_{r}): rho * u_{phi} * u_{phi} / r
+                                rhou_new(i, j, k, 0) += dtodv * (primL.rho * primL.u[2] * primL.u[2] 
+                                                            + primR.rho * primR.u[2] * primR.u[2]) / 2
+                                                            * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim));
+
+                                // Velocity term (e_{th}): rho * u_{th} * u_{r} / r
+                                rhou_new(i, j, k, 1) -= dtodv * (x(i + 1) - x(i)) / (x(i + 1) + x(i)) 
+                                                            * (primR.rho * primR.u[0] * primR.u[1] * ds(i_p, j_p, k_p, idim)
+                                                            + primL.rho * primL.u[0] * primL.u[1] * ds(i, j, k, idim));
+                                
+
+                                // Velocity term (e_{phi}): rho * u_{phi} * u_{r} / r
+                                rhou_new(i, j, k, 2) -= dtodv * (x(i + 1) - x(i)) / (x(i + 1) + x(i)) 
+                                                            * (primR.rho * primR.u[0] * primR.u[2] * ds(i_p, j_p, k_p, idim)
+                                                            + primL.rho * primL.u[0] * primL.u[2] * ds(i, j, k, idim));
+                            }
+
+                            if (idim == 1)
+                            {
+                                // Pressure term (e_{th}): cot(th) * P_{th th} / r
+                                rhou_new(i, j, k, 1) += dtodv * (primL.P + primR.P) / 2 
+                                                            * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim));
+
+                                // Velocity term (e_{th}): cot(th) * rho * u_{phi} * u_{phi} / r
+                                rhou_new(i, j, k, 1) += dtodv * (primL.rho * primL.u[2] * primL.u[2] 
+                                                            + primR.rho * primR.u[2] * primR.u[2]) / 2
+                                                            * (Kokkos::cos((y(j) + y(j+1)) / 2) /  Kokkos::sin((y(j) + y(j+1)) / 2))
+                                                            * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim)) / 2;
+
+                                // Velocity term (e_{phi}): cot(th) * rho * u_{phi} * u_{th} / r
+                                rhou_new(i, j, k, 2) -= dtodv * (sp - sm) / (sp + sm)
+                                                            * (primR.rho * primR.u[1] * primR.u[2] * ds(i_p, j_p, k_p, idim)
+                                                            + primL.rho * primL.u[1] * primL.u[2] * ds(i, j, k, idim));
+                            }
                         }
                     }
 

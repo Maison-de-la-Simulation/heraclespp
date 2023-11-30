@@ -98,8 +98,8 @@ public:
         assert(rhou_rec.extent(4) == E_rec.extent(4));
 
         int nfx = fx_rec.extent_int(5);
-        auto const xc = m_grid.x_center;
         auto const x = m_grid.x;
+        auto const y = m_grid.y;
         auto const ds = m_grid.ds;
         auto const dv = m_grid.dv;
         auto const& eos = m_eos;
@@ -145,7 +145,7 @@ public:
                         primL.u[idr] = loc_u_rec(i, j, k, 0, idim, idr);
                     }
                     primL.P = loc_P_rec(i, j, k, 0, idim);
-                    EulerFlux const fluxL = compute_flux(primL, idim, m_eos);
+                    EulerFlux const fluxL = compute_flux(primL, idim, eos);
 
                     EulerPrim primR; // Right, back, top
                     primR.rho = rho_old[1][idim];
@@ -154,7 +154,7 @@ public:
                         primR.u[idr] = loc_u_rec(i, j, k, 1, idim, idr);
                     }
                     primR.P = loc_P_rec(i, j, k, 1, idim);
-                    EulerFlux const fluxR = compute_flux(primR, idim, m_eos);
+                    EulerFlux const fluxR = compute_flux(primR, idim, eos);
 
                     double const dtodv = dt_reconstruction / dv(i, j, k);
 
@@ -187,6 +187,75 @@ public:
                                             * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim));
                             rhou_rec(i, j, k, 0, 0, 0) += p_r_1d;
                             rhou_rec(i, j, k, 1, 0, 0) += p_r_1d;
+                        }
+                        if (ndim == 3)
+                        {
+                            double sm = Kokkos::sin(y(j));
+                            double sp = Kokkos::sin(y(j+1));
+
+                            for (int idr = 0; idr < ndim; ++idr)
+                            {
+                                if (idim == 0)
+                                {
+                                    // Pressure term (e_{r}): 2 * P_{rr} / r
+                                    double p_r = dtodv * (primL.P + primR.P) / 2
+                                                        * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim));
+                                    rhou_rec(i, j, k, 0, 0, idr) += p_r;
+                                    rhou_rec(i, j, k, 1, 0, idr) += p_r;
+
+                                    // Velocity term (e_{r}): rho * u_{th} * u_{th} / r
+                                    double grad_u_r_1 = dtodv * (primL.rho * primL.u[1] * primL.u[1] 
+                                                            + primR.rho * primR.u[1] * primR.u[1]) / 2
+                                                            * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim));
+                                    rhou_rec(i, j, k, 0, 0, idr) += grad_u_r_1;
+                                    rhou_rec(i, j, k, 1, 0, idr) += grad_u_r_1;
+
+                                    // Velocity term (e_{r}): rho * u_{phi} * u_{phi} / r
+                                    double grad_u_r_2 = dtodv * (primL.rho * primL.u[2] * primL.u[2] 
+                                                            + primR.rho * primR.u[2] * primR.u[2]) / 2
+                                                            * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim));
+                                    rhou_rec(i, j, k, 0, 0, idr) += grad_u_r_2;
+                                    rhou_rec(i, j, k, 1, 0, idr) += grad_u_r_2;
+
+                                    // Velocity term (e_{th}): rho * u_{th} * u_{r} / r
+                                    double grad_u_th_1 = dtodv * (x(i + 1) - x(i)) / (x(i + 1) + x(i)) 
+                                                            * (primR.rho * primR.u[0] * primR.u[1] * ds(i_p, j_p, k_p, idim)
+                                                            + primL.rho * primL.u[0] * primL.u[1] * ds(i, j, k, idim));
+                                    rhou_rec(i, j, k, 0, 1, idr) -= grad_u_th_1;
+                                    rhou_rec(i, j, k, 1, 1, idr) -= grad_u_th_1;
+
+                                    // Velocity term (e_{phi}): rho * u_{phi} * u_{r} / r
+                                    double grad_u_ph_1 = dtodv * (x(i + 1) - x(i)) / (x(i + 1) + x(i)) 
+                                                            * (primR.rho * primR.u[0] * primR.u[2] * ds(i_p, j_p, k_p, idim)
+                                                            + primL.rho * primL.u[0] * primL.u[2] * ds(i, j, k, idim));
+                                    rhou_rec(i, j, k, 0, 2, idr) -= grad_u_ph_1;
+                                    rhou_rec(i, j, k, 1, 2, idr) -= grad_u_ph_1;
+                                }
+
+                                if (idim ==1)
+                                {
+                                    // Pressure term (e_{th}): cot(th) * P_{th th} / r
+                                    double p_th = dtodv * (primL.P + primR.P) / 2 
+                                                    * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim));
+                                    rhou_rec(i, j, k, 0, 1, idr) += p_th;
+                                    rhou_rec(i, j, k, 1, 1, idr) += p_th;
+
+                                    // Velocity term (e_{th}): cot(th) * rho * u_{phi} * u_{phi} / r
+                                    double grad_u_th_2 = dtodv * (primL.rho * primL.u[2] * primL.u[2] 
+                                                            + primR.rho * primR.u[2] * primR.u[2]) / 2
+                                                            * (Kokkos::cos((y(j) + y(j+1)) / 2) /  Kokkos::sin((y(j) + y(j+1)) / 2))
+                                                            * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim));
+                                    rhou_rec(i, j, k, 0, 1, idr) += grad_u_th_2;
+                                    rhou_rec(i, j, k, 1, 1, idr) += grad_u_th_2;
+
+                                    // Velocity term (e_{phi}): cot(th) * rho * u_{phi} * u_{th} / r
+                                    double grad_u_ph_2 = dtodv * (sp - sm) / (sp + sm)
+                                                            * (primR.rho * primR.u[1] * primR.u[2] * ds(i_p, j_p, k_p, idim)
+                                                            + primL.rho * primL.u[1] * primL.u[2] * ds(i, j, k, idim));
+                                    rhou_rec(i, j, k, 0, 2, idr) -= grad_u_ph_2;
+                                    rhou_rec(i, j, k, 1, 2, idr) -= grad_u_ph_2;
+                                }
+                            }
                         }
                     }
 
