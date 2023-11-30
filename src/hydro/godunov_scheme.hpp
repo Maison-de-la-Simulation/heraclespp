@@ -149,7 +149,7 @@ public:
                         var_L.rhou[idr] = rhou_rec(i, j, k, 0, idim, idr);
                     }
                     var_L.E = E_rec(i, j, k, 0, idim);
-                    EulerFlux const FluxL = riemann_solver(minus_oneR, var_L, idim, eos);
+                    EulerFlux const FluxL = riemann_solver(minus_oneR, var_L, idim, m_eos);
 
                     EulerCons var_R; // Right, back, top (i,j,k)
                     var_R.rho = rho_rec(i, j, k, 1, idim);
@@ -165,7 +165,7 @@ public:
                         plus_oneL.rhou[idr] = rhou_rec(i_p, j_p, k_p, 0, idim, idr);
                     }
                     plus_oneL.E = E_rec(i_p, j_p, k_p, 0, idim);
-                    EulerFlux const FluxR = riemann_solver(var_R, plus_oneL, idim, eos);
+                    EulerFlux const FluxR = riemann_solver(var_R, plus_oneL, idim, m_eos);
 
                     double const dtodv = dt / dv(i, j, k);
 
