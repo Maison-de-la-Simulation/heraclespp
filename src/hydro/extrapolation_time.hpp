@@ -145,7 +145,7 @@ public:
                         primL.u[idr] = loc_u_rec(i, j, k, 0, idim, idr);
                     }
                     primL.P = loc_P_rec(i, j, k, 0, idim);
-                    EulerFlux const fluxL = compute_flux(primL, idim, eos);
+                    EulerFlux const fluxL = compute_flux(primL, idim, m_eos);
 
                     EulerPrim primR; // Right, back, top
                     primR.rho = rho_old[1][idim];
@@ -154,7 +154,7 @@ public:
                         primR.u[idr] = loc_u_rec(i, j, k, 1, idim, idr);
                     }
                     primR.P = loc_P_rec(i, j, k, 1, idim);
-                    EulerFlux const fluxR = compute_flux(primR, idim, eos);
+                    EulerFlux const fluxR = compute_flux(primR, idim, m_eos);
 
                     double const dtodv = dt_reconstruction / dv(i, j, k);
 
