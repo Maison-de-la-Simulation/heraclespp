@@ -9,6 +9,7 @@
 
 #include "default_boundary_setup.hpp"
 #include "default_grid_setup.hpp"
+#include "default_user_step.hpp"
 #include "initialization_interface.hpp"
 
 namespace novapp
