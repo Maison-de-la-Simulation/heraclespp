@@ -179,24 +179,17 @@ public:
                     E_new(i, j, k) += dtodv * (FluxL.E * ds(i, j, k, idim)
                                             - FluxR.E * ds(i_p, j_p, k_p, idim));
 
-                     //Spherical geometric terms
+                    //Spherical geometric terms
                     if (geom_choice == "Spherical")
                     {
-                        double rm = x(i);
-                        double rp = x(i_p);
-
-                        EulerCons cons;
-                        cons.rho = rho(i, j, k);
-                        for (int idim2 = 0; idim2 < ndim; ++idim2)
-                        {
-                            cons.rhou[idim2] = rhou(i, j, k, idim2);
-                        }
-                        cons.E = E(i, j, k);
-                        EulerPrim prim = to_prim(cons, eos);
+                        EulerPrim primL = to_prim(var_L, m_eos);
+                        EulerPrim primR = to_prim(var_R, m_eos);
 
                         if (ndim == 1)
                         {
-                            rhou_new(i, j, k, idim) += dt * 3 * prim.P * (rp*rp - rm*rm) / (rp*rp*rp - rm*rm*rm);
+                            // Pressure term (e_{r}): 2 * P_{rr} / r
+                            rhou_new(i, j, k, 0) += dtodv * (primL.P + primR.P) / 2 
+                                                    * (ds(i_p, j_p, k_p, 0) - ds(i, j, k, 0));
                         }
                     }
 

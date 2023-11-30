@@ -180,18 +180,13 @@ public:
                     //Spherical geometric terms
                     if (geom_choice == "Spherical")
                     {
-                        double rm = x(i);
-                        double rp = x(i_p);
-
                         if (ndim == 1)
                         {
-                            for (int ipos = 0; ipos < ndim; ++ipos)
-                            {
-                                rhou_rec(i, j, k, 0, ipos, idim) += dt_reconstruction * 3 * primL.P
-                                                                    * (rp*rp - rm*rm) / (rp*rp*rp - rm*rm*rm);
-                                rhou_rec(i, j, k, 1, ipos, idim) += dt_reconstruction * 3 * primR.P
-                                                                    * (rp*rp - rm*rm) / (rp*rp*rp - rm*rm*rm);
-                            }
+                            // Pressure term (e_{r}): 2 * P_{rr} / r
+                            double p_r_1d = dtodv * (primL.P + primR.P) / 2
+                                            * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim));
+                            rhou_rec(i, j, k, 0, 0, 0) += p_r_1d;
+                            rhou_rec(i, j, k, 1, 0, 0) += p_r_1d;
                         }
                     }
 
