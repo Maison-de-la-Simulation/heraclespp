@@ -104,7 +104,6 @@ public:
         KV_double_4d const fx_new) const final
     {
         int nfx = fx.extent_int(3);
-        auto const xc = m_grid.x_center;
         auto const x = m_grid.x;
         auto const ds = m_grid.ds;
         auto const dv = m_grid.dv;
@@ -149,7 +148,7 @@ public:
                         var_L.rhou[idr] = rhou_rec(i, j, k, 0, idim, idr);
                     }
                     var_L.E = E_rec(i, j, k, 0, idim);
-                    EulerFlux const FluxL = riemann_solver(minus_oneR, var_L, idim, m_eos);
+                    EulerFlux const FluxL = riemann_solver(minus_oneR, var_L, idim, eos);
 
                     EulerCons var_R; // Right, back, top (i,j,k)
                     var_R.rho = rho_rec(i, j, k, 1, idim);
@@ -165,7 +164,7 @@ public:
                         plus_oneL.rhou[idr] = rhou_rec(i_p, j_p, k_p, 0, idim, idr);
                     }
                     plus_oneL.E = E_rec(i_p, j_p, k_p, 0, idim);
-                    EulerFlux const FluxR = riemann_solver(var_R, plus_oneL, idim, m_eos);
+                    EulerFlux const FluxR = riemann_solver(var_R, plus_oneL, idim, eos);
 
                     double const dtodv = dt / dv(i, j, k);
 
@@ -182,8 +181,8 @@ public:
                     //Spherical geometric terms
                     if (geom_choice == "Spherical")
                     {
-                        EulerPrim primL = to_prim(var_L, m_eos);
-                        EulerPrim primR = to_prim(var_R, m_eos);
+                        EulerPrim primL = to_prim(var_L, eos);
+                        EulerPrim primR = to_prim(var_R, eos);
 
                         if (ndim == 1)
                         {

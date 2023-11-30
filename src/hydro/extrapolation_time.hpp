@@ -98,7 +98,6 @@ public:
         assert(rhou_rec.extent(4) == E_rec.extent(4));
 
         int nfx = fx_rec.extent_int(5);
-        auto const xc = m_grid.x_center;
         auto const x = m_grid.x;
         auto const ds = m_grid.ds;
         auto const dv = m_grid.dv;
@@ -145,7 +144,7 @@ public:
                         primL.u[idr] = loc_u_rec(i, j, k, 0, idim, idr);
                     }
                     primL.P = loc_P_rec(i, j, k, 0, idim);
-                    EulerFlux const fluxL = compute_flux(primL, idim, m_eos);
+                    EulerFlux const fluxL = compute_flux(primL, idim, eos);
 
                     EulerPrim primR; // Right, back, top
                     primR.rho = rho_old[1][idim];
@@ -154,7 +153,7 @@ public:
                         primR.u[idr] = loc_u_rec(i, j, k, 1, idim, idr);
                     }
                     primR.P = loc_P_rec(i, j, k, 1, idim);
-                    EulerFlux const fluxR = compute_flux(primR, idim, m_eos);
+                    EulerFlux const fluxR = compute_flux(primR, idim, eos);
 
                     double const dtodv = dt_reconstruction / dv(i, j, k);
 
