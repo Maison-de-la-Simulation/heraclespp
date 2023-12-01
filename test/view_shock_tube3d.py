@@ -7,7 +7,7 @@ import h5py
 import sys
 
 print("********************************")
-print("Test 3d")
+print("   Shock tube spherical 3d")
 print("********************************")
 
 with h5py.File("test_00000000.h5", 'r') as f :
@@ -28,7 +28,7 @@ filename = sys.argv[1]
 
 with h5py.File(str(filename), 'r') as f :
     #print(f.keys())
-    rho_1d = f['rho'][0 , 0, :] # rho(r)
+    rho_1d = f['rho'][5 , 5, :] # rho(r)
     rho2 = f['rho'][:, 0, :] # rho(r, phi)
     u_1d = f['ux'][0, 0, :]
     P_1d = f['P'][0, 0, :]
@@ -82,7 +82,7 @@ e_1d = P_1d / rho_1d / (gamma - 1)
 # ------------------------------------------
 
 plt.figure(figsize=(10,8))
-plt.suptitle('Shock tube 3D')
+plt.suptitle('Shock tube spherical 3D')
 plt.title(f'Density t = {t:.1f} s')
 plt.imshow(rho2, cmap='seismic', origin='lower', extent=[rmin, rmax, phi_min, phi_max])
 plt.xlabel("Radius (m)"); plt.ylabel(r"$\phi$ angle (rad)")
