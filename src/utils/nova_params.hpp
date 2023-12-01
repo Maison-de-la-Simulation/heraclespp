@@ -46,6 +46,8 @@ public :
     int nfx;
     std::string user_step;
     bool mpi_device_aware;
+    std::string pressure_fix;
+    double eps_pf;
 
     explicit Param(INIReader const& reader)
     {
@@ -93,6 +95,9 @@ public :
         nfx = reader.GetInteger("Passive Scalar", "nfx", 0);
 
         user_step = reader.Get("User step", "user_step", "Off");
+
+        pressure_fix = reader.Get("Pressure fix", "pressure_fix", "Off");
+        eps_pf = reader.GetReal("Pressure fix", "eps_pf", 0.000001);
     }
 };
 
