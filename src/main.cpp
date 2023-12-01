@@ -53,6 +53,8 @@
 #include "mpi_scope_guard.hpp"
 #include "setup.hpp"
 
+#include "pressure_fix.hpp"
+
 using namespace novapp;
 
 namespace
@@ -195,6 +197,10 @@ int main(int argc, char** argv)
     }
     if(grid.mpi_rank==0)
     {
+        if (param.pressure_fix == "On")
+        {
+            print_info("PRESSURE_FIX", param.pressure_fix);
+        }
         print_info("RIEMANN_SOLVER", param.riemann_solver);
         print_info("USER_STEP", param.user_step);
     }
@@ -321,6 +327,14 @@ int main(int argc, char** argv)
         godunov_scheme->execute(grid.range.no_ghosts(), dt, rho.d_view, rhou.d_view, E.d_view, fx.d_view,
                                 rho_rec, rhou_rec, E_rec, fx_rec,
                                 rho_new, rhou_new, E_new, fx_new);
+
+        if (param.pressure_fix == "On")
+        {
+            pressure_fix(grid.range.no_ghosts(), eos, grid, dt, param.eps_pf,
+                        rho.d_view, rhou.d_view, E.d_view,
+                        rho_rec, rhou_rec, E_rec,
+                        rho_new, rhou_new, E_new);
+        }
 
         user_step->execute(grid.range.no_ghosts(), t, dt, rho_new, E_new, fx_new);
 
