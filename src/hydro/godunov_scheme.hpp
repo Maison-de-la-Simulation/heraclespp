@@ -179,9 +179,96 @@ public:
                     E_new(i, j, k) += dtodv * (FluxL.E * ds(i, j, k, idim)
                                             - FluxR.E * ds(i_p, j_p, k_p, idim));
 
-                    //Spherical geometric terms
-                    if (geom_choice == "Spherical")
+                    // Gravity
+                    rhou_new(i, j, k, idim) += dt * gravity(i, j, k, idim) * rho(i, j, k);
+                    E_new(i, j, k) += dt * gravity(i, j, k, idim) * rhou(i, j, k, idim);
+
+                    // Passive scalar
+                    for (int ifx = 0; ifx < nfx; ++ifx)
                     {
+                        int iL_uw = i_m; // upwind
+                        int iR_uw = i;
+                        int jL_uw = j_m;
+                        int jR_uw = j;
+                        int kL_uw = k_m;
+                        int kR_uw = k;
+                        int face_L = 1;
+                        int face_R = 1;
+
+                        if (FluxL.rho < 0)
+                        {
+                            iL_uw = i;
+                            jL_uw = j;
+                            kL_uw = k;
+                            face_L = 0;
+                        }
+                        if (FluxR.rho < 0)
+                        {
+                            iR_uw = i_p;
+                            jR_uw = j_p;
+                            kR_uw = k_p;
+                            face_R = 0;
+                        }
+
+                        double const flux_fx_L = fx_rec(iL_uw, jL_uw, kL_uw, face_L, idim, ifx) * FluxL.rho;
+                        double const flux_fx_R = fx_rec(iR_uw, jR_uw, kR_uw, face_R, idim, ifx) * FluxR.rho;
+
+                        fx_new(i, j, k, ifx) += dtodv * (flux_fx_L * ds(i, j, k, idim)
+                                                - flux_fx_R * ds(i_p, j_p, k_p, idim));
+                    }
+                }
+            });
+
+        Kokkos::parallel_for(
+            "passive_scalar_Godunov",
+            cell_mdrange(range),
+            KOKKOS_LAMBDA(int i, int j, int k)
+            {
+                for (int ifx = 0; ifx < nfx; ++ifx)
+                {
+                    fx_new(i, j, k, ifx) /= rho_new(i, j, k);
+
+                    if (fx_new(i, j, k, ifx) > 1)
+                    {
+                        fx_new(i, j, k, ifx) = 1;
+                    }
+                    if (fx_new(i, j, k, ifx) < 0)
+                    {
+                        fx_new(i, j, k, ifx) = 0;
+                    }
+                }
+            });
+
+        Kokkos::parallel_for(
+            "spherical_terms_Godunov",
+            cell_mdrange(range),
+            KOKKOS_LAMBDA(int i, int j, int k)
+            {
+                if (geom_choice == "Spherical")
+                {
+                    for (int idim = 0; idim < ndim; ++idim)
+                    {
+                        auto const [i_m, j_m, k_m] = lindex(idim, i, j, k); // i - 1
+                        auto const [i_p, j_p, k_p] = rindex(idim, i, j, k); // i + 1
+
+                        double const dtodv = dt / dv(i, j, k);
+
+                        EulerCons var_L; // Left, front, down (i,j,k)
+                        var_L.rho = rho_rec(i, j, k, 0, idim);
+                        for (int idr = 0; idr < ndim; ++idr)
+                        {
+                            var_L.rhou[idr] = rhou_rec(i, j, k, 0, idim, idr);
+                        }
+                        var_L.E = E_rec(i, j, k, 0, idim);
+
+                        EulerCons var_R; // Right, back, top (i,j,k)
+                        var_R.rho = rho_rec(i, j, k, 1, idim);
+                        for (int idr = 0; idr < ndim; ++idr)
+                        {
+                            var_R.rhou[idr] = rhou_rec(i, j, k, 1, idim, idr);
+                        }
+                        var_R.E = E_rec(i, j, k, 1, idim);
+
                         EulerPrim primL = to_prim(var_L, eos);
                         EulerPrim primR = to_prim(var_R, eos);
 
@@ -242,64 +329,6 @@ public:
                                                             + primL.rho * primL.u[1] * primL.u[2] * ds(i, j, k, idim));
                             }
                         }
-                    }
-
-                    // Gravity
-                    rhou_new(i, j, k, idim) += dt * gravity(i, j, k, idim) * rho(i, j, k);
-                    E_new(i, j, k) += dt * gravity(i, j, k, idim) * rhou(i, j, k, idim);
-
-                    // Passive scalar
-                    for (int ifx = 0; ifx < nfx; ++ifx)
-                    {
-                        int iL_uw = i_m; // upwind
-                        int iR_uw = i;
-                        int jL_uw = j_m;
-                        int jR_uw = j;
-                        int kL_uw = k_m;
-                        int kR_uw = k;
-                        int face_L = 1;
-                        int face_R = 1;
-
-                        if (FluxL.rho < 0)
-                        {
-                            iL_uw = i;
-                            jL_uw = j;
-                            kL_uw = k;
-                            face_L = 0;
-                        }
-                        if (FluxR.rho < 0)
-                        {
-                            iR_uw = i_p;
-                            jR_uw = j_p;
-                            kR_uw = k_p;
-                            face_R = 0;
-                        }
-
-                        double const flux_fx_L = fx_rec(iL_uw, jL_uw, kL_uw, face_L, idim, ifx) * FluxL.rho;
-                        double const flux_fx_R = fx_rec(iR_uw, jR_uw, kR_uw, face_R, idim, ifx) * FluxR.rho;
-
-                        fx_new(i, j, k, ifx) += dtodv * (flux_fx_L * ds(i, j, k, idim)
-                                                - flux_fx_R * ds(i_p, j_p, k_p, idim));
-                    }
-                }
-            });
-
-        Kokkos::parallel_for(
-            "passive_scalar_Godunov",
-            cell_mdrange(range),
-            KOKKOS_LAMBDA(int i, int j, int k)
-            {
-                for (int ifx = 0; ifx < nfx; ++ifx)
-                {
-                    fx_new(i, j, k, ifx) /= rho_new(i, j, k);
-
-                    if (fx_new(i, j, k, ifx) > 1)
-                    {
-                        fx_new(i, j, k, ifx) = 1;
-                    }
-                    if (fx_new(i, j, k, ifx) < 0)
-                    {
-                        fx_new(i, j, k, ifx) = 0;
                     }
                 }
             });

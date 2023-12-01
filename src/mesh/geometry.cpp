@@ -91,8 +91,8 @@ void Spherical::execute(
             "fill_ds_1dspherical",
             Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0},
                                 {Nx_local_wg[0],
-                                    Nx_local_wg[1],
-                                    Nx_local_wg[2]}),
+                                 Nx_local_wg[1],
+                                 Nx_local_wg[2]}),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
                 ds(i, j, k, 0) = 4 * Kokkos::numbers::pi * x(i) * x(i);
@@ -102,28 +102,19 @@ void Spherical::execute(
             "fill_dv_1dspherical",
             Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0},
                                     {Nx_local_wg[0],
-                                        Nx_local_wg[1],
-                                        Nx_local_wg[2]}),
+                                     Nx_local_wg[1],
+                                     Nx_local_wg[2]}),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
                 dv(i, j, k) = (4 * Kokkos::numbers::pi * (x(i+1) * x(i+1) * x(i+1)
                             - (x(i) * x(i) * x(i)))) / 3;
             });
-
-        /* int const mirror = 2 * Nghost[0] - 1;
-        Kokkos::parallel_for(
-            "dv_1d_spherical",
-            Nghost[0],
-            KOKKOS_LAMBDA(int i)
-            {
-                dv(i, 0, 0) = dv(mirror - i, 0, 0);
-            }); */
     }
 
     if (ndim == 3)
         {
             Kokkos::parallel_for(
-            "Fill_ds_3dspherical",
+            "fill_ds_3dspherical",
             Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0}, 
                                 {Nx_local_wg[0], 
                                  Nx_local_wg[1],
@@ -133,14 +124,13 @@ void Spherical::execute(
                 double dcos = Kokkos::cos(y(j)) - Kokkos::cos(y(j+1));
 
                 ds(i, j, k, 0) = x(i) * x(i) * dcos * dz(k);              //r = cst
-                //ds(i, j, k, 1) = x(i) * Kokkos::sin(y(j)) * dx(i) * dz(k); // theta = cst
                 ds(i, j, k, 1) = (1. / 2) * (x(i+1) * x(i+1) - (x(i) * x(i))) 
                                 * Kokkos::sin(y(j)) * dz(k); // theta = cst
                 ds(i, j, k, 2) = x(i) * dx(i) * dy(j);                     //phi = cst
             });
 
             Kokkos::parallel_for(
-            "Fill_dv_3dspherical",
+            "fill_dv_3dspherical",
             Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0}, 
                                     {Nx_local_wg[0], 
                                      Nx_local_wg[1],
