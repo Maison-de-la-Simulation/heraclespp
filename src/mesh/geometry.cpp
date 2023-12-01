@@ -115,8 +115,8 @@ void Spherical::execute(
         {
             Kokkos::parallel_for(
             "fill_ds_3dspherical",
-            Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0}, 
-                                {Nx_local_wg[0], 
+            Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0},
+                                {Nx_local_wg[0],
                                  Nx_local_wg[1],
                                  Nx_local_wg[2]}),
             KOKKOS_CLASS_LAMBDA(int i, int j, int k)
@@ -124,21 +124,21 @@ void Spherical::execute(
                 double dcos = Kokkos::cos(y(j)) - Kokkos::cos(y(j+1));
 
                 ds(i, j, k, 0) = x(i) * x(i) * dcos * dz(k);              //r = cst
-                ds(i, j, k, 1) = (1. / 2) * (x(i+1) * x(i+1) - (x(i) * x(i))) 
+                ds(i, j, k, 1) = (1. / 2) * (x(i+1) * x(i+1) - (x(i) * x(i)))
                                 * Kokkos::sin(y(j)) * dz(k); // theta = cst
                 ds(i, j, k, 2) = x(i) * dx(i) * dy(j);                     //phi = cst
             });
 
             Kokkos::parallel_for(
             "fill_dv_3dspherical",
-            Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0}, 
-                                    {Nx_local_wg[0], 
+            Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0},
+                                    {Nx_local_wg[0],
                                      Nx_local_wg[1],
                                      Nx_local_wg[2]}),
             KOKKOS_CLASS_LAMBDA(int i, int j, int k)
             {
                 double dcos = Kokkos::cos(y(j)) - Kokkos::cos(y(j+1));
-                dv(i, j, k) = (1. / 3) * (x(i+1) * x(i+1) * x(i+1) 
+                dv(i, j, k) = (1. / 3) * (x(i+1) * x(i+1) * x(i+1)
                                 - (x(i) * x(i) * x(i))) * dcos * dz(k);
             });
         }
