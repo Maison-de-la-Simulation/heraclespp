@@ -22,7 +22,7 @@ with h5py.File(str(file_init), 'r') as f :
     Si0 = f['fx'][4, 0, 0, :]
     t0 = f['current_time'][()]
 
-file_final = "../test/v1d_1e5.h5"
+file_final = "../src/setups/v1d_500/v1d_1e5.h5"
 with h5py.File(str(file_final), 'r') as f :
     rhof = f['rho'][0, 0, :]
     uf = f['ux'][0, 0, :]
