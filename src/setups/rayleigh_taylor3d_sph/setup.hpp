@@ -2,7 +2,9 @@
 #pragma once
 
 #include <Kokkos_Core.hpp>
+#include <mpi.h>
 #include <units.hpp>
+#include <random>
 
 #include <inih/INIReader.hpp>
 
@@ -23,19 +25,10 @@ namespace novapp
 class ParamSetup
 {
 public:
-    double rho0;
-    double rho1;
     double u0;
-    double u1;
-    double P0;
-    double P1;
+
     explicit ParamSetup(INIReader const& reader)
-    : rho0(reader.GetReal("Initialisation", "rho0", 1.0))
-    , rho1(reader.GetReal("Initialisation", "rho1", 1.0))
-    , u0(reader.GetReal("Initialisation", "u0", 1.0))
-    , u1(reader.GetReal("Initialisation", "u1", 1.0))
-    , P0(reader.GetReal("Initialisation", "P0", 1.0))
-    , P1(reader.GetReal("Initialisation", "P1", 1.0))
+        : u0(reader.GetReal("Initialisation", "u0", 1.0))
     {
     }
 };
@@ -44,14 +37,14 @@ template <class Gravity>
 class InitializationSetup : public IInitializationProblem
 {
 private:
-    EOS m_eos;
+    thermodynamics::PerfectGas m_eos;
     Grid m_grid;
     ParamSetup m_param_setup;
     Gravity m_gravity;
 
 public:
     InitializationSetup(
-        EOS const& eos,
+        thermodynamics::PerfectGas const& eos,
         Grid const& grid,
         ParamSetup const& param_set_up,
         Gravity const& gravity)
@@ -76,33 +69,34 @@ public:
         assert(rho.extent(2) == u.extent(2));
         assert(u.extent(2) == P.extent(2));
 
+        auto const r = m_grid.x;
+        auto const& param_setup = m_param_setup;
+
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
-            "test3d_sph_init",
-            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
+            "Rayleigh_Taylor_3D_sph_init",
+            cell_mdrange(range),
+            KOKKOS_LAMBDA(int i, int j, int k)
             {
-                double x = m_grid.x(i) * units::m;
                 double R = 1.5;
 
-                if (x < R)
+                if( r(i) < R)
                 {
-                    rho(i, j, k) =  m_param_setup.rho0;
+                    rho(i, j, k) = 1. / (Kokkos::numbers::pi * R * R);
                     for (int idim = 0; idim < ndim; ++idim)
                     {
-                        u(i, j, k, idim) =  m_param_setup.u0;
+                        u(i, j, k, idim) =  m_param_setup.u0 * r(i) / R;
                     }
-                    P(i, j, k) =  m_param_setup.P0;
                 }
                 else
                 {
-                    rho(i, j, k) = m_param_setup.rho1;
+                    rho(i, j, k) = 1;
                     for (int idim = 0; idim < ndim; ++idim)
                     {
-                        u(i, j, k, idim) = m_param_setup.u1;
+                        u(i, j, k, idim) = 0;
                     }
-                    P(i, j, k) = m_param_setup.P1;
                 }
+                P(i, j, k) = std::pow(10, -5) * rho(i, j, k) *  m_param_setup.u0 * m_param_setup.u0;
             });
     }
 };
