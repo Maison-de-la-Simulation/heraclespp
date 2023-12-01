@@ -69,7 +69,9 @@ public:
         assert(rho.extent(2) == u.extent(2));
         assert(u.extent(2) == P.extent(2));
 
-        auto const r = m_grid.x;
+        auto const x = m_grid.x;
+        auto const y = m_grid.y;
+        auto const z = m_grid.z;
         auto const& param_setup = m_param_setup;
 
         auto const [begin, end] = cell_range(range);
@@ -79,18 +81,22 @@ public:
             KOKKOS_LAMBDA(int i, int j, int k)
             {
                 double R = 1.5;
+                std::random_device rd;
+                std::mt19937 gen(rd());
+                std::uniform_real_distribution<double> dist(-1.0, 1.0);
+                double nr = dist(rd);
 
-                if( r(i) < R)
+                if( x(i) < R)
                 {
-                    rho(i, j, k) = 1. / (Kokkos::numbers::pi * R * R);
+                    rho(i, j, k) = 1. / (Kokkos::numbers::pi * R * R) * (1 + 0.01 * nr);
                     for (int idim = 0; idim < ndim; ++idim)
                     {
-                        u(i, j, k, idim) =  m_param_setup.u0 * r(i) / R;
+                        u(i, j, k, idim) =  m_param_setup.u0 * x(i) / R * (1 + 0.01 * nr);
                     }
                 }
                 else
                 {
-                    rho(i, j, k) = 1;
+                    rho(i, j, k) = 1 * (1 + 0.01 * nr);
                     for (int idim = 0; idim < ndim; ++idim)
                     {
                         u(i, j, k, idim) = 0;

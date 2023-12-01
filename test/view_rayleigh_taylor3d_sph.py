@@ -14,6 +14,7 @@ filename = sys.argv[1]
 
 with h5py.File(str(filename), 'r') as f :
     #print(f.keys())
+    rho_1d = f['rho'][5, 5, :] # rho(r)
     rho2 = f['rho'][:, 0, :] # rho(r, phi)
     x = f['x'][()]
     y = f['y'][()]
@@ -32,7 +33,11 @@ th_max = y[len(y)-3]
 phi_min = z[2]
 phi_max = z[len(z)-3]
 
-print(rho2)
+nr = len(rho_1d)
+dr = (rmax - rmin) / nr
+rc = np.zeros(nr)
+for i in range(2, nr+2):
+    rc[i-2] = x[i] + dr / 2
 
 # ------------------------------------------
 
@@ -42,5 +47,9 @@ plt.title(f'Density t = {t:.1f} s')
 plt.imshow(rho2, cmap='seismic', origin='lower', extent=[rmin, rmax, phi_min, phi_max])
 plt.xlabel("Radius (m)"); plt.ylabel(r"$\phi$ angle (rad)")
 plt.colorbar()
+
+plt.figure(figsize=(10,8))
+plt.plot(rc, rho_1d)
+plt.xlabel("Radius (m)"); plt.ylabel(r"Density")
 
 plt.show()
