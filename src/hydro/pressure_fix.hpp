@@ -7,7 +7,7 @@
 
 #include "euler_equations.hpp"
 #include "grid.hpp"
-#include "nova_params.hpp"
+#include "kronecker.hpp"
 
 namespace novapp
 {
@@ -19,7 +19,7 @@ inline void pressure_fix(
     double const dt,
     double const eps,
     KV_cdouble_3d const rho,
-    KV_cdouble_4d rhou,
+    KV_cdouble_4d const rhou,
     KV_cdouble_3d const E,
     KV_cdouble_5d const rho_rec,
     KV_cdouble_6d const rhou_rec,
@@ -166,7 +166,7 @@ inline void pressure_fix(
                             einL = E(i_m, j_m, k_m) - compute_ek(cons_m);
                         }
 
-                        divUE += (us_p * einR * ds(i_p, j_p, k_p, idr) 
+                        divUE += (us_p * einR * ds(i_p, j_p, k_p, idr)
                                 - us * einL * ds(i, j, k, idr)) / dv(i, j, k);
 
                         double de_pf = dt * (-prim.P * divU - divUE);
