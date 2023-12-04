@@ -88,15 +88,15 @@ public:
 
                 if( x(i) < R)
                 {
-                    rho(i, j, k) = 1. / (Kokkos::numbers::pi * R * R) * (1 + 0.01 * nr);
+                    rho(i, j, k) = 1. / (Kokkos::numbers::pi * R * R); // * (1 + 0.01 * nr);
                     for (int idim = 0; idim < ndim; ++idim)
                     {
-                        u(i, j, k, idim) =  m_param_setup.u0 * x(i) / R * (1 + 0.01 * nr);
+                        u(i, j, k, idim) =  m_param_setup.u0 * x(i) / R; // * (1 + 0.01 * nr);
                     }
                 }
                 else
                 {
-                    rho(i, j, k) = 1 * (1 + 0.01 * nr);
+                    rho(i, j, k) = 1 ;// * (1 + 0.01 * nr);
                     for (int idim = 0; idim < ndim; ++idim)
                     {
                         u(i, j, k, idim) = 0;

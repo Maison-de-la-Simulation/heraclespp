@@ -50,6 +50,7 @@ plt.colorbar()
 
 plt.figure(figsize=(10,8))
 plt.plot(rc, rho_1d)
+plt.xlim(1, 2)
 plt.xlabel("Radius (m)"); plt.ylabel(r"Density")
 
 plt.show()
