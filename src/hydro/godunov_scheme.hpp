@@ -272,13 +272,13 @@ public:
                         EulerPrim primL = to_prim(var_L, eos);
                         EulerPrim primR = to_prim(var_R, eos);
 
-                        if (ndim == 1)
+                        if constexpr (ndim == 1)
                         {
                             // Pressure term (e_{r}): 2 * P_{rr} / r
                             rhou_new(i, j, k, idim) += dtodv * (primL.P + primR.P) / 2
                                                     * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim));
                         }
-                        if (ndim == 3)
+                        if constexpr (ndim == 3)
                         {
                             double sm = Kokkos::sin(y(j));
                             double sp = Kokkos::sin(y(j+1));
@@ -299,11 +299,15 @@ public:
                                                             + primR.rho * primR.u[2] * primR.u[2]) / 2
                                                             * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim)) / 2;
 
-                                // Velocity term (e_{th}): cot(th) * rho * u_{phi} * u_{phi} / r
-                                rhou_new(i, j, k, 1) += dt * (primL.rho * primL.u[2] * primL.u[2]
-                                                            + primR.rho * primR.u[2] * primR.u[2]) / 2
-                                                            * (Kokkos::cos((y(j) + y(j+1)) / 2) / Kokkos::sin((y(j) + y(j+1)) / 2))
-                                                            * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim)) / 2;
+                                // Velocity term (e_{th}): rho * u_{th} * u_{r} / r
+                                rhou_new(i, j, k, 1) -= dtodv * (x(i + 1) - x(i)) / (x(i + 1) + x(i))
+                                                        * (primR.rho * primR.u[1] * primR.u[0] * ds(i_p, j_p, k_p, idim)
+                                                        + primL.rho * primL.u[1] * primL.u[0] * ds(i, j, k, idim));
+
+                                // Velocity term (e_{phi}): rho * u_{phi} * u_{r} / r
+                                rhou_new(i, j, k, 2) -= dtodv * (x(i + 1) - x(i)) / (x(i + 1) + x(i))
+                                                        * (primR.rho * primR.u[2] * primR.u[0] * ds(i_p, j_p, k_p, idim)
+                                                        + primL.rho * primL.u[2] * primL.u[0] * ds(i, j, k, idim));
                             }
                             if (idim == 1)
                             {
@@ -311,29 +315,16 @@ public:
                                 rhou_new(i, j, k, idim) += dtodv * (primL.P + primR.P) / 2
                                                         * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim));
 
-                                // Velocity term (e_{th}): rho * u_{th} * u_{r} / r
-                                rhou_new(i, j, k, idim) -= dtodv * (x(i + 1) - x(i)) / (x(i + 1) + x(i))
-                                                        * (primR.rho * primR.u[0] * primR.u[1] * ds(i_p, j_p, k_p, 0)
-                                                        + primL.rho * primL.u[0] * primL.u[1] * ds(i, j, k, 0));
-
                                 // Velocity term (e_{th}): cot(th) * rho * u_{phi} * u_{phi} / r
-                                /* rhou_new(i, j, k, idim) += dt * (primL.rho * primL.u[2] * primL.u[2]
-                                                            + primR.rho * primR.u[2] * primR.u[2]) / 2
-                                                            * (Kokkos::cos((y(j) + y(j+1)) / 2) / Kokkos::sin((y(j) + y(j+1)) / 2))
-                                                            * 3. / 2 * ((x(i + 1) * x(i + 1) - x(i) * x(i))
-                                                            / (x(i + 1) * x(i + 1) * x(i + 1) - x(i) * x(i) * x(i))); */
-                            }
-                            if (idim == 2)
-                            {
-                                // Velocity term (e_{phi}): rho * u_{phi} * u_{r} / r
-                                rhou_new(i, j, k, 2) -= dtodv * (x(i + 1) - x(i)) / (x(i + 1) + x(i))
-                                                            * (primR.rho * primR.u[2] * primR.u[0] * ds(i_p, j_p, k_p, 0)
-                                                            + primL.rho * primL.u[2] * primL.u[0] * ds(i, j, k, 0));
+                                rhou_new(i, j, k, idim) += dtodv * (primL.rho * primL.u[2] * primL.u[2]
+                                                        + primR.rho * primR.u[2] * primR.u[2]) / 2
+                                                        * (Kokkos::cos((y(j) + y(j+1)) / 2) / Kokkos::sin((y(j) + y(j+1)) / 2))
+                                                        * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim)) / 2;
 
                                 // Velocity term (e_{phi}): cot(th) * rho * u_{phi} * u_{th} / r
-                                rhou_new(i, j, k, idim) -= dtodv * (sp - sm) / (sp + sm)
-                                                        * (primR.rho * primR.u[2] * primR.u[1] * ds(i_p, j_p, k_p, 1)
-                                                        + primL.rho * primL.u[2] * primL.u[1] * ds(i, j, k, 1));
+                                rhou_new(i, j, k, 2) -= dtodv * (sp - sm) / (sp + sm)
+                                                        * (primR.rho * primR.u[2] * primR.u[1] * ds(i_p, j_p, k_p, idim)
+                                                        + primL.rho * primL.u[2] * primL.u[1] * ds(i, j, k, idim));
                             }
                         }
                     }
