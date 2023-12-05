@@ -74,35 +74,37 @@ public:
         auto const z = m_grid.z;
         auto const& param_setup = m_param_setup;
 
+        double R = 1.5;
+
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
             "Rayleigh_Taylor_3D_sph_init",
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                double R = 1.5;
                 std::random_device rd;
                 std::mt19937 gen(rd());
                 std::uniform_real_distribution<double> dist(-1.0, 1.0);
                 double nr = dist(rd);
-
+                double perturb = (1 + 0.01 * nr);
+                std::cout << perturb << std::endl;
                 if( x(i) < R)
                 {
-                    rho(i, j, k) = 1. / (Kokkos::numbers::pi * R * R); // * (1 + 0.01 * nr);
-                    for (int idim = 0; idim < ndim; ++idim)
+                    rho(i, j, k) = 1. / (Kokkos::numbers::pi * R * R) * perturb;
+                for (int idim = 0; idim < ndim; ++idim)
                     {
-                        u(i, j, k, idim) =  m_param_setup.u0 * x(i) / R; // * (1 + 0.01 * nr);
+                        u(i, j, k, idim) =  param_setup.u0 * x(i) / R * perturb;
                     }
                 }
                 else
                 {
-                    rho(i, j, k) = 1 ;// * (1 + 0.01 * nr);
+                    rho(i, j, k) = 1 * perturb;
                     for (int idim = 0; idim < ndim; ++idim)
                     {
                         u(i, j, k, idim) = 0;
                     }
                 }
-                P(i, j, k) = std::pow(10, -5) * rho(i, j, k) *  m_param_setup.u0 * m_param_setup.u0;
+                P(i, j, k) = std::pow(10, -5) * rho(i, j, k) * param_setup.u0 * param_setup.u0;
             });
     }
 };

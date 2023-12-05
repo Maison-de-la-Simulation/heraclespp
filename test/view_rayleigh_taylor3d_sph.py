@@ -23,7 +23,7 @@ with h5py.File(str(filename), 'r') as f :
     iter = f['iter'][()]
     gamma = f['gamma'][()]
 
-print(f"Final time = {t:.1f} s")
+print(f"Final time = {t:.5f} s")
 print(f"Iteration number = {iter}")
 
 rmin = x[2]
@@ -43,7 +43,7 @@ for i in range(2, nr+2):
 
 plt.figure(figsize=(10,8))
 plt.suptitle('Rayleigh Taylor spherical 3D')
-plt.title(f'Density t = {t:.1f} s')
+plt.title(f'Density t = {t:.5f} s')
 plt.imshow(rho2, cmap='seismic', origin='lower', extent=[rmin, rmax, phi_min, phi_max])
 plt.xlabel("Radius (m)"); plt.ylabel(r"$\phi$ angle (rad)")
 plt.colorbar()
