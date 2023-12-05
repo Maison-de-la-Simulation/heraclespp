@@ -11,6 +11,7 @@
 #include "default_user_step.hpp"
 #include "eos.hpp"
 #include <grid.hpp>
+#include <geom.hpp>
 #include "initialization_interface.hpp"
 #include "kokkos_shortcut.hpp"
 #include "ndim.hpp"
@@ -74,12 +75,12 @@ public:
         double dv = m_grid.dv(2, 0, 0);
         double alpha;
 
-        if (geom_choice == "Cartesian")
+        if (geom == Geometry::Geom_cartesian)
         {
             alpha = 0.5;
         }
 
-        if (geom_choice == "Spherical")
+        if (geom == Geometry::Geom_spherical)
         {
             alpha = 1;
         }

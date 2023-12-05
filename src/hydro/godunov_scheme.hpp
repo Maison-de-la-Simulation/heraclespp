@@ -244,7 +244,7 @@ public:
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                if (geom_choice == "Spherical")
+                if (geom == Geometry::Geom_spherical)
                 {
                     for (int idim = 0; idim < ndim; ++idim)
                     {
@@ -272,13 +272,13 @@ public:
                         EulerPrim primL = to_prim(var_L, eos);
                         EulerPrim primR = to_prim(var_R, eos);
 
-                        if constexpr (ndim == 1)
+                        if (ndim == 1)
                         {
                             // Pressure term (e_{r}): 2 * P_{rr} / r
                             rhou_new(i, j, k, idim) += dtodv * (primL.P + primR.P) / 2
                                                     * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim));
                         }
-                        if constexpr (ndim == 3)
+                        if (ndim == 3)
                         {
                             double sm = Kokkos::sin(y(j));
                             double sp = Kokkos::sin(y(j+1));

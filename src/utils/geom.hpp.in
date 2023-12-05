@@ -12,4 +12,12 @@ namespace novapp
 
 inline constexpr std::string_view geom_choice = "@Novapp_GEOM@";
 
+enum Geometry
+{
+    Geom_cartesian,
+    Geom_spherical
+};
+
+constexpr Geometry geom = geom_choice == "Spherical" ?  Geometry::Geom_spherical : Geometry::Geom_cartesian;
+
 } // namespace novapp
