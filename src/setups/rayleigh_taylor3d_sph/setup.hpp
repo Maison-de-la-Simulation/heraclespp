@@ -19,6 +19,8 @@
 #include "nova_params.hpp"
 #include <range.hpp>
 
+#include <Kokkos_Random.hpp>
+
 namespace novapp
 {
 
@@ -72,9 +74,11 @@ public:
         auto const x = m_grid.x;
         auto const y = m_grid.y;
         auto const z = m_grid.z;
+        auto const& grid = m_grid;
         auto const& param_setup = m_param_setup;
 
         double R = 1.5;
+        Kokkos::Random_XorShift64_Pool<> random_pool(12345 + grid.mpi_rank);
 
         auto const [begin, end] = cell_range(range);
         Kokkos::parallel_for(
@@ -82,12 +86,11 @@ public:
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                std::random_device rd;
-                std::mt19937 gen(rd());
-                std::uniform_real_distribution<double> dist(-1.0, 1.0);
-                double nr = dist(rd);
-                double perturb = (1 + 0.01 * nr);
-                std::cout << perturb << std::endl;
+                auto generator = random_pool.get_state();
+                double random_number = generator.drand(-1.0, 1.0);
+                double perturb = (1 + 0.01 * random_number);
+                random_pool.free_state(generator);
+
                 if( x(i) < R)
                 {
                     rho(i, j, k) = 1. / (Kokkos::numbers::pi * R * R) * perturb;
