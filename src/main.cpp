@@ -24,6 +24,7 @@
 #include <RadGas.hpp>
 #include <array_conversion.hpp>
 #include <config.yaml.hpp>
+#include <conservation.hpp>
 #include <eos.hpp>
 #include <euler_equations.hpp>
 #include <extrapolation_time.hpp>
@@ -292,6 +293,8 @@ int main(int argc, char** argv)
 
     modify_device(rho, u, P, fx, rhou, E);
 
+    double initial_mass = conservation(grid.range.no_ghosts(), grid, rho.d_view);
+
     std::vector<std::pair<int, double>> outputs_record;
     if (param.output_frequency > 0)
     {
@@ -363,6 +366,8 @@ int main(int argc, char** argv)
         }
     }
 
+    double final_mass = conservation(grid.range.no_ghosts(), grid, rho.d_view);
+
     Kokkos::fence();
     MPI_Barrier(grid.comm_cart);
 
@@ -378,8 +383,10 @@ int main(int argc, char** argv)
         double const duration = std::chrono::duration<double>(end - start).count();
         double const nb_cell_updates_per_sec = nb_iter * nb_cells / duration;
         double const mega = 1E-6;
-        std::printf("Final time = %f and number of iterations = %d  \n", t, iter);
+        double mass_change = std::abs(initial_mass - final_mass);
+        std::printf("Final time = %f and number of iterations = %d \n", t, iter);
         std::printf("Mean performance: %f Mcell-updates/s\n", mega * nb_cell_updates_per_sec);
+        std::printf("Initial mass = %f and change in mass = %.10e (should be close to 0) \n", initial_mass, mass_change);
         std::printf("--- End ---\n");
     }
     MPI_Comm_free(&(const_cast<Grid&>(grid).comm_cart));
