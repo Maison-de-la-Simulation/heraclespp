@@ -96,7 +96,7 @@ public:
                     rho(i, j, k) = 1. / (Kokkos::numbers::pi * R * R) * perturb;
                 for (int idim = 0; idim < ndim; ++idim)
                     {
-                        u(i, j, k, idim) =  param_setup.u0 * x(i) / R * perturb;
+                        u(i, j, k, idim) = param_setup.u0 * x(i) / R * perturb;
                     }
                 }
                 else
@@ -107,7 +107,7 @@ public:
                         u(i, j, k, idim) = 0;
                     }
                 }
-                P(i, j, k) = std::pow(10, -5) * rho(i, j, k) * param_setup.u0 * param_setup.u0;
+                P(i, j, k) = 2.5;
             });
     }
 };

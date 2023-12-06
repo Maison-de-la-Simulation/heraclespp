@@ -10,6 +10,9 @@ print("********************************")
 print("   Rayleigh Taylor spherical 3d")
 print("********************************")
 
+with h5py.File("test_00000000.h5", 'r') as f :
+    rho0_1d = f['rho'][5, 5, :] # rho(r)
+
 filename = sys.argv[1]
 
 with h5py.File(str(filename), 'r') as f :
@@ -49,8 +52,10 @@ plt.xlabel("Radius (m)"); plt.ylabel(r"$\phi$ angle (rad)")
 plt.colorbar()
 
 plt.figure(figsize=(10,8))
-plt.plot(rc, rho_1d)
+plt.plot(rc, rho0_1d, "--", label="t = 0")
+plt.plot(rc, rho_1d, label=f"t = {t:.3f}")
 plt.xlim(1, 2)
 plt.xlabel("Radius (m)"); plt.ylabel(r"Density")
+plt.legend()
 
 plt.show()
