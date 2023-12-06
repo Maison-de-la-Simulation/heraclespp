@@ -81,13 +81,23 @@ public:
 
         auto const xc = m_grid.x_center;
         auto const& param_setup = m_param_setup;
-        
+        double inter = 0;
+
+        if (ndim ==1)
+        {
+            inter = 0.5;
+        }
+        if (ndim == 3)
+        {
+            inter = 1.5;
+        }
+
         Kokkos::parallel_for(
             "shock_tube_init",
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                if(xc(i) * units::m <= 0.5)
+                if(xc(i) * units::m <= inter)
                 {
                     rho(i, j, k) = param_setup.rho0 * units::density;
                     P(i, j, k) = param_setup.P0 * units::pressure;
@@ -95,9 +105,11 @@ public:
                     {
                         u(i, j, k, idim) = param_setup.u0 * units::velocity;
                     }
-                    fx(i, j, k, 0) = param_setup.fx0;
+                    if (ndim == 1)
+                    {
+                        fx(i, j, k, 0) = param_setup.fx0;
+                    }
                 }
-
                 else
                 {
                     rho(i, j, k) = param_setup.rho1 * units::density;
@@ -106,7 +118,10 @@ public:
                     {
                         u(i, j, k, idim) = param_setup.u1 * units::velocity;
                     }
-                    fx(i, j, k, 0) = param_setup.fx1;
+                    if (ndim == 1)
+                    {
+                        fx(i, j, k, 0) = param_setup.fx1;
+                    }
                 }
             });
     }
