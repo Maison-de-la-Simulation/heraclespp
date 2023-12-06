@@ -190,77 +190,8 @@ public:
                                                 - fluxR.E * ds(i_p, j_p, k_p, idim));
                     }
 
-                    // Gravity
-                    for (int ipos = 0; ipos < ndim; ++ipos)
+                    if (geom == Geometry::Geom_spherical)
                     {
-                        rhou_rec(i, j, k, 0, ipos, idim) += dt_reconstruction * gravity(i, j, k, idim) * rho_old[0][ipos];
-                        rhou_rec(i, j, k, 1, ipos, idim) += dt_reconstruction * gravity(i, j, k, idim) * rho_old[1][ipos];
-
-                        E_rec(i, j, k, 0, ipos) += dt_reconstruction * gravity(i, j, k, idim) * rhou_old[0][ipos][idim];
-                        E_rec(i, j, k, 1, ipos) += dt_reconstruction * gravity(i, j, k, idim) * rhou_old[1][ipos][idim];
-                    }
-
-                    // Passive scalar
-                    for (int ifx = 0; ifx < nfx; ++ifx)
-                    {
-                        for (int ipos = 0; ipos < ndim; ++ipos)
-                        {
-                            double flux_fx_L = fx_rec_old(i, j, k, 0, idim, ifx) * fluxL.rho;
-                            double flux_fx_R = fx_rec_old(i, j, k, 1, idim, ifx) * fluxR.rho;
-
-                            fx_rec(i, j, k, 0, ipos, ifx) += dtodv * (flux_fx_L * ds(i, j, k, idim)
-                                                                - flux_fx_R * ds(i_p, j_p, k_p, idim));
-                            fx_rec(i, j, k, 1, ipos, ifx) += dtodv * (flux_fx_L * ds(i, j, k, idim)
-                                                                - flux_fx_R * ds(i_p, j_p, k_p, idim));
-                        }
-                    }
-                }
-            });
-
-        Kokkos::parallel_for(
-            "passive_scalar_extrapolation",
-            cell_mdrange(range),
-            KOKKOS_LAMBDA(int i, int j, int k)
-            {
-                for (int idim = 0; idim < ndim; ++idim)
-                {
-                    for (int ifx = 0; ifx < nfx; ++ifx)
-                    {
-                        fx_rec(i, j, k, 0, idim, ifx) /= rho_rec(i, j, k, 0, idim);
-                        fx_rec(i, j, k, 1, idim, ifx) /= rho_rec(i, j, k, 1, idim);
-                    }
-                }
-            });
-
-        Kokkos::parallel_for(
-            "spherical_terms_Hancock",
-            cell_mdrange(range),
-            KOKKOS_LAMBDA(int i, int j, int k)
-            {
-                if (geom == Geometry::Geom_spherical)
-                {
-                    for (int idim = 0; idim < ndim; ++idim)
-                    {
-                        auto const [i_p, j_p, k_p] = rindex(idim, i, j, k); // i + 1
-
-                        double const dtodv = dt_reconstruction / dv(i, j, k);
-
-                        EulerPrim primL; // Left, front, bottom
-                        primL.rho = rho_rec_old(i, j, k, 0, idim);
-                        for (int idr = 0; idr < ndim; ++idr)
-                        {
-                            primL.u[idr] = u_rec_old(i, j, k, 0, idim, idr);
-                        }
-                        primL.P = P_rec_old(i, j, k, 0, idim);
-
-                        EulerPrim primR; // Right, back, top
-                        primR.rho = rho_rec_old(i, j, k, 1, idim);
-                        for (int idr = 0; idr < ndim; ++idr)
-                        {
-                            primR.u[idr] = u_rec_old(i, j, k, 1, idim, idr);
-                        }
-                        primR.P = P_rec_old(i, j, k, 1, idim);
-
                         if (ndim == 1)
                         {
                             // Pressure term (e_{r}): 2 * P_{rr} / r
@@ -316,7 +247,7 @@ public:
                                 {
                                     // Pressure term (e_{th}): cot(th) * P_{th th} / r
                                     double p_th = dtodv * (primL.P + primR.P) / 2
-                                                 * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim));
+                                                * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim));
                                     rhou_rec(i, j, k, 0, ipos, idim) += p_th;
                                     rhou_rec(i, j, k, 1, ipos, idim) += p_th;
 
@@ -337,6 +268,46 @@ public:
                                 }
                             }
                         }
+                    }
+
+                    // Gravity
+                    for (int ipos = 0; ipos < ndim; ++ipos)
+                    {
+                        rhou_rec(i, j, k, 0, ipos, idim) += dt_reconstruction * gravity(i, j, k, idim) * rho_old[0][ipos];
+                        rhou_rec(i, j, k, 1, ipos, idim) += dt_reconstruction * gravity(i, j, k, idim) * rho_old[1][ipos];
+
+                        E_rec(i, j, k, 0, ipos) += dt_reconstruction * gravity(i, j, k, idim) * rhou_old[0][ipos][idim];
+                        E_rec(i, j, k, 1, ipos) += dt_reconstruction * gravity(i, j, k, idim) * rhou_old[1][ipos][idim];
+                    }
+
+                    // Passive scalar
+                    for (int ifx = 0; ifx < nfx; ++ifx)
+                    {
+                        for (int ipos = 0; ipos < ndim; ++ipos)
+                        {
+                            double flux_fx_L = fx_rec_old(i, j, k, 0, idim, ifx) * fluxL.rho;
+                            double flux_fx_R = fx_rec_old(i, j, k, 1, idim, ifx) * fluxR.rho;
+
+                            fx_rec(i, j, k, 0, ipos, ifx) += dtodv * (flux_fx_L * ds(i, j, k, idim)
+                                                                - flux_fx_R * ds(i_p, j_p, k_p, idim));
+                            fx_rec(i, j, k, 1, ipos, ifx) += dtodv * (flux_fx_L * ds(i, j, k, idim)
+                                                                - flux_fx_R * ds(i_p, j_p, k_p, idim));
+                        }
+                    }
+                }
+            });
+
+        Kokkos::parallel_for(
+            "passive_scalar_extrapolation",
+            cell_mdrange(range),
+            KOKKOS_LAMBDA(int i, int j, int k)
+            {
+                for (int idim = 0; idim < ndim; ++idim)
+                {
+                    for (int ifx = 0; ifx < nfx; ++ifx)
+                    {
+                        fx_rec(i, j, k, 0, idim, ifx) /= rho_rec(i, j, k, 0, idim);
+                        fx_rec(i, j, k, 1, idim, ifx) /= rho_rec(i, j, k, 1, idim);
                     }
                 }
             });

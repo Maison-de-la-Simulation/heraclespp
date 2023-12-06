@@ -179,6 +179,68 @@ public:
                     E_new(i, j, k) += dtodv * (FluxL.E * ds(i, j, k, idim)
                                             - FluxR.E * ds(i_p, j_p, k_p, idim));
 
+                    if (geom == Geometry::Geom_spherical)
+                    {
+                        EulerPrim primL = to_prim(var_L, eos);
+                        EulerPrim primR = to_prim(var_R, eos);
+
+                        if (ndim == 1)
+                        {
+                            // Pressure term (e_{r}): 2 * P_{rr} / r
+                            rhou_new(i, j, k, idim) += dtodv * (primL.P + primR.P) / 2
+                                                    * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim));
+                        }
+                        if (ndim == 3)
+                        {
+                            double sm = Kokkos::sin(y(j));
+                            double sp = Kokkos::sin(y(j+1));
+
+                            if (idim == 0)
+                            {
+                                // Pressure term (e_{r}): 2 * P_{rr} / r
+                                rhou_new(i, j, k, idim) += dtodv * (primL.P + primR.P) / 2
+                                                        * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim));
+
+                                // Velocity term (e_{r}): rho * u_{th} * u_{th} / r
+                                rhou_new(i, j, k, idim) += dtodv * (primL.rho * primL.u[1] * primL.u[1]
+                                                            + primR.rho * primR.u[1] * primR.u[1]) / 2
+                                                            * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim)) / 2;
+
+                                // Velocity term (e_{r}): rho * u_{phi} * u_{phi} / r
+                                rhou_new(i, j, k, idim) += dtodv * (primL.rho * primL.u[2] * primL.u[2]
+                                                            + primR.rho * primR.u[2] * primR.u[2]) / 2
+                                                            * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim)) / 2;
+
+                                // Velocity term (e_{th}): rho * u_{th} * u_{r} / r
+                                rhou_new(i, j, k, 1) -= dtodv * (x(i + 1) - x(i)) / (x(i + 1) + x(i))
+                                                        * (primR.rho * primR.u[1] * primR.u[0] * ds(i_p, j_p, k_p, idim)
+                                                        + primL.rho * primL.u[1] * primL.u[0] * ds(i, j, k, idim));
+
+                                // Velocity term (e_{phi}): rho * u_{phi} * u_{r} / r
+                                rhou_new(i, j, k, 2) -= dtodv * (x(i + 1) - x(i)) / (x(i + 1) + x(i))
+                                                        * (primR.rho * primR.u[2] * primR.u[0] * ds(i_p, j_p, k_p, idim)
+                                                        + primL.rho * primL.u[2] * primL.u[0] * ds(i, j, k, idim));
+                            }
+                            if (idim == 1)
+                            {
+                                // Pressure term (e_{th}): cot(th) * P_{th th} / r
+                                rhou_new(i, j, k, idim) += dtodv * (primL.P + primR.P) / 2
+                                                        * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim));
+
+                                // Velocity term (e_{th}): cot(th) * rho * u_{phi} * u_{phi} / r
+                                rhou_new(i, j, k, idim) += dtodv * (primL.rho * primL.u[2] * primL.u[2]
+                                                        + primR.rho * primR.u[2] * primR.u[2]) / 2
+                                                        * (Kokkos::cos((y(j) + y(j+1)) / 2) / Kokkos::sin((y(j) + y(j+1)) / 2))
+                                                        * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim)) / 2;
+
+                                // Velocity term (e_{phi}): cot(th) * rho * u_{phi} * u_{th} / r
+                                rhou_new(i, j, k, 2) -= dtodv * (sp - sm) / (sp + sm)
+                                                        * (primR.rho * primR.u[2] * primR.u[1] * ds(i_p, j_p, k_p, idim)
+                                                        + primL.rho * primL.u[2] * primL.u[1] * ds(i, j, k, idim));
+                            }
+                        }
+                    }
+
                     // Gravity
                     rhou_new(i, j, k, idim) += dt * gravity(i, j, k, idim) * rho(i, j, k);
                     E_new(i, j, k) += dt * gravity(i, j, k, idim) * rhou(i, j, k, idim);
@@ -239,7 +301,7 @@ public:
                 }
             });
 
-        Kokkos::parallel_for(
+        /* Kokkos::parallel_for(
             "spherical_terms_Godunov",
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
@@ -329,7 +391,7 @@ public:
                         }
                     }
                 }
-            });
+            }); */
     }
 };
 
