@@ -77,7 +77,7 @@ public:
         double mu = m_eos.mean_molecular_weight();
         /* std::cout <<"Scale = " << units::kb * m_param_setup.T
             / (mu * units::mp * Kokkos::fabs(g(0))) << std::endl; */
-        
+
         Kokkos::parallel_for(
             "stratified_atm_init",
             cell_mdrange(range),

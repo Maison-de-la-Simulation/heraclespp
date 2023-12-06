@@ -85,7 +85,7 @@ public:
                 }
 
                 else if (xc(i) * units::m >= 0.7)
-                {       
+                {
                     rho(i, j, k) = param_setup.rho0 * units::density;
                 }
 

@@ -40,7 +40,7 @@ double time_step(
         },
         Kokkos::Max<double>(inverse_dt));
 
-    double result =  cfl * 1 / inverse_dt;
+    double result = cfl * 1 / inverse_dt;
     MPI_Allreduce(MPI_IN_PLACE, &result, 1, MPI_DOUBLE, MPI_MIN, grid.comm_cart);
     return result;
 }

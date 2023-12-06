@@ -106,12 +106,12 @@ public:
                     rho(i, j, k) = param_setup.rho0 * units::density;
                     fx(i, j, k, 0) = param_setup.fx1;
                 }
-                
+
                 u(i, j, k, 0) = param_setup.u0 * units::velocity;
                 u(i, j, k, 1) = param_setup.u0 * units::velocity;
-                /* u(i, j, k, 1) = (param_setup.A/4) * (1+Kokkos::cos(2*Kokkos::numbers::pi*x/m_grid.L[0])) 
+                /* u(i, j, k, 1) = (param_setup.A/4) * (1+Kokkos::cos(2*Kokkos::numbers::pi*x/m_grid.L[0]))
                                 * (1+Kokkos::cos(2*Kokkos::numbers::pi*y/m_grid.L[1])); */
-                                
+
                 P(i, j, k) = (P0 + rho(i, j, k) * gravity(i, j, k, 1) * units::acc * y) * units::pressure;
             });
     }

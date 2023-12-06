@@ -95,14 +95,14 @@ public:
 
                 if (r <0.025)
                 {
-                    double T = eos.compute_T_from_evol(rho(i, j, k), 
+                    double T = eos.compute_T_from_evol(rho(i, j, k),
                                 param_setup.E1 * units::evol / dv(i, j, k)) * units::Kelvin;
                     P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), T) * units::pressure;
                 }
-                
+
                 else
                 {
-                    double T = eos.compute_T_from_evol(rho(i, j, k), 
+                    double T = eos.compute_T_from_evol(rho(i, j, k),
                                 param_setup.E0 * units::evol / dv(i, j, k)) * units::Kelvin;
                     P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), T) * units::pressure;
                 }

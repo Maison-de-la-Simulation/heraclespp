@@ -73,7 +73,7 @@ public:
 
         auto const& eos = m_eos;
         auto const& param_setup = m_param_setup;
-        
+
         Kokkos::parallel_for(
             "heat_nickel_init",
             cell_mdrange(range),

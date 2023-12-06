@@ -42,6 +42,7 @@
 #include <nova_params.hpp>
 #include <paraconf.h>
 #include <pdi.h>
+#include <pressure_fix.hpp>
 #include <range.hpp>
 #include <temperature.hpp>
 #include <time_step.hpp>
@@ -53,8 +54,6 @@
 #include "initialization_interface.hpp"
 #include "mpi_scope_guard.hpp"
 #include "setup.hpp"
-
-#include "pressure_fix.hpp"
 
 using namespace novapp;
 

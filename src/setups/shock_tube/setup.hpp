@@ -81,7 +81,6 @@ public:
 
         auto const xc = m_grid.x_center;
         auto const& param_setup = m_param_setup;
-        
         Kokkos::parallel_for(
             "shock_tube_init",
             cell_mdrange(range),
