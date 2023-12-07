@@ -39,6 +39,11 @@ public :
           std::array<int, 3> const& Cmax,
           int Nghost);
 
+    Range(std::array<int, 2> const& rng_x,
+          std::array<int, 2> const& rng_y,
+          std::array<int, 2> const& rng_z,
+          int Nghost);
+
     Range no_ghosts() const;
 
     Range all_ghosts() const;
