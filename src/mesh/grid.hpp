@@ -81,4 +81,41 @@ private:
     void MPI_Decomp();
 };
 
+template <class... Args>
+auto allocate_double_with_ghosts(std::string const& label, Grid const& grid, Args... args)
+{
+    if constexpr (sizeof...(Args) == 0) {
+        return KV_double_3d(
+                label,
+                grid.Nx_local_wg[0],
+                grid.Nx_local_wg[1],
+                grid.Nx_local_wg[2],
+                args...);
+    }
+    if constexpr (sizeof...(Args) == 1) {
+        return KV_double_4d(
+                label,
+                grid.Nx_local_wg[0],
+                grid.Nx_local_wg[1],
+                grid.Nx_local_wg[2],
+                args...);
+    }
+    if constexpr (sizeof...(Args) == 2) {
+        return KV_double_5d(
+                label,
+                grid.Nx_local_wg[0],
+                grid.Nx_local_wg[1],
+                grid.Nx_local_wg[2],
+                args...);
+    }
+    if constexpr (sizeof...(Args) == 3) {
+        return KV_double_6d(
+                label,
+                grid.Nx_local_wg[0],
+                grid.Nx_local_wg[1],
+                grid.Nx_local_wg[2],
+                args...);
+    }
+}
+
 } // namespace novapp
