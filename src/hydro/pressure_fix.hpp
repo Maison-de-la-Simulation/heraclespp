@@ -87,16 +87,16 @@ inline void pressure_fix(
                         EulerCons var_R; // Right, back, top (i,j,k)
 
                         var_L.rho = rho_rec(i, j, k, 0, idim);
-                        for (int ipos = 0; ipos < ndim; ++ipos)
+                        for (int idr = 0; idr < ndim; ++idr)
                         {
-                            var_L.rhou[ipos] = rhou_rec(i, j, k, 0, idim, ipos);
+                            var_L.rhou[idr] = rhou_rec(i, j, k, 0, idim, idr);
                         }
                         var_L.E = E_rec(i, j, k, 0, idim);
 
                         var_R.rho = rho_rec(i, j, k, 1, idim);
-                        for (int ipos = 0; ipos < ndim; ++ipos)
+                        for (int idr = 0; idr < ndim; ++idr)
                         {
-                            var_R.rhou[ipos] = rhou_rec(i, j, k, 1, idim, ipos);
+                            var_R.rhou[idr] = rhou_rec(i, j, k, 1, idim, idr);
                         }
                         var_R.E = E_rec(i, j, k, 1, idim);
 
