@@ -107,7 +107,7 @@ public:
                         u(i, j, k, idim) = 0;
                     }
                 }
-                P(i, j, k) = 2.5;
+                P(i, j, k) = std::pow(10, -5) * rho(i, j, k) * param_setup.u0 * param_setup.u0;
             });
     }
 };
