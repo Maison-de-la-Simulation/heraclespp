@@ -383,9 +383,9 @@ int main(int argc, char** argv)
         double const nb_cell_updates_per_sec = nb_iter * nb_cells / duration;
         double const mega = 1E-6;
         double mass_change = std::abs(initial_mass - final_mass);
-        std::printf("Final time = %f and number of iterations = %d \n", t, iter);
+        std::printf("Final time = %f and number of iterations = %d\n", t, iter);
         std::printf("Mean performance: %f Mcell-updates/s\n", mega * nb_cell_updates_per_sec);
-        std::printf("Initial mass = %f and change in mass = %.10e (should be close to 0) \n", initial_mass, mass_change);
+        std::printf("Initial mass = %f and change in mass = %.10e\n", initial_mass, mass_change);
         std::printf("--- End ---\n");
     }
     MPI_Comm_free(&(const_cast<Grid&>(grid).comm_cart));
