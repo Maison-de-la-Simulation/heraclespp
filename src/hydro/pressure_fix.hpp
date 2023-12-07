@@ -81,22 +81,22 @@ inline void pressure_fix(
                     auto const [i_m, j_m, k_m] = lindex(idim, i, j, k); // i - 1
                     auto const [i_p, j_p, k_p] = rindex(idim, i, j, k); // i + 1
 
-                    for (int idr = 0; idr < ndim; ++idr)
+                    for (int ipos = 0; ipos < ndim; ++ipos)
                     {
                         EulerCons var_L; // Left, front, down (i,j,k)
                         EulerCons var_R; // Right, back, top (i,j,k)
 
                         var_L.rho = rho_rec(i, j, k, 0, idim);
-                        for (int idr = 0; idr < ndim; ++idr)
+                        for (int ipos = 0; ipos < ndim; ++ipos)
                         {
-                            var_L.rhou[idr] = rhou_rec(i, j, k, 0, idim, idr);
+                            var_L.rhou[ipos] = rhou_rec(i, j, k, 0, idim, ipos);
                         }
                         var_L.E = E_rec(i, j, k, 0, idim);
 
                         var_R.rho = rho_rec(i, j, k, 1, idim);
-                        for (int idr = 0; idr < ndim; ++idr)
+                        for (int ipos = 0; ipos < ndim; ++ipos)
                         {
-                            var_R.rhou[idr] = rhou_rec(i, j, k, 1, idim, idr);
+                            var_R.rhou[ipos] = rhou_rec(i, j, k, 1, idim, ipos);
                         }
                         var_R.E = E_rec(i, j, k, 1, idim);
 
@@ -142,11 +142,11 @@ inline void pressure_fix(
 
                         //--------------------------------------------//
 
-                        double us = (prim_mR.u[idr] + primL.u[idr]) / 2; // Not the values from the Riemann solver
-                        double us_p = (primR.u[idr] + prim_pL.u[idr]) / 2;
+                        double us = (prim_mR.u[ipos] + primL.u[ipos]) / 2; // Not the values from the Riemann solver
+                        double us_p = (primR.u[ipos] + prim_pL.u[ipos]) / 2;
 
-                        divU += (us_p * ds(i_p, j_p, k_p, idr)
-                            - us * ds(i, j, k, idr)) / dv(i, j, k);
+                        divU += (us_p * ds(i_p, j_p, k_p, ipos)
+                            - us * ds(i, j, k, ipos)) / dv(i, j, k);
 
                         if (us_p > 0)
                         {
@@ -166,8 +166,8 @@ inline void pressure_fix(
                             einL = E(i_m, j_m, k_m) - compute_ek(cons_m);
                         }
 
-                        divUE += (us_p * einR * ds(i_p, j_p, k_p, idr)
-                                - us * einL * ds(i, j, k, idr)) / dv(i, j, k);
+                        divUE += (us_p * einR * ds(i_p, j_p, k_p, ipos)
+                                - us * einL * ds(i, j, k, ipos)) / dv(i, j, k);
 
                         double de_pf = dt * (-prim.P * divU - divUE);
 
