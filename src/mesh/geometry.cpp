@@ -119,7 +119,7 @@ void Spherical::execute(
                                 {Nx_local_wg[0],
                                  Nx_local_wg[1],
                                  Nx_local_wg[2]}),
-            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
+            KOKKOS_LAMBDA(int i, int j, int k)
             {
                 double dcos = Kokkos::cos(y(j)) - Kokkos::cos(y(j+1));
 
@@ -135,7 +135,7 @@ void Spherical::execute(
                                     {Nx_local_wg[0],
                                      Nx_local_wg[1],
                                      Nx_local_wg[2]}),
-            KOKKOS_CLASS_LAMBDA(int i, int j, int k)
+            KOKKOS_LAMBDA(int i, int j, int k)
             {
                 double dcos = Kokkos::cos(y(j)) - Kokkos::cos(y(j+1));
                 dv(i, j, k) = (1. / 3) * (x(i+1) * x(i+1) * x(i+1)
