@@ -99,7 +99,7 @@ public:
         }
         if (itr == 99 && Kokkos::abs(delta_T) > 1E-6)
         {
-            std::printf("No convergence in temperature : %f \n", Kokkos::abs(delta_T));
+            Kokkos::printf("No convergence in temperature : %f \n", Kokkos::abs(delta_T));
         }
         return T;
     }
@@ -135,7 +135,7 @@ public:
         }
         if (itr == 99 && Kokkos::abs(delta_T) > 1E-6)
         {
-            std::printf("No convergence in temperature : %f \n", Kokkos::abs(delta_T));
+            Kokkos::printf("No convergence in temperature : %f \n", Kokkos::abs(delta_T));
         }
         return T;
     }
