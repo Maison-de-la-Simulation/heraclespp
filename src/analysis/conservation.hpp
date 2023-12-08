@@ -16,7 +16,7 @@ inline double conservation(
     Grid const& grid,
     KV_cdouble_3d const rho)
 {
-    double sum = 0;
+    double total_mass = 0;
 
     Kokkos::parallel_reduce(
         "check_conservation",
@@ -25,9 +25,8 @@ inline double conservation(
         {
             local_sum += rho(i, j, k) * grid.dv(i, j, k);
         },
-        Kokkos::Sum<double>(sum));
+        Kokkos::Sum<double>(total_mass));
 
-    double total_mass = sum;
     MPI_Allreduce(MPI_IN_PLACE, &total_mass, 1, MPI_DOUBLE, MPI_SUM, grid.comm_cart);
     return total_mass;
 }
