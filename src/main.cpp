@@ -24,6 +24,7 @@
 #include <RadGas.hpp>
 #include <array_conversion.hpp>
 #include <config.yaml.hpp>
+#include <conservation.hpp>
 #include <eos.hpp>
 #include <euler_equations.hpp>
 #include <extrapolation_time.hpp>
@@ -34,6 +35,7 @@
 #include <grid.hpp>
 #include <grid_factory.hpp>
 #include <hydro_reconstruction.hpp>
+#include <internal_energy.hpp>
 #include <io.hpp>
 #include <kokkos_shortcut.hpp>
 #include <kronecker.hpp>
@@ -41,6 +43,7 @@
 #include <nova_params.hpp>
 #include <paraconf.h>
 #include <pdi.h>
+#include <pressure_fix.hpp>
 #include <range.hpp>
 #include <temperature.hpp>
 #include <time_step.hpp>
@@ -195,6 +198,10 @@ int main(int argc, char** argv)
     }
     if(grid.mpi_rank==0)
     {
+        if (param.pressure_fix == "On")
+        {
+            print_info("PRESSURE_FIX", param.pressure_fix);
+        }
         print_info("RIEMANN_SOLVER", param.riemann_solver);
         print_info("USER_STEP", param.user_step);
     }
@@ -286,6 +293,8 @@ int main(int argc, char** argv)
 
     modify_device(rho, u, P, fx, rhou, E);
 
+    double initial_mass = conservation(grid.range.no_ghosts(), grid, rho.d_view);
+
     std::vector<std::pair<int, double>> outputs_record;
     if (param.output_frequency > 0)
     {
@@ -315,12 +324,26 @@ int main(int argc, char** argv)
             should_exit = true;
         }
 
+        double min_internal_energy = internal_energy(grid.range.no_ghosts(), grid, rho.d_view, rhou.d_view, E.d_view);
+        if (min_internal_energy < 0)
+        {
+            throw std::runtime_error("Internal energy < 0");
+        }
+
         reconstruction->execute(grid.range.with_ghosts(1), dt/2, rho.d_view, u.d_view, P.d_view, fx.d_view,
                                 rho_rec, rhou_rec, E_rec, fx_rec);
 
         godunov_scheme->execute(grid.range.no_ghosts(), dt, rho.d_view, rhou.d_view, E.d_view, fx.d_view,
                                 rho_rec, rhou_rec, E_rec, fx_rec,
                                 rho_new, rhou_new, E_new, fx_new);
+
+        if (param.pressure_fix == "On")
+        {
+            pressure_fix(grid.range.no_ghosts(), eos, grid, dt, param.eps_pf,
+                        rho.d_view, rhou.d_view, E.d_view,
+                        rho_rec, rhou_rec, E_rec,
+                        rho_new, rhou_new, E_new);
+        }
 
         user_step->execute(grid.range.no_ghosts(), t, dt, rho_new, E_new, fx_new);
 
@@ -349,6 +372,8 @@ int main(int argc, char** argv)
         }
     }
 
+    double final_mass = conservation(grid.range.no_ghosts(), grid, rho.d_view);
+
     Kokkos::fence();
     MPI_Barrier(grid.comm_cart);
 
@@ -364,8 +389,10 @@ int main(int argc, char** argv)
         double const duration = std::chrono::duration<double>(end - start).count();
         double const nb_cell_updates_per_sec = nb_iter * nb_cells / duration;
         double const mega = 1E-6;
-        std::printf("Final time = %f and number of iterations = %d  \n", t, iter);
+        double mass_change = std::abs(initial_mass - final_mass);
+        std::printf("Final time = %f and number of iterations = %d\n", t, iter);
         std::printf("Mean performance: %f Mcell-updates/s\n", mega * nb_cell_updates_per_sec);
+        std::printf("Initial mass = %f and change in mass = %.10e\n", initial_mass, mass_change);
         std::printf("--- End ---\n");
     }
     MPI_Comm_free(&(const_cast<Grid&>(grid).comm_cart));

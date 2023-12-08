@@ -78,7 +78,7 @@ public:
     RiemannBasedGodunovScheme(
         RiemannSolver const &riemann_solver,
         Gravity const& gravity,
-        EOS const& eos,
+        EOS const& eos, 
         Grid const& grid)
         : m_riemann_solver(riemann_solver)
         , m_gravity(gravity)

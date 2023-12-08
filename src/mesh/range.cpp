@@ -84,6 +84,15 @@ Range::Range(std::array<int, 3> const& Cmin, std::array<int, 3> const& Cmax, int
     }
 }
 
+Range::Range(
+        std::array<int, 2> const& rng_x,
+        std::array<int, 2> const& rng_y,
+        std::array<int, 2> const& rng_z,
+        int const Nghost)
+    : Range({rng_x[0], rng_y[0], rng_z[0]}, {rng_x[1], rng_y[1], rng_z[1]}, Nghost)
+{
+}
+
 Range Range::no_ghosts() const
 {
     return with_ghosts(0);

@@ -85,7 +85,7 @@ public:
                 double theta = Kokkos::atan2(y, x);
                 double u_theta;
                 double P0 = 1. / (eos.adiabatic_index() * param_setup.Ma * param_setup.Ma);
-                
+
                 rho(i, j, k) = param_setup.rho0 * units::density;
 
                 if (r < 0.2)

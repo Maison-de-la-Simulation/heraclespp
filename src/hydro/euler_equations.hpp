@@ -54,6 +54,13 @@ double compute_ek(EulerPrim const& prim) noexcept
     return 0.5 * prim.rho * norm_u;
 }
 
+KOKKOS_FORCEINLINE_FUNCTION
+double compute_eint(EulerCons const& cons) noexcept
+{
+    double ekin = compute_ek(cons);
+    return cons.E - ekin;
+}
+
 //! Flux formula
 //! @param[in] prim Primitive state
 //! @param[in] eos Equation of state
@@ -67,15 +74,15 @@ EulerFlux compute_flux(
     assert(locdim >= 0);
     assert(locdim < ndim);
     EulerFlux flux;
-    double const volumic_total_energy
-            = compute_ek(prim) + eos.compute_evol_from_P(prim.rho, prim.P);
+    double const E
+            = compute_ek(prim) + eos.compute_eint_from_P(prim.rho, prim.P);
     flux.rho = prim.rho * prim.u[locdim];
     for (int idim = 0; idim < ndim; ++idim)
     {
         flux.rhou[idim] = prim.rho * prim.u[locdim] * prim.u[idim];
     }
     flux.rhou[locdim] += prim.P;
-    flux.E = prim.u[locdim] * (volumic_total_energy + prim.P);
+    flux.E = prim.u[locdim] * (E + prim.P);
     return flux;
 }
 
@@ -92,8 +99,8 @@ EulerFlux compute_flux(
     assert(locdim >= 0);
     assert(locdim < ndim);
     EulerFlux flux;
-    double const evol = cons.E - compute_ek(cons);
-    double const P = eos.compute_P_from_evol(cons.rho, evol);
+    double const eint = cons.E - compute_ek(cons);
+    double const P = eos.compute_P_from_eint(cons.rho, eint);
     double const u = cons.rhou[locdim] / cons.rho;
     flux.rho = u * cons.rho;
     for (int idim = 0; idim < ndim; ++idim)
@@ -111,13 +118,13 @@ EulerPrim to_prim(
         EOS const& eos) noexcept
 {
     EulerPrim prim;
-    double const evol = cons.E - compute_ek(cons);
+    double const eint = cons.E - compute_ek(cons);
     prim.rho = cons.rho;
     for (int idim = 0; idim < ndim; ++idim)
     {
         prim.u[idim] = cons.rhou[idim] / cons.rho;
     }
-    prim.P = eos.compute_P_from_evol(cons.rho, evol);
+    prim.P = eos.compute_P_from_eint(cons.rho, eint);
     return prim;
 }
 
@@ -130,7 +137,7 @@ EulerCons to_cons(EulerPrim const& prim, EOS const& eos) noexcept
     {
         cons.rhou[idim] = prim.rho * prim.u[idim];
     }
-    cons.E = eos.compute_evol_from_P(prim.rho, prim.P)
+    cons.E = eos.compute_eint_from_P(prim.rho, prim.P)
                 + compute_ek(prim);
     return cons;
 }

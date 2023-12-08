@@ -132,7 +132,7 @@ public:
         // Reflexive X-left ghost cells
         for(int i = Nghost[0]-1; i >= 0; i--)
         {
-            int mirror = Nghost[0] -  2 * i + 1; 
+            int mirror = Nghost[0] -  2 * i + 1;
             x_glob(i) = x_glob(i+1) - (x_glob(i+mirror+1) - x_glob(i+mirror));
         }
 
@@ -149,6 +149,6 @@ public:
             z_glob(i) = m_param.zmin + i * dz;
         }
     }
-}; 
+};
 
 } // namespace novapp

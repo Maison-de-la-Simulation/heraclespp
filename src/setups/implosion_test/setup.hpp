@@ -76,7 +76,7 @@ public:
         auto const x_d = m_grid.x;
         auto const y_d = m_grid.y;
         auto const& param_setup = m_param_setup;
-        
+
         Kokkos::parallel_for(
             "implosion_test_init",
             cell_mdrange(range),

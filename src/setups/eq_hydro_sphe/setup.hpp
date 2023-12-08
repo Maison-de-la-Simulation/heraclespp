@@ -77,7 +77,7 @@ public:
 
         std::cout <<"Scale = " << units::kb * m_param_setup.T
                 / (mu * units::mp * units::G * m_param_setup.M)<< std::endl;
-        
+
         Kokkos::parallel_for(
         "eq_hydro_init",
         cell_mdrange(range),
@@ -120,7 +120,7 @@ public:
         , m_param_setup(param_setup)
     {
     }
-    
+
     void execute(KV_double_3d rho,
                  KV_double_4d rhou,
                  KV_double_3d E,
@@ -151,7 +151,7 @@ public:
         Kokkos::parallel_for(
         m_label,
         Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-        KOKKOS_LAMBDA(int i, int j, int k) 
+        KOKKOS_LAMBDA(int i, int j, int k)
         {
             double x0 = units::kb * param_setup.T / (mu * units::mp * units::G * param_setup.M);
             rho(i, j, k) = param_setup.rho0 * Kokkos::exp(1. / (xc(i) * x0));
@@ -159,7 +159,7 @@ public:
             {
                 rhou(i, j, k, n) = param_setup.rho0 * param_setup.u0;
             }
-            E(i, j, k) = eos.compute_evol_from_T(rho(i, j, k), param_setup.T);
+            E(i, j, k) = eos.compute_eint_from_T(rho(i, j, k), param_setup.T);
         });
     }
 };

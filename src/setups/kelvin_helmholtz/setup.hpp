@@ -85,13 +85,13 @@ public:
                 double y = y_d(j) * units::m;
 
                 rho(i, j, k)  = 1 + drho_rho * (Kokkos::tanh((y - y1) / a) - Kokkos::tanh((y - y2) / a));
-                
+
                 u(i, j, k, 0) = 1 * (Kokkos::tanh((y - y1) / a) - Kokkos::tanh((y - y2) / a));
 
                 u(i, j, k, 1) = amp * Kokkos::sin(Kokkos::numbers::pi * x)
                                 * (Kokkos::exp(- (y - y1) * (y - y1) / (sigma * sigma))
-                                + Kokkos::exp(- (y - y2) * (y - y2) / (sigma * sigma))); 
-            
+                                + Kokkos::exp(- (y - y2) * (y - y2) / (sigma * sigma)));
+
                 P(i, j, k) = param_setup.P0 * units::pressure;
             });
     }
