@@ -168,8 +168,8 @@ public:
                 {
                     rhou(i, j, k, n) = param_setup.rho0 * units::density * param_setup.u0 * units::velocity;
                 }
-                
-                E(i, j, k) = eos.compute_evol_from_T(rho(i, j, k) * units::density, param_setup.T * units::Kelvin);
+
+                E(i, j, k) = eos.compute_eint_from_T(rho(i, j, k) * units::density, param_setup.T * units::Kelvin);
             });
     }
 };

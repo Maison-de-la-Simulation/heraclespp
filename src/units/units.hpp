@@ -34,7 +34,7 @@ constexpr double pressure = kg / (m * s2);
 constexpr double Joule = kg * m2 / s2; // kg.m^{2}.s^{-2}
 constexpr double Newton = kg * m / s2; // kg.m.s^{-2}
 constexpr double Watt = Joule / s; // kg.m^{2}.s^{-3}
-constexpr double evol = Joule / m3; // Volumic energy : kg.m^{-1}.s^{-2}
+constexpr double eint = Joule / m3; // Internal volumic energy : kg.m^{-1}.s^{-2}
 constexpr double espe = Joule / kg; // Specific energy : m^{2}.s^{-2}
 
 //  cgs in the new basis
@@ -50,7 +50,7 @@ constexpr double acc_cgs = cm / s2; // Acceleration : cm.s^{-2}
 constexpr double press_cgs = g / (cm * s2); // Pressure
 constexpr double erg = g * cm2 / s2; // Energy : g.cm^{2}.s^{-2}
 constexpr double dyne = g * cm / s2; // Dyne : g.cm.s^{-2}
-constexpr double evol_cgs = erg / cm3; // Volumic energy : g.cm^{-1}.s^{-2}
+constexpr double eint_cgs = erg / cm3; // Internal volumic energy : g.cm^{-1}.s^{-2}
 constexpr double espe_cgs = erg / g; // Specific energy : cm^{2}.s^{-2}
 
 // physical constants : SI
