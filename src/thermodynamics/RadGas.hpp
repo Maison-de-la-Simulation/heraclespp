@@ -81,22 +81,26 @@ public:
             T0 = Tr;
         }
         T = T0;
-        // int itr;
-        int max_itr = 100;
+        int static constexpr max_itr = 100;
+        int itr = 0;
+        double delta_T = 0;
         for (int i = 0; i < max_itr; ++i)
         {
             double T3 = T * T * T;
             double f = units::ar * T3 * T / 3 + C1 * T - P;
             double df = 4 * units::ar * T3 / 3 + C1;
-            double delta_T = -f / df;
+            delta_T = -f / df;
             T += delta_T;
-            // itr = i;
-            if (Kokkos::abs(delta_T) < 1E-6)
+            itr = i;
+            if (Kokkos::abs(delta_T) <= 1E-6)
             {
                 break;
             }
         }
-        //std::cout<<"T_from_P = "<<T<<" itr = "<<itr<<std::endl;
+        if (itr == 99 && Kokkos::abs(delta_T) > 1E-6)
+        {
+            std::printf("No convergence in temperature : %f \n", Kokkos::abs(delta_T));
+        }
         return T;
     }
 
@@ -113,22 +117,26 @@ public:
             T0 = Tr;
         }
         T = T0;
-        // int itr;
-        int max_itr = 100;
+        int static constexpr max_itr = 100;
+        int itr = 0;
+        double delta_T = 0;
         for (int i = 0; i < max_itr; ++i)
         {
             double T3 = T * T * T;
             double f = units::ar * T3 * T + C1 * T - evol;
             double df = 4 * units::ar * T3 + C1;
-            double delta_T = -f / df;
+            delta_T = -f / df;
             T += delta_T;
-            // itr = i;
-            if (Kokkos::abs(delta_T) < 1E-6)
+            itr = i;
+            if (Kokkos::abs(delta_T) <= 1E-6)
             {
                 break;
             }
         }
-        //std::cout<<"T_from_evol = "<<T<<" itr = "<<itr<<std::endl;
+        if (itr == 99 && Kokkos::abs(delta_T) > 1E-6)
+        {
+            std::printf("No convergence in temperature : %f \n", Kokkos::abs(delta_T));
+        }
         return T;
     }
 
