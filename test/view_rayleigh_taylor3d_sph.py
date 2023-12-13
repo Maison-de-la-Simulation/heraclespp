@@ -12,12 +12,14 @@ print("********************************")
 
 with h5py.File("test_00000000.h5", 'r') as f :
     rho0_1d = f['rho'][5, 5, :] # rho(r)
+    v0_1d = f['ux'][5, 5, :] # vr(r)
 
 filename = sys.argv[1]
 
 with h5py.File(str(filename), 'r') as f :
     #print(f.keys())
     rho_1d = f['rho'][5, 5, :] # rho(r)
+    v_1d = f['ux'][5, 5, :] # vr(r)
     rho2 = f['rho'][:, 0, :] # rho(r, phi)
     x = f['x'][()]
     y = f['y'][()]
@@ -52,10 +54,19 @@ plt.xlabel("Radius (m)"); plt.ylabel(r"$\phi$ angle (rad)")
 plt.colorbar()
 
 plt.figure(figsize=(10,8))
+plt.subplot(121)
 plt.plot(rc, rho0_1d, "--", label="t = 0")
 plt.plot(rc, rho_1d, label=f"t = {t:.3f}")
-plt.xlim(1, 2)
 plt.xlabel("Radius (m)"); plt.ylabel(r"Density")
+plt.xlim(rmin, rmax)
+plt.legend()
+
+plt.subplot(122)
+plt.plot(rc, v0_1d, "--", label="t = 0")
+plt.plot(rc, v_1d, label=f"t = {t:.3f}")
+plt.xlabel("Radius (m)"); plt.ylabel(r"Velocity")
+plt.xlim(rmin, rmax)
+plt.xlim(x[0], x[len(x)-1])
 plt.legend()
 
 plt.show()

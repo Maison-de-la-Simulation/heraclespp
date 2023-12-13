@@ -76,8 +76,9 @@ public:
         auto const z = m_grid.z;
         auto const& grid = m_grid;
         auto const& param_setup = m_param_setup;
+        auto const& eos = m_eos;
 
-        double R = 1.5;
+        double R = 0.1;
         Kokkos::Random_XorShift64_Pool<> random_pool(12345 + grid.mpi_rank);
 
         auto const [begin, end] = cell_range(range);
@@ -91,23 +92,27 @@ public:
                 double perturb = (1 + 0.01 * random_number);
                 random_pool.free_state(generator);
 
+                double eint;
+
                 if( x(i) < R)
                 {
-                    rho(i, j, k) = 1. / (Kokkos::numbers::pi * R * R) * perturb;
-                for (int idim = 0; idim < ndim; ++idim)
-                    {
-                        u(i, j, k, idim) = param_setup.u0 * x(i) / R * perturb;
-                    }
+                    rho(i, j, k) = 10 * perturb;
+                    u(i, j, k, 0) = param_setup.u0 * x(i) / R * perturb;
+                    u(i, j, k, 1) = 0;
+                    u(i, j, k, 2) = 0;
+                    double ekin = 1. / 2 * rho(i, j, k) * u(i, j, k, 0) * u(i, j, k, 0);
+                    eint = 100;
                 }
                 else
                 {
-                    rho(i, j, k) = 1 * perturb;
+                    rho(i, j, k) = 0.1 * perturb;
                     for (int idim = 0; idim < ndim; ++idim)
                     {
                         u(i, j, k, idim) = 0;
                     }
+                    eint = 0.01;
                 }
-                P(i, j, k) = std::pow(10, -5) * rho(i, j, k) * param_setup.u0 * param_setup.u0;
+                P(i, j, k) = eos.compute_P_from_eint(rho(i, j, k), eint);
             });
     }
 };
