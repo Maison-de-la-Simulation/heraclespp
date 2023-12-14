@@ -42,29 +42,33 @@ public:
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
-    double compute_eint_from_P(double const rho, double const P) const noexcept
+    double compute_evol_from_P(double const rho, double const P) const noexcept
     {
-        return compute_eint_from_T(rho, compute_T_from_P(rho, P));
+        // evol = rho * eint
+        return compute_evol_from_T(rho, compute_T_from_P(rho, P));
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
-    double compute_eint_from_T(double const rho, double const T) const noexcept
+    double compute_evol_from_T(double const rho, double const T) const noexcept
     {
+        // evol = rho * eint
         auto const T4 = T * T * T * T;
         return rho * units::kb * T / (m_mmw * units::mp * m_gamma_m1) + units::ar * T4;
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
-    double compute_P_from_eint(double const rho, double const eint) const noexcept
+    double compute_P_from_evol(double const rho, double const evol) const noexcept
     {
-        return compute_P_from_T(rho, compute_T_from_eint(rho, eint));
+        // evol = rho * eint
+        return compute_P_from_T(rho, compute_T_from_evol(rho, evol));
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
     double compute_P_from_T(double const rho, double const T) const noexcept
     {
         auto const T4 = T * T * T * T;
-        //std::cout<<"Pg = "<<rho * units::kb * T / (m_mmw * units::mp)<<" Pr = "<<units::ar * T4 / 3<<std::endl;
+        //std::cout<<"Pg = "<<rho * units::kb * T / (m_mmw * units::mp)
+        //<<" Pr = "<<units::ar * T4 / 3<<std::endl;
         return rho * units::kb * T / (m_mmw * units::mp) + units::ar * T4 / 3;
     }
 
@@ -105,12 +109,13 @@ public:
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
-    double compute_T_from_eint(double const rho, double const eint) const noexcept
+    double compute_T_from_evol(double const rho, double const evol) const noexcept
     {
+        // evol = rho * eint
         double T;
         double C1 = rho * units::kb / (m_mmw * units::mp * m_gamma_m1);
-        double Tg = eint / C1;
-        double Tr = Kokkos::pow(eint / units::ar, 1. / 4);
+        double Tg = evol / C1;
+        double Tr = Kokkos::pow(evol / units::ar, 1. / 4);
         double T0 = Tg;
         if (Tr > Tg)
         {
@@ -123,7 +128,7 @@ public:
         for (int i = 0; i < max_itr; ++i)
         {
             double T3 = T * T * T;
-            double f = units::ar * T3 * T + C1 * T - eint;
+            double f = units::ar * T3 * T + C1 * T - evol;
             double df = 4 * units::ar * T3 + C1;
             delta_T = -f / df;
             T += delta_T;
