@@ -19,7 +19,9 @@ with h5py.File(str(filename), 'r') as f :
     rho_1d = f['rho'][ind, ind, :] # rho(r)
     u_1d = f['ux'][ind, ind, :] # u(r)
     P_1d = f['P'][ind, ind, :] # P(r)
-    rho2 = f['rho'][:, 0, :] # rho(r, phi)
+    rho2 = f['rho'][0, :, :] # rho(r, theta)
+    u2 = f['ux'][0, :, :] # u(r, theta)
+    P2 = f['P'][0, :, :] # P(r, theta)
     x = f['x'][()]
     y = f['y'][()]
     z = f['z'][()]
@@ -31,6 +33,7 @@ print(f"Final time = {t:.5f} s")
 print(f"Iteration number = {iter}")
 
 E = 1 / 2 * rho_1d * u_1d**2 + P_1d / (gamma - 1)
+E2 = 1 / 2 * rho2* u2**2 + P2 / (gamma - 1)
 
 rmin = x[2]
 rmax = x[len(x)-3]
@@ -50,8 +53,9 @@ for i in range(2, nr+2):
 plt.figure(figsize=(10,8))
 plt.suptitle('Rayleigh Taylor spherical 3D')
 plt.title(f'Density t = {t:.5f} s')
-plt.imshow(rho2, cmap='seismic', origin='lower', extent=[rmin, rmax, phi_min, phi_max])
-plt.xlabel("Radius (m)"); plt.ylabel(r"$\phi$ angle (rad)")
+#plt.imshow(rho2, cmap='seismic', origin='lower', extent=[rmin, rmax, th_min, th_max])
+plt.imshow(E2, cmap='seismic', origin='lower', extent=[rmin, rmax, th_min, th_max])
+plt.xlabel("Radius (m)"); plt.ylabel(r"$\theta$ angle (rad)")
 plt.colorbar()
 
 plt.figure(figsize=(8,8))

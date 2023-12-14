@@ -71,12 +71,13 @@ public:
         assert(rho.extent(2) == u.extent(2));
         assert(u.extent(2) == P.extent(2));
 
-        auto const r = m_grid.x;
-        auto const theta = m_grid.y;
-        auto const phi = m_grid.z;
-        auto const& dv = m_grid.dv;
         auto const& eos = m_eos;
+        auto const& grid = m_grid;
         auto const& param_setup = m_param_setup;
+        auto const r = grid.x;
+        auto const theta = grid.y;
+        auto const phi = grid.z;
+        auto const& dv = grid.dv;
 
         Kokkos::parallel_for(
             "Sedov_3D_init",
@@ -89,19 +90,19 @@ public:
                     u(i, j, k, idim) = param_setup.u0;
                 }
 
-                if (r(i) == 1 && theta(j) == 0 && phi(k) == 0)
+                if (grid.mpi_rank == 0 && r(i) == 1 && theta(j) == 0 && phi(k) == 0)
                 {
                     double evol = param_setup.E1 / dv(i, j, k);
-                    P(i, j, k) = eos.compute_P_from_eint(rho(i, j, k), evol);
-
-                    /* std::cout << r(i) <<"   " << theta(j)
-                << "     " << phi(k)<<"   " <<P(i, j, k) << std::endl; */
+                    P(i, j, k) = eos.compute_P_from_evol(rho(i, j, k), evol);
+                    std::cout << r(i) <<"   " << theta(j)
+                    << "     " << phi(k)<<"   "<< evol <<"   " <<P(i, j, k) << std::endl;
                 }
                 else
                 {
                     P(i, j, k) = param_setup.P0;
                 }
             });
+        
     }
 };
 
