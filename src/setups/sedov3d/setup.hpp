@@ -91,8 +91,8 @@ public:
 
                 if (r(i) == 1 && theta(j) == 0 && phi(k) == 0)
                 {
-                    double eint = param_setup.E1 / (dv(i, j, k) * rho(i, j, k));
-                    P(i, j, k) = eos.compute_P_from_eint(rho(i, j, k), eint);
+                    double evol = param_setup.E1 / dv(i, j, k);
+                    P(i, j, k) = eos.compute_P_from_eint(rho(i, j, k), evol);
 
                     /* std::cout << r(i) <<"   " << theta(j)
                 << "     " << phi(k)<<"   " <<P(i, j, k) << std::endl; */
