@@ -21,7 +21,7 @@ inline double internal_energy(
     KV_cdouble_4d const rhou,
     KV_cdouble_3d const E)
 {
-    double eint_min = 0;
+    double evol_min = 0;
 
     Kokkos::parallel_reduce(
         "check_internal_energy",
@@ -36,14 +36,14 @@ inline double internal_energy(
             }
             cons.E = E(i, j, k);
 
-            double e = compute_eint(cons);
+            double e = compute_evol(cons);
 
             local_min = Kokkos::min(local_min, e);
         },
-        Kokkos::Min<double>(eint_min));
+        Kokkos::Min<double>(evol_min));
 
-        MPI_Allreduce(MPI_IN_PLACE, &eint_min, 1, MPI_DOUBLE, MPI_MIN, grid.comm_cart);
-        return eint_min;
+        MPI_Allreduce(MPI_IN_PLACE, &evol_min, 1, MPI_DOUBLE, MPI_MIN, grid.comm_cart);
+        return evol_min;
 }
 
 } // namespace novapp

@@ -159,7 +159,7 @@ public:
             {
                 rhou(i, j, k, n) = param_setup.rho0 * param_setup.u0;
             }
-            E(i, j, k) = eos.compute_eint_from_T(rho(i, j, k), param_setup.T);
+            E(i, j, k) = eos.compute_evol_from_T(rho(i, j, k), param_setup.T);
         });
     }
 };

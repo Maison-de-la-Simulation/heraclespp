@@ -327,7 +327,7 @@ int main(int argc, char** argv)
         double min_internal_energy = internal_energy(grid.range.no_ghosts(), grid, rho.d_view, rhou.d_view, E.d_view);
         if (min_internal_energy < 0)
         {
-            throw std::runtime_error("Internal energy < 0");
+            throw std::runtime_error("Volumic internal energy < 0");
         }
 
         reconstruction->execute(grid.range.with_ghosts(1), dt/2, rho.d_view, u.d_view, P.d_view, fx.d_view,

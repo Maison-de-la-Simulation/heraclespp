@@ -123,7 +123,7 @@ public:
         , m_gravity(gravity)
     {
     }
-    
+
     void execute(KV_double_3d rho,
                  KV_double_4d rhou,
                  KV_double_3d E,
@@ -155,7 +155,7 @@ public:
         Kokkos::parallel_for(
             m_label,
             Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
-            KOKKOS_LAMBDA(int i, int j, int k) 
+            KOKKOS_LAMBDA(int i, int j, int k)
             {
                 double gravity_x = gravity(i, j, k, 0) * units::acc;
 
@@ -169,7 +169,7 @@ public:
                     rhou(i, j, k, n) = param_setup.rho0 * units::density * param_setup.u0 * units::velocity;
                 }
 
-                E(i, j, k) = eos.compute_eint_from_T(rho(i, j, k) * units::density, param_setup.T * units::Kelvin);
+                E(i, j, k) = eos.compute_evol_from_T(rho(i, j, k) * units::density, param_setup.T * units::Kelvin);
             });
     }
 };
