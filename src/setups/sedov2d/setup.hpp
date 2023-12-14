@@ -87,23 +87,21 @@ public:
                 double r = Kokkos::sqrt(x * x + y * y);
 
                 rho(i, j, k) = param_setup.rho0 * units::density;
-
                 for (int idim = 0; idim < ndim; ++idim)
                 {
                     u(i, j, k, idim) = param_setup.u0 * units::velocity;
                 }
 
-                if (r <0.025)
+                if (r < 0.025)
                 {
-                    double T = eos.compute_T_from_eint(rho(i, j, k),
-                                param_setup.E1 * units::eint / dv(i, j, k)) * units::Kelvin;
+                    double evol = param_setup.E1 / dv(i, j, k) * units::evol;
+                    double T = eos.compute_T_from_evol(rho(i, j, k), evol) * units::Kelvin;
                     P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), T) * units::pressure;
                 }
-
                 else
                 {
-                    double T = eos.compute_T_from_eint(rho(i, j, k),
-                                param_setup.E0 * units::eint / dv(i, j, k)) * units::Kelvin;
+                    double evol = param_setup.E0 / dv(i, j, k)  * units::evol;
+                    double T = eos.compute_T_from_eint(rho(i, j, k), evol) * units::Kelvin;
                     P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), T) * units::pressure;
                 }
             });

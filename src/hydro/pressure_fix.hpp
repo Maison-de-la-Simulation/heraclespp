@@ -58,20 +58,20 @@ inline void pressure_fix(
             //--------------------------------------------------------//
 
             double ekin = compute_ek(cons); // Kinetic energy (i, j, k)
-            double eint = E(i, j, k) - ekin; // Internal energy (i, j, k) at n
-            double eint_new = E_new(i, j, k) - compute_ek(cons_new); // Internal energy (i, j, k) at n+1
-            double de_god = eint_new - eint;
+            double evol = E(i, j, k) - ekin; // Internal energy (i, j, k) at n
+            double evol_new = E_new(i, j, k) - compute_ek(cons_new); // Internal energy (i, j, k) at n+1
+            double de_god = evol_new - evol;
 
-            if (eint < eps * ekin)
+            if (evol < eps * ekin)
             {
                 E_new(i, j, k) = E(i, j, k);
                 double divU = 0;
                 double divUE = 0;
                 double einL = 0;
                 double einR = 0;
-                double alpha = (eint * eint) / (ekin * ekin * eps * eps);
+                double alpha = (evol * evol) / (ekin * ekin * eps * eps);
 
-                if (eint < (eps / 10) * ekin)
+                if (evol < (eps / 10) * ekin)
                 {
                     alpha = 0;
                 }
@@ -179,7 +179,7 @@ inline void pressure_fix(
 
                         double de_tot = alpha * de_god + (1 - alpha) * de_pf;
 
-                        E_new(i, j, k) = eint + de_tot + 1. / 2 * sum;
+                        E_new(i, j, k) = evol + de_tot + 1. / 2 * sum;
                     }
                 }
             }
