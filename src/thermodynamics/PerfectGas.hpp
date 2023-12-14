@@ -42,21 +42,24 @@ public:
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
-    double compute_eint_from_P(double const rho, double const P) const noexcept
+    double compute_evol_from_P(double const rho, double const P) const noexcept
     {
-        return compute_eint_from_T(rho, compute_T_from_P(rho, P));
+        // evol = rho * eint
+        return compute_evol_from_T(rho, compute_T_from_P(rho, P));
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
-    double compute_eint_from_T(double const rho, double const T) const noexcept
+    double compute_evol_from_T(double const rho, double const T) const noexcept
     {
+        // evol = rho * eint
         return rho * units::kb * T / (m_mmw * units::mp * m_gamma_m1);
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
-    double compute_P_from_eint(double const rho, double const eint) const noexcept
+    double compute_P_from_evol(double const rho, double const evol) const noexcept
     {
-        return compute_P_from_T(rho, compute_T_from_eint(rho, eint));
+        // evol = rho * eint
+        return compute_P_from_T(rho, compute_T_from_evol(rho, evol));
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
@@ -72,9 +75,10 @@ public:
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
-    double compute_T_from_eint(double const rho, double const eint) const noexcept
+    double compute_T_from_evol(double const rho, double const evol) const noexcept
     {
-        return eint * m_mmw * units::mp * m_gamma_m1 / (rho * units::kb);
+        // evol = rho * eint
+        return evol * m_mmw * units::mp * m_gamma_m1 / (rho * units::kb);
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
