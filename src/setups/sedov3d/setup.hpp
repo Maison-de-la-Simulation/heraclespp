@@ -27,12 +27,16 @@ public:
     double u0;
     double P0;
     double E1;
+    double ny;
+    double nz;
 
     explicit ParamSetup(INIReader const& reader)
         : rho0(reader.GetReal("Initialisation", "rho0", 1.0))
         , u0(reader.GetReal("Initialisation", "u0", 1.0))
         , P0(reader.GetReal("Initialisation", "P0", 1.0))
         , E1(reader.GetReal("Initialisation", "E1", 1.0))
+        , ny(reader.GetReal("Grid", "Ny_glob", 1.0))
+        , nz(reader.GetReal("Grid", "Nz_glob", 1.0))
     {
     }
 };
@@ -78,6 +82,8 @@ public:
         auto const theta = grid.y;
         auto const phi = grid.z;
         auto const& dv = grid.dv;
+        int ny_2 = param_setup.ny / 2;
+        int nz_2 = param_setup.nz / 2;
 
         Kokkos::parallel_for(
             "Sedov_3D_init",
@@ -90,19 +96,16 @@ public:
                     u(i, j, k, idim) = param_setup.u0;
                 }
 
-                if (grid.mpi_rank == 0 && r(i) == 1 && theta(j) == 0 && phi(k) == 0)
+                if (grid.mpi_rank == 0 && r(i) == 1 && j == ny_2  && k == nz_2)
                 {
                     double evol = param_setup.E1 / dv(i, j, k);
                     P(i, j, k) = eos.compute_P_from_evol(rho(i, j, k), evol);
-                    std::cout << r(i) <<"   " << theta(j)
-                    << "     " << phi(k)<<"   "<< evol <<"   " <<P(i, j, k) << std::endl;
                 }
                 else
                 {
                     P(i, j, k) = param_setup.P0;
                 }
             });
-        
     }
 };
 

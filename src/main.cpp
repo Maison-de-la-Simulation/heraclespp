@@ -327,6 +327,7 @@ int main(int argc, char** argv)
         double min_internal_energy = internal_energy(grid.range.no_ghosts(), grid, rho.d_view, rhou.d_view, E.d_view);
         if (min_internal_energy < 0)
         {
+            std::printf("Time = %f and number of iterations = %d\n", t, iter);
             throw std::runtime_error("Volumic internal energy < 0");
         }
 
