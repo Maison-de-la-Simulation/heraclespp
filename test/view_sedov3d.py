@@ -6,14 +6,16 @@ from mpl_toolkits.mplot3d import Axes3D
 import h5py
 import sys
 
+from exact_sedov import ExactSedov
+
 print("********************************")
 print("   Sedov blast wave 3d")
 print("********************************")
 
 filename = sys.argv[1]
 
-ind_th = 10
-ind_ph = 50
+ind_th = 64
+ind_ph = 128
 
 with h5py.File(str(filename), 'r') as f :
     #print(f.keys())
@@ -21,7 +23,7 @@ with h5py.File(str(filename), 'r') as f :
     u_1d = f['ux'][ind_ph, ind_th, :] # u(r)
     P_1d = f['P'][ind_ph, ind_th, :] # P(r)
     rho_r_th = f['rho'][ind_ph, :, :] # rho(r, theta)
-    rho_r_ph = f['rho'][:, ind_th, :] # rho(r, theta)
+    rho_r_ph = f['rho'][:, ind_th, :] # rho(r, phi)
     u2 = f['ux'][0, :, :] # u(r, theta)
     P2 = f['P'][0, :, :] # P(r, theta)
     x = f['x'][()]
@@ -45,9 +47,51 @@ phi_max = z[len(z)-3]
 
 nr = len(rho_1d)
 dr = (rmax - rmin) / nr
+r = np.zeros(nr)
 rc = np.zeros(nr)
 for i in range(2, nr+2):
-    rc[i-2] = x[i] #+ dr / 2
+    r[i-2] = x[i]
+    rc[i-2] = x[i] + dr / 2
+
+nth = rho_r_th.shape[1]
+dth = (th_max - th_min) / nth
+th = np.zeros(nth)
+for i in range(2, nth+2):
+    th[i-2] = y[i]
+
+nphi = rho_r_ph.shape[0]
+dphi = (phi_max - phi_min) / nphi
+phi = np.zeros(nphi)
+for i in range(2, nphi+2):
+    phi[i-2] = z[i]
+
+# Analytical result ------------------------
+
+rho0 = 1
+E0 = 1
+
+n = 3 # spherical
+
+r_exact, rho_exact, u_exact, P_exact = ExactSedov(rho0, E0, t, gamma, n)
+E_exact = 1 / 2 * rho_exact * u_exact**2 + P_exact / (gamma - 1)
+
+rt = r_exact+1
+
+# Spherical to cartesian -------------------
+
+xcart = r * np.sin(th)
+zcart = r * np.cos(th)
+
+# explosion corrdinates
+x0 = 1 * np.sin(np.pi / 2)
+z0 = 1 * np.cos(np.pi / 2)
+
+a = rho_r_th[0]
+b = rho_r_th[1]
+
+
+
+
 
 # ------------------------------------------
 
@@ -60,24 +104,36 @@ plt.colorbar()
 
 plt.figure(figsize=(8,8))
 plt.subplot(221)
-plt.plot(rc, rho_1d, label=f"t = {t:.3f}")
+plt.plot(r, rho_1d, label="Solver")
+plt.plot(rt, rho_exact, label=f"Exact")
 plt.xlabel("Radius (m)"); plt.ylabel(r"Density")
 plt.xlim(x[0], x[len(x)-1])
 plt.grid()
 plt.legend()
 
 plt.subplot(222)
-plt.plot(rc, E, label=f"t = {t:.3f}")
+plt.plot(r, E, label="Solver")
+plt.plot(rt, E_exact, label=f"Exact")
 plt.ylabel('Volumic energy ($kg.m^{-1}.s^{-2}$)'); plt.xlabel("Radius (m)")
 plt.xlim(x[0], x[len(x)-1])
 plt.grid()
 plt.legend()
 
 plt.subplot(223)
-plt.plot(rc, P_1d, label=f"t = {t:.3f}")
+plt.plot(r, P_1d, label="Solver")
+plt.plot(rt, P_exact, label=f"Exact")
 plt.ylabel('Pressure ($kg.m^{-1}.s^{-2}$)'); plt.xlabel("Radius (m)")
 plt.xlim(x[0], x[len(x)-1])
 plt.grid()
 plt.legend()
 
-plt.show()
+plt.figure(figsize=(10,8))
+plt.plot(r, P_1d, 'x', label="Solver")
+plt.plot(rt, P_exact, label=f"Exact")
+plt.ylabel('Pressure ($kg.m^{-1}.s^{-2}$)'); plt.xlabel("Radius (m)")
+plt.xlim(1, x[len(x)-1])
+plt.grid()
+plt.legend()
+
+#plt.show()
+
