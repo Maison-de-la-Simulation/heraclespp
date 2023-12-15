@@ -86,12 +86,11 @@ zcart = r * np.cos(th)
 x0 = 1 * np.sin(np.pi / 2)
 z0 = 1 * np.cos(np.pi / 2)
 
-a = rho_r_th[0]
-b = rho_r_th[1]
+rdist = np.zeros(len(xcart))
+for i in range(len(rdist)):
+    rdist[i] = np.sqrt((xcart[i] - x0)**2 + (zcart[i] - z0)**2)
 
-
-
-
+print(r, rdist)
 
 # ------------------------------------------
 
