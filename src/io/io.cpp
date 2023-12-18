@@ -15,6 +15,16 @@
 
 #include "io.hpp"
 
+namespace {
+
+template <class... Views>
+bool span_is_contiguous(Views const&... views)
+{
+    return (views.span_is_contiguous() && ...);
+}
+
+} // namespace
+
 namespace novapp
 {
 
@@ -54,6 +64,7 @@ void write_pdi(int iter,
                KDV_double_4d fx,
                KDV_double_3d T)
 {
+    assert(span_is_contiguous(rho, u, P, E, fx, T));
     sync_host(rho, u, P, E, fx, T, x, y, z);
     PDI_multi_expose("write_file",
                     "iter", &iter, PDI_OUT,
@@ -107,6 +118,7 @@ void read_pdi(std::string restart_file,
               KDV_double_1d y_glob,
               KDV_double_1d z_glob)
 {
+    assert(span_is_contiguous(rho, u, P, fx));
     int filename_size = restart_file.size();
     PDI_multi_expose("read_file",
                     "restart_filename_size", &filename_size, PDI_INOUT,
