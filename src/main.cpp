@@ -206,9 +206,9 @@ int main(int argc, char** argv)
         print_info("USER_STEP", param.user_step);
     }
 
-    if(param.restart)
+    if(param.restart == 1)
     {
-        /* read_pdi(param.restart_file, iter, t, rho, u, P, fx, x_glob, y_glob, z_glob); // read data into host view
+        read_pdi(param.restart_file, iter, t, rho, u, P, fx, x_glob, y_glob, z_glob); // read data into host view
         sync_device(x_glob, y_glob, z_glob);
         grid.set_grid(x_glob.d_view, y_glob.d_view, z_glob.d_view);
 #if defined(NOVAPP_GRAVITY_Uniform)
@@ -225,11 +225,13 @@ int main(int argc, char** argv)
             std::cout<<"read from file "<<param.restart_file<<std::endl;
             std::cout<<"starting at time "<<t<<" ( ~ "<<100*t/param.timeout<<"%)"
                      <<", with iteration "<<iter<<std::endl<<std::endl;
-        } */
-
-        KDV_double_3d rho_inter("rho", grid.Nx_local_wg[0], 1, 1); // Density
-        KDV_double_4d u_inter("u", grid.Nx_local_wg[0], 1, 1, 1); // Velocity
-        KDV_double_3d P_inter("P", grid.Nx_local_wg[0], 1, 1); // Pressure
+        }
+    }
+    if(param.restart == 2)
+    {
+        KDV_double_3d rho_inter("rho", grid.Nx_local_wg[0], 1, 1);
+        KDV_double_4d u_inter("u", grid.Nx_local_wg[0], 1, 1, 1);
+        KDV_double_3d P_inter("P", grid.Nx_local_wg[0], 1, 1);
         KDV_double_4d fx_inter("fx", grid.Nx_local_wg[0], 1, 1, param.nfx);
 
         KDV_double_1d x_glob_inter("x_glob", grid.Nx_glob_ng[0]+2*grid.Nghost[0]+1);
@@ -245,7 +247,6 @@ int main(int argc, char** argv)
         Kokkos::deep_copy(x_glob.h_view, x_glob_inter.h_view);
         modify_host(x_glob, y_glob, z_glob);
         sync_device(x_glob, y_glob, z_glob);
-
         grid.set_grid(x_glob.d_view, y_glob.d_view, z_glob.d_view);
 
 #if defined(NOVAPP_GRAVITY_Uniform)
@@ -259,15 +260,20 @@ int main(int argc, char** argv)
         Kokkos::deep_copy(P.h_view, P_inter.h_view);
         Kokkos::deep_copy(fx.h_view, fx_inter.h_view);
 
+        // add 3e dimension
         Kokkos::parallel_for(
             "v1d_3d",
             Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
             {0, 0, 0},
-            {grid.Nx_local_ng[0], grid.Nx_local_ng[1], grid.Nx_local_ng[2]}),
+            {grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]}),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
                 rho.h_view(i, j, k) = 1;
             });
+
+        /* std::unique_ptr<IInitializationProblem> initialization
+            = std::make_unique<InitializationSetup<Gravity>>(eos, grid, param_setup, *g);
+        initialization->execute(grid.range.no_ghosts(), rho.d_view, u.d_view, P.d_view, fx.d_view); */
 
         modify_host(rho, u, P, fx);
         sync_device(rho, u, P, fx);
@@ -279,9 +285,6 @@ int main(int argc, char** argv)
             std::cout<<"starting at time "<<t<<" ( ~ "<<100*t/param.timeout<<"%)"
                      <<", with iteration "<<iter<<std::endl<<std::endl;
         }
-       /*  std::unique_ptr<IInitializationProblem> initialization
-            = std::make_unique<InitializationSetup<Gravity>>(eos, grid, param_setup, *g);
-        //initialization->execute(grid.range.no_ghosts(), rho.d_view, u.d_view, P.d_view, fx.d_view); */
     }
     else
     {
