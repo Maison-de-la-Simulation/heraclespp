@@ -206,7 +206,7 @@ int main(int argc, char** argv)
         print_info("USER_STEP", param.user_step);
     }
 
-    if(param.restart == 1)
+    if(param.restart == 1) // complete restart
     {
         read_pdi(param.restart_file, iter, t, rho, u, P, fx, x_glob, y_glob, z_glob); // read data into host view
         sync_device(x_glob, y_glob, z_glob);
@@ -227,7 +227,7 @@ int main(int argc, char** argv)
                      <<", with iteration "<<iter<<std::endl<<std::endl;
         }
     }
-    if(param.restart == 2)
+    if(param.restart == 2) // restart with 1d file to a 3d file
     {
         KDV_double_3d rho_inter("rho", grid.Nx_local_wg[0], 1, 1);
         KDV_double_4d u_inter("u", grid.Nx_local_wg[0], 1, 1, 1);
@@ -260,20 +260,9 @@ int main(int argc, char** argv)
         Kokkos::deep_copy(P.h_view, P_inter.h_view);
         Kokkos::deep_copy(fx.h_view, fx_inter.h_view);
 
-        // add 3e dimension
-        Kokkos::parallel_for(
-            "v1d_3d",
-            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-            {0, 0, 0},
-            {grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]}),
-            KOKKOS_LAMBDA(int i, int j, int k)
-            {
-                rho.h_view(i, j, k) = 1;
-            });
-
-        /* std::unique_ptr<IInitializationProblem> initialization
+        std::unique_ptr<IInitializationProblem> initialization
             = std::make_unique<InitializationSetup<Gravity>>(eos, grid, param_setup, *g);
-        initialization->execute(grid.range.no_ghosts(), rho.d_view, u.d_view, P.d_view, fx.d_view); */
+        initialization->execute(grid.range.no_ghosts(), rho.d_view, u.d_view, P.d_view, fx.d_view);
 
         modify_host(rho, u, P, fx);
         sync_device(rho, u, P, fx);
@@ -286,7 +275,7 @@ int main(int argc, char** argv)
                      <<", with iteration "<<iter<<std::endl<<std::endl;
         }
     }
-    else
+    if(param.restart == 0)
     {
         std::unique_ptr<IGridType> grid_type;
         if (param.grid_type == "UserDefined")

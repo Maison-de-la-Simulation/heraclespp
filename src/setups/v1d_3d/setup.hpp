@@ -79,15 +79,13 @@ public:
         assert(rho.extent(2) == u.extent(2));
         assert(u.extent(2) == P.extent(2));
 
-        auto const xc = m_grid.x_center;
-        auto const& param_setup = m_param_setup;
-
         Kokkos::parallel_for(
-            "v1d_3d",
+            "v1d_3d_init",
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                
+                std::cout << rho(i, j, k) << std::endl;
+                //rho(i, j, k) = 1;
             });
     }
 };
