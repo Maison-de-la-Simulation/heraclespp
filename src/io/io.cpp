@@ -107,6 +107,7 @@ void read_pdi(std::string restart_file,
               KDV_double_1d y_glob,
               KDV_double_1d z_glob)
 {
+    //lire ndim par u: extend , variable pour ndim
     int filename_size = restart_file.size();
     PDI_multi_expose("read_file",
                     "restart_filename_size", &filename_size, PDI_INOUT,
