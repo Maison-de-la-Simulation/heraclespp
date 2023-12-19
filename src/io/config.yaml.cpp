@@ -3,7 +3,7 @@
 char const* const io_config = R"IO_CONFIG(
 pdi:
   metadata:
-    ndim: int
+    ndim_u: int
     nfx: int
     max_iter: int
     frequency: int
@@ -24,7 +24,7 @@ pdi:
 
 
   data: # this describes the data that is local to each process
-    u:   { type: array, subtype: double, size: ['$ndim', '$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]'] }
+    u:   { type: array, subtype: double, size: ['$ndim_u', '$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]'] }
     rho: { type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]' ] }
     P:   { type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]' ] }
     E:   { type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]' ] }
@@ -66,7 +66,7 @@ pdi:
               size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
               start: ['$start[2]', '$start[1]', '$start[0]']
           u:
-            when: '$ndim>1'
+            when: '$ndim_u>1'
             dataset: uy
             memory_selection:
               size: [1, '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
@@ -75,7 +75,7 @@ pdi:
               size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
               start: ['$start[2]', '$start[1]', '$start[0]']
           u:
-            when: '$ndim>2'
+            when: '$ndim_u>2'
             dataset: uz
             memory_selection:
               size: [1, '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
@@ -149,7 +149,7 @@ pdi:
               size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
               start: ['$start[2]', '$start[1]', '$start[0]']
           u:
-            when: '$ndim>1'
+            when: '$ndim_u>1'
             dataset: uy
             memory_selection:
               size: [1, '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
@@ -158,7 +158,7 @@ pdi:
               size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
               start: ['$start[2]', '$start[1]', '$start[0]']
           u:
-            when: '$ndim>2'
+            when: '$ndim_u>2'
             dataset: uz
             memory_selection:
               size: [1, '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
