@@ -26,6 +26,7 @@ with h5py.File(str(filename), 'r') as f :
     rho_r_ph = f['rho'][:, ind_th, :] # rho(r, phi)
     u2 = f['ux'][0, :, :] # u(r, theta)
     P2 = f['P'][0, :, :] # P(r, theta)
+    P_3d = f['P'][:, :, :] # P(phi, theta, r)
     x = f['x'][()]
     y = f['y'][()]
     z = f['z'][()]
@@ -79,18 +80,26 @@ rt = r_exact+1
 
 # Spherical to cartesian -------------------
 
-xcart = r * np.sin(th)
-zcart = r * np.cos(th)
-
 # explosion corrdinates
-x0 = 1 * np.sin(np.pi / 2)
+x0 = 1 * np.sin(np.pi / 2) * np.cos(np.pi / 2)
+y0 = 1 * np.sin(np.pi / 2) * np.sin(np.pi / 2)
 z0 = 1 * np.cos(np.pi / 2)
 
-rdist = np.zeros(len(xcart))
-for i in range(len(rdist)):
-    rdist[i] = np.sqrt((xcart[i] - x0)**2 + (zcart[i] - z0)**2)
-
-print(r, rdist)
+plt.figure(figsize=(10,8))
+plt.xlabel("Radius (m)"); plt.ylabel('Pressure ($kg.m^{-1}.s^{-2}$)')
+for i in range(nr):
+    print(i)
+    for j in range(nth):
+        k = int(nphi / 2)
+        xcart = r[i] * np.sin(th[j]) * np.cos(phi[k])
+        ycart = r[i] * np.sin(th[j]) * np.sin(phi[k])
+        zcart = r[i] * np.cos(th[j])
+        rdist = np.sqrt((xcart - x0)**2 + (ycart - y0)**2 + (zcart - z0)**2)
+        plt.plot(rdist, P_3d[k, j, i], "x", color='#1f77b4')
+plt.plot(r_exact, P_exact, label=f"Exact", color='#ff7f0e')
+plt.legend()
+plt.xlim(0, 1)
+plt.show()
 
 # ------------------------------------------
 
@@ -123,14 +132,6 @@ plt.plot(r, P_1d, label="Solver")
 plt.plot(rt, P_exact, label=f"Exact")
 plt.ylabel('Pressure ($kg.m^{-1}.s^{-2}$)'); plt.xlabel("Radius (m)")
 plt.xlim(x[0], x[len(x)-1])
-plt.grid()
-plt.legend()
-
-plt.figure(figsize=(10,8))
-plt.plot(r, P_1d, 'x', label="Solver")
-plt.plot(rt, P_exact, label=f"Exact")
-plt.ylabel('Pressure ($kg.m^{-1}.s^{-2}$)'); plt.xlabel("Radius (m)")
-plt.xlim(1, x[len(x)-1])
 plt.grid()
 plt.legend()
 
