@@ -78,14 +78,14 @@ E_exact = 1 / 2 * rho_exact * u_exact**2 + P_exact / (gamma - 1)
 
 rt = r_exact+1
 
-# Spherical to cartesian -------------------
+# Distance from the explosion -------------------
 
 # explosion corrdinates
 x0 = 1 * np.sin(np.pi / 2) * np.cos(np.pi / 2)
 y0 = 1 * np.sin(np.pi / 2) * np.sin(np.pi / 2)
 z0 = 1 * np.cos(np.pi / 2)
 
-plt.figure(figsize=(10,8))
+""" plt.figure(figsize=(10,8))
 plt.xlabel("Radius (m)"); plt.ylabel('Pressure ($kg.m^{-1}.s^{-2}$)')
 for i in range(nr):
     print(i)
@@ -99,16 +99,23 @@ for i in range(nr):
 plt.plot(r_exact, P_exact, label=f"Exact", color='#ff7f0e')
 plt.legend()
 plt.xlim(0, 1)
-plt.show()
+plt.show() """
+
+# Spherical to cartesian -------------------
+
+R, Theta = np.meshgrid(r, th)
+
+X = R * np.sin(Theta)
+Z = R * np.cos(Theta)
+
+plt.figure(figsize=(10, 8))
+plt.suptitle('Sedov blast wave spherical 3d in Cartesian coordinates')
+plt.contourf(Z, X, rho_r_th, cmap='gnuplot')
+plt.gca().set_aspect('equal')
+plt.xlabel('x'); plt.ylabel('z')
+plt.colorbar(shrink=0.6)
 
 # ------------------------------------------
-
-plt.figure(figsize=(10,8))
-plt.suptitle('Rayleigh Taylor spherical 3D')
-plt.title(f'Density t = {t:.5f} s')
-plt.imshow(rho_r_th, cmap='seismic', origin='lower', extent=[rmin, rmax, th_min, th_max])
-plt.xlabel("Radius (m)"); plt.ylabel(r"$\theta$ angle (rad)")
-plt.colorbar()
 
 plt.figure(figsize=(8,8))
 plt.subplot(221)
@@ -135,5 +142,5 @@ plt.xlim(x[0], x[len(x)-1])
 plt.grid()
 plt.legend()
 
-#plt.show()
+plt.show()
 
