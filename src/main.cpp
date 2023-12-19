@@ -208,7 +208,7 @@ int main(int argc, char** argv)
 
     if(param.restart == 1) // complete restart
     {
-        read_pdi(param.restart_file, grid, param, iter, t, rho, u, P, fx, x_glob, y_glob, z_glob); // read data into host view
+        read_pdi(param.restart_file, iter, t, rho, u, P, fx, x_glob, y_glob, z_glob); // read data into host view
         sync_device(x_glob, y_glob, z_glob);
         grid.set_grid(x_glob.d_view, y_glob.d_view, z_glob.d_view);
 #if defined(NOVAPP_GRAVITY_Uniform)
@@ -238,7 +238,7 @@ int main(int argc, char** argv)
         KDV_double_1d y_glob_inter("y_glob", 1);
         KDV_double_1d z_glob_inter("z_glob", 1);
 
-        read_pdi(param.restart_file, grid, param, iter, t, rho_inter, u_inter, P_inter, fx_inter,
+        read_pdi(param.restart_file, iter, t, rho_inter, u_inter, P_inter, fx_inter,
         x_glob_inter, y_glob_inter, z_glob_inter);
 
         std::unique_ptr<IGridType> grid_type;
@@ -351,7 +351,7 @@ int main(int argc, char** argv)
 
         outputs_record.emplace_back(iter, t);
         writeXML(grid, outputs_record, x_glob, y_glob, z_glob);
-        write_pdi(grid, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
+        write_pdi(iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
     }
 
     should_output_fn const should_output(param.output_frequency, param.max_iter, param.timeout);
@@ -417,7 +417,7 @@ int main(int argc, char** argv)
 
             outputs_record.emplace_back(iter, t);
             writeXML(grid, outputs_record, x_glob, y_glob, z_glob);
-            write_pdi(grid, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
+            write_pdi(iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
         }
     }
 

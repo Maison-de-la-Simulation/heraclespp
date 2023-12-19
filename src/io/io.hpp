@@ -32,8 +32,7 @@ public:
 
 void write_pdi_init(int max_iter, int frequency, Grid const& grid, Param const& param);
 
-void write_pdi(Grid const& grid,
-               int iter,
+void write_pdi(int iter,
                double t,
                double gamma,
                KDV_double_3d rho,
@@ -47,8 +46,6 @@ void write_pdi(Grid const& grid,
                KDV_double_3d T);
 
 void read_pdi(std::string restart_file,
-              Grid const& grid,
-              Param const& param,
               int& iter,
               double& t,
               KDV_double_3d rho,

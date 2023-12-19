@@ -22,25 +22,26 @@ void write_pdi_init(int max_iter, int frequency, Grid const& grid, Param const& 
 {
     int mpi_rank = grid.mpi_rank;
     int mpi_size = grid.mpi_size;
+    int simu_ndim = ndim;
     int simu_nfx = param.nfx;
 
     PDI_multi_expose("init_PDI",
                     "max_iter", &max_iter, PDI_OUT,
                     "frequency", &frequency, PDI_OUT,
+                    "ndim", &simu_ndim, PDI_OUT,
                     "nfx", &simu_nfx, PDI_OUT,
                     "mpi_rank", &mpi_rank, PDI_OUT,
                     "mpi_size", &mpi_size, PDI_OUT,
-                    //"n_ghost", grid.Nghost.data(), PDI_OUT,
-                    //"nx_glob_ng", grid.Nx_glob_ng.data(), PDI_OUT,
-                    //"nx_local_ng", grid.Nx_local_ng.data(), PDI_OUT,
-                    //"nx_local_wg", grid.Nx_local_wg.data(), PDI_OUT,
+                    "n_ghost", grid.Nghost.data(), PDI_OUT,
+                    "nx_glob_ng", grid.Nx_glob_ng.data(), PDI_OUT,
+                    "nx_local_ng", grid.Nx_local_ng.data(), PDI_OUT,
+                    "nx_local_wg", grid.Nx_local_wg.data(), PDI_OUT,
                     "start", grid.range.Corner_min.data(), PDI_OUT,
                     "grid_communicator", &grid.comm_cart, PDI_OUT,
                     NULL);
 }
 
-void write_pdi(Grid const& grid,
-               int iter,
+void write_pdi(int iter,
                double t,
                double gamma,
                KDV_double_3d rho,
@@ -53,6 +54,8 @@ void write_pdi(Grid const& grid,
                KDV_double_4d fx,
                KDV_double_3d T)
 {
+    assert(span_is_contiguous(rho, u, P, E, fx, T));
+
     int ndim_u = u.extent(3);
     std::cout <<"write dim = " << ndim_u << std::endl;
 
@@ -62,10 +65,6 @@ void write_pdi(Grid const& grid,
                     "current_time", &t, PDI_OUT,
                     "gamma", &gamma, PDI_OUT,
                     "ndim_u", &ndim_u, PDI_OUT,
-                    "n_ghost", grid.Nghost.data(), PDI_OUT,
-                    "nx_glob_ng", grid.Nx_glob_ng.data(), PDI_OUT,
-                    "nx_local_ng", grid.Nx_local_ng.data(), PDI_OUT,
-                    "nx_local_wg", grid.Nx_local_wg.data(), PDI_OUT,
                     "rho", rho.h_view.data(), PDI_OUT,
                     "u", u.h_view.data(), PDI_OUT,
                     "P", P.h_view.data(), PDI_OUT,
@@ -104,8 +103,6 @@ bool should_output_fn::operator()(int iter, double current, double dt) const
 }
 
 void read_pdi(std::string restart_file,
-              Grid const& grid,
-              Param const& param,
               int& iter,
               double& t,
               KDV_double_3d rho,
@@ -116,17 +113,10 @@ void read_pdi(std::string restart_file,
               KDV_double_1d y_glob,
               KDV_double_1d z_glob)
 {
+    assert(span_is_contiguous(rho, u, P, fx));
+
     int ndim_u = u.extent(3);
     std::cout <<"read dim = " << ndim_u << std::endl;
-
-    std::array<int, 3> Nghost;
-    for (int idim = 0; idim < ndim_u; idim++)
-    {
-        Nghost[idim] = param.Ng;
-    }
-    std::array<int, 3> Nx_glob_ng;
-    std::array<int, 3> Nx_local_ng;
-    std::array<int, 3> Nx_local_wg;
 
     int filename_size = restart_file.size();
     PDI_multi_expose("read_file",
@@ -135,10 +125,6 @@ void read_pdi(std::string restart_file,
                     "iter", &iter, PDI_INOUT,
                     "current_time", &t, PDI_INOUT,
                     "ndim_u", &ndim_u, PDI_OUT,
-                    "n_ghost", Nghost.data(), PDI_OUT,
-                    "nx_glob_ng", Nx_glob_ng.data(), PDI_OUT,
-                    "nx_local_ng", Nx_local_ng.data(), PDI_OUT,
-                    "nx_local_wg", Nx_local_wg.data(), PDI_OUT,
                     "rho", rho.h_view.data(), PDI_INOUT,
                     "u", u.h_view.data(), PDI_INOUT,
                     "P", P.h_view.data(), PDI_INOUT,

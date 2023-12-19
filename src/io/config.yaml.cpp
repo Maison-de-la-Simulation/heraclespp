@@ -3,6 +3,7 @@
 char const* const io_config = R"IO_CONFIG(
 pdi:
   metadata:
+    ndim: int
     ndim_u: int
     nfx: int
     max_iter: int
