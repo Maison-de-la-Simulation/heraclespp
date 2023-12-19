@@ -101,7 +101,7 @@ public:
                 else
                 {
                     double evol = param_setup.E0 / dv(i, j, k)  * units::evol;
-                    double T = eos.compute_T_from_eint(rho(i, j, k), evol) * units::Kelvin;
+                    double T = eos.compute_T_from_evol(rho(i, j, k), evol) * units::Kelvin;
                     P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), T) * units::pressure;
                 }
             });
