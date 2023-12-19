@@ -131,6 +131,7 @@ pdi:
           ux:  {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
           uy:  {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
           uz:  {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
+        when: '$ndim_u=$ndim'
         read:
           iter:
           current_time:
@@ -185,4 +186,65 @@ pdi:
           x:
           y:
           z:
+
+      - file: ${restart_filename}
+        on_event: read_file
+        communicator: '${grid_communicator}'
+        datasets:
+          ux:  {type: array, subtype: double, size: [1, 1, '$nx_glob_ng[0]'] }
+        when: '$ndim_u=1'
+        read:
+          iter:
+          current_time:
+          rho:
+            memory_selection:
+              size: [1, 1, '$nx_local_ng[0]'] # size of data to be extracted from the proc
+              start: [0, 0, '$n_ghost[0]']            # starting position of data to be extracted from the proc
+            dataset_selection:
+              size: [1, 1, '$nx_local_ng[0]'] # size of data to be put in the final h5 file
+              start: [0, 0, '$start[0]']                 # position of the data in the global index
+          u:
+            dataset: ux
+            memory_selection:
+              size: [1, 1, 1, '$nx_local_ng[0]']
+              start: [0, 0, 0, '$n_ghost[0]']
+            dataset_selection:
+              size: [1, 1, '$nx_local_ng[0]']
+              start: [0, 0, '$start[0]']
+          P:
+            memory_selection:
+              size: [1, 1, '$nx_local_ng[0]']
+              start: [0, 0, '$n_ghost[0]']
+            dataset_selection:
+              size: [1, 1, '$nx_local_ng[0]']
+              start: [0, 0, '$start[0]']
+          fx:
+            when: '$nfx>0'
+            memory_selection:
+              size: ['$nfx', 1, 1, '$nx_local_ng[0]']
+              start: [0, 0, 0, '$n_ghost[0]']
+            dataset_selection:
+              size: ['$nfx', 1, 1, '$nx_local_ng[0]']
+              start: [ 0, 0, 0, '$start[0]']
+          x:
+            memory_selection:
+              size: ['$nx_glob_ng[0]+2*$n_ghost[0]+1']
+              start: [0]
+            dataset_selection:
+              size: ['$nx_glob_ng[0]+2*$n_ghost[0]+1']
+              start: [0]
+          y:
+            memory_selection:
+              size: [1]
+              start: [0]
+            dataset_selection:
+              size: [1]
+              start: [0]
+          z:
+            memory_selection:
+              size: [1]
+              start: [0]
+            dataset_selection:
+              size: [1]
+              start: [0]
 )IO_CONFIG";
