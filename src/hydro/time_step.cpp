@@ -6,7 +6,6 @@
 #include <kronecker.hpp>
 #include <range.hpp>
 
-#include "euler_equations.hpp"
 #include "time_step.hpp"
 
 namespace novapp
@@ -26,23 +25,23 @@ double time_step(
     Kokkos::parallel_reduce(
         "time_step",
         cell_mdrange(range),
-        KOKKOS_LAMBDA(int i, int j, int k, double& local_a)
+        KOKKOS_LAMBDA(int i, int j, int k, double& local_inverse_dt)
         {
             double const sound = eos.compute_speed_of_sound(rho(i, j, k), P(i, j, k));
 
-            double dt_loc_inverse = 0;
-            for(int idim = 0; idim < ndim; idim++)
+            double cell_inverse_dt = 0;
+            for(int idim = 0; idim < ndim; ++idim)
             {
                 double dx = kron(idim,0) * grid.dx(i) + kron(idim,1) * grid.dy(j) + kron(idim,2) * grid.dz(k);
-                dt_loc_inverse += (Kokkos::fabs(u(i, j, k, idim)) + sound) / dx;
+                cell_inverse_dt += (Kokkos::fabs(u(i, j, k, idim)) + sound) / dx;
             }
-            local_a = Kokkos::fmax(dt_loc_inverse, local_a);
+            local_inverse_dt = Kokkos::fmax(cell_inverse_dt, local_inverse_dt);
         },
         Kokkos::Max<double>(inverse_dt));
 
-    double result = cfl * 1 / inverse_dt;
-    MPI_Allreduce(MPI_IN_PLACE, &result, 1, MPI_DOUBLE, MPI_MIN, grid.comm_cart);
-    return result;
+    MPI_Allreduce(MPI_IN_PLACE, &inverse_dt, 1, MPI_DOUBLE, MPI_MAX, grid.comm_cart);
+
+    return cfl / inverse_dt;
 }
 
 } // namespace novapp
