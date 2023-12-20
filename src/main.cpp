@@ -241,6 +241,8 @@ int main(int argc, char** argv)
         read_pdi(param.restart_file, iter, t, rho_inter, u_inter, P_inter, fx_inter,
         x_glob_inter, y_glob_inter, z_glob_inter);
 
+        std::cout << "init ok" << std::endl;
+
         std::unique_ptr<IGridType> grid_type;
         grid_type = factory_grid_type(param.grid_type, param);
         grid_type->execute(grid.Nghost, grid.Nx_glob_ng, x_glob.h_view, y_glob.h_view, z_glob.h_view);
@@ -249,16 +251,40 @@ int main(int argc, char** argv)
         sync_device(x_glob, y_glob, z_glob);
         grid.set_grid(x_glob.d_view, y_glob.d_view, z_glob.d_view);
 
+        std::cout << "grid ok" << std::endl;
+
 #if defined(NOVAPP_GRAVITY_Uniform)
         g = std::make_unique<Gravity>(make_uniform_gravity(param));
 #elif defined(NOVAPP_GRAVITY_Point_mass)
         g = std::make_unique<Gravity>(make_point_mass_gravity(param, grid));
 #endif
 
-        Kokkos::deep_copy(rho.h_view, rho_inter.h_view);
-        Kokkos::deep_copy(u.h_view, u_inter.h_view);
-        Kokkos::deep_copy(P.h_view, P_inter.h_view);
-        Kokkos::deep_copy(fx.h_view, fx_inter.h_view);
+        std::cout << "grav ok" << std::endl;
+
+        Kokkos::parallel_for(
+            "copy_elements",
+            grid.Nx_local_wg[0],
+            KOKKOS_LAMBDA(const int i)
+            {
+                rho.h_view(i, 0, 0) = rho_inter.h_view(i, 0, 0);
+                u.h_view(i, 0, 0, 0) = u_inter.h_view(i, 0, 0, 0);
+                P.h_view(i, 0, 0) = P_inter.h_view(i, 0, 0);
+                fx.h_view(i, 0, 0, 0) = fx_inter.h_view(i, 0, 0, 0);
+            });
+
+        Kokkos::parallel_for(
+            "",
+            grid.Nx_local_wg[0],
+            KOKKOS_LAMBDA(const int i)
+            {
+                //std::cout << i << "  " << rho_inter.d_view(i, 0, 0) << "  "<< rho.h_view(i, 0, 0)  << std::endl;
+                //std::cout << i << "  " << rho.h_view(i, 2, 0) << "  "<< rho.h_view(i, 0, 2)  << std::endl;
+            });
+
+        std::cout << rho.h_view(0, 0, 0) <<"  " << rho.d_view(100, 0, 0) <<"  "
+        << rho.h_view(100, 0, 0)<<"  "<< rho_inter.h_view(100, 0, 0) << std::endl;
+
+        std::cout << "copie ok" << std::endl;
 
         std::unique_ptr<IInitializationProblem> initialization
             = std::make_unique<InitializationSetup<Gravity>>(eos, grid, param_setup, *g);
@@ -441,7 +467,7 @@ int main(int argc, char** argv)
         double mass_change = std::abs(initial_mass - final_mass);
         std::printf("Final time = %f and number of iterations = %d\n", t, iter);
         std::printf("Mean performance: %f Mcell-updates/s\n", mega * nb_cell_updates_per_sec);
-        std::printf("Initial mass = %f and change in mass = %.10e\n", initial_mass, mass_change);
+        std::printf("Initial mass = %.10e and change in mass = %.10e\n", initial_mass, mass_change);
         std::printf("--- End ---\n");
     }
     MPI_Comm_free(&(const_cast<Grid&>(grid).comm_cart));

@@ -84,7 +84,8 @@ public:
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                //std::cout << rho(i, j, k) << std::endl;
+                //std::cout << i << " " << j << " " << k << std::endl;
+                std::cout << rho(i, j, k) << std::endl;
                 //rho(i, j, k) = 1;
             });
     }
