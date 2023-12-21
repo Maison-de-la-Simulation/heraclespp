@@ -14,15 +14,15 @@ s_theta = 100
 s_phi = 100
 
 with h5py.File("test_00000000.h5", 'r') as f :
-    rho0_1d = f['rho'][s_phi/2, s_theta/2, :] # rho(r)
-    v0_1d = f['ux'][s_phi/2, s_theta/2, :] # vr(r)
+    rho0_1d = f['rho'][int(s_phi/2), int(s_theta/2), :] # rho(r)
+    v0_1d = f['ux'][int(s_phi/2), int(s_theta/2), :] # vr(r)
 
 filename = sys.argv[1]
 
 with h5py.File(str(filename), 'r') as f :
     #print(f.keys())
-    rho_1d = f['rho'][s_phi/2, s_theta/2, :] # rho(r)
-    v_1d = f['ux'][s_phi/2, s_theta/2, :] # vr(r)
+    rho_1d = f['rho'][int(s_phi/2), int(s_theta/2), :] # rho(r)
+    v_1d = f['ux'][int(s_phi/2), int(s_theta/2), :] # vr(r)
     rho2 = f['rho'][:, 0, :] # rho(r, phi)
     x = f['x'][()]
     y = f['y'][()]
