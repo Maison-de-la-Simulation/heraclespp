@@ -117,6 +117,7 @@ void read_pdi(std::string restart_file,
 
     int ndim_u = u.extent(3);
     std::cout <<"read dim = " << ndim_u << std::endl;
+    std::cout << y_glob.extent(0)<<std::endl;
 
     int filename_size = restart_file.size();
     PDI_multi_expose("read_file",

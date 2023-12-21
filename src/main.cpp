@@ -229,6 +229,8 @@ int main(int argc, char** argv)
     }
     if(param.restart == 2) // restart with 1d file to a 3d file
     {
+        std::cout << "là" << std::endl;
+
         KDV_double_3d rho_inter("rho", grid.Nx_local_wg[0], 1, 1);
         KDV_double_4d u_inter("u", grid.Nx_local_wg[0], 1, 1, 1);
         KDV_double_3d P_inter("P", grid.Nx_local_wg[0], 1, 1);
@@ -260,16 +262,17 @@ int main(int argc, char** argv)
 #endif
 
         std::cout << "grav ok" << std::endl;
+        std::cout << grid.Nghost[1] << std::endl;
 
         Kokkos::parallel_for(
             "copy_elements",
             grid.Nx_local_wg[0],
             KOKKOS_LAMBDA(const int i)
             {
-                rho.h_view(i, 0, 0) = rho_inter.h_view(i, 0, 0);
-                u.h_view(i, 0, 0, 0) = u_inter.h_view(i, 0, 0, 0);
-                P.h_view(i, 0, 0) = P_inter.h_view(i, 0, 0);
-                fx.h_view(i, 0, 0, 0) = fx_inter.h_view(i, 0, 0, 0);
+                rho.h_view(i, grid.Nghost[1], grid.Nghost[2]) = rho_inter.h_view(i, 0, 0);
+                u.h_view(i, grid.Nghost[1], grid.Nghost[2], 0) = u_inter.h_view(i, 0, 0, 0);
+                P.h_view(i, grid.Nghost[1], grid.Nghost[2]) = P_inter.h_view(i, 0, 0);
+                fx.h_view(i, grid.Nghost[1], grid.Nghost[2], 0) = fx_inter.h_view(i, 0, 0, 0);
             });
 
         Kokkos::parallel_for(
