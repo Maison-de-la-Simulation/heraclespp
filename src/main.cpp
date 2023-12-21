@@ -24,7 +24,6 @@
 #include <RadGas.hpp>
 #include <array_conversion.hpp>
 #include <config.yaml.hpp>
-#include <conservation.hpp>
 #include <eos.hpp>
 #include <euler_equations.hpp>
 #include <extrapolation_time.hpp>
@@ -35,6 +34,7 @@
 #include <grid.hpp>
 #include <grid_factory.hpp>
 #include <hydro_reconstruction.hpp>
+#include <integration.hpp>
 #include <internal_energy.hpp>
 #include <io.hpp>
 #include <kokkos_shortcut.hpp>
@@ -293,7 +293,7 @@ int main(int argc, char** argv)
 
     modify_device(rho, u, P, fx, rhou, E);
 
-    double initial_mass = conservation(grid.range.no_ghosts(), grid, rho.d_view);
+    double initial_mass = integrate(grid.range.no_ghosts(), grid, rho.d_view);
 
     std::vector<std::pair<int, double>> outputs_record;
     if (param.output_frequency > 0)
@@ -372,7 +372,7 @@ int main(int argc, char** argv)
         }
     }
 
-    double final_mass = conservation(grid.range.no_ghosts(), grid, rho.d_view);
+    double final_mass = integrate(grid.range.no_ghosts(), grid, rho.d_view);
 
     Kokkos::fence();
     MPI_Barrier(grid.comm_cart);
