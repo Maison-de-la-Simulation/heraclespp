@@ -314,12 +314,12 @@ int main(int argc, char** argv)
     {
         double dt = time_step(grid.range.all_ghosts(), eos, grid, param.cfl, rho.d_view, u.d_view, P.d_view);
         bool const make_output = should_output(iter, t, dt);
-        if ((t + dt) > param.timeout)
+        if ((t + dt) >= param.timeout)
         {
             dt = param.timeout - t;
             should_exit = true;
         }
-        if ((iter + 1) > param.max_iter)
+        if ((iter + 1) >= param.max_iter)
         {
             should_exit = true;
         }
