@@ -57,8 +57,7 @@ double compute_ek(EulerPrim const& prim) noexcept
 KOKKOS_FORCEINLINE_FUNCTION
 double compute_evol(EulerCons const& cons) noexcept
 {
-    double ekin = compute_ek(cons);
-    return cons.E - ekin;
+    return cons.E - compute_ek(cons);
 }
 
 //! Flux formula
@@ -99,7 +98,7 @@ EulerFlux compute_flux(
     KOKKOS_ASSERT(locdim >= 0);
     KOKKOS_ASSERT(locdim < ndim);
     EulerFlux flux;
-    double const evol = cons.E - compute_ek(cons);
+    double const evol = compute_evol(cons);
     double const P = eos.compute_P_from_evol(cons.rho, evol);
     double const u = cons.rhou[locdim] / cons.rho;
     flux.rho = u * cons.rho;
@@ -118,7 +117,7 @@ EulerPrim to_prim(
         EOS const& eos) noexcept
 {
     EulerPrim prim;
-    double const evol = cons.E - compute_ek(cons);
+    double const evol = compute_evol(cons);
     prim.rho = cons.rho;
     for (int idim = 0; idim < ndim; ++idim)
     {
