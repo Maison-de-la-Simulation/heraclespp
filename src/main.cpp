@@ -308,6 +308,8 @@ int main(int argc, char** argv)
 
     should_output_fn const should_output(param.output_frequency, param.max_iter, param.timeout);
 
+    Kokkos::fence();
+    MPI_Barrier(grid.comm_cart);
     std::chrono::steady_clock::time_point const start = std::chrono::steady_clock::now();
 
     while (!should_exit)
@@ -376,7 +378,6 @@ int main(int argc, char** argv)
 
     Kokkos::fence();
     MPI_Barrier(grid.comm_cart);
-
     std::chrono::steady_clock::time_point const end = std::chrono::steady_clock::now();
 
     if (grid.mpi_rank == 0)
