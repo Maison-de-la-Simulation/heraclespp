@@ -21,12 +21,12 @@ inline double internal_energy(
     KV_cdouble_4d const rhou,
     KV_cdouble_3d const E)
 {
-    double evol_min = 0;
+    double evol = 0;
 
     Kokkos::parallel_reduce(
-        "check_internal_energy",
+        "min_internal_energy",
         cell_mdrange(range),
-        KOKKOS_LAMBDA(int i, int j, int k, double& local_min)
+        KOKKOS_LAMBDA(int i, int j, int k, double& local_evol)
         {
             EulerCons cons;
             cons.rho = rho(i, j, k);
@@ -36,14 +36,15 @@ inline double internal_energy(
             }
             cons.E = E(i, j, k);
 
-            double e = compute_evol(cons);
+            double const cell_evol = compute_evol(cons);
 
-            local_min = Kokkos::min(local_min, e);
+            local_evol = Kokkos::min(local_evol, cell_evol);
         },
-        Kokkos::Min<double>(evol_min));
+        Kokkos::Min<double>(evol));
 
-        MPI_Allreduce(MPI_IN_PLACE, &evol_min, 1, MPI_DOUBLE, MPI_MIN, grid.comm_cart);
-        return evol_min;
+    MPI_Allreduce(MPI_IN_PLACE, &evol, 1, MPI_DOUBLE, MPI_MIN, grid.comm_cart);
+
+    return evol;
 }
 
 } // namespace novapp
