@@ -104,7 +104,7 @@ EulerFlux compute_flux(
     flux.rho = u * cons.rho;
     for (int idim = 0; idim < ndim; ++idim)
     {
-        flux.rhou[idim] = cons.rhou[locdim] * cons.rhou[idim] / cons.rho;
+        flux.rhou[idim] = u * cons.rhou[idim];
     }
     flux.rhou[locdim] += P;
     flux.E = u * (cons.E + P);
