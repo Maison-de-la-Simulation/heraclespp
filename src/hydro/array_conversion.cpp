@@ -24,18 +24,18 @@ void conv_prim_to_cons(
         {
             EulerPrim prim;
             prim.rho = rho(i, j, k);
-            prim.P = P(i, j, k);
             for (int idim = 0; idim < ndim; ++idim)
             {
                 prim.u[idim] = u(i, j, k, idim);
             }
+            prim.P = P(i, j, k);
 
-            EulerCons cons = to_cons(prim, eos);
-            E(i, j, k) = cons.E;
+            EulerCons const cons = to_cons(prim, eos);
             for (int idim = 0; idim < ndim; ++idim)
             {
                 rhou(i, j, k, idim) = cons.rhou[idim];
             }
+            E(i, j, k) = cons.E;
         });
 }
 
@@ -55,18 +55,18 @@ void conv_cons_to_prim(
         {
             EulerCons cons;
             cons.rho = rho(i, j, k);
-            cons.E = E(i, j, k);
             for (int idim = 0; idim < ndim; ++idim)
             {
                 cons.rhou[idim] = rhou(i, j, k, idim);
             }
+            cons.E = E(i, j, k);
 
-            EulerPrim prim = to_prim(cons, eos);
-            P(i, j, k) = prim.P;
+            EulerPrim const prim = to_prim(cons, eos);
             for (int idim = 0; idim < ndim; ++idim)
             {
                 u(i, j, k, idim) = prim.u[idim];
             }
+            P(i, j, k) = prim.P;
         });
 }
 
