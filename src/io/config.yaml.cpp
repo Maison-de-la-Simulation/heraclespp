@@ -4,6 +4,7 @@ char const* const io_config = R"IO_CONFIG(
 pdi:
   metadata:
     ndim: int
+    ndim_u: int
     nfx: int
     max_iter: int
     frequency: int
@@ -24,15 +25,15 @@ pdi:
 
 
   data: # this describes the data that is local to each process
-    u:   { type: array, subtype: double, size: ['$ndim', '$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]'] }
-    rho: { type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]' ] }
-    P:   { type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]' ] }
-    E:   { type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]' ] }
+    u:   { type: array, subtype: double, size: ['$ndim_u', 1,1, '$nx_local_wg[0]'] }
+    rho: { type: array, subtype: double, size: [1,1, '$nx_local_wg[0]' ] }
+    P:   { type: array, subtype: double, size: [1,1, '$nx_local_wg[0]' ] }
+    E:   { type: array, subtype: double, size: [1,1, '$nx_local_wg[0]' ] }
     x:   { type: array, subtype: double, size: ['$nx_glob_ng[0]+2*$n_ghost[0]+1'] }
-    y:   { type: array, subtype: double, size: ['$nx_glob_ng[1]+2*$n_ghost[1]+1'] }
-    z:   { type: array, subtype: double, size: ['$nx_glob_ng[2]+2*$n_ghost[2]+1'] }
-    fx:  { type: array, subtype: double, size: ['$nfx', '$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]' ] }
-    T:   { type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]' ] }
+    y:   { type: array, subtype: double, size: [1] }
+    z:   { type: array, subtype: double, size: [1] }
+    fx:  { type: array, subtype: double, size: ['$nfx', 1,1, '$nx_local_wg[0]' ] }
+    T:   { type: array, subtype: double, size: [1,1, '$nx_local_wg[0]' ] }
 
 
 
@@ -66,7 +67,7 @@ pdi:
               size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
               start: ['$start[2]', '$start[1]', '$start[0]']
           u:
-            when: '$ndim>1'
+            when: '$ndim_u>1'
             dataset: uy
             memory_selection:
               size: [1, '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
@@ -75,7 +76,7 @@ pdi:
               size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
               start: ['$start[2]', '$start[1]', '$start[0]']
           u:
-            when: '$ndim>2'
+            when: '$ndim_u>2'
             dataset: uz
             memory_selection:
               size: [1, '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
@@ -127,61 +128,60 @@ pdi:
         on_event: read_file
         communicator: '${grid_communicator}'
         datasets:
-          ux:  {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
-          uy:  {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
-          uz:  {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
+          ux:  {type: array, subtype: double, size: [1, 1, '$nx_glob_ng[0]'] }
+        when: '$ndim_u=1'
         read:
           iter:
           current_time:
           rho:
             memory_selection:
-              size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]'] # size of data to be extracted from the proc
-              start: ['$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']            # starting position of data to be extracted from the proc
+              size: [1, 1, '$nx_local_ng[0]']
+              start: [0, 0, '$n_ghost[0]']
             dataset_selection:
-              size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]'] # size of data to be put in the final h5 file
-              start: [ '$start[2]', '$start[1]', '$start[0]']                 # position of the data in the global index
+              size: [1, 1, '$nx_local_ng[0]']
+              start: [0, 0, '$start[0]']
           u:
             dataset: ux
             memory_selection:
-              size: [1, '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
-              start: [0, '$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']
+              size: [1, 1, 1, '$nx_local_ng[0]']
+              start: [0, 0, 0, '$n_ghost[0]']
             dataset_selection:
-              size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
-              start: ['$start[2]', '$start[1]', '$start[0]']
-          u:
-            when: '$ndim>1'
-            dataset: uy
-            memory_selection:
-              size: [1, '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
-              start: [1, '$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']
-            dataset_selection:
-              size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
-              start: ['$start[2]', '$start[1]', '$start[0]']
-          u:
-            when: '$ndim>2'
-            dataset: uz
-            memory_selection:
-              size: [1, '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
-              start: [2, '$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']
-            dataset_selection:
-              size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
-              start: ['$start[2]', '$start[1]', '$start[0]']
+              size: [1, 1, '$nx_local_ng[0]']
+              start: [0, 0, '$start[0]']
           P:
             memory_selection:
-              size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
-              start: ['$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']
+              size: [1, 1, '$nx_local_ng[0]']
+              start: [0, 0, '$n_ghost[0]']
             dataset_selection:
-              size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
-              start: [ '$start[2]', '$start[1]', '$start[0]']
+              size: [1, 1, '$nx_local_ng[0]']
+              start: [0, 0, '$start[0]']
           fx:
             when: '$nfx>0'
             memory_selection:
-              size: ['$nfx', '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
-              start: [0, '$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']
+              size: ['$nfx', 1, 1, '$nx_local_ng[0]']
+              start: [0, 0, 0, '$n_ghost[0]']
             dataset_selection:
-              size: ['$nfx', '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
-              start: [ 0, '$start[2]', '$start[1]', '$start[0]']
+              size: ['$nfx', 1, 1, '$nx_local_ng[0]']
+              start: [ 0, 0, 0, '$start[0]']
           x:
+            memory_selection:
+              size: ['$nx_glob_ng[0]+2*$n_ghost[0]+1']
+              start: [0]
+            dataset_selection:
+              size: ['$nx_glob_ng[0]+2*$n_ghost[0]+1']
+              start: [0]
           y:
+            memory_selection:
+              size: [1]
+              start: [0]
+            dataset_selection:
+              size: [1]
+              start: [0]
           z:
+            memory_selection:
+              size: [1]
+              start: [0]
+            dataset_selection:
+              size: [1]
+              start: [0]
 )IO_CONFIG";

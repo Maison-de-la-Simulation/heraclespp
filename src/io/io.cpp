@@ -54,11 +54,17 @@ void write_pdi(int iter,
                KDV_double_4d fx,
                KDV_double_3d T)
 {
+    assert(span_is_contiguous(rho, u, P, E, fx, T));
+
+    int ndim_u = u.extent(3);
+    std::cout <<"write dim = " << ndim_u << std::endl;
+
     sync_host(rho, u, P, E, fx, T, x, y, z);
     PDI_multi_expose("write_file",
                     "iter", &iter, PDI_OUT,
                     "current_time", &t, PDI_OUT,
                     "gamma", &gamma, PDI_OUT,
+                    "ndim_u", &ndim_u, PDI_OUT,
                     "rho", rho.h_view.data(), PDI_OUT,
                     "u", u.h_view.data(), PDI_OUT,
                     "P", P.h_view.data(), PDI_OUT,
@@ -107,12 +113,19 @@ void read_pdi(std::string restart_file,
               KDV_double_1d y_glob,
               KDV_double_1d z_glob)
 {
+    assert(span_is_contiguous(rho, u, P, fx));
+
+    int ndim_u = u.extent(3);
+    std::cout <<"read dim = " << ndim_u << std::endl;
+    std::cout << y_glob.extent(0)<<std::endl;
+
     int filename_size = restart_file.size();
     PDI_multi_expose("read_file",
                     "restart_filename_size", &filename_size, PDI_INOUT,
                     "restart_filename", restart_file.data(), PDI_INOUT,
                     "iter", &iter, PDI_INOUT,
                     "current_time", &t, PDI_INOUT,
+                    "ndim_u", &ndim_u, PDI_OUT,
                     "rho", rho.h_view.data(), PDI_INOUT,
                     "u", u.h_view.data(), PDI_INOUT,
                     "P", P.h_view.data(), PDI_INOUT,
