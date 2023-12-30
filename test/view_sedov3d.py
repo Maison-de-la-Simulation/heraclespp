@@ -66,7 +66,7 @@ phi = np.zeros(nphi)
 for i in range(2, nphi+2):
     phi[i-2] = z[i]
 
-# Analytical result ------------------------
+# Analytical result 1d ------------------------
 
 rho0 = 1
 E0 = 1
@@ -77,6 +77,16 @@ r_exact, rho_exact, u_exact, P_exact = ExactSedov(rho0, E0, t, gamma, n)
 E_exact = 1 / 2 * rho_exact * u_exact**2 + P_exact / (gamma - 1)
 
 rt = r_exact+1
+
+# Analytical result 2d ------------------------
+
+beta = 1.15 #gamma = 5/3
+
+r_choc = beta * (E0 * t**2 / rho0)**(1/5)
+
+theta = np.linspace(0, 2*np.pi, len(x))
+x_choc = r_choc * np.sin(theta)
+z_choc = r_choc * np.cos(theta)+1
 
 # Distance from the explosion -------------------
 
@@ -110,10 +120,13 @@ Z = R * np.cos(Theta)
 
 plt.figure(figsize=(10, 8))
 plt.suptitle('Sedov blast wave spherical 3d in Cartesian coordinates')
+plt.plot(x_choc, z_choc, '--', c='black')
 plt.contourf(Z, X, rho_r_th, cmap='gnuplot')
 plt.gca().set_aspect('equal')
 plt.xlabel('x'); plt.ylabel('z')
-plt.colorbar(shrink=0.6)
+plt.colorbar(shrink=0.55)
+plt.savefig("sedov3d.pdf")
+plt.show()
 
 # ------------------------------------------
 
@@ -142,5 +155,5 @@ plt.xlim(x[0], x[len(x)-1])
 plt.grid()
 plt.legend()
 
-plt.show()
+
 
