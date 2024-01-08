@@ -21,8 +21,10 @@ class IBoundaryCondition;
 
 class DistributedBoundaryCondition
 {
+    using mpi_buffer_type = Kokkos::DualView<double****, Kokkos::LayoutLeft, Kokkos::SharedHostPinnedSpace>;
+
 private:
-    std::array<KDV_double_4d, ndim> m_mpi_buffer;
+    std::array<mpi_buffer_type, ndim> m_mpi_buffer;
     std::array<std::unique_ptr<IBoundaryCondition>, ndim * 2> m_bcs;
     std::array<int, ndim*2> m_bc_order;
     Grid m_grid;

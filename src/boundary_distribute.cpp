@@ -78,7 +78,7 @@ void DistributedBoundaryCondition::ghost_sync(
 {
     int ng = m_grid.Nghost[bc_idim];
 
-    KDV_double_4d buf = m_mpi_buffer[bc_idim];
+    mpi_buffer_type buf = m_mpi_buffer[bc_idim];
 
     Kokkos::Array<Kokkos::pair<int, int>, 3> KRange
             = {Kokkos::make_pair(0, views[0].extent_int(0)),
@@ -162,7 +162,7 @@ DistributedBoundaryCondition::DistributedBoundaryCondition(
     for (int idim = 0; idim < ndim; idim++)
     {
         buf_size[idim] = grid.Nghost[idim];
-        m_mpi_buffer[idim] = KDV_double_4d("", buf_size[0], buf_size[1], buf_size[2], ndim + 2 + param.nfx);
+        m_mpi_buffer[idim] = mpi_buffer_type("", buf_size[0], buf_size[1], buf_size[2], ndim + 2 + param.nfx);
         buf_size[idim] = grid.Nx_local_wg[idim];
     }
 
