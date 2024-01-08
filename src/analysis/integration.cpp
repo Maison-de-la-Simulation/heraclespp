@@ -16,7 +16,7 @@ double integrate(
     Grid const& grid,
     KV_cdouble_3d const var)
 {
-    double total_mass = 0;
+    double sum = 0;
 
     Kokkos::parallel_reduce(
         "integration",
@@ -25,10 +25,11 @@ double integrate(
         {
             local_sum += var(i, j, k) * grid.dv(i, j, k);
         },
-        Kokkos::Sum<double>(total_mass));
+        Kokkos::Sum<double>(sum));
 
-    MPI_Allreduce(MPI_IN_PLACE, &total_mass, 1, MPI_DOUBLE, MPI_SUM, grid.comm_cart);
-    return total_mass;
+    MPI_Allreduce(MPI_IN_PLACE, &sum, 1, MPI_DOUBLE, MPI_SUM, grid.comm_cart);
+
+    return sum;
 }
 
 } // namespace novapp
