@@ -2,7 +2,9 @@
 #pragma once
 
 #include <Kokkos_Core.hpp>
+#include <mpi.h>
 #include <units.hpp>
+#include <random>
 
 #include <inih/INIReader.hpp>
 
@@ -11,12 +13,13 @@
 #include "default_user_step.hpp"
 #include "eos.hpp"
 #include <grid.hpp>
-#include <geom.hpp>
 #include "initialization_interface.hpp"
 #include "kokkos_shortcut.hpp"
 #include "ndim.hpp"
 #include "nova_params.hpp"
 #include <range.hpp>
+
+#include <Kokkos_Random.hpp>
 
 namespace novapp
 {
@@ -24,16 +27,10 @@ namespace novapp
 class ParamSetup
 {
 public:
-    double rho0;
     double u0;
-    double E0;
-    double E1;
 
     explicit ParamSetup(INIReader const& reader)
-        : rho0(reader.GetReal("Initialisation", "rho0", 1.0))
-        , u0(reader.GetReal("Initialisation", "u0", 1.0))
-        , E0(reader.GetReal("Initialisation", "E0", 1.0))
-        , E1(reader.GetReal("Initialisation", "E1", 1.0))
+        : u0(reader.GetReal("Initialisation", "u0", 1.0))
     {
     }
 };
@@ -42,19 +39,21 @@ template <class Gravity>
 class InitializationSetup : public IInitializationProblem
 {
 private:
-    EOS m_eos;
+    thermodynamics::PerfectGas m_eos;
     Grid m_grid;
     ParamSetup m_param_setup;
+    Gravity m_gravity;
 
 public:
     InitializationSetup(
-        EOS const& eos,
+        thermodynamics::PerfectGas const& eos,
         Grid const& grid,
         ParamSetup const& param_set_up,
-        [[maybe_unused]] Gravity const& gravity)
+        Gravity const& gravity)
         : m_eos(eos)
         , m_grid(grid)
         , m_param_setup(param_set_up)
+        , m_gravity(gravity)
     {
     }
 
@@ -63,7 +62,7 @@ public:
         KV_double_3d const rho,
         KV_double_4d const u,
         KV_double_3d const P,
-        [[maybe_unused]] KV_double_4d const fx) const final
+        KV_double_4d const fx) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -72,43 +71,47 @@ public:
         assert(rho.extent(2) == u.extent(2));
         assert(u.extent(2) == P.extent(2));
 
-        double dv = m_grid.dv(2, 0, 0);
-        double alpha;
-
-        if (geom == Geometry::Geom_cartesian)
-        {
-            alpha = 0.5;
-        }
-
-        if (geom == Geometry::Geom_spherical)
-        {
-            alpha = 1;
-        }
-
-        auto const& eos = m_eos;
+        auto const x = m_grid.x;
+        auto const y = m_grid.y;
+        auto const z = m_grid.z;
         auto const& grid = m_grid;
         auto const& param_setup = m_param_setup;
+        auto const& eos = m_eos;
+
+        double R = 0.1;
+        Kokkos::Random_XorShift64_Pool<> random_pool(12345 + grid.mpi_rank);
 
         Kokkos::parallel_for(
-            "Sedov_1D_init",
+            "Rayleigh_Taylor_3D_sph_init",
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                rho(i, j, k) = param_setup.rho0 * units::density;
+                auto generator = random_pool.get_state();
+                double random_number = generator.drand(-1.0, 1.0);
+                double perturb = (1 + 0.01 * random_number);
+                random_pool.free_state(generator);
 
-                for (int idim = 0; idim < ndim; ++idim)
+                double eint;
+
+                if( x(i) < R)
                 {
-                    u(i, j, k, idim) = param_setup.u0 * units::velocity;
+                    rho(i, j, k) = 10 * perturb;
+                    u(i, j, k, 0) = param_setup.u0 * x(i) / R * perturb;
+                    u(i, j, k, 1) = 0;
+                    u(i, j, k, 2) = 0;
+                    double ekin = 1. / 2 * rho(i, j, k) * u(i, j, k, 0) * u(i, j, k, 0);
+                    eint = 100;
                 }
-
-                double T = eos.compute_T_from_evol(rho(i, j, k), param_setup.E0 / dv * units::evol);
-                P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), T) * units::pressure;
-
-                if(grid.mpi_rank == 0 && i == 2)
+                else
                 {
-                    double T_perturb = eos.compute_T_from_evol(rho(i, j, k), alpha * param_setup.E1 / dv * units::evol);
-                    P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), T_perturb) * units::pressure;
+                    rho(i, j, k) = 0.1 * perturb;
+                    for (int idim = 0; idim < ndim; ++idim)
+                    {
+                        u(i, j, k, idim) = 0;
+                    }
+                    eint = 0.01;
                 }
+                P(i, j, k) = eos.compute_P_from_evol(rho(i, j, k), eint);
             });
     }
 };

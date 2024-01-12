@@ -56,6 +56,15 @@ cmake --build "$BUILD_DIRECTORY"
 cmake -DBUILD_TESTING=OFF -DNovapp_SETUP=rayleigh_taylor3d -DNovapp_NDIM=3 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian -S . -B "$BUILD_DIRECTORY"
 cmake --build "$BUILD_DIRECTORY"
 
+cmake -DBUILD_TESTING=OFF -DNovapp_SETUP=shock_tube -DNovapp_NDIM=3 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Spherical -S . -B "$BUILD_DIRECTORY"
+cmake --build "$BUILD_DIRECTORY"
+
+cmake -DBUILD_TESTING=OFF -DNovapp_SETUP=sedov3d -DNovapp_NDIM=3 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Spherical -S . -B "$BUILD_DIRECTORY"
+cmake --build "$BUILD_DIRECTORY"
+
+cmake -DBUILD_TESTING=OFF -DNovapp_SETUP=rayleigh_taylor3d_sph -DNovapp_NDIM=3 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Spherical -S . -B "$BUILD_DIRECTORY"
+cmake --build "$BUILD_DIRECTORY"
+
 rm -rf -- "$DIRECTORY"
 
 trap - EXIT
