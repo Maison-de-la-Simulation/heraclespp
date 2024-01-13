@@ -29,16 +29,16 @@ IComputeGeom& IComputeGeom::operator=([[maybe_unused]] IComputeGeom const& rhs) 
 IComputeGeom& IComputeGeom::operator=([[maybe_unused]] IComputeGeom&& rhs) noexcept = default;
 
 void Cartesian::execute(
-    std::array<int, 3> Nx_local_wg,
-    [[maybe_unused]] std::array<int, 3> Nghost,
+    std::array<int, 3> const Nx_local_wg,
+    [[maybe_unused]] std::array<int, 3> const Nghost,
     [[maybe_unused]] KV_cdouble_1d const x,
     [[maybe_unused]] KV_cdouble_1d const y,
     [[maybe_unused]] KV_cdouble_1d const z,
     KV_cdouble_1d const dx,
     KV_cdouble_1d const dy,
     KV_cdouble_1d const dz,
-    KV_double_4d ds,
-    KV_double_3d dv) const
+    KV_double_4d const ds,
+    KV_double_3d const dv) const
 {
     Kokkos::parallel_for(
         "fill_ds_cartesian",
@@ -72,16 +72,16 @@ void Cartesian::execute(
 }
 
 void Spherical::execute(
-    std::array<int, 3> Nx_local_wg,
-    std::array<int, 3> Nghost,
+    std::array<int, 3> const Nx_local_wg,
+    std::array<int, 3> const Nghost,
     KV_cdouble_1d const x,
     KV_cdouble_1d const y,
     [[maybe_unused]] KV_cdouble_1d const z,
     KV_cdouble_1d const dx,
     KV_cdouble_1d const dy,
     KV_cdouble_1d const dz,
-    KV_double_4d ds,
-    KV_double_3d dv) const
+    KV_double_4d const ds,
+    KV_double_3d const dv) const
 {
     if (ndim == 1)
     {
@@ -126,7 +126,7 @@ void Spherical::execute(
                                  Nx_local_wg[2]}),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                double dcos = Kokkos::cos(y(j)) - Kokkos::cos(y(j+1));
+                double const dcos = Kokkos::cos(y(j)) - Kokkos::cos(y(j+1));
 
                 ds(i, j, k, 0) = x(i) * x(i) * dcos * dz(k);              //r = cst
                 ds(i, j, k, 1) = (1. / 2) * (x(i+1) * x(i+1) - (x(i) * x(i)))
@@ -142,7 +142,7 @@ void Spherical::execute(
                                      Nx_local_wg[2]}),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                double dcos = Kokkos::cos(y(j)) - Kokkos::cos(y(j+1));
+                double const dcos = Kokkos::cos(y(j)) - Kokkos::cos(y(j+1));
                 dv(i, j, k) = (1. / 3) * (x(i+1) * x(i+1) * x(i+1)
                                 - (x(i) * x(i) * x(i))) * dcos * dz(k);
             });

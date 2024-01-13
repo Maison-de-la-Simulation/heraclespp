@@ -103,7 +103,7 @@ public:
         KV_double_3d const E_new,
         KV_double_4d const fx_new) const final
     {
-        int nfx = fx.extent_int(3);
+        int const nfx = fx.extent_int(3);
         auto const x = m_grid.x;
         auto const y = m_grid.y;
         auto const ds = m_grid.ds;
@@ -181,8 +181,8 @@ public:
 
                     if (geom == Geometry::Geom_spherical)
                     {
-                        EulerPrim primL = to_prim(var_L, eos);
-                        EulerPrim primR = to_prim(var_R, eos);
+                        EulerPrim const primL = to_prim(var_L, eos);
+                        EulerPrim const primR = to_prim(var_R, eos);
 
                         if (ndim == 1)
                         {
@@ -192,8 +192,8 @@ public:
                         }
                         if (ndim == 3)
                         {
-                            double sm = Kokkos::sin(y(j));
-                            double sp = Kokkos::sin(y(j+1));
+                            double const sm = Kokkos::sin(y(j));
+                            double const sp = Kokkos::sin(y(j+1));
 
                             if (idim == 0)
                             {

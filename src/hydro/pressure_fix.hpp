@@ -53,14 +53,14 @@ inline void pressure_fix(
             }
             cons_new.E = E_new(i, j, k);
 
-            EulerPrim prim = to_prim(cons, eos);
+            EulerPrim const prim = to_prim(cons, eos);
 
             //--------------------------------------------------------//
 
-            double ekin = compute_ek(cons); // Kinetic energy (i, j, k)
-            double evol = E(i, j, k) - ekin; // Internal energy (i, j, k) at n
-            double evol_new = E_new(i, j, k) - compute_ek(cons_new); // Internal energy (i, j, k) at n+1
-            double de_god = evol_new - evol;
+            double const ekin = compute_ek(cons); // Kinetic energy (i, j, k)
+            double const evol = E(i, j, k) - ekin; // Internal energy (i, j, k) at n
+            double const evol_new = E_new(i, j, k) - compute_ek(cons_new); // Internal energy (i, j, k) at n+1
+            double const de_god = evol_new - evol;
 
             if (evol < eps * ekin)
             {
@@ -100,8 +100,8 @@ inline void pressure_fix(
                         }
                         var_R.E = E_rec(i, j, k, 1, idim);
 
-                        EulerPrim primL = to_prim(var_L, eos);
-                        EulerPrim primR = to_prim(var_R, eos);
+                        EulerPrim const primL = to_prim(var_L, eos);
+                        EulerPrim const primR = to_prim(var_R, eos);
 
                         EulerCons minus_oneR; // Right, back, top (i,j,k) - 1
                         EulerCons plus_oneL; // Left, front, down (i,j,k) + 1
@@ -120,8 +120,8 @@ inline void pressure_fix(
                         }
                         plus_oneL.E = E_rec(i_p, j_p, k_p, 0, idim);
 
-                        EulerPrim prim_mR = to_prim(minus_oneR, eos);
-                        EulerPrim prim_pL = to_prim(plus_oneL, eos);
+                        EulerPrim const prim_mR = to_prim(minus_oneR, eos);
+                        EulerPrim const prim_pL = to_prim(plus_oneL, eos);
 
                         EulerCons cons_p; // (i,j,k) + 1
                         EulerCons cons_m; // (i,j,k) - 1
@@ -142,8 +142,8 @@ inline void pressure_fix(
 
                         //--------------------------------------------//
 
-                        double us = (prim_mR.u[ipos] + primL.u[ipos]) / 2; // Not the values from the Riemann solver
-                        double us_p = (primR.u[ipos] + prim_pL.u[ipos]) / 2;
+                        double const us = (prim_mR.u[ipos] + primL.u[ipos]) / 2; // Not the values from the Riemann solver
+                        double const us_p = (primR.u[ipos] + prim_pL.u[ipos]) / 2;
 
                         divU += (us_p * ds(i_p, j_p, k_p, ipos)
                             - us * ds(i, j, k, ipos)) / dv(i, j, k);
@@ -169,7 +169,7 @@ inline void pressure_fix(
                         divUE += (us_p * einR * ds(i_p, j_p, k_p, ipos)
                                 - us * einL * ds(i, j, k, ipos)) / dv(i, j, k);
 
-                        double de_pf = dt * (-prim.P * divU - divUE);
+                        double const de_pf = dt * (-prim.P * divU - divUE);
 
                         double sum = 0;
                         for (int idr = 0; idr < ndim; ++idr)
@@ -177,7 +177,7 @@ inline void pressure_fix(
                             sum += cons.rhou[idr] * cons.rhou[idr] / cons.rho;
                         }
 
-                        double de_tot = alpha * de_god + (1 - alpha) * de_pf;
+                        double const de_tot = alpha * de_god + (1 - alpha) * de_pf;
 
                         E_new(i, j, k) = evol + de_tot + 1. / 2 * sum;
                     }
