@@ -91,8 +91,8 @@ void Spherical::execute(
             "fill_ds_1dspherical",
             Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0},
                                 {Nx_local_wg[0],
-                                 Nx_local_wg[1],
-                                 Nx_local_wg[2]}),
+                                    Nx_local_wg[1],
+                                    Nx_local_wg[2]}),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
                 ds(i, j, k, 0) = 4 * Kokkos::numbers::pi * x(i) * x(i);
@@ -101,9 +101,9 @@ void Spherical::execute(
         Kokkos::parallel_for(
             "fill_dv_1dspherical",
             Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0},
-                                    {Nx_local_wg[0],
-                                     Nx_local_wg[1],
-                                     Nx_local_wg[2]}),
+                                {Nx_local_wg[0],
+                                    Nx_local_wg[1],
+                                    Nx_local_wg[2]}),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
                 dv(i, j, k) = (4 * Kokkos::numbers::pi * (x(i+1) * x(i+1) * x(i+1)
@@ -117,13 +117,13 @@ void Spherical::execute(
     }
 
     if (ndim == 3)
-        {
-            Kokkos::parallel_for(
+    {
+        Kokkos::parallel_for(
             "fill_ds_3dspherical",
             Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0},
                                 {Nx_local_wg[0],
-                                 Nx_local_wg[1],
-                                 Nx_local_wg[2]}),
+                                    Nx_local_wg[1],
+                                    Nx_local_wg[2]}),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
                 double const dcos = Kokkos::cos(y(j)) - Kokkos::cos(y(j+1));
@@ -134,19 +134,19 @@ void Spherical::execute(
                 ds(i, j, k, 2) = x(i) * dx(i) * dy(j);                     //phi = cst
             });
 
-            Kokkos::parallel_for(
+        Kokkos::parallel_for(
             "fill_dv_3dspherical",
             Kokkos::MDRangePolicy<Kokkos::Rank<3>>({0, 0, 0},
-                                    {Nx_local_wg[0],
-                                     Nx_local_wg[1],
-                                     Nx_local_wg[2]}),
+                                {Nx_local_wg[0],
+                                    Nx_local_wg[1],
+                                    Nx_local_wg[2]}),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
                 double const dcos = Kokkos::cos(y(j)) - Kokkos::cos(y(j+1));
                 dv(i, j, k) = (1. / 3) * (x(i+1) * x(i+1) * x(i+1)
                                 - (x(i) * x(i) * x(i))) * dcos * dz(k);
             });
-        }
+    }
 }
 
 } // namespace novapp
