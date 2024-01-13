@@ -62,7 +62,7 @@ public:
         KV_double_3d const rho,
         KV_double_4d const u,
         KV_double_3d const P,
-        KV_double_4d const fx) const final
+        [[maybe_unused]] KV_double_4d const fx) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -99,7 +99,6 @@ public:
                     u(i, j, k, 0) = param_setup.u0 * x(i) / R * perturb;
                     u(i, j, k, 1) = 0;
                     u(i, j, k, 2) = 0;
-                    double ekin = 1. / 2 * rho(i, j, k) * u(i, j, k, 0) * u(i, j, k, 0);
                     eint = 100;
                 }
                 else

@@ -70,7 +70,7 @@ void Cartesian::execute(
 
 void Spherical::execute(
     std::array<int, 3> const Nx_local_wg,
-    std::array<int, 3> const Nghost,
+    [[maybe_unused]] std::array<int, 3> const Nghost,
     KV_cdouble_1d const x,
     KV_cdouble_1d const y,
     [[maybe_unused]] KV_cdouble_1d const z,
