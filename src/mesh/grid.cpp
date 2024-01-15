@@ -36,18 +36,15 @@ void compute_cell_size(KV_cdouble_1d const& x, KV_double_1d const& dx)
         });
 }
 
-void compute_cell_center(KV_cdouble_1d const& x,
-                         KV_cdouble_1d const& dx,
-                         KV_double_1d const& x_center)
+void compute_cell_center(KV_cdouble_1d const& x, KV_double_1d const& x_center)
 {
-    assert(x.extent_int(0) == dx.extent_int(0) + 1);
-    assert(dx.extent_int(0) == x_center.extent_int(0));
+    assert(x.extent_int(0) == x_center.extent_int(0) + 1);
     Kokkos::parallel_for(
         "fill_cell_center_array",
         x_center.extent_int(0),
         KOKKOS_LAMBDA(int i)
         {
-            x_center(i) = x(i) + dx(i) / 2;
+            x_center(i) = (x(i) + x(i+1)) / 2;
         });
 }
 
@@ -191,9 +188,9 @@ void Grid::set_grid(KV_double_1d const& x_glob, KV_double_1d const& y_glob, KV_d
     compute_cell_size(z, dz);
 
     // Filling x_center, y_center, z_center
-    compute_cell_center(x, dx, x_center);
-    compute_cell_center(y, dy, y_center);
-    compute_cell_center(z, dz, z_center);
+    compute_cell_center(x, x_center);
+    compute_cell_center(y, y_center);
+    compute_cell_center(z, z_center);
 
     std::unique_ptr<IComputeGeom> grid_geometry
             = factory_grid_geometry();
