@@ -2,8 +2,6 @@
 //! @file geometry.cpp
 //!
 
-#include <array>
-#include <memory>
 #include <stdexcept>
 
 #include <Kokkos_Core.hpp>
@@ -12,6 +10,7 @@
 #include <ndim.hpp>
 
 #include "geometry.hpp"
+#include "range.hpp"
 
 namespace novapp
 {
@@ -29,8 +28,7 @@ IComputeGeom& IComputeGeom::operator=([[maybe_unused]] IComputeGeom const& rhs) 
 IComputeGeom& IComputeGeom::operator=([[maybe_unused]] IComputeGeom&& rhs) noexcept = default;
 
 void Cartesian::execute(
-    std::array<int, 3> const Nx_local_wg,
-    [[maybe_unused]] std::array<int, 3> const Nghost,
+    Range const& range,
     [[maybe_unused]] KV_cdouble_1d const x,
     [[maybe_unused]] KV_cdouble_1d const y,
     [[maybe_unused]] KV_cdouble_1d const z,
@@ -40,12 +38,9 @@ void Cartesian::execute(
     KV_double_4d const ds,
     KV_double_3d const dv) const
 {
-    using policy_t = Kokkos::MDRangePolicy<Kokkos::Rank<3, Kokkos::Iterate::Left, Kokkos::Iterate::Left>>;
-    policy_t const policy({0, 0, 0}, {Nx_local_wg[0], Nx_local_wg[1], Nx_local_wg[2]});
-
     Kokkos::parallel_for(
         "fill_ds_cartesian",
-        policy,
+        cell_mdrange(range),
         KOKKOS_LAMBDA(int i, int j, int k)
         {
             Kokkos::Array<double, 3> dx_inter;
@@ -61,7 +56,7 @@ void Cartesian::execute(
 
     Kokkos::parallel_for(
         "fill_dv_cartesian",
-        policy,
+        cell_mdrange(range),
         KOKKOS_LAMBDA(int i, int j, int k)
         {
             dv(i, j, k) = dx(i) * dy(j) * dz(k);
@@ -69,8 +64,7 @@ void Cartesian::execute(
 }
 
 void Spherical::execute(
-    std::array<int, 3> const Nx_local_wg,
-    [[maybe_unused]] std::array<int, 3> const Nghost,
+    Range const& range,
     KV_cdouble_1d const x,
     KV_cdouble_1d const y,
     [[maybe_unused]] KV_cdouble_1d const z,
@@ -80,16 +74,13 @@ void Spherical::execute(
     KV_double_4d const ds,
     KV_double_3d const dv) const
 {
-    using policy_t = Kokkos::MDRangePolicy<Kokkos::Rank<3, Kokkos::Iterate::Left, Kokkos::Iterate::Left>>;
-    policy_t const policy({0, 0, 0}, {Nx_local_wg[0], Nx_local_wg[1], Nx_local_wg[2]});
-
     if (ndim == 1)
     {
         // theta = pi
         // phi = 2 * pi
         Kokkos::parallel_for(
             "fill_ds_1dspherical",
-            policy,
+            cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
                 ds(i, j, k, 0) = 4 * Kokkos::numbers::pi * x(i) * x(i);
@@ -97,7 +88,7 @@ void Spherical::execute(
 
         Kokkos::parallel_for(
             "fill_dv_1dspherical",
-            policy,
+            cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
                 dv(i, j, k) = (4 * Kokkos::numbers::pi * (x(i+1) * x(i+1) * x(i+1)
@@ -114,7 +105,7 @@ void Spherical::execute(
     {
         Kokkos::parallel_for(
             "fill_ds_3dspherical",
-            policy,
+            cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
                 double const dcos = Kokkos::cos(y(j)) - Kokkos::cos(y(j+1));
@@ -127,7 +118,7 @@ void Spherical::execute(
 
         Kokkos::parallel_for(
             "fill_dv_3dspherical",
-            policy,
+            cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
                 double const dcos = Kokkos::cos(y(j)) - Kokkos::cos(y(j+1));

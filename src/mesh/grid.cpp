@@ -199,7 +199,7 @@ void Grid::set_grid(KV_double_1d const& x_glob, KV_double_1d const& y_glob, KV_d
             = factory_grid_geometry();
 
     // Filling ds, dv
-    grid_geometry->execute(Nx_local_wg, Nghost, x, y, z, dx, dy, dz, ds, dv);
+    grid_geometry->execute(range.all_ghosts(), x, y, z, dx, dy, dz, ds, dv);
 }
 
 void Grid::print_grid() const

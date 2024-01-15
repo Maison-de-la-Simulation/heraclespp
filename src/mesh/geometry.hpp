@@ -4,12 +4,12 @@
 
 #pragma once
 
-#include <array>
-
 #include <kokkos_shortcut.hpp>
 
 namespace novapp
 {
+
+class Range;
 
 class IComputeGeom
 {
@@ -27,8 +27,7 @@ public:
     IComputeGeom& operator=(IComputeGeom&& rhs) noexcept;
 
     virtual void execute(
-        std::array<int, 3> Nx_local_wg,
-        std::array<int, 3> Nghost,
+        Range const& range,
         KV_cdouble_1d x,
         KV_cdouble_1d y,
         KV_cdouble_1d z,
@@ -44,8 +43,7 @@ class Cartesian : public IComputeGeom
 {
 public:
     void execute(
-        std::array<int, 3> Nx_local_wg,
-        std::array<int, 3> Nghost,
+        Range const& range,
         KV_cdouble_1d x,
         KV_cdouble_1d y,
         KV_cdouble_1d z,
@@ -60,8 +58,7 @@ class Spherical : public IComputeGeom
 {
 public:
     void execute(
-        std::array<int, 3> Nx_local_wg,
-        std::array<int, 3> Nghost,
+        Range const& range,
         KV_cdouble_1d x,
         KV_cdouble_1d y,
         KV_cdouble_1d z,
