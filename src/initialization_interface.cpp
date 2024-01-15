@@ -9,14 +9,14 @@ namespace novapp
 
 IInitializationProblem::IInitializationProblem() = default;
 
-IInitializationProblem::IInitializationProblem([[maybe_unused]] IInitializationProblem const& rhs) = default;
+IInitializationProblem::IInitializationProblem(IInitializationProblem const& rhs) = default;
 
-IInitializationProblem::IInitializationProblem([[maybe_unused]] IInitializationProblem&& rhs) noexcept = default;
+IInitializationProblem::IInitializationProblem(IInitializationProblem&& rhs) noexcept = default;
 
 IInitializationProblem::~IInitializationProblem() noexcept = default;
 
-IInitializationProblem& IInitializationProblem::operator=([[maybe_unused]] IInitializationProblem const& rhs) = default;
+IInitializationProblem& IInitializationProblem::operator=(IInitializationProblem const& rhs) = default;
 
-IInitializationProblem& IInitializationProblem::operator=([[maybe_unused]] IInitializationProblem&& rhs) noexcept = default;
+IInitializationProblem& IInitializationProblem::operator=(IInitializationProblem&& rhs) noexcept = default;
 
 } // namespace novapp

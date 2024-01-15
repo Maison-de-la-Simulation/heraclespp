@@ -33,15 +33,15 @@ void compute_regular_mesh_1d(
 
 IGridType::IGridType() = default;
 
-IGridType::IGridType([[maybe_unused]] IGridType const& rhs) = default;
+IGridType::IGridType(IGridType const& rhs) = default;
 
-IGridType::IGridType([[maybe_unused]] IGridType&& rhs) noexcept = default;
+IGridType::IGridType(IGridType&& rhs) noexcept = default;
 
 IGridType::~IGridType() noexcept = default;
 
-IGridType& IGridType::operator=([[maybe_unused]] IGridType const& rhs) = default;
+IGridType& IGridType::operator=(IGridType const& rhs) = default;
 
-IGridType& IGridType::operator=([[maybe_unused]] IGridType&& rhs) noexcept = default;
+IGridType& IGridType::operator=(IGridType&& rhs) noexcept = default;
 
 void IGridType::execute(
         [[maybe_unused]] std::array<int, 3> Nghost,
