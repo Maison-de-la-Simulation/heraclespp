@@ -33,9 +33,10 @@ pdi:
     z:   { type: array, subtype: double, size: ['$nx_glob_ng[2]+2*$n_ghost[2]+1'] }
     fx:  { type: array, subtype: double, size: ['$nfx', '$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]' ] }
     T:   { type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]' ] }
-
-
-
+    u_1d:   { type: array, subtype: double, size: ['$nx_local_ng[0]'] }
+    rho_1d: { type: array, subtype: double, size: ['$nx_local_ng[0]' ] }
+    P_1d:   { type: array, subtype: double, size: ['$nx_local_ng[0]' ] }
+    fx_1d:  { type: array, subtype: double, size: ['$nfx', '$nx_local_ng[0]' ] }
 
   plugins:
     mpi:
@@ -184,4 +185,29 @@ pdi:
           x:
           y:
           z:
+
+      - file: ${restart_filename}
+        on_event: read_file_1d
+        communicator: '${grid_communicator}'
+        read:
+          iter:
+          current_time:
+          rho_1d:
+            dataset_selection:
+              size: ['$nx_local_ng[0]']
+              start: ['$start[0]']
+          u_1d:
+            dataset_selection:
+              size: ['$nx_local_ng[0]']
+              start: ['$start[0]']
+          P_1d:
+            dataset_selection:
+              size: ['$nx_local_ng[0]']
+              start: ['$start[0]']
+          fx_1d:
+            when: '$nfx>0'
+            dataset_selection:
+              size: ['$nfx', '$nx_local_ng[0]']
+              start: [ 0, '$start[0]']
+          x:
 )IO_CONFIG";
