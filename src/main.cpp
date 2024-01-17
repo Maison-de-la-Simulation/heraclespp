@@ -66,9 +66,7 @@ void display_help_message(std::filesystem::path const& executable)
     std::cout << "usage: " << executable.filename().native() << " <path to the ini file> [options]\n";
 }
 
-}
-
-int main(int argc, char** argv)
+int nova_main(int argc, char** argv)
 {
     if (argc < 2)
     {
@@ -466,5 +464,21 @@ int main(int argc, char** argv)
     PDI_finalize();
     PC_tree_destroy(&conf);
 
-    return 0;
+    return EXIT_SUCCESS;
+}
+
+}
+
+int main(int argc, char** argv)
+{
+    try
+    {
+        return nova_main(argc, argv);
+    }
+    catch(std::exception const& e)
+    {
+        std::cerr << e.what() << std::endl;
+    }
+
+    return EXIT_FAILURE;
 }
