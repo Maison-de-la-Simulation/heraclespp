@@ -101,9 +101,9 @@ public:
                 break;
             }
         }
-        if (itr == 99 && Kokkos::abs(delta_T) > 1E-6)
+        if (Kokkos::isnan(delta_T) || (itr == max_itr && Kokkos::abs(delta_T) > 1E-6))
         {
-            Kokkos::printf("No convergence in temperature : %f \n", Kokkos::abs(delta_T));
+            Kokkos::printf("P No convergence in temperature : %d %f\n", itr, Kokkos::abs(delta_T));
         }
         return T;
     }
@@ -133,14 +133,14 @@ public:
             delta_T = -f / df;
             T += delta_T;
             itr = i;
-            if (Kokkos::abs(delta_T) <= 1E-6)
+            if (Kokkos::abs(delta_T) <= 1E-6 || Kokkos::isnan(delta_T))
             {
                 break;
             }
         }
-        if (itr == 99 && Kokkos::abs(delta_T) > 1E-6)
+        if (Kokkos::isnan(delta_T) || (itr == max_itr && Kokkos::abs(delta_T) > 1E-6))
         {
-            Kokkos::printf("No convergence in temperature : %f \n", Kokkos::abs(delta_T));
+            Kokkos::printf("evol No convergence in temperature : %d %f\n", itr, Kokkos::abs(delta_T));
         }
         return T;
     }

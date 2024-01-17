@@ -55,6 +55,15 @@ void read_pdi(std::string restart_file,
               KDV_double_1d y_glob,
               KDV_double_1d z_glob);
 
+void read_pdi_1d(std::string restart_file,
+              int& iter,
+              double& t,
+              KDV_double_1d rho,
+              KDV_double_1d u,
+              KDV_double_1d P,
+              KDV_double_2d fx,
+              KDV_double_1d x_glob);
+
 void writeXML(
         Grid const& grid,
         std::vector<std::pair<int, double>> const& outputs_record,

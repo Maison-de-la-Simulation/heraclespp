@@ -17,7 +17,7 @@ class Param
 {
 public :
     std::string problem;
-    bool restart;
+    std::string restart;
     std::string restart_file;
     std::array<int, 3> Nx_glob_ng;
     double xmin;
@@ -52,7 +52,7 @@ public :
     explicit Param(INIReader const& reader)
     {
         problem = reader.Get("Problem", "type", "ShockTube");
-        restart = reader.GetBoolean("Problem", "restart", false);
+        restart = reader.Get("Problem", "restart", "initialization");
         restart_file = reader.Get("Problem", "restart_file", "restart.h5");
 
         Nx_glob_ng[0] = reader.GetInteger("Grid", "Nx_glob", 0); // Cell number
