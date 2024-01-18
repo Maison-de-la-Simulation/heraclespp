@@ -22,7 +22,11 @@ double time_step(
     KV_cdouble_4d const u,
     KV_cdouble_3d const P)
 {
-    Kokkos::Array<KV_cdouble_1d, 3> const dx {grid.dx, grid.dy, grid.dz};
+    auto const& dx = grid.dx;
+    auto const& dy = grid.dy;
+    auto const& dz = grid.dz;
+    auto const& x_center = grid.x_center;
+    auto const& y_center = grid.y_center;
 
     double inverse_dt = 0;
 
@@ -31,25 +35,17 @@ double time_step(
         cell_mdrange(range),
         KOKKOS_LAMBDA(int i, int j, int k, double& local_inverse_dt)
         {
-            Kokkos::Array<int, 3> const ijk {i,j,k};
             double const sound = eos.compute_speed_of_sound(rho(i, j, k), P(i, j, k));
-            Kokkos::Array<double, 3> dx_geom {0, 0, 0};
+            Kokkos::Array<double, 3> dx_geom {dx(i), dy(j), dz(k)};
             if (geom == Geometry::Geom_cartesian)
             {
-                for(int idim = 0; idim < ndim; ++idim)
-                {
-                    dx_geom[idim] = dx[idim](ijk[idim]);
-                }
-            }
-            if (geom == Geometry::Geom_spherical)
-            {
-                dx_geom[0] = grid.dx(i);
                 if (ndim == 3)
                 {
-                    dx_geom[1] = grid.x_center(i) * grid.dy(j);
-                    dx_geom[2] = grid.x_center(i) * Kokkos::sin(grid.y_center(j)) * grid.dz(k);
+                    dx_geom[1] *= x_center(i);
+                    dx_geom[2] *= x_center(i) * Kokkos::sin(y_center(j));
                 }
             }
+
             double cell_inverse_dt = 0;
             for(int idim = 0; idim < ndim; ++idim)
             {
