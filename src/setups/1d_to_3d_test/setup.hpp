@@ -95,14 +95,14 @@ void execute(
         //compute_regular_mesh_1d(y_glob, Nghost[1], param.ymin, (param.ymax - param.ymin) / Nx_glob_ng[1]);
         //compute_regular_mesh_1d(z_glob, Nghost[2], param.zmin, (param.zmax - param.zmin) / Nx_glob_ng[2]);
 
-        double dy = param.ymax / Nx_glob_ng[1];
+        double dy = (param.ymax - param.ymin) / Nx_glob_ng[1];
         y_glob(Nghost[1]) = param.ymin;
         for (int i = Nghost[1]+1; i < y_glob.extent_int(0); i++)
         {
             y_glob(i) = y_glob(i-1) + dy;
         }
 
-        double dz = param.zmax / Nx_glob_ng[2];
+        double dz = (param.zmax - param.zmin) / Nx_glob_ng[2];
         z_glob(Nghost[2]) = param.zmin;
         for (int i = Nghost[2]+1; i < z_glob.extent_int(0) ; i++)
         {
