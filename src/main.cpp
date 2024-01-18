@@ -281,18 +281,20 @@ int nova_main(int argc, char** argv)
         g = std::make_unique<Gravity>(make_point_mass_gravity(param, grid));
 #endif
         // à mettre dans une fonction
+        int const ghost_x = grid.Nghost[0];
+        int const nfx = param.nfx;
         Kokkos::parallel_for(
             "copy_elements",
             cell_mdrange(grid.range.no_ghosts()),
             KOKKOS_LAMBDA(const int i, const int j, const int k)
             {
-                int offset = i - grid.Nghost[0];
+                int offset = i - ghost_x;
                 rho.d_view(i, j, k) = rho_inter.d_view(offset);
                 u.d_view(i, j, k, 0) = u_inter.d_view(offset);
                 u.d_view(i, j, k, 1) = 0;
                 u.d_view(i, j, k, 2) = 0;
                 P.d_view(i, j, k) = P_inter.d_view(offset);
-                for(int ifx = 0; ifx < param.nfx; ++ifx)
+                for(int ifx = 0; ifx < nfx; ++ifx)
                 {
                     fx.d_view(i, j, k, ifx) = fx_inter.d_view(offset, ifx);
                 }
