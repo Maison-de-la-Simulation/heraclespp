@@ -260,6 +260,8 @@ int nova_main(int argc, char** argv)
         read_pdi_1d(param.restart_file, iter, t, rho_inter, u_inter, P_inter, fx_inter,
         x_glob_inter);
 
+        sync_device(rho_inter, u_inter, P_inter, fx_inter);
+
         std::unique_ptr<IGridType> grid_type;
         if (param.grid_type == "UserDefined")
         {
@@ -280,6 +282,7 @@ int nova_main(int argc, char** argv)
 #elif defined(NOVAPP_GRAVITY_Point_mass)
         g = std::make_unique<Gravity>(make_point_mass_gravity(param, grid));
 #endif
+
         // à mettre dans une fonction
         int const ghost_x = grid.Nghost[0];
         int const nfx = param.nfx;
