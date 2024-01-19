@@ -296,8 +296,7 @@ int nova_main(int argc, char** argv)
                 u.d_view(i, j, k, 0) = u_inter.d_view(offset);
                 for (int idim = 1; idim < ndim; ++idim)
                 {
-                    u.d_view(i, j, k, 1) = 0;
-                    u.d_view(i, j, k, 2) = 0;
+                    u.d_view(i, j, k, idim) = 0;
                 }
                 P.d_view(i, j, k) = P_inter.d_view(offset);
                 for(int ifx = 0; ifx < nfx; ++ifx)
