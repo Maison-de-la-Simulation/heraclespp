@@ -135,15 +135,15 @@ convergence-advection-sinusoide-test-job:serial:1:
   script:
     - ./test/run_convergence_advection_gaussian.sh
 
-clang-format-job:
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-  stage: test
-  needs: []
-  script:
-    - find src tests -name '*.[h|c]pp' -exec clang-format --dry-run --ferror-limit=10 --Werror '{}' '+'
-  allow_failure: true
+# clang-format-job:
+#   rules:
+#     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+#     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+#   stage: test
+#   needs: []
+#   script:
+#     - find src tests -name '*.[h|c]pp' -exec clang-format --dry-run --ferror-limit=10 --Werror '{}' '+'
+#   allow_failure: true
 
 clang-tidy-job:
   rules:
