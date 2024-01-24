@@ -20,6 +20,7 @@ with h5py.File(str(file_init), 'r') as f :
     He0 = f['fx'][2, 0, 0, :]
     O0 = f['fx'][3, 0, 0, :]
     Si0 = f['fx'][4, 0, 0, :]
+    x0 = f['x'][()]
     t0 = f['current_time'][()]
 
 file_final = "../src/setups/v1d/v1d_1e5.h5"
@@ -75,10 +76,19 @@ xcf = np.zeros(len(rhof))
 for i in range(2, len(rhof)+2):
     xcf[i-2] = xf[i] + dxf[i-2] / 2
 
+dx0 = np.zeros(len(rho0))
+for i in range(2, len(rho0)+2):
+    dx0[i-2] = x0[i+1] - x0[i]
+
+xc0 = np.zeros(len(rho0))
+for i in range(2, len(rho0)+2):
+    xc0[i-2] = x0[i] + dx0[i-2] / 2
+
 # cgs units --------------------------------
 
 xc_cm = xc * 10**2
 xcf_cm = xcf * 10**2
+xc0_cm = xc0 * 10**2
 
 rho0_cgs = rho0 * 10**(-3)
 rho_cgs = rho * 10**(-3)
@@ -127,7 +137,7 @@ plt.xscale('log')#; plt.yscale('log') """
 plt.figure(figsize=(12,8))
 plt.suptitle(f'Loglog graph for v1d 1e5, t = {t:.1e} s ({tday:1f} jours)')
 plt.subplot(221)
-plt.plot(xc_cm, rho0_cgs, "--", label=f"$t_0$= {t0:.1e} s")
+plt.plot(xc0_cm, rho0_cgs, "--", label=f"$t_0$= {t0:.1e} s")
 plt.plot(xcf_cm, rhof_cgs, "--", color="red", label=f'$t_f$ = {tf:.1e} s')
 plt.plot(xc_cm, rho_cgs, color='green', label=f'$t$ = {t:.1e} s')
 plt.xlabel('rc (cm)'); plt.ylabel('Density ($g.cm^{-3}$)')
@@ -136,7 +146,7 @@ plt.grid()
 plt.legend()
 
 plt.subplot(222)
-plt.plot(xc_cm, u0_cgs, "--", label=f"$t_i$= {t0:.1e} s")
+plt.plot(xc0_cm, u0_cgs, "--", label=f"$t_i$= {t0:.1e} s")
 plt.plot(xcf_cm, uf_cgs, "--", color="red", label=f'$t_f$ = {tf:.1e} s')
 plt.plot(xc_cm, u_cgs, color='green', label=f'$t$ = {t:.1e} s')
 plt.xlabel('rc (cm)'); plt.ylabel('Velocity ($cm.s^{-1}$)')
@@ -145,7 +155,7 @@ plt.grid()
 plt.legend()
 
 plt.subplot(223)
-plt.plot(xc_cm, P0_cgs, "--", label=f"$t_i$= {t0:.1e} s")
+plt.plot(xc0_cm, P0_cgs, "--", label=f"$t_i$= {t0:.1e} s")
 plt.plot(xcf_cm, Pf_cgs, "--", color="red", label=f'$t_f$ = {tf:.1e} s')
 plt.plot(xc_cm, P_cgs, color='green', label=f'$t$ = {t:.1e} s')
 plt.xlabel('rc (cm)'); plt.ylabel('Pressure ($g.cm^{-1}.s^{-2}$)')
@@ -154,7 +164,7 @@ plt.grid()
 plt.legend()
 
 plt.subplot(224)
-plt.plot(xc_cm, T0, "--", label=f"$t_i$= {t0:.1e} s")
+plt.plot(xc0_cm, T0, "--", label=f"$t_i$= {t0:.1e} s")
 plt.plot(xcf_cm, Tf, "--", color="red", label=f'$t_f$ = {tf:.1e} s')
 plt.plot(xc_cm, T, color='green', label=f'$t$ = {t:.1e} s')
 plt.xlabel('rc (cm)'); plt.ylabel('Temperature ($K$)')
