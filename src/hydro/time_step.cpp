@@ -37,7 +37,7 @@ double time_step(
         {
             double const sound = eos.compute_speed_of_sound(rho(i, j, k), P(i, j, k));
             Kokkos::Array<double, 3> dx_geom {dx(i), dy(j), dz(k)};
-            if (geom == Geometry::Geom_cartesian)
+            if (geom == Geometry::Geom_spherical)
             {
                 if (ndim == 3)
                 {
