@@ -6,131 +6,165 @@ import h5py
 import sys
 
 print("********************************")
-print("         v1d 500")
+print("             V1D")
 print("********************************")
 
-file_init = "../src/setups/v1d/v1d_500_logr_grid_n1000.h5"
-with h5py.File(str(file_init), 'r') as f :
-    rho0 = f['rho'][0, 0, :]
-    u0 = f['ux'][0, 0, :]
-    P0 = f['P'][0, 0, :]
-    T0 = f['T'][0, 0, :]
-    Ni0 = f['fx'][0, 0, 0, :]
-    H0 = f['fx'][1, 0, 0, :]
-    He0 = f['fx'][2, 0, 0, :]
-    O0 = f['fx'][3, 0, 0, :]
-    Si0 = f['fx'][4, 0, 0, :]
-    x0 = f['x'][()]
-    t0 = f['current_time'][()]
-
-file_final = "../src/setups/v1d/v1d_1e5.h5"
-with h5py.File(str(file_final), 'r') as f :
-    rhof = f['rho'][0, 0, :]
-    uf = f['ux'][0, 0, :]
-    Pf = f['P'][0, 0, :]
-    Tf = f['T'][0, 0, :]
-    Nif = f['fx'][0, 0, 0, :]
-    Hf = f['fx'][1, 0, 0, :]
-    Hef = f['fx'][2, 0, 0, :]
-    Of = f['fx'][3, 0, 0, :]
-    Sif = f['fx'][4, 0, 0, :]
-    xf = f['x'][()]
-    tf = f['current_time'][()]
-
 filename = sys.argv[1]
-with h5py.File(str(filename), 'r') as f :
-    print(f.keys())
-    rho = f['rho'][0, 0, :]
-    u = f['ux'][0, 0, :]
-    P = f['P'][0, 0, :]
-    E = f['E'][0, 0, :]
-    T = f['T'][0, 0, :]
-    Ni = f['fx'][0, 0, 0, :]
-    H = f['fx'][1, 0, 0, :]
-    He = f['fx'][2, 0, 0, :]
-    O = f['fx'][3, 0, 0, :]
-    Si = f['fx'][4, 0, 0, :]
-    x = f['x'][()]
-    t = f['current_time'][()]
-    iter = f['iter'][()]
-    gamma = f['gamma'][()]
+ndim = sys.argv[2]
+
+# ------------------------------------------
+
+def read_start_file(filename):
+    with h5py.File(str(filename), 'r') as f :
+        rho = f['rho_1d'][()]
+        u = f['u_1d'][()]
+        P = f['P_1d'][()]
+        x = f['x'][()]
+        t = f['current_time'][()]
+    return rho, u, P, x, t
+
+def read_file_1d_r(filename):
+    with h5py.File(str(filename), 'r') as f :
+        rho = f['rho'][0, 0, :]
+        u = f['ux'][0, 0, :]
+        P = f['P'][0, 0, :]
+        T = f['T'][0, 0, :]
+        x = f['x'][()]
+        t = f['current_time'][()]
+    return rho, u, P, T, x, t
+
+def read_file_1d_r_element(filename):
+    with h5py.File(str(filename), 'r') as f :
+        Ni = f['fx'][0, 0, 0, :]
+        H = f['fx'][1, 0, 0, :]
+        He = f['fx'][2, 0, 0, :]
+        O = f['fx'][3, 0, 0, :]
+        Si = f['fx'][4, 0, 0, :]
+    return Ni, H, He, O, Si
+
+def read_3d_file_in_1d_angular_mean(filename):
+    with h5py.File(str(filename), 'r') as f :
+        rho_file = f['rho'][:, :, :]
+        u_file = f['ux'][:, :, :]
+        P_file = f['P'][:, :, :]
+        T_file = f['E'][:, :, :]
+    nr = int(rho_file.shape[2])
+    nth = int(rho_file.shape[1])
+    nph = int(rho_file.shape[0])
+    rho = np.zeros(nr)
+    u = np.zeros(nr)
+    P = np.zeros(nr)
+    T = np.zeros(nr)
+    for i in range(len(rho)):
+        sum_rho = 0
+        sum_u = 0
+        sum_P = 0
+        sum_T = 0
+        for j in range(nth):
+            for k in range(nph):
+                sum_rho += rho_file[k, j, i]
+                sum_u += u_file[k, j, i]
+                sum_P += P_file[k, j, i]
+                sum_T += T_file[k, j, i]
+        rho[i] = sum_rho / (nth * nph)
+        u[i] = sum_u / (nth * nph)
+        P[i] = sum_P / (nth * nph)
+        T[i] = sum_T / (nth * nph)
+    return rho, u, P, T
+
+def read_3d_file_element_in_1d_angular_mean(filename):
+    with h5py.File(str(filename), 'r') as f :
+        Ni_file = f['fx'][0, 0, 0, :]
+        H_file = f['fx'][1, 0, 0, :]
+        He_file = f['fx'][2, 0, 0, :]
+        O_file = f['fx'][3, 0, 0, :]
+        Si_file = f['fx'][4, 0, 0, :]
+    nr = int(Ni_file.shape[2])
+    nth = int(Ni_file.shape[1])
+    nph = int(Ni_file.shape[0])
+    rho = np.zeros(nr)
+    Ni = np.zeros(nr)
+    H = np.zeros(nr)
+    He = np.zeros(nr)
+    O = np.zeros(nr)
+    Si = np.zeros(nr)
+    for i in range(len(rho)):
+        sum_ni = 0
+        sum_h = 0
+        sum_he = 0
+        sum_o = 0
+        sum_si =0
+        for j in range(nth):
+            for k in range(nph):
+                sum_ni += Ni_file[k, j, i]
+                sum_h += H_file[k, j, i]
+                sum_he += He_file[k, j, i]
+                sum_o += O_file[k, j, i]
+                sum_si += Si_file[k, j, i]
+        Ni[i] = sum_he / (nth * nph)
+        H[i] = sum_h / (nth * nph)
+        He[i] = sum_he / (nth * nph)
+        O[i] = sum_o / (nth * nph)
+        Si[i] = sum_si / (nth * nph)
+    return Ni, H, He, O, Si
+
+def fgamma(filename):
+    with h5py.File(str(filename), 'r') as f :
+        gamma = f['gamma'][()]
+    return gamma
+
+def fiter(filename):
+    with h5py.File(str(filename), 'r') as f :
+        iter = f['iter'][()]
+    return iter
+
+def make_xc(x, n):
+    dx = np.zeros(n)
+    for i in range(2, n+2):
+        dx[i-2] = x[i+1] - x[i]
+    xc = np.zeros(n)
+    for i in range(2, n+2):
+        xc[i-2] = x[i] + dx[i-2] / 2
+    xc_cgs = xc * 10**2
+    return xc_cgs
+
+def conversion_si_to_cgs(rho, u, P):
+    rho_cgs = rho * 10**(-3)
+    u_cgs = u * 10**2
+    P_cgs = P * 10
+    return rho_cgs, u_cgs, P_cgs
+
+# ------------------------------------------
+
+rho0, u0, P0, x0, t0 = read_start_file("../src/setups/v1d/v1d_1d_start.h5")
+rhof, uf, Pf, Tf, xf, tf = read_file_1d_r("../src/setups/v1d/v1d_1e5.h5")
+Nif, Hf, Hef, Of, Sif = read_file_1d_r_element("../src/setups/v1d/v1d_1e5.h5")
+
+gamma = fgamma(filename)
+iter = fiter(filename)
+rho, u, P, T, x, t = read_file_1d_r(filename)
+Ni, H, He, O, Si = read_file_1d_r_element(filename)
+
+if (ndim ==3):
+    rho, u, P, T = read_3d_file_in_1d_angular_mean(filename)
+    Ni, H, He, O, Si = read_3d_file_element_in_1d_angular_mean(filename)
 
 tday = t / 3600 / 24
 
+print("    ")
 print(f"Final time = {t:.3e} s or {tday} days")
 print(f"Iteration number = {iter:3e}")
-
-dx = np.zeros(len(rho))
-for i in range(2, len(rho)+2):
-    dx[i-2] = x[i+1] - x[i]
-
-xc = np.zeros(len(rho))
-for i in range(2, len(rho)+2):
-    xc[i-2] = x[i] + dx[i-2] / 2
-
-dxf = np.zeros(len(rhof))
-for i in range(2, len(rhof)+2):
-    dxf[i-2] = xf[i+1] - xf[i]
-
-xcf = np.zeros(len(rhof))
-for i in range(2, len(rhof)+2):
-    xcf[i-2] = xf[i] + dxf[i-2] / 2
-
-dx0 = np.zeros(len(rho0))
-for i in range(2, len(rho0)+2):
-    dx0[i-2] = x0[i+1] - x0[i]
-
-xc0 = np.zeros(len(rho0))
-for i in range(2, len(rho0)+2):
-    xc0[i-2] = x0[i] + dx0[i-2] / 2
+print("    ")
 
 # cgs units --------------------------------
 
-xc_cm = xc * 10**2
-xcf_cm = xcf * 10**2
-xc0_cm = xc0 * 10**2
+xcf_cm = make_xc(xf, len(rhof))
+xc_cm = make_xc(x, len(rho))
+xc0_cm = make_xc(x0, len(rho0))
 
-rho0_cgs = rho0 * 10**(-3)
-rho_cgs = rho * 10**(-3)
-rhof_cgs = rhof * 10**(-3)
-
-u0_cgs = u0 * 10**2
-u_cgs = u * 10**2
-uf_cgs = uf * 10**2
-
-P0_cgs = P0 * 10
-P_cgs = P * 10
-Pf_cgs = Pf * 10
-
-# Energy -------------------
-
-ec = 1 / 2 * rho * u**2
-ei = E - ec
-
-# Mach number -------------------
-
-kb = 1.38e-23 # kg.m^{2}.s^{-2}.K^{-1}
-mh = 1.67e-27 # kg
-hplanck = 6.62607015e-34 # kg.m^{2}.s^{-3}
-pi = np.pi
-c = 2.99792458e8 # m.s^{-1}
-ar = (8 * pi**5 * kb**4) / (15 * hplanck**3 * c**3) # kg.m^{-1}.s^{-2}.K^{-4}
-
-cs = np.zeros(len(rho))
-
-for i in range(len(rho)):
-    Pr = ar * T[i]**4 / 3
-    Pg = P[i] - Pr
-    alpha = Pr / Pg
-    num = gamma / (gamma - 1) + 20 * alpha + 16 * alpha * alpha
-    den = 1. / (gamma - 1) + 12 * alpha
-    gamma_eff = num / den
-    cs[i] = np.sqrt(gamma_eff * P[i] / rho[i])
-
-""" plt.figure(figsize=(12,8))
-plt.plot(xc_cm, u / cs)
-plt.xlabel('rc (cm)'); plt.ylabel('Mach')
-plt.xscale('log')#; plt.yscale('log') """
+rho0_cgs, u0_cgs, P0_cgs = conversion_si_to_cgs(rho0, u0, P0)
+rho_cgs, u_cgs, P_cgs = conversion_si_to_cgs(rho, u, P)
+rhof_cgs, uf_cgs, Pf_cgs = conversion_si_to_cgs(rhof, uf, Pf)
 
 # ------------------------------------------
 
@@ -164,7 +198,7 @@ plt.grid()
 plt.legend()
 
 plt.subplot(224)
-plt.plot(xc0_cm, T0, "--", label=f"$t_i$= {t0:.1e} s")
+#plt.plot(xc0_cm, T0, "--", label=f"$t_i$= {t0:.1e} s")
 plt.plot(xcf_cm, Tf, "--", color="red", label=f'$t_f$ = {tf:.1e} s')
 plt.plot(xc_cm, T, color='green', label=f'$t$ = {t:.1e} s')
 plt.xlabel('rc (cm)'); plt.ylabel('Temperature ($K$)')
@@ -194,6 +228,10 @@ plt.ylim(10**(-27), 10)
 plt.plot(xc_cm, ei / ec)
 plt.xlabel('rc (cm)'); plt.ylabel('ei / ec')
 plt.xscale('log'); plt.yscale('log')
-plt.grid()"""
+plt.grid()
+
+plt.figure(figsize=(12,8))
+plt.imshow(rho_r_th, origin='lower')
+plt.colorbar() """
 
 plt.show()
