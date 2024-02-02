@@ -28,58 +28,73 @@ bool span_is_contiguous(Views const&... views)
 namespace novapp
 {
 
-void write_pdi_init(int max_iter, int frequency, Grid const& grid, Param const& param)
+void write_pdi_init(
+    std::string directory,
+    int max_iter,
+    int frequency,
+    Grid const& grid,
+    Param const& param)
 {
     int mpi_rank = grid.mpi_rank;
     int mpi_size = grid.mpi_size;
     int simu_ndim = ndim;
     int simu_nfx = param.nfx;
+    int directory_size = directory.size();
 
-    PDI_multi_expose("init_PDI",
-                    "max_iter", &max_iter, PDI_OUT,
-                    "frequency", &frequency, PDI_OUT,
-                    "ndim", &simu_ndim, PDI_OUT,
-                    "nfx", &simu_nfx, PDI_OUT,
-                    "mpi_rank", &mpi_rank, PDI_OUT,
-                    "mpi_size", &mpi_size, PDI_OUT,
-                    "n_ghost", grid.Nghost.data(), PDI_OUT,
-                    "nx_glob_ng", grid.Nx_glob_ng.data(), PDI_OUT,
-                    "nx_local_ng", grid.Nx_local_ng.data(), PDI_OUT,
-                    "nx_local_wg", grid.Nx_local_wg.data(), PDI_OUT,
-                    "start", grid.range.Corner_min.data(), PDI_OUT,
-                    "grid_communicator", &grid.comm_cart, PDI_OUT,
-                    NULL);
+    PDI_multi_expose(
+        "init_PDI",
+        "directory_size", &directory_size, PDI_INOUT,
+        "directory", &directory, PDI_OUT,
+        "max_iter", &max_iter, PDI_OUT,
+        "frequency", &frequency, PDI_OUT,
+        "ndim", &simu_ndim, PDI_OUT,
+        "nfx", &simu_nfx, PDI_OUT,
+        "mpi_rank", &mpi_rank, PDI_OUT,
+        "mpi_size", &mpi_size, PDI_OUT,
+        "n_ghost", grid.Nghost.data(), PDI_OUT,
+        "nx_glob_ng", grid.Nx_glob_ng.data(), PDI_OUT,
+        "nx_local_ng", grid.Nx_local_ng.data(), PDI_OUT,
+        "nx_local_wg", grid.Nx_local_wg.data(), PDI_OUT,
+        "start", grid.range.Corner_min.data(), PDI_OUT,
+        "grid_communicator", &grid.comm_cart, PDI_OUT,
+        NULL);
 }
 
-void write_pdi(int iter,
-               double t,
-               double gamma,
-               KDV_double_3d rho,
-               KDV_double_4d u,
-               KDV_double_3d P,
-               KDV_double_3d E,
-               KDV_double_1d x,
-               KDV_double_1d y,
-               KDV_double_1d z,
-               KDV_double_4d fx,
-               KDV_double_3d T)
+void write_pdi(
+    std::string directory,
+    int iter,
+    double t,
+    double gamma,
+    KDV_double_3d rho,
+    KDV_double_4d u,
+    KDV_double_3d P,
+    KDV_double_3d E,
+    KDV_double_1d x,
+    KDV_double_1d y,
+    KDV_double_1d z,
+    KDV_double_4d fx,
+    KDV_double_3d T)
 {
     assert(span_is_contiguous(rho, u, P, E, fx, T));
+    int directory_size = directory.size();
     sync_host(rho, u, P, E, fx, T, x, y, z);
-    PDI_multi_expose("write_file",
-                    "iter", &iter, PDI_OUT,
-                    "current_time", &t, PDI_OUT,
-                    "gamma", &gamma, PDI_OUT,
-                    "rho", rho.h_view.data(), PDI_OUT,
-                    "u", u.h_view.data(), PDI_OUT,
-                    "P", P.h_view.data(), PDI_OUT,
-                    "E", E.h_view.data(), PDI_OUT,
-                    "x", x.h_view.data(), PDI_OUT,
-                    "y", y.h_view.data(), PDI_OUT,
-                    "z", z.h_view.data(), PDI_OUT,
-                    "fx", fx.h_view.data(), PDI_OUT,
-                    "T", T.h_view.data(), PDI_OUT,
-                    NULL);
+    PDI_multi_expose(
+        "write_file",
+        "directory_size", &directory_size, PDI_INOUT,
+        "directory", &directory, PDI_OUT,
+        "iter", &iter, PDI_OUT,
+        "current_time", &t, PDI_OUT,
+        "gamma", &gamma, PDI_OUT,
+        "rho", rho.h_view.data(), PDI_OUT,
+        "u", u.h_view.data(), PDI_OUT,
+        "P", P.h_view.data(), PDI_OUT,
+        "E", E.h_view.data(), PDI_OUT,
+        "x", x.h_view.data(), PDI_OUT,
+        "y", y.h_view.data(), PDI_OUT,
+        "z", z.h_view.data(), PDI_OUT,
+        "fx", fx.h_view.data(), PDI_OUT,
+        "T", T.h_view.data(), PDI_OUT,
+        NULL);
 }
 
 should_output_fn::should_output_fn(int freq, int iter_max, double time_out)
@@ -107,63 +122,68 @@ bool should_output_fn::operator()(int iter, double current, double dt) const
     return result;
 }
 
-void read_pdi(std::string restart_file,
-              int& iter,
-              double& t,
-              KDV_double_3d rho,
-              KDV_double_4d u,
-              KDV_double_3d P,
-              KDV_double_4d fx,
-              KDV_double_1d x_glob,
-              KDV_double_1d y_glob,
-              KDV_double_1d z_glob)
+void read_pdi(
+    std::string restart_file,
+    int& iter,
+    double& t,
+    KDV_double_3d rho,
+    KDV_double_4d u,
+    KDV_double_3d P,
+    KDV_double_4d fx,
+    KDV_double_1d x_glob,
+    KDV_double_1d y_glob,
+    KDV_double_1d z_glob)
 {
     assert(span_is_contiguous(rho, u, P, fx));
     int filename_size = restart_file.size();
-    PDI_multi_expose("read_file",
-                    "restart_filename_size", &filename_size, PDI_INOUT,
-                    "restart_filename", restart_file.data(), PDI_INOUT,
-                    "iter", &iter, PDI_INOUT,
-                    "current_time", &t, PDI_INOUT,
-                    "rho", rho.h_view.data(), PDI_INOUT,
-                    "u", u.h_view.data(), PDI_INOUT,
-                    "P", P.h_view.data(), PDI_INOUT,
-                    "fx", fx.h_view.data(), PDI_INOUT,
-                    "x", x_glob.h_view.data(), PDI_INOUT,
-                    "y", y_glob.h_view.data(), PDI_INOUT,
-                    "z", z_glob.h_view.data(), PDI_INOUT,
-                    NULL);
+    PDI_multi_expose(
+        "read_file",
+        "restart_filename_size", &filename_size, PDI_INOUT,
+        "restart_filename", restart_file.data(), PDI_INOUT,
+        "iter", &iter, PDI_INOUT,
+        "current_time", &t, PDI_INOUT,
+        "rho", rho.h_view.data(), PDI_INOUT,
+        "u", u.h_view.data(), PDI_INOUT,
+        "P", P.h_view.data(), PDI_INOUT,
+        "fx", fx.h_view.data(), PDI_INOUT,
+        "x", x_glob.h_view.data(), PDI_INOUT,
+        "y", y_glob.h_view.data(), PDI_INOUT,
+        "z", z_glob.h_view.data(), PDI_INOUT,
+        NULL);
     modify_host(rho, u, P, fx, x_glob, y_glob, z_glob);
 }
 
-void read_pdi_1d(std::string restart_file,
-              int& iter,
-              double& t,
-              KDV_double_1d rho,
-              KDV_double_1d u,
-              KDV_double_1d P,
-              KDV_double_2d fx,
-              KDV_double_1d x_glob)
+void read_pdi_1d(
+    std::string restart_file,
+    int& iter,
+    double& t,
+    KDV_double_1d rho,
+    KDV_double_1d u,
+    KDV_double_1d P,
+    KDV_double_2d fx,
+    KDV_double_1d x_glob)
 {
     assert(span_is_contiguous(rho, u, P, fx));
     int filename_size = restart_file.size();
-    PDI_multi_expose("read_file_1d",
-                    "restart_filename_size", &filename_size, PDI_INOUT,
-                    "restart_filename", restart_file.data(), PDI_INOUT,
-                    "iter", &iter, PDI_INOUT,
-                    "current_time", &t, PDI_INOUT,
-                    "rho_1d", rho.h_view.data(), PDI_INOUT,
-                    "u_1d", u.h_view.data(), PDI_INOUT,
-                    "P_1d", P.h_view.data(), PDI_INOUT,
-                    "fx_1d", fx.h_view.data(), PDI_INOUT,
-                    "x", x_glob.h_view.data(), PDI_INOUT,
-                    NULL);
+    PDI_multi_expose(
+        "read_file_1d",
+        "restart_filename_size", &filename_size, PDI_INOUT,
+        "restart_filename", restart_file.data(), PDI_INOUT,
+        "iter", &iter, PDI_INOUT,
+        "current_time", &t, PDI_INOUT,
+        "rho_1d", rho.h_view.data(), PDI_INOUT,
+        "u_1d", u.h_view.data(), PDI_INOUT,
+        "P_1d", P.h_view.data(), PDI_INOUT,
+        "fx_1d", fx.h_view.data(), PDI_INOUT,
+        "x", x_glob.h_view.data(), PDI_INOUT,
+        NULL);
     modify_host(rho, u, P, fx, x_glob);
 }
 
 void writeXML(
         Grid const& grid,
         std::vector<std::pair<int, double>> const& outputs_record,
+        std::string directory,
         KDV_double_1d x,
         KDV_double_1d y,
         KDV_double_1d z)
@@ -174,7 +194,7 @@ void writeXML(
         return;
     }
 
-    std::string const prefix("test");
+    std::string const prefix("../" + directory + "/test");
     std::string const xdmfFilenameFull(prefix + ".xmf");
     std::ofstream xdmfFile(xdmfFilenameFull, std::ofstream::trunc);
 
