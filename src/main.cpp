@@ -52,6 +52,7 @@
 #include "boundary.hpp"
 #include "boundary_distribute.hpp"
 #include "boundary_factory.hpp"
+#include "broadcast.hpp"
 #include "initialization_interface.hpp"
 #include "mpi_scope_guard.hpp"
 #include "setup.hpp"
@@ -283,27 +284,17 @@ int nova_main(int argc, char** argv)
         g = std::make_unique<Gravity>(make_point_mass_gravity(param, grid));
 #endif
 
-        // à mettre dans une fonction
-        int const ghost_x = grid.Nghost[0];
-        int const nfx = param.nfx;
-        Kokkos::parallel_for(
-            "copy_elements",
-            cell_mdrange(grid.range.no_ghosts()),
-            KOKKOS_LAMBDA(const int i, const int j, const int k)
-            {
-                int offset = i - ghost_x;
-                rho.d_view(i, j, k) = rho_inter.d_view(offset);
-                u.d_view(i, j, k, 0) = u_inter.d_view(offset);
-                for (int idim = 1; idim < ndim; ++idim)
-                {
-                    u.d_view(i, j, k, idim) = 0;
-                }
-                P.d_view(i, j, k) = P_inter.d_view(offset);
-                for(int ifx = 0; ifx < nfx; ++ifx)
-                {
-                    fx.d_view(i, j, k, ifx) = fx_inter.d_view(offset, ifx);
-                }
-            });
+        broadcast(grid.range.no_ghosts(), grid, rho_inter.d_view, rho.d_view);
+        broadcast(grid.range.no_ghosts(), grid, u_inter.d_view, Kokkos::subview(u.d_view, ALL, ALL, ALL, 0));
+        for (int idim = 1; idim < ndim; ++idim)
+        {
+            broadcast(grid.range.no_ghosts(), grid, 0, Kokkos::subview(u.d_view, ALL, ALL, ALL, idim));
+        }
+        broadcast(grid.range.no_ghosts(), grid, P_inter.d_view, P.d_view);
+        for(int ifx = 0; ifx < param.nfx; ++ifx)
+        {
+            broadcast(grid.range.no_ghosts(), grid, Kokkos::subview(fx_inter.d_view, ALL, ifx), Kokkos::subview(fx.d_view, ALL, ALL, ALL, ifx));
+        }
 
         std::unique_ptr<IInitializationProblem> initialization // lecture fichier 1d, broadcast 3d et modifications
             = std::make_unique<InitializationSetup<Gravity>>(eos, grid, param_setup, *g);
