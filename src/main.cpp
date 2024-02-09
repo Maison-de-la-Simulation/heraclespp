@@ -78,8 +78,6 @@ int nova_main(int argc, char** argv)
 
     Kokkos::ScopeGuard const guard(argc, argv);
 
-    Kokkos::print_configuration(std::cout);
-
     INIReader const reader(argv[1]);
 
     std::filesystem::path io_config_path;
@@ -108,6 +106,12 @@ int nova_main(int argc, char** argv)
     Param const param(reader);
     ParamSetup const param_setup(reader);
     Grid grid(param);
+
+    if (grid.mpi_rank == 0)
+    {
+        Kokkos::print_configuration(std::cout);
+    }
+
     grid.print_grid();
 
     EOS const eos(param.gamma, param.mu);
