@@ -81,7 +81,7 @@ void write_pdi(
     PDI_multi_expose(
         "write_file",
         "directory_size", &directory_size, PDI_INOUT,
-        "directory", &directory, PDI_OUT,
+        "directory", directory.data(), PDI_OUT,
         "iter", &iter, PDI_OUT,
         "current_time", &t, PDI_OUT,
         "gamma", &gamma, PDI_OUT,
