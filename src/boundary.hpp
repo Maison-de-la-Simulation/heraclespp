@@ -39,7 +39,7 @@ public:
     virtual void execute(KV_double_3d rho,
                          KV_double_4d rhou,
                          KV_double_3d E,
-                         KV_double_4d fx) const;
+                         KV_double_4d fx) const = 0;
 };
 
 class NullGradient : public IBoundaryCondition

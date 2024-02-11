@@ -2,8 +2,6 @@
 //! @file user_step.cpp
 //!
 
-#include <stdexcept>
-
 #include <kokkos_shortcut.hpp>
 #include <range.hpp>
 #include <units.hpp>
@@ -24,17 +22,6 @@ IUserStep::~IUserStep() noexcept = default;
 IUserStep& IUserStep::operator=(IUserStep const& rhs) = default;
 
 IUserStep& IUserStep::operator=(IUserStep&& rhs) noexcept = default;
-
-void IUserStep::execute(
-    [[maybe_unused]] Range const &range,
-    [[maybe_unused]] double const t,
-    [[maybe_unused]] double const dt,
-    [[maybe_unused]] KV_double_3d rho,
-    [[maybe_unused]] KV_double_3d E,
-    [[maybe_unused]] KV_double_4d fx) const
-{
-    throw std::runtime_error("User step not implemented");
-}
 
 
 void NoUserStep::execute(

@@ -1,5 +1,7 @@
 # pragma once
 
+#include <stdexcept>
+
 #include <eos.hpp>
 #include <grid.hpp>
 
@@ -21,6 +23,14 @@ public:
         [[maybe_unused]] Gravity const& gravity)
         : IBoundaryCondition(idim, iface)
     {
+    }
+
+    void execute([[maybe_unused]] KV_double_3d rho,
+        [[maybe_unused]] KV_double_4d rhou,
+        [[maybe_unused]] KV_double_3d E,
+        [[maybe_unused]] KV_double_4d fx) const final
+    {
+        throw std::runtime_error("Boundary setup not implemented");
     }
 };
 
