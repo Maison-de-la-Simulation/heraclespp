@@ -79,11 +79,10 @@ private :
 public:
     explicit GridSetup(Param const& param)
         : m_param(param)
-
     {
     }
 
-void execute(
+    void execute(
         std::array<int, 3> Nghost,
         std::array<int, 3> Nx_glob_ng,
         KVH_double_1d x_glob,
