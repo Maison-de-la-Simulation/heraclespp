@@ -3,7 +3,6 @@
 //!
 
 #include <array>
-#include <stdexcept>
 #include <string>
 
 #include <grid.hpp>
@@ -33,14 +32,6 @@ IBoundaryCondition::~IBoundaryCondition() noexcept = default;
 IBoundaryCondition& IBoundaryCondition::operator=(IBoundaryCondition const& rhs) = default;
 
 IBoundaryCondition& IBoundaryCondition::operator=(IBoundaryCondition&& rhs) noexcept = default;
-
-void IBoundaryCondition::execute([[maybe_unused]] KV_double_3d rho,
-                                 [[maybe_unused]] KV_double_4d rhou,
-                                 [[maybe_unused]] KV_double_3d E,
-                                 [[maybe_unused]] KV_double_4d fx) const
-{
-    throw std::runtime_error("Boundary not implemented");
-}
 
 
 NullGradient::NullGradient(int idim, int iface, Grid const& grid)

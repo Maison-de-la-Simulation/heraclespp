@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdexcept>
+
 #include <grid_type.hpp>
 #include <nova_params.hpp>
 
@@ -11,6 +13,16 @@ class GridSetup : public IGridType
 public:
     explicit GridSetup([[maybe_unused]] Param const& param)
     {
+    }
+
+    void execute(
+        [[maybe_unused]] std::array<int, 3> Nghost,
+        [[maybe_unused]] std::array<int, 3> Nx_glob_ng,
+        [[maybe_unused]] KVH_double_1d x_glob,
+        [[maybe_unused]] KVH_double_1d y_glob,
+        [[maybe_unused]] KVH_double_1d z_glob) const final
+    {
+        throw std::runtime_error("Grid setup not implemented");
     }
 };
 

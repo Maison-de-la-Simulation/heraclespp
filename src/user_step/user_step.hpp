@@ -32,7 +32,7 @@ public:
         double dt,
         KV_double_3d rho,
         KV_double_3d E,
-        KV_double_4d fx) const;
+        KV_double_4d fx) const = 0;
 };
 
 class NoUserStep : public IUserStep

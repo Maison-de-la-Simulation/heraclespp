@@ -32,7 +32,7 @@ public:
         std::array<int, 3> Nx_glob_ng,
         KVH_double_1d x_glob,
         KVH_double_1d y_glob,
-        KVH_double_1d z_glob) const;
+        KVH_double_1d z_glob) const = 0;
 };
 
 class Regular : public IGridType

@@ -3,7 +3,6 @@
 //!
 
 #include <array>
-#include <stdexcept>
 
 #include <kokkos_shortcut.hpp>
 #include <nova_params.hpp>
@@ -42,16 +41,6 @@ IGridType::~IGridType() noexcept = default;
 IGridType& IGridType::operator=(IGridType const& rhs) = default;
 
 IGridType& IGridType::operator=(IGridType&& rhs) noexcept = default;
-
-void IGridType::execute(
-        [[maybe_unused]] std::array<int, 3> Nghost,
-        [[maybe_unused]] std::array<int, 3> Nx_glob_ng,
-        [[maybe_unused]] KVH_double_1d x_glob,
-        [[maybe_unused]] KVH_double_1d y_glob,
-        [[maybe_unused]] KVH_double_1d z_glob) const
-{
-    throw std::runtime_error("Boundary not implemented");
-}
 
 
 Regular::Regular(Param const& param)

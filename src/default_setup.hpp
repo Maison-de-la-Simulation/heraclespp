@@ -1,5 +1,7 @@
 # pragma once
 
+#include <stdexcept>
+
 #include <inih/INIReader.hpp>
 
 #include <eos.hpp>
@@ -42,6 +44,7 @@ public:
         [[maybe_unused]] KV_double_3d const P,
         [[maybe_unused]] KV_double_4d const fx) const final
     {
+        throw std::runtime_error("Setup not implemented");
     }
 };
 
