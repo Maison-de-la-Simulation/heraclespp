@@ -116,7 +116,7 @@ int nova_main(int argc, char** argv)
 
     EOS const eos(param.gamma, param.mu);
 
-    write_pdi_init(param.directory, param.max_iter, param.output_frequency, grid, param);
+    write_pdi_init(param.directory, param.prefix, param.max_iter, param.output_frequency, grid, param);
 
     std::string bc_choice_dir;
     std::array<std::string, ndim*2> bc_choice_faces;
@@ -305,7 +305,7 @@ int nova_main(int argc, char** argv)
 
         outputs_record.emplace_back(iter, t);
         writeXML(grid, outputs_record, param.directory, x_glob, y_glob, z_glob);
-        write_pdi(param.directory, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
+        write_pdi(param.directory, param.prefix, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
     }
 
     should_output_fn const should_output(param.output_frequency, param.max_iter, param.t_end);
@@ -373,7 +373,7 @@ int nova_main(int argc, char** argv)
 
             outputs_record.emplace_back(iter, t);
             writeXML(grid, outputs_record, param.directory, x_glob, y_glob, z_glob);
-            write_pdi(param.directory, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
+            write_pdi(param.directory, param.prefix, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
         }
     }
 

@@ -31,6 +31,7 @@ public:
 
 void write_pdi_init(
     std::string directory,
+    std::string prefix,
     int max_iter,
     int frequency,
     Grid const& grid,
@@ -38,6 +39,7 @@ void write_pdi_init(
 
 void write_pdi(
     std::string directory,
+    std::string prefix,
     int iter,
     double t,
     double gamma,
