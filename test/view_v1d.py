@@ -10,7 +10,7 @@ print("             V1D")
 print("********************************")
 
 filename = sys.argv[1]
-ndim = sys.argv[2]
+ndim = input("Dimension of the simulation (1 or 3): ")
 
 # ------------------------------------------
 
