@@ -11,9 +11,6 @@
 
 namespace novapp {
 
-namespace
-{
-
 void compute_regular_mesh_1d(
         KVH_double_1d const& x,
         int const ng,
@@ -26,8 +23,6 @@ void compute_regular_mesh_1d(
     {
         x(i) = xmin + (i - ng) * dx;
     }
-}
-
 }
 
 IGridType::IGridType() = default;
