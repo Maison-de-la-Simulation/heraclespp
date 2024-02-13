@@ -12,6 +12,8 @@
 namespace novapp
 {
 
+void compute_regular_mesh_1d(KVH_double_1d const& x, int ng, double xmin, double dx) noexcept;
+
 class IGridType
 {
 public:

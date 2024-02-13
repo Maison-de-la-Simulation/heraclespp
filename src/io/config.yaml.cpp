@@ -22,6 +22,8 @@ pdi:
     restart_filename: { type: array, subtype: char, size: $restart_filename_size }
     directory_size: int
     directory: { type: array, subtype: char, size: $directory_size }
+    init_filename_size: int
+    init_filename: { type: array, subtype: char, size: $init_filename_size }
     grid_communicator: MPI_Comm
 
 
@@ -188,12 +190,10 @@ pdi:
           y:
           z:
 
-      - file: ${restart_filename}
-        on_event: read_file_1d
+      - file: ${init_filename}
+        on_event: read_hydro_1d
         communicator: '${grid_communicator}'
         read:
-          iter:
-          current_time:
           rho_1d:
             dataset_selection:
               size: ['$nx_local_ng[0]']
@@ -211,5 +211,9 @@ pdi:
             dataset_selection:
               size: ['$nfx', '$nx_local_ng[0]']
               start: [ 0, '$start[0]']
+      - file: ${init_filename}
+        on_event: read_mesh_1d
+        communicator: '${grid_communicator}'
+        read:
           x:
 )IO_CONFIG";

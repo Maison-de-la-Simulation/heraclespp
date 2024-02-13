@@ -16,8 +16,9 @@ namespace novapp
 class Param
 {
 public :
+    INIReader reader;
     std::string problem;
-    std::string restart;
+    bool restart;
     std::string restart_file;
     std::array<int, 3> Nx_glob_ng;
     double xmin;
@@ -29,7 +30,8 @@ public :
     std::string grid_type;
     int Ng;
     std::array<int,3> Ncpu_x;
-    double timeout;
+    double t_ini;
+    double t_end;
     double cfl;
     int max_iter;
     int output_frequency;
@@ -51,9 +53,10 @@ public :
     double eps_pf;
 
     explicit Param(INIReader const& reader)
+        : reader(reader)
     {
         problem = reader.Get("Problem", "type", "ShockTube");
-        restart = reader.Get("Problem", "restart", "initialization");
+        restart = reader.GetBoolean("Problem", "restart", false);
         restart_file = reader.Get("Problem", "restart_file", "restart.h5");
 
         Nx_glob_ng[0] = reader.GetInteger("Grid", "Nx_glob", 0); // Cell number
@@ -73,7 +76,8 @@ public :
         Ncpu_x[1] = reader.GetInteger("Parallelization", "Ncpu_y", 0); // number of procs
         Ncpu_x[2] = reader.GetInteger("Parallelization", "Ncpu_z", 0); // number of procs
 
-        timeout = reader.GetReal("Run", "timeout", 0.2);
+        t_ini = reader.GetReal("Run", "t_ini", 0.);
+        t_end = reader.GetReal("Run", "t_end", 0.2);
         cfl = reader.GetReal("Run", "cfl", 0.4);
 
         max_iter = reader.GetInteger("Output", "max_iter", 10000);

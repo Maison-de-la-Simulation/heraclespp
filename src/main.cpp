@@ -52,7 +52,6 @@
 #include "boundary.hpp"
 #include "boundary_distribute.hpp"
 #include "boundary_factory.hpp"
-#include "broadcast.hpp"
 #include "initialization_interface.hpp"
 #include "mpi_scope_guard.hpp"
 #include "setup.hpp"
@@ -158,7 +157,7 @@ int nova_main(int argc, char** argv)
     KV_double_4d fx_new("fx_new", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], param.nfx);
     KV_double_6d fx_rec("fx_rec", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim, param.nfx);
 
-    double t = 0;
+    double t = param.t_ini;
     int iter = 0;
     bool should_exit = false;
 
@@ -209,7 +208,28 @@ int nova_main(int argc, char** argv)
         print_info("USER_STEP", param.user_step);
     }
 
-    if(param.restart == "initialization")
+    if(param.restart) // complete restart with a file fom the code
+    {
+        read_pdi(param.restart_file, iter, t, rho, u, P, fx, x_glob, y_glob, z_glob); // read data into host view
+        sync_device(x_glob, y_glob, z_glob);
+        grid.set_grid(x_glob.d_view, y_glob.d_view, z_glob.d_view);
+#if defined(NOVAPP_GRAVITY_Uniform)
+        g = std::make_unique<Gravity>(make_uniform_gravity(param));
+#elif defined(NOVAPP_GRAVITY_Point_mass)
+        g = std::make_unique<Gravity>(make_point_mass_gravity(param, grid));
+#endif
+
+        sync_device(rho, u, P, fx);
+
+        if(grid.mpi_rank==0)
+        {
+            std::cout<<std::endl<< std::left << std::setw(80) << std::setfill('*') << "*"<<std::endl;
+            std::cout<<"read from file "<<param.restart_file<<std::endl;
+            std::cout<<"starting at time "<<t<<" ( ~ "<<100*t/param.t_end<<"%)"
+                     <<", with iteration "<<iter<<std::endl<<std::endl;
+        }
+    }
+    else
     {
         std::unique_ptr<IGridType> grid_type;
         if (param.grid_type == "UserDefined")
@@ -232,89 +252,6 @@ int nova_main(int argc, char** argv)
         std::unique_ptr<IInitializationProblem> initialization
             = std::make_unique<InitializationSetup<Gravity>>(eos, grid, param_setup, *g);
         initialization->execute(grid.range.no_ghosts(), rho.d_view, u.d_view, P.d_view, fx.d_view);
-    }
-    else if(param.restart == "restart") // complete restart with a file fom the code
-    {
-        read_pdi(param.restart_file, iter, t, rho, u, P, fx, x_glob, y_glob, z_glob); // read data into host view
-        sync_device(x_glob, y_glob, z_glob);
-        grid.set_grid(x_glob.d_view, y_glob.d_view, z_glob.d_view);
-#if defined(NOVAPP_GRAVITY_Uniform)
-        g = std::make_unique<Gravity>(make_uniform_gravity(param));
-#elif defined(NOVAPP_GRAVITY_Point_mass)
-        g = std::make_unique<Gravity>(make_point_mass_gravity(param, grid));
-#endif
-
-        sync_device(rho, u, P, fx);
-
-        if(grid.mpi_rank==0)
-        {
-            std::cout<<std::endl<< std::left << std::setw(80) << std::setfill('*') << "*"<<std::endl;
-            std::cout<<"read from file "<<param.restart_file<<std::endl;
-            std::cout<<"starting at time "<<t<<" ( ~ "<<100*t/param.timeout<<"%)"
-                     <<", with iteration "<<iter<<std::endl<<std::endl;
-        }
-    }
-    else if(param.restart == "1d_file") // restart with 1d file for 1d, 2d or 3d simulation
-    {
-        KDV_double_1d rho_inter("rho", grid.Nx_local_ng[0]);
-        KDV_double_1d u_inter("u", grid.Nx_local_ng[0]);
-        KDV_double_1d P_inter("P", grid.Nx_local_ng[0]);
-        KDV_double_2d fx_inter("fx", grid.Nx_local_ng[0], param.nfx);
-        KDV_double_1d x_glob_inter("x_glob", grid.Nx_glob_ng[0]+2*grid.Nghost[0]+1);
-
-        read_pdi_1d(param.restart_file, iter, t, rho_inter, u_inter, P_inter, fx_inter,
-        x_glob_inter);
-
-        sync_device(rho_inter, u_inter, P_inter, fx_inter);
-
-        std::unique_ptr<IGridType> grid_type;
-        if (param.grid_type == "UserDefined")
-        {
-            grid_type = std::make_unique<GridSetup>(param);
-        }
-        else
-        {
-            throw std::runtime_error("Not a UserDefined grid");
-        }
-        grid_type->execute(grid.Nghost, grid.Nx_glob_ng, x_glob.h_view, y_glob.h_view, z_glob.h_view);
-        Kokkos::deep_copy(x_glob.h_view, x_glob_inter.h_view);
-        modify_host(x_glob, y_glob, z_glob);
-        sync_device(x_glob, y_glob, z_glob);
-        grid.set_grid(x_glob.d_view, y_glob.d_view, z_glob.d_view);
-
-#if defined(NOVAPP_GRAVITY_Uniform)
-        g = std::make_unique<Gravity>(make_uniform_gravity(param));
-#elif defined(NOVAPP_GRAVITY_Point_mass)
-        g = std::make_unique<Gravity>(make_point_mass_gravity(param, grid));
-#endif
-
-        broadcast(grid.range.no_ghosts(), grid, rho_inter.d_view, rho.d_view);
-        broadcast(grid.range.no_ghosts(), grid, u_inter.d_view, Kokkos::subview(u.d_view, ALL, ALL, ALL, 0));
-        for (int idim = 1; idim < ndim; ++idim)
-        {
-            broadcast(grid.range.no_ghosts(), grid, 0, Kokkos::subview(u.d_view, ALL, ALL, ALL, idim));
-        }
-        broadcast(grid.range.no_ghosts(), grid, P_inter.d_view, P.d_view);
-        for(int ifx = 0; ifx < param.nfx; ++ifx)
-        {
-            broadcast(grid.range.no_ghosts(), grid, Kokkos::subview(fx_inter.d_view, ALL, ifx), Kokkos::subview(fx.d_view, ALL, ALL, ALL, ifx));
-        }
-
-        std::unique_ptr<IInitializationProblem> initialization // lecture fichier 1d, broadcast 3d et modifications
-            = std::make_unique<InitializationSetup<Gravity>>(eos, grid, param_setup, *g);
-        initialization->execute(grid.range.no_ghosts(), rho.d_view, u.d_view, P.d_view, fx.d_view);
-
-        if(grid.mpi_rank==0)
-        {
-            std::cout<<std::endl<< std::left << std::setw(80) << std::setfill('*') << "*"<<std::endl;
-            std::cout<<"read from file "<<param.restart_file<<std::endl;
-            std::cout<<"starting at time "<<t<<" ( ~ "<<100*t/param.timeout<<"%)"
-                     <<", with iteration "<<iter<<std::endl<<std::endl;
-        }
-    }
-    else
-    {
-        throw std::runtime_error("No initialization");
     }
 
     std::array<std::unique_ptr<IBoundaryCondition>, ndim * 2> bcs_array;
@@ -371,7 +308,7 @@ int nova_main(int argc, char** argv)
         write_pdi(param.directory, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
     }
 
-    should_output_fn const should_output(param.output_frequency, param.max_iter, param.timeout);
+    should_output_fn const should_output(param.output_frequency, param.max_iter, param.t_end);
 
     Kokkos::fence();
     MPI_Barrier(grid.comm_cart);
@@ -381,9 +318,9 @@ int nova_main(int argc, char** argv)
     {
         double dt = time_step(grid.range.all_ghosts(), eos, grid, param.cfl, rho.d_view, u.d_view, P.d_view);
         bool const make_output = should_output(iter, t, dt);
-        if ((t + dt) >= param.timeout)
+        if ((t + dt) >= param.t_end)
         {
-            dt = param.timeout - t;
+            dt = param.t_end - t;
             should_exit = true;
         }
         if ((iter + 1) >= param.max_iter)

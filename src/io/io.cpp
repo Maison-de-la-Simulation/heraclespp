@@ -153,33 +153,6 @@ void read_pdi(
     modify_host(rho, u, P, fx, x_glob, y_glob, z_glob);
 }
 
-void read_pdi_1d(
-    std::string restart_file,
-    int& iter,
-    double& t,
-    KDV_double_1d rho,
-    KDV_double_1d u,
-    KDV_double_1d P,
-    KDV_double_2d fx,
-    KDV_double_1d x_glob)
-{
-    assert(span_is_contiguous(rho, u, P, fx));
-    int filename_size = restart_file.size();
-    PDI_multi_expose(
-        "read_file_1d",
-        "restart_filename_size", &filename_size, PDI_INOUT,
-        "restart_filename", restart_file.data(), PDI_INOUT,
-        "iter", &iter, PDI_INOUT,
-        "current_time", &t, PDI_INOUT,
-        "rho_1d", rho.h_view.data(), PDI_INOUT,
-        "u_1d", u.h_view.data(), PDI_INOUT,
-        "P_1d", P.h_view.data(), PDI_INOUT,
-        "fx_1d", fx.h_view.data(), PDI_INOUT,
-        "x", x_glob.h_view.data(), PDI_INOUT,
-        NULL);
-    modify_host(rho, u, P, fx, x_glob);
-}
-
 void writeXML(
         Grid const& grid,
         std::vector<std::pair<int, double>> const& outputs_record,
