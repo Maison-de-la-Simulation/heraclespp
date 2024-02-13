@@ -30,6 +30,7 @@ namespace novapp
 
 void write_pdi_init(
     std::string directory,
+    std::string prefix,
     int max_iter,
     int frequency,
     Grid const& grid,
@@ -40,11 +41,14 @@ void write_pdi_init(
     int simu_ndim = ndim;
     int simu_nfx = param.nfx;
     int directory_size = directory.size();
+    int prefix_size = prefix.size();
 
     PDI_multi_expose(
         "init_PDI",
         "directory_size", &directory_size, PDI_INOUT,
         "directory", &directory, PDI_OUT,
+        "prefix_size", &prefix_size, PDI_INOUT,
+        "prefix", &prefix, PDI_OUT,
         "max_iter", &max_iter, PDI_OUT,
         "frequency", &frequency, PDI_OUT,
         "ndim", &simu_ndim, PDI_OUT,
@@ -62,6 +66,7 @@ void write_pdi_init(
 
 void write_pdi(
     std::string directory,
+    std::string prefix,
     int iter,
     double t,
     double gamma,
@@ -77,11 +82,14 @@ void write_pdi(
 {
     assert(span_is_contiguous(rho, u, P, E, fx, T));
     int directory_size = directory.size();
+    int prefix_size = prefix.size();
     sync_host(rho, u, P, E, fx, T, x, y, z);
     PDI_multi_expose(
         "write_file",
         "directory_size", &directory_size, PDI_INOUT,
         "directory", directory.data(), PDI_OUT,
+        "prefix_size", &prefix_size, PDI_INOUT,
+        "prefix", prefix.data(), PDI_OUT,
         "iter", &iter, PDI_OUT,
         "current_time", &t, PDI_OUT,
         "gamma", &gamma, PDI_OUT,

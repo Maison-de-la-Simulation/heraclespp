@@ -36,6 +36,7 @@ public :
     int max_iter;
     int output_frequency;
     std::string directory;
+    std::string prefix;
     std::string reconstruction_type;
     std::string riemann_solver;
     double gx;
@@ -83,6 +84,7 @@ public :
         max_iter = reader.GetInteger("Output", "max_iter", 10000);
         output_frequency = reader.GetInteger("Output", "frequency", 10);
         directory = reader.Get("Output", "directory", "build");
+        prefix = reader.Get("Output", "prefix", "result");
 
         reconstruction_type = reader.Get("Hydro", "reconstruction", "VanLeer");
         riemann_solver = reader.Get("Hydro", "riemann_solver", "HLL");

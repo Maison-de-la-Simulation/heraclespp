@@ -22,6 +22,8 @@ pdi:
     restart_filename: { type: array, subtype: char, size: $restart_filename_size }
     directory_size: int
     directory: { type: array, subtype: char, size: $directory_size }
+    prefix_size: int
+    prefix: { type: array, subtype: char, size: $prefix_size }
     init_filename_size: int
     init_filename: { type: array, subtype: char, size: $init_filename_size }
     grid_communicator: MPI_Comm
@@ -45,7 +47,7 @@ pdi:
   plugins:
     mpi:
     decl_hdf5:
-      - file: ../${directory}/test_${iter:08}.h5
+      - file: ../${directory}/${prefix}_${iter:08}.h5
         collision_policy: replace
         communicator: '$grid_communicator'
         on_event: write_file
