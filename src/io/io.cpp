@@ -165,6 +165,7 @@ void writeXML(
         Grid const& grid,
         std::vector<std::pair<int, double>> const& outputs_record,
         std::string directory,
+        std::string prefix,
         KDV_double_1d x,
         KDV_double_1d y,
         KDV_double_1d z)
@@ -175,8 +176,8 @@ void writeXML(
         return;
     }
 
-    std::string const prefix("../" + directory + "/test");
-    std::string const xdmfFilenameFull(prefix + ".xmf");
+    std::string const name_file("../" + directory + "/" + prefix);
+    std::string const xdmfFilenameFull(name_file + ".xmf");
     std::ofstream xdmfFile(xdmfFilenameFull, std::ofstream::trunc);
 
     auto const getFilename = [&](int num) {
@@ -184,7 +185,7 @@ void writeXML(
         restartNum << std::setw(8);
         restartNum << std::setfill('0');
         restartNum << num;
-        return prefix + '_' + restartNum.str() + ".h5";
+        return name_file + '_' + restartNum.str() + ".h5";
     };
 
     xdmfFile << "<?xml version=\"1.0\"?>\n";

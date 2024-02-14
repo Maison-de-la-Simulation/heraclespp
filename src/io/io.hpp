@@ -69,6 +69,7 @@ void writeXML(
     Grid const& grid,
     std::vector<std::pair<int, double>> const& outputs_record,
     std::string directory,
+    std::string prefix,
     KDV_double_1d x,
     KDV_double_1d y,
     KDV_double_1d z);

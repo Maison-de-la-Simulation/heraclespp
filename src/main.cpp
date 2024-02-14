@@ -304,7 +304,7 @@ int nova_main(int argc, char** argv)
         modify_device(T);
 
         outputs_record.emplace_back(iter, t);
-        writeXML(grid, outputs_record, param.directory, x_glob, y_glob, z_glob);
+        writeXML(grid, outputs_record, param.directory, param.prefix, x_glob, y_glob, z_glob);
         write_pdi(param.directory, param.prefix, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
     }
 
@@ -372,7 +372,7 @@ int nova_main(int argc, char** argv)
             modify_device(T);
 
             outputs_record.emplace_back(iter, t);
-            writeXML(grid, outputs_record, param.directory, x_glob, y_glob, z_glob);
+            writeXML(grid, outputs_record, param.directory, param.prefix, x_glob, y_glob, z_glob);
             write_pdi(param.directory, param.prefix, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
         }
     }
