@@ -190,6 +190,31 @@ public:
                             rhou_new(i, j, k, idim) += dtodv * (primL.P + primR.P) / 2
                                                     * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim));
                         }
+                        if (ndim == 2)
+                        {
+                            if (idim == 0)
+                            {
+                                // Pressure term (e_{r}): 2 * P_{rr} / r
+                                rhou_new(i, j, k, idim) += dtodv * (primL.P + primR.P) / 2
+                                                        * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim));
+
+                                // Velocity term (e_{r}): rho * u_{th} * u_{th} / r
+                                rhou_new(i, j, k, idim) += dtodv * (primL.rho * primL.u[1] * primL.u[1]
+                                                        + primR.rho * primR.u[1] * primR.u[1]) / 2
+                                                        * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim)) / 2;
+
+                                // Velocity term (e_{th}): rho * u_{th} * u_{r} / r
+                                rhou_new(i, j, k, 1) -= dtodv * (x(i + 1) - x(i)) / (x(i + 1) + x(i))
+                                                        * (primR.rho * primR.u[1] * primR.u[0] * ds(i_p, j_p, k_p, idim)
+                                                        + primL.rho * primL.u[1] * primL.u[0] * ds(i, j, k, idim));
+                            }
+                            if (idim == 1)
+                            {
+                                // Pressure term (e_{th}): cot(th) * P_{th th} / r
+                                rhou_new(i, j, k, idim) += dtodv * (primL.P + primR.P) / 2
+                                                        * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim));
+                            }
+                        }
                         if (ndim == 3)
                         {
                             double const sm = Kokkos::sin(y(j));

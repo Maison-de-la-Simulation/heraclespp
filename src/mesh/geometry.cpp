@@ -98,7 +98,27 @@ void Spherical::execute(
 
     if (ndim == 2)
     {
-        throw std::runtime_error("Spherical not available");
+        // phi = 2 * pi
+        Kokkos::parallel_for(
+            "fill_ds_2dspherical",
+            cell_mdrange(range),
+            KOKKOS_LAMBDA(int i, int j, int k)
+            {
+                double const dcos = Kokkos::cos(y(j)) - Kokkos::cos(y(j+1));
+                ds(i, j, k, 0) = 2 * Kokkos::numbers::pi * x(i) * x(i) * dcos;              //r = cst
+                ds(i, j, k, 1) = (2 * Kokkos::numbers::pi / 2) * (x(i+1) * x(i+1) - (x(i) * x(i)))
+                                * Kokkos::sin(y(j)); // theta = cst
+            });
+
+        Kokkos::parallel_for(
+            "fill_dv_2dspherical",
+            cell_mdrange(range),
+            KOKKOS_LAMBDA(int i, int j, int k)
+            {
+                double const dcos = Kokkos::cos(y(j)) - Kokkos::cos(y(j+1));
+                dv(i, j, k) = (2 * Kokkos::numbers::pi / 3) * (x(i+1) * x(i+1) * x(i+1)
+                                - (x(i) * x(i) * x(i))) * dcos;
+            });
     }
 
     if (ndim == 3)
@@ -109,7 +129,6 @@ void Spherical::execute(
             KOKKOS_LAMBDA(int i, int j, int k)
             {
                 double const dcos = Kokkos::cos(y(j)) - Kokkos::cos(y(j+1));
-
                 ds(i, j, k, 0) = x(i) * x(i) * dcos * dz(k);              //r = cst
                 ds(i, j, k, 1) = (1. / 2) * (x(i+1) * x(i+1) - (x(i) * x(i)))
                                 * Kokkos::sin(y(j)) * dz(k); // theta = cst

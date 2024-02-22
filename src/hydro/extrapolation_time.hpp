@@ -186,6 +186,42 @@ public:
                             rhou_rec(i, j, k, 0, idim, idim) += p_r_1d;
                             rhou_rec(i, j, k, 1, idim, idim) += p_r_1d;
                         }
+                        if (ndim == 2)
+                        {
+                            for (int ipos = 0; ipos < ndim; ++ipos)
+                            {
+                                if (idim == 0)
+                                {
+                                    // Pressure term (e_{r}): 2 * P_{rr} / r
+                                    double p_r = dtodv * (primL.P + primR.P) / 2
+                                                * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim));
+                                    rhou_rec(i, j, k, 0, ipos, idim) += p_r;
+                                    rhou_rec(i, j, k, 1, ipos, idim) += p_r;
+
+                                    // Velocity term (e_{r}): rho * u_{th} * u_{th} / r
+                                    double grad_u_r_1 = dtodv * (primL.rho * primL.u[1] * primL.u[1]
+                                                        + primR.rho * primR.u[1] * primR.u[1]) / 2
+                                                        * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim)) / 2;
+                                    rhou_rec(i, j, k, 0, ipos, idim) += grad_u_r_1;
+                                    rhou_rec(i, j, k, 1, ipos, idim) += grad_u_r_1;
+
+                                    // Velocity term (e_{th}): rho * u_{th} * u_{r} / r
+                                    double grad_u_th_1 = dtodv * (x(i + 1) - x(i)) / (x(i + 1) + x(i))
+                                                        * (primR.rho * primR.u[1] * primR.u[0] * ds(i_p, j_p, k_p, idim)
+                                                        + primL.rho * primL.u[1] * primL.u[0] * ds(i, j, k, idim));
+                                    rhou_rec(i, j, k, 0, ipos, 1) -= grad_u_th_1;
+                                    rhou_rec(i, j, k, 1, ipos, 1) -= grad_u_th_1;
+                                }
+                                if (idim == 1)
+                                {
+                                    // Pressure term (e_{th}): cot(th) * P_{th th} / r
+                                    double p_th = dtodv * (primL.P + primR.P) / 2
+                                                * (ds(i_p, j_p, k_p, idim) - ds(i, j, k, idim));
+                                    rhou_rec(i, j, k, 0, ipos, idim) += p_th;
+                                    rhou_rec(i, j, k, 1, ipos, idim) += p_th;
+                                }
+                            }
+                        }
                         if (ndim == 3)
                         {
                             double sm = Kokkos::sin(y(j));

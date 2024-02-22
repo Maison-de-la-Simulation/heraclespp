@@ -58,8 +58,8 @@ for i in range(2, len(rho)+2):
 rho0 = 1
 E0 = 1
 
-n = 1 # Cartesian
-#n = 3 # spherical
+#n = 1 # Cartesian
+n = 3 # spherical
 
 r, rho_exact, u_exact, P_exact = ExactSedov(rho0, E0, t, gamma, n)
 E_exact = 1 / 2 * rho_exact * u_exact**2 + P_exact / (gamma - 1)
@@ -73,8 +73,8 @@ plt.subplot(221)
 plt.plot(r,rho_exact, label='Exact')
 plt.plot(xc, rho, label='Solver')
 plt.ylabel('Density ($kg.m^{-3}$)'); plt.xlabel('x')
-plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
-plt.xlim(0,1)
+#plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
+plt.xlim(0.5,2)
 plt.grid()
 plt.legend()
 

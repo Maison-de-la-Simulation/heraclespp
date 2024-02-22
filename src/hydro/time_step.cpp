@@ -39,6 +39,10 @@ double time_step(
             Kokkos::Array<double, 3> dx_geom {dx(i), dy(j), dz(k)};
             if (geom == Geometry::Geom_spherical)
             {
+                if (ndim == 2)
+                {
+                    dx_geom[1] *= x_center(i);
+                }
                 if (ndim == 3)
                 {
                     dx_geom[1] *= x_center(i);
