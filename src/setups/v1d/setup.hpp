@@ -122,8 +122,6 @@ public:
                 int offset = i + grid.Nghost[0];
                 double perturb = Kokkos::exp(-(xc(offset) - x0) * (xc(offset) - x0) / sigma)
                                 * Kokkos::cos(ky * yc(j)) * Kokkos::sin(kz * zc(k));
-
-                std::cout << xc(offset) << " " << 1 + 0.1 *perturb << " " << rho(i, j, k) << std::endl;
                 rho(i, j, k) *= 1 + 0.1 * perturb;
             });
     }
