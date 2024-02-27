@@ -120,7 +120,7 @@ public:
             KOKKOS_LAMBDA(int i, int j, int k)
             {
                 int offset = i + grid.Nghost[0];
-                double perturb = Kokkos::exp(-(x(offset) - x0) * (x(offset) - x0) / sigma);
+                double perturb = Kokkos::exp(-(x(offset) - x0) * (x(offset) - x0) / sigma)
                                 * Kokkos::cos(ky * y(j)) * Kokkos::sin(kz * z(k));
                 rho(i, j, k) *= 1 + 0.1 * perturb;
             });
