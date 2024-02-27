@@ -96,6 +96,34 @@ public:
         {
             broadcast(range, m_grid, Kokkos::subview(fx_1d.d_view, ALL, ifx), Kokkos::subview(fx, ALL, ALL, ALL, ifx));
         }
+
+        // perturbation
+        auto const& grid = m_grid;
+        auto x = grid.x;
+        auto y = grid.y;
+        auto z = grid.z;
+
+        double x0 = 1.2E9;
+        int max = 300;
+        double xmax = x(max);
+        double L = xmax - x(grid.Nghost[0]);
+        int n = 20;
+        double kx = 2 * units::pi / L * n;
+        double sigma = 0.1 * x0 * x0;
+        double ky = 6;
+        double kz = 6;
+
+        Kokkos::parallel_for(
+            "V1D_perturbation",
+            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
+            {0, 0, 0}, {max, grid.Nx_glob_ng[1], grid.Nx_glob_ng[2]}),
+            KOKKOS_LAMBDA(int i, int j, int k)
+            {
+                int offset = i + grid.Nghost[0];
+                double perturb = Kokkos::exp(-(x(offset) - x0) * (x(offset) - x0) / sigma);
+                                * Kokkos::cos(ky * y(j)) * Kokkos::sin(kz * z(k));
+                rho(i, j, k) *= 1 + 0.1 * perturb;
+            });
     }
 };
 
