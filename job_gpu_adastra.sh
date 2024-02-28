@@ -2,7 +2,7 @@
 #SBATCH --account=cin4698
 #SBATCH --job-name=nova-run
 #SBATCH --output=%x.o%j
-#SBATCH --nodes=16
+#SBATCH --nodes=8
 #SBATCH --exclusive
 #SBATCH --constraint=MI250
 #SBATCH --time=05:59:00
@@ -14,4 +14,4 @@ module load cpe/23.05 craype-x86-trento craype-accel-amd-gfx90a PrgEnv-gnu amd-m
 cd ${SLURM_SUBMIT_DIR}
 
 # execution
-srun -N16 -n128 -c2 --account=cin4698 --constraint=MI250 --gpus-per-node=8 --time=05:59:00 ./../bin/nova++ ../inputs/rayleigh_taylor3d_sph.ini
+srun -N8 -n64 -c2 --account=cin4698 --constraint=MI250 --gpus-per-node=8 --time=05:59:00 ./../bin/nova++ ../inputs/v1d_3d.ini
