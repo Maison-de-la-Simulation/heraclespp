@@ -99,31 +99,33 @@ public:
 
         // perturbation
         auto const& grid = m_grid;
-        auto x = grid.x;
-        auto y = grid.y;
-        auto z = grid.z;
+        auto const x = grid.x;
+        auto const xc = grid.x_center;
+        auto const yc = grid.y_center;
+        auto const zc = grid.z_center;
 
         double x0 = 1.2E9;
-        int max = 300;
-        double xmax = x(max);
-        double L = xmax - x(grid.Nghost[0]);
-        int n = 20;
-        double kx = 2 * units::pi / L * n;
         double sigma = 0.1 * x0 * x0;
         double ky = 6;
         double kz = 6;
 
         Kokkos::parallel_for(
-            "V1D_perturbation",
+            "V1D_perturb_init",
             Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-            {0, 0, 0}, {max, grid.Nx_glob_ng[1], grid.Nx_glob_ng[2]}),
+            {grid.Nghost[0], grid.Nghost[1], grid.Nghost[2]},
+            {300, grid.Nx_glob_ng[1], grid.Nx_glob_ng[2]}),
+            /* {grid.Nghost[0], 0, 0},
+            {300, 1, 1}), */
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                int offset = i + grid.Nghost[0];
-                double perturb = Kokkos::exp(-(x(offset) - x0) * (x(offset) - x0) / sigma)
-                                * Kokkos::cos(ky * y(j)) * Kokkos::sin(kz * z(k));
-                rho(i, j, k) *= 1 + 0.1 * perturb;
+                double r = rho(i, j, k);
+                double perturb = Kokkos::exp(-(xc(i) - x0) * (xc(i) - x0) / sigma)
+                                * Kokkos::cos(ky * yc(j)) * Kokkos::sin(kz * zc(k));
+                rho(i, j, k) *= 1 + 0.15 * perturb;
+                printf("%d  %f  %f  %f  %f  %f\n", i, x(i), xc(i), r, 1 + 0.1 * perturb, rho(i, j, k));
             });
+
+        
     }
 };
 
