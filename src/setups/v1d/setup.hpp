@@ -114,18 +114,21 @@ public:
             Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
             {grid.Nghost[0], grid.Nghost[1], grid.Nghost[2]},
             {300, grid.Nx_glob_ng[1], grid.Nx_glob_ng[2]}),
-            /* {grid.Nghost[0], 0, 0},
-            {300, 1, 1}), */
             KOKKOS_LAMBDA(int i, int j, int k)
             {
                 double r = rho(i, j, k);
-                double perturb = Kokkos::exp(-(xc(i) - x0) * (xc(i) - x0) / sigma)
-                                * Kokkos::cos(ky * yc(j)) * Kokkos::sin(kz * zc(k));
+                double perturb = Kokkos::exp(-(xc(i) - x0) * (xc(i) - x0) / sigma);
+                if (ndim == 2)
+                {
+                    perturb *= Kokkos::cos(ky * yc(j));
+                }
+                if (ndim == 3)
+                {
+                    perturb *= Kokkos::cos(ky * yc(j)) * Kokkos::sin(kz * zc(k));
+                }
                 rho(i, j, k) *= 1 + 0.15 * perturb;
-//                printf("%d  %f  %f  %f  %f  %f\n", i, x(i), xc(i), r, 1 + 0.1 * perturb, rho(i, j, k));
+                printf("%d  %f  %f  %f  %f  %f\n", i, x(i), xc(i), r, 1 + 0.1 * perturb, rho(i, j, k));
             });
-
-        
     }
 };
 
