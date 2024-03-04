@@ -108,6 +108,21 @@ def read_3d_file_element_in_1d_angular_mean(filename):
         Si[i] = sum_si / (nth * nph)
     return Ni, H, He, O, Si
 
+def rho_2D_r_th(filename):
+    with h5py.File(str(filename), 'r') as f :
+        rho_file = f['rho'][:, :, :]
+    nr = int(rho_file.shape[2])
+    nth = int(rho_file.shape[1])
+    nph = int(rho_file.shape[0])
+    rho = np.zeros((nr, nth))
+    for i in range(nr):
+        for j in range(nth):
+            sum_rho = 0
+            for k in range(nph):
+                sum_rho += rho_file[k, j, i]
+            rho[i] = sum_rho / nph
+    return rho
+
 def fgamma(filename):
     with h5py.File(str(filename), 'r') as f :
         gamma = f['gamma'][()]
@@ -233,5 +248,9 @@ plt.grid()
 plt.figure(figsize=(12,8))
 plt.imshow(rho_r_th, origin='lower')
 plt.colorbar() """
+
+plt.figure()
+plt.imshow(rho_2D_r_th(filename), aspect='auto', origin='lower', )
+plt.colorbar()
 
 plt.show()
