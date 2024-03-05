@@ -104,30 +104,37 @@ public:
         auto const yc = grid.y_center;
         auto const zc = grid.z_center;
 
-        double x0 = 1.2E9;
+        double xchoc = 6.1E9;
+        double x0 = xchoc - x(grid.Nghost[0]);
         double sigma = 0.1 * x0 * x0;
         double ky = 6;
         double kz = 6;
 
         Kokkos::parallel_for(
             "V1D_perturb_init",
-            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
-            {grid.Nghost[0], grid.Nghost[1], grid.Nghost[2]},
-            {300, grid.Nx_glob_ng[1], grid.Nx_glob_ng[2]}),
+            cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
                 double r = rho(i, j, k);
-                double perturb = Kokkos::exp(-(xc(i) - x0) * (xc(i) - x0) / sigma);
-                if (ndim == 2)
+                double v = u(i, j, k, 0);
+                double perturb = 0;
+
+                if (xc(i) < 6.1E9)
                 {
-                    perturb *= Kokkos::cos(ky * yc(j));
+                    perturb = Kokkos::exp(-(xc(i) - x0) * (xc(i) - x0) / sigma);
+                    if (ndim == 2)
+                    {
+                        perturb *= Kokkos::cos(ky * yc(j));
+                    }
+                    if (ndim == 3)
+                    {
+                        perturb *= Kokkos::cos(ky * yc(j)) * Kokkos::sin(kz * zc(k));
+                    }
                 }
-                if (ndim == 3)
-                {
-                    perturb *= Kokkos::cos(ky * yc(j)) * Kokkos::sin(kz * zc(k));
-                }
-                rho(i, j, k) *= 1 + 0.15 * perturb;
-                // printf("%d  %f  %f  %f  %f  %f\n", i, x(i), xc(i), r, 1 + 0.1 * perturb, rho(i, j, k));
+
+                rho(i, j, k) *= 1 + 0.1 * perturb;
+                u(i, j, k, 0) *= 1 + 0.1 * perturb;
+                //printf("%d  %f  %f  %f  %f  %f  %f\n", i, xc(i), 0.1 * perturb, r, rho(i, j, k), v, u(i, j, k, 0));
             });
     }
 };
