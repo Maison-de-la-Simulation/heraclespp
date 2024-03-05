@@ -105,8 +105,6 @@ public:
         auto const zc = grid.z_center;
 
         double xchoc = 6.1E9;
-        double x0 = xchoc - x(grid.Nghost[0]);
-        double sigma = 0.1 * x0 * x0;
         double ky = 6;
         double kz = 6;
 
@@ -121,6 +119,8 @@ public:
 
                 if (xc(i) < 6.1E9)
                 {
+                    double x0 = xchoc - x(grid.Nghost[0]);
+                    double sigma = 0.1 * x0 * x0;
                     perturb = Kokkos::exp(-(xc(i) - x0) * (xc(i) - x0) / sigma);
                     if (ndim == 2)
                     {
