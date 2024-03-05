@@ -127,7 +127,7 @@ public:
                     perturb *= Kokkos::cos(ky * yc(j)) * Kokkos::sin(kz * zc(k));
                 }
                 rho(i, j, k) *= 1 + 0.15 * perturb;
-                printf("%d  %f  %f  %f  %f  %f\n", i, x(i), xc(i), r, 1 + 0.1 * perturb, rho(i, j, k));
+                // printf("%d  %f  %f  %f  %f  %f\n", i, x(i), xc(i), r, 1 + 0.1 * perturb, rho(i, j, k));
             });
     }
 };
