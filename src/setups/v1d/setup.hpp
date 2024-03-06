@@ -2,6 +2,7 @@
 
 #include <Kokkos_Core.hpp>
 #include <units.hpp>
+#include <random>
 
 #include <inih/INIReader.hpp>
 
@@ -99,6 +100,32 @@ public:
 
         // perturbation
         auto const& grid = m_grid;
+        auto const xc = grid.x_center;
+        auto const yc = grid.y_center;
+        auto const zc = grid.z_center;
+
+        double xchoc = 6.1E9;
+
+        Kokkos::parallel_for(
+            "V1D_perturb_init",
+            cell_mdrange(range),
+            KOKKOS_LAMBDA(int i, int j, int k)
+            {
+                double perturb = 0;
+
+                if (xc(i) < xchoc)
+                {
+                    std::random_device rd;
+                    std::mt19937 gen(rd());
+                    std::uniform_real_distribution<double> distrib(-1.0, 1.0);
+                    perturb = distrib(rd);
+                }
+
+                rho(i, j, k) *= 1 + 0.1 * perturb;
+                u(i, j, k, 0) *= 1 + 0.1 * perturb;
+            });
+
+        /* auto const& grid = m_grid;
         auto const x = grid.x;
         auto const xc = grid.x_center;
         auto const yc = grid.y_center;
@@ -113,8 +140,6 @@ public:
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                double r = rho(i, j, k);
-                double v = u(i, j, k, 0);
                 double perturb = 0;
 
                 if (xc(i) < xchoc)
@@ -134,8 +159,7 @@ public:
 
                 rho(i, j, k) *= 1 + 0.1 * perturb;
                 u(i, j, k, 0) *= 1 + 0.1 * perturb;
-                //printf("%d  %f  %f  %f  %f  %f  %f\n", i, xc(i), 0.1 * perturb, r, rho(i, j, k), v, u(i, j, k, 0));
-            });
+            }); */
     }
 };
 
