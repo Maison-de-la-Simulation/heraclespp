@@ -120,7 +120,6 @@ public:
                     perturb = generator.drand(-1.0, 1.0);
                     random_pool.free_state(generator);
                 }
-                std::cout << perturb << std::endl;
                 rho(i, j, k) *= 1 + 0.1 * perturb;
                 u(i, j, k, 0) *= 1 + 0.1 * perturb;
             });
