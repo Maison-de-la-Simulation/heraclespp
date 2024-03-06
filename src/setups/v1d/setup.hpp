@@ -2,7 +2,7 @@
 
 #include <Kokkos_Core.hpp>
 #include <units.hpp>
-#include <random>
+#include <Kokkos_Random.hpp>
 
 #include <inih/INIReader.hpp>
 
@@ -105,6 +105,7 @@ public:
         auto const zc = grid.z_center;
 
         double xchoc = 6.1E9;
+        Kokkos::Random_XorShift64_Pool<> random_pool(12345 + grid.mpi_rank);
 
         Kokkos::parallel_for(
             "V1D_perturb_init",
@@ -115,12 +116,11 @@ public:
 
                 if (xc(i) < xchoc)
                 {
-                    std::random_device rd;
-                    std::mt19937 gen(rd());
-                    std::uniform_real_distribution<double> distrib(-1.0, 1.0);
-                    perturb = distrib(rd);
+                    auto generator = random_pool.get_state();
+                    perturb = generator.drand(-1.0, 1.0);
+                    random_pool.free_state(generator);
                 }
-
+                std::cout << perturb << std::endl;
                 rho(i, j, k) *= 1 + 0.1 * perturb;
                 u(i, j, k, 0) *= 1 + 0.1 * perturb;
             });
