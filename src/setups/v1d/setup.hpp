@@ -117,7 +117,7 @@ public:
                 double v = u(i, j, k, 0);
                 double perturb = 0;
 
-                if (xc(i) < 6.1E9)
+                if (xc(i) < xchoc)
                 {
                     double x0 = xchoc - x(grid.Nghost[0]);
                     double sigma = 0.1 * x0 * x0;
