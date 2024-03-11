@@ -104,7 +104,8 @@ public:
         auto const yc = grid.y_center;
         auto const zc = grid.z_center;
 
-        double xchoc = 6.1E9;
+        //double xchoc = 6.1E9; // ti = 500
+	//double xchoc = 5.5E8; // ti = 50
         Kokkos::Random_XorShift64_Pool<> random_pool(12345 + grid.mpi_rank);
 
         Kokkos::parallel_for(
