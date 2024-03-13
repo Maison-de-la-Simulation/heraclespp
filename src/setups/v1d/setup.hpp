@@ -135,15 +135,22 @@ public:
         double ky = (2 * units::pi * n) / (ymax - ymin);
         double kz = 6;
 
+        Kokkos::Random_XorShift64_Pool<> random_pool(12345 + grid.mpi_rank);
+
         Kokkos::parallel_for(
             "V1D_perturb_init",
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
                 double perturb = 0;
+                double bruit = 0;
 
                 if (xc(i) < xchoc)
                 {
+                    auto generator = random_pool.get_state();
+                    bruit = generator.drand(-1.0, 1.0);
+                    random_pool.free_state(generator);
+
                     double x0 = xchoc - x(grid.Nghost[0]);
                     double sigma = 0.1 * x0 * x0;
                     perturb = Kokkos::exp(-(xc(i) - x0) * (xc(i) - x0) / sigma); //* Kokkos::cos(20 * xc(i));
@@ -157,8 +164,8 @@ public:
                     }
                 }
 
-                rho(i, j, k) *= 1 + 0.1 * perturb;
-                u(i, j, k, 0) *= 1 + 0.1 * perturb;
+                rho(i, j, k) *= 1 + 0.1 * perturb + 0.01 * bruit;
+                u(i, j, k, 0) *= 1 + 0.1 * perturb + 0.01 * bruit;
             });
     }
 };
