@@ -101,12 +101,15 @@ public:
         // perturbation
         auto const& grid = m_grid;
         auto const xc = grid.x_center;
+        auto const x = grid.x;
         auto const yc = grid.y_center;
+        auto const y = grid.y;
         auto const zc = grid.z_center;
 
         //double xchoc = 6.1E9; // ti = 500
         double xchoc = 5.5E8; // ti = 50
-        Kokkos::Random_XorShift64_Pool<> random_pool(12345 + grid.mpi_rank);
+
+        /* Kokkos::Random_XorShift64_Pool<> random_pool(12345 + grid.mpi_rank);
 
         Kokkos::parallel_for(
             "V1D_perturb_init",
@@ -120,19 +123,16 @@ public:
                     auto generator = random_pool.get_state();
                     perturb = generator.drand(-1.0, 1.0);
                     random_pool.free_state(generator);
+                    std::cout << i << " " << xc(i) << std::endl;
                 }
                 rho(i, j, k) *= 1 + 0.1 * perturb;
                 u(i, j, k, 0) *= 1 + 0.1 * perturb;
-            });
+            }); */
 
-        /* auto const& grid = m_grid;
-        auto const x = grid.x;
-        auto const xc = grid.x_center;
-        auto const yc = grid.y_center;
-        auto const zc = grid.z_center;
-
-        double xchoc = 6.1E9;
-        double ky = 6;
+        double ymin = y(grid.Nghost[1]);
+        double ymax = y(grid.Nx_glob_ng[1] + grid.Nghost[1]);
+        int n = 20;
+        double ky = (2 * units::pi * n) / (ymax - ymin);
         double kz = 6;
 
         Kokkos::parallel_for(
@@ -146,20 +146,20 @@ public:
                 {
                     double x0 = xchoc - x(grid.Nghost[0]);
                     double sigma = 0.1 * x0 * x0;
-                    perturb = Kokkos::exp(-(xc(i) - x0) * (xc(i) - x0) / sigma);
+                    perturb = Kokkos::exp(-(xc(i) - x0) * (xc(i) - x0) / sigma); //* Kokkos::cos(20 * xc(i));
                     if (ndim == 2)
                     {
-                        perturb *= Kokkos::cos(ky * yc(j));
+                        perturb *= Kokkos::sin(ky * yc(j));
                     }
                     if (ndim == 3)
                     {
-                        perturb *= Kokkos::cos(ky * yc(j)) * Kokkos::sin(kz * zc(k));
+                        perturb *= Kokkos::sin(ky * yc(j)) * Kokkos::cos(kz * zc(k));
                     }
                 }
 
                 rho(i, j, k) *= 1 + 0.1 * perturb;
                 u(i, j, k, 0) *= 1 + 0.1 * perturb;
-            }); */
+            });
     }
 };
 
