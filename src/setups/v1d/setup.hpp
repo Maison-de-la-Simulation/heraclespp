@@ -27,10 +27,16 @@ class ParamSetup
 {
 public:
     std::string init_filename;
+    double xmin;
+    double ymin;
+    double ymax;
 
     explicit ParamSetup(INIReader const& reader)
     {
         init_filename = reader.Get("problem", "init_file", "");
+        xmin = reader.GetReal("Grid", "xmin", 0.0);
+        ymin = reader.GetReal("Grid", "ymin", 0.0);
+        ymax = reader.GetReal("Grid", "ymax", 1.0);
     }
 };
 
@@ -129,10 +135,8 @@ public:
                 u(i, j, k, 0) *= 1 + 0.1 * perturb;
             }); */
 
-        double ymin = y(grid.Nghost[1]);
-        double ymax = y(grid.Nx_glob_ng[1] + grid.Nghost[1]);
         int n = 20;
-        double ky = (2 * units::pi * n) / (ymax - ymin);
+        double ky = (2 * units::pi * n) / (m_param_setup.ymax - m_param_setup.ymin);
         double kz = 6;
 
         Kokkos::Random_XorShift64_Pool<> random_pool(12345 + grid.mpi_rank);
@@ -151,7 +155,7 @@ public:
                     bruit = generator.drand(-1.0, 1.0);
                     random_pool.free_state(generator);
 
-                    double x0 = xchoc - x(grid.Nghost[0]);
+                    double x0 = xchoc - m_param_setup.xmin;
                     double sigma = 0.1 * x0 * x0;
                     perturb = Kokkos::exp(-(xc(i) - x0) * (xc(i) - x0) / sigma); //* Kokkos::cos(20 * xc(i));
                     if (ndim == 2)
