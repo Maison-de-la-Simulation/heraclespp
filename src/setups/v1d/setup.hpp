@@ -105,6 +105,7 @@ public:
         }
 
         // perturbation
+        auto const& param_setup = m_param_setup;
         auto const& grid = m_grid;
         auto const xc = grid.x_center;
         auto const x = grid.x;
@@ -136,7 +137,7 @@ public:
             }); */
 
         int n = 20;
-        double ky = (2 * units::pi * n) / (m_param_setup.ymax - m_param_setup.ymin);
+        double ky = (2 * units::pi * n) / (param_setup.ymax - param_setup.ymin);
         double kz = 6;
 
         Kokkos::Random_XorShift64_Pool<> random_pool(12345 + grid.mpi_rank);
@@ -155,7 +156,7 @@ public:
                     bruit = generator.drand(-1.0, 1.0);
                     random_pool.free_state(generator);
 
-                    double x0 = xchoc - m_param_setup.xmin;
+                    double x0 = xchoc - param_setup.xmin;
                     double sigma = 0.1 * x0 * x0;
                     perturb = Kokkos::exp(-(xc(i) - x0) * (xc(i) - x0) / sigma); //* Kokkos::cos(20 * xc(i));
                     if (ndim == 2)
