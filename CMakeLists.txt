@@ -43,14 +43,43 @@ endif()
 
 include(CTest)
 
-add_subdirectory(vendor/googletest)
-add_subdirectory(vendor/inih)
-add_subdirectory(vendor/kokkos)
+set(Novapp_DEPENDENCY_POLICIES "EMBEDDED" "INSTALLED")
+
+# Doxygen dependency
+set(Novapp_Doxygen_DEPENDENCY_POLICY "INSTALLED" CACHE STRING "Policy to find the `Doxygen` package. Options: INSTALLED")
+set_property(CACHE Novapp_Doxygen_DEPENDENCY_POLICY PROPERTY STRINGS "INSTALLED")
+if("${Novapp_Doxygen_DEPENDENCY_POLICY}" STREQUAL "INSTALLED")
+  find_package(Doxygen)
+endif()
+
+# GTest dependency
+set(Novapp_GTest_DEPENDENCY_POLICY "EMBEDDED" CACHE STRING "Policy to find the `GTest` package. Options: ${Novapp_DEPENDENCY_POLICIES}")
+set_property(CACHE Novapp_GTest_DEPENDENCY_POLICY PROPERTY STRINGS "${Novapp_DEPENDENCY_POLICIES}")
+if("${Novapp_GTest_DEPENDENCY_POLICY}" STREQUAL "EMBEDDED")
+  add_subdirectory(vendor/googletest)
+elseif("${Novapp_GTest_DEPENDENCY_POLICY}" STREQUAL "INSTALLED")
+  find_package(GTest REQUIRED CONFIG)
+endif()
+
+# inih dependency
+set(Novapp_inih_DEPENDENCY_POLICY "EMBEDDED" CACHE STRING "Policy to find the `inih` package. Options: EMBEDDED")
+set_property(CACHE Novapp_inih_DEPENDENCY_POLICY PROPERTY STRINGS "EMBEDDED")
+if("${Novapp_inih_DEPENDENCY_POLICY}" STREQUAL "EMBEDDED")
+  add_subdirectory(vendor/inih)
+endif()
+
+# Kokkos dependency
+set(Novapp_Kokkos_DEPENDENCY_POLICY "EMBEDDED" CACHE STRING "Policy to find the `Kokkos` package. Options: ${Novapp_DEPENDENCY_POLICIES}")
+set_property(CACHE Novapp_Kokkos_DEPENDENCY_POLICY PROPERTY STRINGS "${Novapp_DEPENDENCY_POLICIES}")
+if("${Novapp_Kokkos_DEPENDENCY_POLICY}" STREQUAL "EMBEDDED")
+  add_subdirectory(vendor/kokkos)
+elseif("${Novapp_Kokkos_DEPENDENCY_POLICY}" STREQUAL "INSTALLED")
+  find_package(Kokkos 4...<5 REQUIRED CONFIG)
+endif()
 
 add_subdirectory(src)
 
-find_package(Doxygen)
-if (Doxygen_FOUND)
+if ("${Doxygen_FOUND}")
   doxygen_add_docs(doxygen ${PROJECT_SOURCE_DIR}/src)
 endif()
 
