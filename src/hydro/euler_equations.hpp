@@ -70,8 +70,8 @@ EulerFlux compute_flux(
         int locdim,
         EOS const& eos) noexcept
 {
-    KOKKOS_ASSERT(locdim >= 0);
-    KOKKOS_ASSERT(locdim < ndim);
+    KOKKOS_ASSERT(locdim >= 0)
+    KOKKOS_ASSERT(locdim < ndim)
     EulerFlux flux;
     double const E
             = compute_ek(prim) + eos.compute_evol_from_P(prim.rho, prim.P);
@@ -95,8 +95,8 @@ EulerFlux compute_flux(
         int locdim,
         EOS const& eos) noexcept
 {
-    KOKKOS_ASSERT(locdim >= 0);
-    KOKKOS_ASSERT(locdim < ndim);
+    KOKKOS_ASSERT(locdim >= 0)
+    KOKKOS_ASSERT(locdim < ndim)
     EulerFlux flux;
     double const evol = compute_evol(cons);
     double const P = eos.compute_P_from_evol(cons.rho, evol);

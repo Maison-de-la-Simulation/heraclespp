@@ -86,7 +86,7 @@ public:
             std::mt19937 gen(rd());
             std::uniform_real_distribution<double> dist(-1.0, 1.0);
 
-            for(int i = 0; i < data_to_broadcast.size() ; ++i)
+            for(std::size_t i = 0; i < data_to_broadcast.size() ; ++i)
             {
                 data_to_broadcast[i] = dist(rd);
             }
@@ -106,7 +106,7 @@ public:
 
         Kokkos::Array<int, 5> kx;
         Kokkos::Array<int, 5> ky;
-        for (int i = 0; i < kx.size(); ++i)
+        for (std::size_t i = 0; i < kx.size(); ++i)
         {
             kx[i] = i;
             ky[i] = i;
@@ -140,9 +140,9 @@ public:
                 double Y = 2 * units::pi * y / L;
                 double h = 0;
 
-                for (int ik = 0; ik < kx.size(); ++ik)
+                for (std::size_t ik = 0; ik < kx.size(); ++ik)
                 {
-                    for (int jk = 0; jk < ky.size(); ++jk)
+                    for (std::size_t jk = 0; jk < ky.size(); ++jk)
                     {
                         double K = kx[ik] * kx[ik] + ky[jk] + ky[jk];
                         if (K >= 8 && K <= 16)

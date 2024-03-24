@@ -8,10 +8,43 @@ before_script:
   - git config --global --add safe.directory /builds/lrousselhard/nova/vendor/kokkos
 
 stages:
+  - env
   - lint
   - build
   - test
   - deploy
+
+env-job:common:gtest:
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  stage: env
+  needs: []
+  script:
+    - export GTest_ROOT=$PWD/opt/gtest
+    - cmake -B build_gtest -S vendor/googletest -DCMAKE_INSTALL_PREFIX=$GTest_ROOT
+    - cmake --build build_gtest
+    - cmake --install build_gtest
+  artifacts:
+    expire_in: 1h
+    paths:
+      - opt/gtest
+
+env-job:serial:kokkos:
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  stage: env
+  needs: []
+  script:
+    - export Kokkos_ROOT=$PWD/opt/kokkos
+    - cmake -B build_kokkos -S vendor/kokkos -DCMAKE_INSTALL_PREFIX=$Kokkos_ROOT -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_DEBUG=ON -DKokkos_ENABLE_DEBUG_DUALVIEW_MODIFY_CHECK=ON -DKokkos_ENABLE_DEBUG_BOUNDS_CHECK=ON -DKokkos_ENABLE_COMPILER_WARNINGS=ON
+    - cmake --build build_kokkos
+    - cmake --install build_kokkos
+  artifacts:
+    expire_in: 1h
+    paths:
+      - opt/kokkos
 
 build-job:full:
   rules:
@@ -22,14 +55,16 @@ build-job:full:
   script:
     - bash ./test_suite_full.sh
 
-build-job:serial:1:
+build-job:serial:1d:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: build
-  needs: []
+  needs: ["env-job:common:gtest", "env-job:serial:kokkos"]
   script:
-    - cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DCMAKE_CXX_FLAGS="-Wall -Wextra -Wpedantic -Werror=implicit-fallthrough -Werror=reorder -Werror=return-type -Werror=vla" -DNovapp_NDIM=1 -DNovapp_SETUP=advection_gaussian -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_DEPRECATED_CODE_3=OFF -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_DEBUG=ON -DKokkos_ENABLE_DEBUG_DUALVIEW_MODIFY_CHECK=ON -DKokkos_ENABLE_DEBUG_BOUNDS_CHECK=ON -DKokkos_ENABLE_COMPILER_WARNINGS=ON -S . -B build
+    - export GTest_ROOT=$PWD/opt/gtest
+    - export Kokkos_ROOT=$PWD/opt/kokkos
+    - cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DCMAKE_CXX_FLAGS="-Werror=all -Werror=extra -Werror=pedantic -pedantic-errors -Werror=extra-semi" -DNovapp_NDIM=1 -DNovapp_SETUP=advection_gaussian -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED
     - cmake --build build
   artifacts:
     expire_in: 1h
@@ -37,14 +72,16 @@ build-job:serial:1:
       - build
       - bin
 
-build-job:serial:2:
+build-job:serial:2d:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: build
-  needs: []
+  needs: ["env-job:common:gtest", "env-job:serial:kokkos"]
   script:
-    - cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DCMAKE_CXX_FLAGS="-Wall -Wextra -Wpedantic -Werror=implicit-fallthrough -Werror=reorder -Werror=return-type -Werror=vla" -DNovapp_NDIM=2 -DNovapp_SETUP=advection_gaussian -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_DEPRECATED_CODE_3=OFF -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_DEBUG=ON -DKokkos_ENABLE_DEBUG_DUALVIEW_MODIFY_CHECK=ON -DKokkos_ENABLE_DEBUG_BOUNDS_CHECK=ON -DKokkos_ENABLE_COMPILER_WARNINGS=ON -S . -B build
+    - export GTest_ROOT=$PWD/opt/gtest
+    - export Kokkos_ROOT=$PWD/opt/kokkos
+    - cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DCMAKE_CXX_FLAGS="-Werror=all -Werror=extra -Werror=pedantic -pedantic-errors -Werror=extra-semi" -DNovapp_NDIM=2 -DNovapp_SETUP=advection_gaussian -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED
     - cmake --build build
   artifacts:
     expire_in: 1h
@@ -52,14 +89,16 @@ build-job:serial:2:
       - build
       - bin
 
-build-job:serial:3:
+build-job:serial:3d:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: build
-  needs: []
+  needs: ["env-job:common:gtest", "env-job:serial:kokkos"]
   script:
-    - cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DCMAKE_CXX_FLAGS="-Wall -Wextra -Wpedantic -Werror=implicit-fallthrough -Werror=reorder -Werror=return-type -Werror=vla" -DNovapp_NDIM=3 -DNovapp_SETUP=advection_gaussian -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_DEPRECATED_CODE_3=OFF -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_DEBUG=ON -DKokkos_ENABLE_DEBUG_DUALVIEW_MODIFY_CHECK=ON -DKokkos_ENABLE_DEBUG_BOUNDS_CHECK=ON -DKokkos_ENABLE_COMPILER_WARNINGS=ON -S . -B build
+    - export GTest_ROOT=$PWD/opt/gtest
+    - export Kokkos_ROOT=$PWD/opt/kokkos
+    - cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DCMAKE_CXX_FLAGS="-Werror=all -Werror=extra -Werror=pedantic -pedantic-errors -Werror=extra-semi" -DNovapp_NDIM=3 -DNovapp_SETUP=advection_gaussian -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED
     - cmake --build build
   artifacts:
     expire_in: 1h
@@ -72,10 +111,11 @@ build-job:cuda:3:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: build
-  needs: []
+  needs: ["env-job:common:gtest"]
   script:
+    - export GTest_ROOT=$PWD/opt/gtest
     - export NVCC_WRAPPER_DEFAULT_COMPILER=g++-11
-    - cmake -DCMAKE_BUILD_TYPE=None -DCMAKE_CXX_COMPILER=$PWD/vendor/kokkos/bin/nvcc_wrapper -DBUILD_TESTING=OFF -DCMAKE_CXX_FLAGS="-Wall -Wextra -Wpedantic -Werror=implicit-fallthrough -Werror=reorder -Werror=return-type -Werror=vla -Werror=cross-execution-space-call" -DNovapp_NDIM=3 -DNovapp_SETUP=advection_gaussian -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_CUDA=ON -DKokkos_ENABLE_CUDA_CONSTEXPR=ON -DKokkos_ARCH_AMPERE80=ON -DKokkos_ENABLE_DEPRECATED_CODE_3=OFF -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_COMPILER_WARNINGS=ON -S . -B build
+    - cmake -B build -S . -DCMAKE_BUILD_TYPE=None -DCMAKE_CXX_COMPILER=$PWD/vendor/kokkos/bin/nvcc_wrapper -DBUILD_TESTING=OFF -DCMAKE_CXX_FLAGS="-Werror=all -Werror=extra -Wpedantic -Werror=cross-execution-space-call" -DNovapp_NDIM=3 -DNovapp_SETUP=advection_gaussian -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_CUDA=ON -DKokkos_ARCH_AMPERE80=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_COMPILER_WARNINGS=ON
     - cmake --build build
 
 build-job:hip:3:
@@ -83,17 +123,18 @@ build-job:hip:3:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: build
-  needs: []
+  needs: ["env-job:common:gtest"]
   script:
-    - cmake -DCMAKE_BUILD_TYPE=None -DCMAKE_CXX_COMPILER=hipcc -DBUILD_TESTING=OFF -DCMAKE_CXX_FLAGS="-Wall -Wextra -Wpedantic -Werror=implicit-fallthrough -Werror=reorder -Werror=return-type -Werror=vla" -DNovapp_NDIM=3 -DNovapp_SETUP=advection_gaussian -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_HIP=ON -DKokkos_ARCH_VEGA90A=ON -DKokkos_ENABLE_DEPRECATED_CODE_3=OFF -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_COMPILER_WARNINGS=ON -S . -B build
+    - export GTest_ROOT=$PWD/opt/gtest
+    - cmake -B build -S . -DCMAKE_BUILD_TYPE=None -DCMAKE_CXX_COMPILER=hipcc -DBUILD_TESTING=OFF -DCMAKE_CXX_FLAGS="-Werror=all -Werror=extra -Werror=pedantic" -DNovapp_NDIM=3 -DNovapp_SETUP=advection_gaussian -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_HIP=ON -DKokkos_ARCH_VEGA90A=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_COMPILER_WARNINGS=ON
     - cmake --build build
 
-unit-test-job:serial:1:
+unit-test-job:serial:1d:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: test
-  needs: ["build-job:serial:1"]
+  needs: ["build-job:serial:1d"]
   script:
     - ctest --test-dir build --output-on-failure --timeout 5 --output-junit tests.xml
   artifacts:
@@ -101,12 +142,12 @@ unit-test-job:serial:1:
     reports:
       junit: build/tests.xml
 
-unit-test-job:serial:2:
+unit-test-job:serial:2d:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: test
-  needs: ["build-job:serial:2"]
+  needs: ["build-job:serial:2d"]
   script:
     - ctest --test-dir build --output-on-failure --timeout 5 --output-junit tests.xml
   artifacts:
@@ -114,12 +155,12 @@ unit-test-job:serial:2:
     reports:
       junit: build/tests.xml
 
-unit-test-job:serial:3:
+unit-test-job:serial:3d:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: test
-  needs: ["build-job:serial:3"]
+  needs: ["build-job:serial:3d"]
   script:
     - ctest --test-dir build --output-on-failure --timeout 5 --output-junit tests.xml
   artifacts:
@@ -127,12 +168,12 @@ unit-test-job:serial:3:
     reports:
       junit: build/tests.xml
 
-convergence-advection-sinusoide-test-job:serial:1:
+convergence-advection-sinusoide-test-job:serial:1d:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: test
-  needs: ["build-job:serial:1"]
+  needs: ["build-job:serial:1d"]
   script:
     - ./test/run_convergence_advection_gaussian.sh
 
@@ -153,5 +194,5 @@ clang-tidy-job:
   stage: lint
   needs: []
   script:
-    - cmake -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBUILD_TESTING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_gaussian -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_DEPRECATED_CODE_3=OFF -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -S . -B build
+    - cmake -B build -S . -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBUILD_TESTING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_gaussian -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF
     - find src tests -path src/deprecated -prune -o -name '*.cpp' -exec clang-tidy -p build -header-filter=$PWD/src/.* --checks="-*,bugprone-*,-bugprone-easily-swappable-parameters,-bugprone-exception-escape,-bugprone-implicit-widening-of-multiplication-result,-bugprone-narrowing-conversions,hicpp-*,-hicpp-member-init,-hicpp-vararg,readability-avoid-const-params-in-decls" --warnings-as-errors="*" '{}' '+'

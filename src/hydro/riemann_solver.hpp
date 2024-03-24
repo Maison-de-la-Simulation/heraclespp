@@ -25,8 +25,8 @@ public:
             int locdim,
             EOS const& eos) const noexcept
     {
-        KOKKOS_ASSERT(locdim >= 0);
-        KOKKOS_ASSERT(locdim < ndim);
+        KOKKOS_ASSERT(locdim >= 0)
+        KOKKOS_ASSERT(locdim < ndim)
         EulerPrim const primL = to_prim(consL, eos);
         EulerPrim const primR = to_prim(consR, eos);
 
@@ -81,8 +81,8 @@ public:
             int locdim,
             EOS const& eos) const noexcept
     {
-        KOKKOS_ASSERT(locdim >= 0);
-        KOKKOS_ASSERT(locdim < ndim);
+        KOKKOS_ASSERT(locdim >= 0)
+        KOKKOS_ASSERT(locdim < ndim)
         EulerPrim const primL = to_prim(consL, eos);
         EulerPrim const primR = to_prim(consR, eos);
 
@@ -175,8 +175,8 @@ public:
             int locdim,
             EOS const& eos) const noexcept
     {
-        KOKKOS_ASSERT(locdim >= 0);
-        KOKKOS_ASSERT(locdim < ndim);
+        KOKKOS_ASSERT(locdim >= 0)
+        KOKKOS_ASSERT(locdim < ndim)
         EulerPrim const primL = to_prim(consL, eos);
         EulerPrim const primR = to_prim(consR, eos);
 
