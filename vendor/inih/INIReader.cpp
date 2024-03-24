@@ -8,7 +8,7 @@
 #include "INIReader.hpp"
 #include <algorithm>  // for transform
 #include <cctype>     // for tolower
-#include <iostream>
+#include <stdexcept>
 #include <limits>
 #include <string>
 #include <utility>    // for pair
@@ -16,12 +16,15 @@
 
 INIReader::INIReader(const std::string& filename)
 {
-    _error = ini_parse(filename.c_str(), ValueHandler, this);
-}
-
-int INIReader::ParseError() const
-{
-    return _error;
+    int const ec = ini_parse(filename.c_str(), ValueHandler, this);
+    if (ec != 0)
+    {
+        if (ec == -1)
+        {
+            throw std::runtime_error("Could not open the file");
+        }
+        throw std::runtime_error(std::string("Parsing error at line ") + std::to_string(ec));
+    }
 }
 
 std::string INIReader::Get(const std::string& section, const std::string& name, const std::string& default_value) const

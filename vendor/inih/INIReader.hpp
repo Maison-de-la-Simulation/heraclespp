@@ -20,10 +20,6 @@ public:
     // about the parsing.
     INIReader(const std::string& filename);
 
-    // Return the result of ini_parse(), i.e., 0 on success, line number of
-    // first error on parse error, or -1 on file open error.
-    int ParseError() const;
-
     // Get a string value from INI file, returning default_value if not found.
     std::string Get(const std::string& section, const std::string& name,
                     const std::string& default_value) const;
@@ -73,7 +69,6 @@ public:
     bool GetBoolean(const std::string& section, const std::string& name, bool default_value) const;
 
 private:
-    int _error;
     std::map<std::string, std::string> _values;
     static std::string MakeKey(const std::string& section, const std::string& name);
     static int ValueHandler(void* user, const char* section, const char* name,
