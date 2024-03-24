@@ -97,15 +97,19 @@ long double INIReader::GetReal(const std::string& section, const std::string& na
 
 bool INIReader::GetBoolean(const std::string& section, const std::string& name, bool default_value) const
 {
-    std::string valstr = Get(section, name, "");
-    // Convert to lower case to make std::string comparisons case-insensitive
-    std::transform(valstr.begin(), valstr.end(), valstr.begin(), ::tolower);
-    if (valstr == "true" || valstr == "yes" || valstr == "on" || valstr == "1")
-        return true;
-    else if (valstr == "false" || valstr == "no" || valstr == "off" || valstr == "0")
-        return false;
-    else
-        return default_value;
+    const auto stob = [](std::string const& str) -> bool
+    {
+        std::string lowered_str = str;
+        // Convert to lower case to make std::string comparisons case-insensitive
+        std::transform(str.begin(), str.end(), lowered_str.begin(), ::tolower);
+        if (lowered_str == "true" || lowered_str == "yes" || lowered_str == "on" || lowered_str == "1")
+            return true;
+        if (lowered_str == "false" || lowered_str == "no" || lowered_str == "off" || lowered_str == "0")
+            return false;
+        throw std::out_of_range("stob");
+    };
+    const std::string valstr = Get(section, name, "");
+    return valstr.empty() ? default_value : stob(valstr);
 }
 
 std::string INIReader::MakeKey(const std::string& section, const std::string& name)
