@@ -8,7 +8,7 @@ before_script:
   - git config --global --add safe.directory /builds/lrousselhard/nova/vendor/kokkos
 
 stages:
-  - build-full
+  - lint
   - build
   - test
   - deploy
@@ -17,7 +17,7 @@ build-job:full:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-  stage: build-full
+  stage: build
   needs: []
   script:
     - bash ./test_suite_full.sh
@@ -150,7 +150,7 @@ clang-tidy-job:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-  stage: test
+  stage: lint
   needs: []
   script:
     - cmake -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBUILD_TESTING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_gaussian -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_DEPRECATED_CODE_3=OFF -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -S . -B build
