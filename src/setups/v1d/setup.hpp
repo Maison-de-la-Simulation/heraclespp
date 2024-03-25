@@ -30,6 +30,8 @@ public:
     double xmin;
     double ymin;
     double ymax;
+    double zmin;
+    double zmax;
 
     explicit ParamSetup(INIReader const& reader)
     {
@@ -37,6 +39,8 @@ public:
         xmin = reader.GetReal("Grid", "xmin", 0.0);
         ymin = reader.GetReal("Grid", "ymin", 0.0);
         ymax = reader.GetReal("Grid", "ymax", 1.0);
+        zmin = reader.GetReal("Grid", "zmin", 0.0);
+        zmax = reader.GetReal("Grid", "zmax", 1.0);
     }
 };
 
@@ -108,39 +112,17 @@ public:
         auto const& param_setup = m_param_setup;
         auto const& grid = m_grid;
         auto const xc = grid.x_center;
-        auto const x = grid.x;
         auto const yc = grid.y_center;
-        auto const y = grid.y;
         auto const zc = grid.z_center;
 
-        double xchoc = 6.1E9; // ti = 500
-        //double xchoc = 5.5E8; // ti = 50
+        double xchoc = 6.1E9; // tini = 500
+        //double xchoc = 5.5E8; // tini = 50
 
-        /* Kokkos::Random_XorShift64_Pool<> random_pool(12345 + grid.mpi_rank);
-
-        Kokkos::parallel_for(
-            "V1D_perturb_init",
-            cell_mdrange(range),
-            KOKKOS_LAMBDA(int i, int j, int k)
-            {
-                double perturb = 0;
-
-                if (xc(i) < xchoc)
-                {
-                    auto generator = random_pool.get_state();
-                    perturb = generator.drand(-1.0, 1.0);
-                    random_pool.free_state(generator);
-                    std::cout << i << " " << xc(i) << std::endl;
-                }
-                rho(i, j, k) *= 1 + 0.1 * perturb;
-                u(i, j, k, 0) *= 1 + 0.1 * perturb;
-            }); */
-
-        int n = 20;
-	double kx = 60; 
-        double ky = (2 * units::pi * n) / (param_setup.ymax - param_setup.ymin);
-        double kz = 60;
-
+        double kx = 60;
+        int ny = 20;
+        int nz = 20;
+        double ky = (2 * units::pi * ny) / (param_setup.ymax - param_setup.ymin);
+        double kz = (2 * units::pi * nz) / (param_setup.zmax - param_setup.zmin);
         Kokkos::Random_XorShift64_Pool<> random_pool(12345 + grid.mpi_rank);
 
         Kokkos::parallel_for(
@@ -149,12 +131,12 @@ public:
             KOKKOS_LAMBDA(int i, int j, int k)
             {
                 double perturb = 0;
-                double bruit = 0;
+                double noise = 0;
 
                 if (xc(i) < xchoc)
                 {
                     auto generator = random_pool.get_state();
-                    bruit = generator.drand(-1.0, 1.0);
+                    noise = generator.drand(-1.0, 1.0);
                     random_pool.free_state(generator);
 
                     double x0 = xchoc - param_setup.xmin;
@@ -170,8 +152,8 @@ public:
                     }
                 }
 
-                rho(i, j, k) *= 1 + 0.1 * perturb + 0.01 * bruit;
-                u(i, j, k, 0) *= 1 + 0.1 * perturb + 0.01 * bruit;
+                rho(i, j, k) *= 1 + 0.1 * perturb + 0.01 * noise;
+                u(i, j, k, 0) *= 1 + 0.1 * perturb + 0.01 * noise;
             });
     }
 };
