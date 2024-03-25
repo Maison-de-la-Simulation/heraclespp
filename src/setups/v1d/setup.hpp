@@ -35,7 +35,6 @@ public:
     double xchoc;
 
     explicit ParamSetup(INIReader const& reader)
-
         : init_filename(reader.Get("problem", "init_file", ""))
         , xmin(reader.GetReal("Grid", "xmin", 0.0))
         , ymin(reader.GetReal("Grid", "ymin", 0.0))
@@ -135,13 +134,13 @@ public:
                 double perturb = 0;
                 double noise = 0;
 
-                if (xc(i) < xchoc)
+                if (xc(i) < param_setup.xchoc)
                 {
                     auto generator = random_pool.get_state();
                     noise = generator.drand(-1.0, 1.0);
                     random_pool.free_state(generator);
 
-                    double x0 = xchoc - param_setup.xmin;
+                    double x0 = param_setup.xchoc - param_setup.xmin;
                     double sigma = 0.1 * x0 * x0;
                     perturb = Kokkos::exp(-(xc(i) - x0) * (xc(i) - x0) / sigma) * Kokkos::cos(kx * xc(i));
                     if (ndim == 2)
