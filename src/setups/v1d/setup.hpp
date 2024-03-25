@@ -37,12 +37,12 @@ public:
     explicit ParamSetup(INIReader const& reader)
     {
         : reader.Get("problem", "init_file", "");
-        , xmin = reader.GetReal("Grid", "xmin", 0.0);
-        , ymin = reader.GetReal("Grid", "ymin", 0.0);
-        , ymax = reader.GetReal("Grid", "ymax", 1.0);
-        , zmin = reader.GetReal("Grid", "zmin", 0.0);
-        , zmax = reader.GetReal("Grid", "zmax", 1.0);
-        , xchoc = (reader.GetReal("Initialisation", "xchoc", 1.0));
+        , reader.GetReal("Grid", "xmin", 0.0);
+        , reader.GetReal("Grid", "ymin", 0.0);
+        , reader.GetReal("Grid", "ymax", 1.0);
+        , reader.GetReal("Grid", "zmin", 0.0);
+        , reader.GetReal("Grid", "zmax", 1.0);
+        , reader.GetReal("Initialisation", "xchoc", 1.0);
     }
 };
 
