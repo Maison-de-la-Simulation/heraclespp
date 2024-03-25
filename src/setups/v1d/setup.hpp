@@ -35,15 +35,15 @@ public:
     double xchoc;
 
     explicit ParamSetup(INIReader const& reader)
-    {
-        : reader.Get("problem", "init_file", "");
-        , reader.GetReal("Grid", "xmin", 0.0);
-        , reader.GetReal("Grid", "ymin", 0.0);
-        , reader.GetReal("Grid", "ymax", 1.0);
-        , reader.GetReal("Grid", "zmin", 0.0);
-        , reader.GetReal("Grid", "zmax", 1.0);
-        , reader.GetReal("Initialisation", "xchoc", 1.0);
-    }
+
+        : reader.Get("problem", "init_file", "")
+        , reader.GetReal("Grid", "xmin", 0.0)
+        , reader.GetReal("Grid", "ymin", 0.0)
+        , reader.GetReal("Grid", "ymax", 1.0)
+        , reader.GetReal("Grid", "zmin", 0.0)
+        , reader.GetReal("Grid", "zmax", 1.0)
+        , reader.GetReal("Initialisation", "xchoc", 1.0)
+        {}
 };
 
 template <class Gravity>
