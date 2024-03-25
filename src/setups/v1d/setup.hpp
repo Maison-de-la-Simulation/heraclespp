@@ -32,6 +32,7 @@ public:
     double ymax;
     double zmin;
     double zmax;
+    double xchoc;
 
     explicit ParamSetup(INIReader const& reader)
     {
@@ -41,6 +42,7 @@ public:
         ymax = reader.GetReal("Grid", "ymax", 1.0);
         zmin = reader.GetReal("Grid", "zmin", 0.0);
         zmax = reader.GetReal("Grid", "zmax", 1.0);
+        xchoc = (reader.GetReal("Initialisation", "xchoc", 1.0))
     }
 };
 
@@ -115,7 +117,7 @@ public:
         auto const yc = grid.y_center;
         auto const zc = grid.z_center;
 
-        double xchoc = 6.1E9; // tini = 500
+        //double xchoc = 6.1E9; // tini = 500
         //double xchoc = 5.5E8; // tini = 50
 
         double kx = 60;
