@@ -30,7 +30,8 @@ public:
 };
 
 using SlopeLimiters = ::testing::Types<novapp::Minmod, novapp::VanAlbada, novapp::VanLeer>;
-TYPED_TEST_SUITE(SlopeLimiterFixture, SlopeLimiters);
+// Trailing comma is needed to avoid spurious `gnu-zero-variadic-macro-arguments` warning with clang
+TYPED_TEST_SUITE(SlopeLimiterFixture, SlopeLimiters, );
 
 TYPED_TEST(SlopeLimiterFixture, NullOnOppositeSign)
 {
