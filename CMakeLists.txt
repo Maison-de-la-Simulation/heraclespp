@@ -46,11 +46,7 @@ include(CTest)
 set(Novapp_DEPENDENCY_POLICIES "EMBEDDED" "INSTALLED")
 
 # Doxygen dependency
-set(Novapp_Doxygen_DEPENDENCY_POLICY "INSTALLED" CACHE STRING "Policy to find the `Doxygen` package. Options: INSTALLED")
-set_property(CACHE Novapp_Doxygen_DEPENDENCY_POLICY PROPERTY STRINGS "INSTALLED")
-if("${Novapp_Doxygen_DEPENDENCY_POLICY}" STREQUAL "INSTALLED")
-  find_package(Doxygen)
-endif()
+find_package(Doxygen)
 
 # GTest dependency
 set(Novapp_GTest_DEPENDENCY_POLICY "EMBEDDED" CACHE STRING "Policy to find the `GTest` package. Options: ${Novapp_DEPENDENCY_POLICIES}")
