@@ -113,8 +113,8 @@ public:
         auto const y = grid.y;
         auto const zc = grid.z_center;
 
-        //double xchoc = 6.1E9; // ti = 500
-        double xchoc = 5.5E8; // ti = 50
+        double xchoc = 6.1E9; // ti = 500
+        //double xchoc = 5.5E8; // ti = 50
 
         /* Kokkos::Random_XorShift64_Pool<> random_pool(12345 + grid.mpi_rank);
 
@@ -137,8 +137,9 @@ public:
             }); */
 
         int n = 20;
+	double kx = 60; 
         double ky = (2 * units::pi * n) / (param_setup.ymax - param_setup.ymin);
-        double kz = 6;
+        double kz = 60;
 
         Kokkos::Random_XorShift64_Pool<> random_pool(12345 + grid.mpi_rank);
 
@@ -158,7 +159,7 @@ public:
 
                     double x0 = xchoc - param_setup.xmin;
                     double sigma = 0.1 * x0 * x0;
-                    perturb = Kokkos::exp(-(xc(i) - x0) * (xc(i) - x0) / sigma); //* Kokkos::cos(20 * xc(i));
+                    perturb = Kokkos::exp(-(xc(i) - x0) * (xc(i) - x0) / sigma) * Kokkos::cos(kx * xc(i));
                     if (ndim == 2)
                     {
                         perturb *= Kokkos::sin(ky * yc(j));
