@@ -29,14 +29,14 @@ public:
     double P0;
     double E0;
     double E1;
-    double ny;
     double nx;
+    double ny;
 
     explicit ParamSetup(INIReader const& reader)
         : rho0(reader.GetReal("Initialisation", "rho0", 1.0))
         , u0(reader.GetReal("Initialisation", "u0", 1.0))
-        , E0(reader.GetReal("Initialisation", "E0", 1.0))
         , P0(reader.GetReal("Initialisation", "P0", 1.0))
+        , E0(reader.GetReal("Initialisation", "E0", 1.0))
         , E1(reader.GetReal("Initialisation", "E1", 1.0))
         , nx(reader.GetReal("Grid", "Nx_glob", 1.0))
         , ny(reader.GetReal("Grid", "Ny_glob", 1.0))
@@ -82,10 +82,7 @@ public:
         auto const y_d = m_grid.y;
         auto const& dv = m_grid.dv;
         auto const& eos = m_eos;
-        auto const& grid = m_grid;
         auto const& param_setup = m_param_setup;
-        int nx_2 = param_setup.nx / 2;
-        int ny_2 = param_setup.ny / 2;
 
         Kokkos::parallel_for(
             "Sedov_2D_init",

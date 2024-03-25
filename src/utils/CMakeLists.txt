@@ -1,5 +1,6 @@
-add_library(utils INTERFACE)
-target_link_libraries(utils INTERFACE inih Kokkos::kokkos thermodynamics)
+add_library(utils nova_params.cpp)
+target_link_libraries(utils PUBLIC inih)
+target_link_libraries(utils INTERFACE Kokkos::kokkos thermodynamics)
 target_include_directories(utils INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(utils INTERFACE ${CMAKE_CURRENT_BINARY_DIR})
 

@@ -1,40 +1,14 @@
 #pragma once
 
-#include <Kokkos_Core.hpp>
-
-#include "grid.hpp"
-#include "kokkos_shortcut.hpp"
-#include "range.hpp"
+#include <kokkos_shortcut.hpp>
 
 namespace novapp {
 
-inline void broadcast(
-        Range const& range,
-        [[maybe_unused]] Grid const& grid,
-        double const in,
-        KV_double_3d const out)
-{
-    Kokkos::parallel_for(
-            "broadcast 0d->3d",
-            cell_mdrange(range),
-            KOKKOS_LAMBDA(const int i, const int j, const int k) { out(i, j, k) = in; });
-}
+class Grid;
+class Range;
 
-inline void broadcast(
-        Range const& range,
-        Grid const& grid,
-        KV_cdouble_1d const in,
-        KV_double_3d const out)
-{
-    assert(in.extent_int(0) + 2 * grid.Ng == out.extent_int(0));
-    int const ghost_x = grid.Nghost[0];
+void broadcast(Range const& range, Grid const& grid, double in, KV_double_3d out);
 
-    Kokkos::parallel_for(
-            "broadcast 1d->3d",
-            cell_mdrange(range),
-            KOKKOS_LAMBDA(const int i, const int j, const int k) {
-                out(i, j, k) = in(i - ghost_x);
-            });
-}
+void broadcast(Range const& range, Grid const& grid, KV_cdouble_1d in, KV_double_3d out);
 
 } // namespace novapp
