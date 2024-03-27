@@ -22,7 +22,8 @@ public:
 };
 
 using RiemannSolvers = ::testing::Types<novapp::HLL, novapp::HLLC, novapp::Splitting>;
-TYPED_TEST_SUITE(RiemannSolverFixture, RiemannSolvers);
+// Trailing comma is needed to avoid spurious `gnu-zero-variadic-macro-arguments` warning with clang
+TYPED_TEST_SUITE(RiemannSolverFixture, RiemannSolvers, );
 
 TYPED_TEST(RiemannSolverFixture, Consistency)
 {

@@ -25,7 +25,8 @@ public:
 };
 
 using EquationOfStates = ::testing::Types<novapp::thermodynamics::PerfectGas, novapp::thermodynamics::RadGas>;
-TYPED_TEST_SUITE(EquationOfStateFixture, EquationOfStates);
+// Trailing comma is needed to avoid spurious `gnu-zero-variadic-macro-arguments` warning with clang
+TYPED_TEST_SUITE(EquationOfStateFixture, EquationOfStates, );
 
 TYPED_TEST(EquationOfStateFixture, GammaValidityRange)
 {
