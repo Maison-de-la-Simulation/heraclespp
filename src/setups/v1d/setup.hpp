@@ -116,10 +116,70 @@ public:
         auto const yc = grid.y_center;
         auto const zc = grid.z_center;
 
+        int ny = rho.extent_int(1) - 4;
+        int nz = rho.extent_int(2) - 4;
         //double xchoc = 6.1E9; // tini = 500
         //double xchoc = 5.5E8; // tini = 50
 
-        double kx = 60;
+        Kokkos::Random_XorShift64_Pool<> random_pool(54321);
+        int kx1 = 60;
+        int kx2 = 80;
+
+        // perturbation
+
+        Kokkos::parallel_for(
+            "V1D_perturb_init",
+            cell_mdrange(range),
+            KOKKOS_LAMBDA(int i, int j, int k)
+            {
+                double petrurb_r = 0;
+                double perturb_th_ph = 0;
+                double noise = 0;
+
+                if (xc(i) < param_setup.xchoc)
+                {
+                    // background noise
+                    auto generator = random_pool.get_state();
+                    noise = generator.drand(-1.0, 1.0);
+
+                    // modes for theta and phi
+                    double A = 0.015;
+                    for (int n = 0; n < 10; ++n)
+                    {
+                        double kth = ny / (generator.drand(0.0, 1.0) * 50);
+                        double kph = nz / (generator.drand(0.0, 1.0) * 50);
+                        double alpha1 = (ny + nz) * 10 * generator.drand(0.0, 1.0);
+                        double alpha2 = (ny + nz) * 10 * generator.drand(0.0, 1.0);
+
+                        if (ndim == 1)
+                        {
+                            perturb_th_ph = 0;
+                        }
+                        if (ndim == 2)
+                        {
+                            perturb_th_ph += A * Kokkos::sin(j / kth + alpha1);
+                        }
+                        if (ndim == 3)
+                        {
+                            perturb_th_ph += A * Kokkos::sin(j / kth + alpha1) * Kokkos::cos(k / kph + alpha2);
+                        }
+
+                    }
+
+                    // r perturbation
+                    double x0 = param_setup.xchoc - param_setup.xmin;
+                    double sigma = 0.1 * x0 * x0;
+                    petrurb_r = Kokkos::exp(-(xc(i) - x0) * (xc(i) - x0) / sigma) * Kokkos::cos(kx1 * xc(i) + kx2 * xc(i));
+
+                    random_pool.free_state(generator);
+                }
+
+                double perturb = 0.1 * petrurb_r + perturb_th_ph;
+                rho(i, j, k) = rho(i, j, k) * (1 + perturb + 0.01 * noise);
+                u(i, j, k, 0) = u(i, j, k, 0) * (1 + perturb + 0.01 * noise);
+            });
+
+        /*  double kx = 60;
         int ny = 20;
         int nz = 20;
         double ky = (2 * units::pi * ny) / (param_setup.ymax - param_setup.ymin);
@@ -155,7 +215,7 @@ public:
 
                 rho(i, j, k) *= 1 + 0.1 * perturb + 0.01 * noise;
                 u(i, j, k, 0) *= 1 + 0.1 * perturb + 0.01 * noise;
-            });
+            }); */
     }
 };
 
