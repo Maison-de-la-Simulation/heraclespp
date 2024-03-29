@@ -20,6 +20,8 @@ env-job:common:gtest:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: env
   needs: []
+  variables:
+    CMAKE_GENERATOR: Ninja
   script:
     - cmake -B build -S vendor/googletest
     - cmake --build build
@@ -35,6 +37,8 @@ env-job:serial:kokkos:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: env
   needs: []
+  variables:
+    CMAKE_GENERATOR: Ninja
   script:
     - cmake -B build -S vendor/kokkos -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_DEBUG=ON -DKokkos_ENABLE_DEBUG_DUALVIEW_MODIFY_CHECK=ON -DKokkos_ENABLE_DEBUG_BOUNDS_CHECK=ON -DKokkos_ENABLE_COMPILER_WARNINGS=ON
     - cmake --build build
@@ -50,6 +54,8 @@ build-job:serial:all:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: build
   needs: []
+  variables:
+    CMAKE_GENERATOR: Ninja
   script:
     - bash ./test_suite_full.sh
 
@@ -60,6 +66,7 @@ build-job:serial:1d:
   stage: build
   needs: ["env-job:common:gtest", "env-job:serial:kokkos"]
   variables:
+    CMAKE_GENERATOR: Ninja
     GTest_ROOT: $CI_PROJECT_DIR/opt/gtest
     Kokkos_ROOT: $CI_PROJECT_DIR/opt/kokkos
   script:
@@ -78,6 +85,7 @@ build-job:serial:2d:
   stage: build
   needs: ["env-job:common:gtest", "env-job:serial:kokkos"]
   variables:
+    CMAKE_GENERATOR: Ninja
     GTest_ROOT: $CI_PROJECT_DIR/opt/gtest
     Kokkos_ROOT: $CI_PROJECT_DIR/opt/kokkos
   script:
@@ -96,6 +104,7 @@ build-job:serial:3d:
   stage: build
   needs: ["env-job:common:gtest", "env-job:serial:kokkos"]
   variables:
+    CMAKE_GENERATOR: Ninja
     GTest_ROOT: $CI_PROJECT_DIR/opt/gtest
     Kokkos_ROOT: $CI_PROJECT_DIR/opt/kokkos
   script:
@@ -114,11 +123,12 @@ build-job:cuda:3d:
   stage: build
   needs: ["env-job:common:gtest"]
   variables:
+    CMAKE_GENERATOR: Ninja
     GTest_ROOT: $CI_PROJECT_DIR/opt/gtest
     NVCC_WRAPPER_DEFAULT_COMPILER: g++-11
   script:
-    - cmake -B build -S . -DCMAKE_BUILD_TYPE=None -DCMAKE_CXX_COMPILER=$CI_PROJECT_DIR/vendor/kokkos/bin/nvcc_wrapper -DBUILD_TESTING=ON -DCMAKE_CXX_FLAGS="-Werror=all -Werror=extra -Wpedantic -Werror=cross-execution-space-call" -DNovapp_NDIM=3 -DNovapp_SETUP=advection_gaussian -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_CUDA=ON -DKokkos_ARCH_AMPERE80=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_COMPILER_WARNINGS=ON
-    - cmake --build build
+    - cmake -B build -S . -DCMAKE_BUILD_TYPE=None -DCMAKE_CXX_COMPILER=$CI_PROJECT_DIR/vendor/kokkos/bin/nvcc_wrapper -DBUILD_TESTING=ON -DCMAKE_CXX_EXTENSIONS=OFF -DCMAKE_CXX_FLAGS="-Werror=all -Werror=extra -Wpedantic -Werror=cross-execution-space-call" -DNovapp_NDIM=3 -DNovapp_SETUP=advection_gaussian -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_CUDA=ON -DKokkos_ARCH_AMPERE80=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_COMPILER_WARNINGS=ON
+    - cmake --build build --parallel 3
 
 build-job:hip:3d:
   rules:
@@ -127,6 +137,7 @@ build-job:hip:3d:
   stage: build
   needs: ["env-job:common:gtest"]
   variables:
+    CMAKE_GENERATOR: Ninja
     GTest_ROOT: $CI_PROJECT_DIR/opt/gtest
   script:
     - cmake -B build -S . -DCMAKE_BUILD_TYPE=None -DCMAKE_CXX_COMPILER=hipcc -DBUILD_TESTING=ON -DCMAKE_CXX_FLAGS="-Werror=all -Werror=extra -Werror=pedantic" -DNovapp_NDIM=3 -DNovapp_SETUP=advection_gaussian -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_HIP=ON -DKokkos_ARCH_VEGA90A=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_COMPILER_WARNINGS=ON
