@@ -151,6 +151,7 @@ Kokkos::MDRangePolicy<Kokkos::Rank<3, Kokkos::Iterate::Left, Kokkos::Iterate::Le
 {
     auto const [begin, end] = cell_range(range);
     return Kokkos::MDRangePolicy<
+            int,
             Kokkos::Rank<3, Kokkos::Iterate::Left, Kokkos::Iterate::Left>>(begin, end);
 }
 

@@ -77,7 +77,8 @@ inline PointMassGravity make_point_mass_gravity(
     double const M = param.M;
 
     Kokkos::parallel_for(
-        "point_mass_gravity", grid.Nx_local_wg[0],
+        "point_mass_gravity",
+        Kokkos::RangePolicy<int>(0, grid.Nx_local_wg[0]),
         KOKKOS_LAMBDA(int i)
         {
             auto const xc = grid.x_center(i);
