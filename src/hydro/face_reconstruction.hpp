@@ -36,9 +36,9 @@ public:
 
     IFaceReconstruction& operator=(IFaceReconstruction&& rhs) noexcept = default;
 
+    //! @param[in] range output iteration range
     //! @param[in] var cell values
-    //! @param[out] varL left edge reconstruction values
-    //! @param[out] varR right edge reconstruction values
+    //! @param[out] var_rec reconstructed values at interfaces
     virtual void execute(
         Range const& range,
         KV_cdouble_3d var,

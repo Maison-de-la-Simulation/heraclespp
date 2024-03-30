@@ -62,6 +62,7 @@ double compute_evol(EulerCons const& cons) noexcept
 
 //! Flux formula
 //! @param[in] prim Primitive state
+//! @param[in] locdim index of the direction X, Y or Z
 //! @param[in] eos Equation of state
 //! @return flux
 KOKKOS_FORCEINLINE_FUNCTION
@@ -87,6 +88,7 @@ EulerFlux compute_flux(
 
 //! Flux formula
 //! @param[in] cons Conservative state
+//! @param[in] locdim index of the direction X, Y or Z
 //! @param[in] eos Equation of state
 //! @return flux
 KOKKOS_FORCEINLINE_FUNCTION

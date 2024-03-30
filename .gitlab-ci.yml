@@ -210,3 +210,13 @@ clang-tidy-job:
   script:
     - cmake -B build -S . -DCMAKE_CXX_COMPILER=clang++-14 -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBUILD_TESTING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_gaussian -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF
     - find src tests -path src/deprecated -prune -o -name '*.cpp' -exec clang-tidy -p build -header-filter=$CI_PROJECT_DIR/src/.* --checks="-*,bugprone-*,-bugprone-easily-swappable-parameters,-bugprone-exception-escape,-bugprone-implicit-widening-of-multiplication-result,-bugprone-narrowing-conversions,hicpp-*,-hicpp-member-init,-hicpp-vararg,readability-avoid-const-params-in-decls" --warnings-as-errors="*" '{}' '+'
+
+doxygen-job:
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  stage: test
+  needs: []
+  script:
+    - cmake -B build -S . -DDOXYGEN_WARN_AS_ERROR=YES -DNovapp_NDIM=3 -DNovapp_SETUP=advection_gaussian -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF
+    - cmake --build build --target doxygen

@@ -15,8 +15,10 @@ namespace novapp
 class HLL
 {
 public:
-    //! HLL solver
-    //! @param[in]
+    //! @param[in] consL left conservative state
+    //! @param[in] consR right conservative state
+    //! @param[in] locdim index of the direction X, Y or Z
+    //! @param[in] eos Equation of state
     //! @return intercell EulerFlux
     KOKKOS_FORCEINLINE_FUNCTION
     EulerFlux operator()(

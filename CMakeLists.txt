@@ -76,6 +76,10 @@ endif()
 add_subdirectory(src)
 
 if ("${Doxygen_FOUND}")
+  set(DOXYGEN_EXCLUDE_PATTERNS "*/deprecated/*")
+  set(DOXYGEN_EXTRACT_ALL YES)
+  set(DOXYGEN_WARN_NO_PARAMDOC YES)
+  set(DOXYGEN_WARN_IF_UNDOCUMENTED NO)
   doxygen_add_docs(doxygen ${PROJECT_SOURCE_DIR}/src)
 endif()
 
