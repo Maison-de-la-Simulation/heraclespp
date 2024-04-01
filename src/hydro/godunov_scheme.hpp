@@ -282,16 +282,7 @@ public:
             {
                 for (int ifx = 0; ifx < nfx; ++ifx)
                 {
-                    fx_new(i, j, k, ifx) /= rho_new(i, j, k);
-
-                    if (fx_new(i, j, k, ifx) > 1)
-                    {
-                        fx_new(i, j, k, ifx) = 1;
-                    }
-                    if (fx_new(i, j, k, ifx) < 0)
-                    {
-                        fx_new(i, j, k, ifx) = 0;
-                    }
+                    fx_new(i, j, k, ifx) = Kokkos::clamp(fx_new(i, j, k, ifx) / rho_new(i, j, k), 0., 1.);
                 }
             });
     }
