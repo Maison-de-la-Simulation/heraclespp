@@ -85,16 +85,16 @@ public:
         modify_host(rho_1d, u_1d, P_1d, fx_1d);
         sync_device(rho_1d, u_1d, P_1d, fx_1d);
 
-        broadcast(range, m_grid, rho_1d.d_view, rho);
-        broadcast(range, m_grid, u_1d.d_view, Kokkos::subview(u, ALL, ALL, ALL, 0));
+        broadcast(range, rho_1d.d_view, rho);
+        broadcast(range, u_1d.d_view, Kokkos::subview(u, ALL, ALL, ALL, 0));
         for (int idim = 1; idim < u.extent_int(3); ++idim)
         {
-            broadcast(range, m_grid, 0, Kokkos::subview(u, ALL, ALL, ALL, idim));
+            broadcast(range, 0, Kokkos::subview(u, ALL, ALL, ALL, idim));
         }
-        broadcast(range, m_grid, P_1d.d_view, P);
+        broadcast(range, P_1d.d_view, P);
         for(int ifx = 0; ifx < fx.extent_int(3); ++ifx)
         {
-            broadcast(range, m_grid, Kokkos::subview(fx_1d.d_view, ALL, ifx), Kokkos::subview(fx, ALL, ALL, ALL, ifx));
+            broadcast(range, Kokkos::subview(fx_1d.d_view, ALL, ifx), Kokkos::subview(fx, ALL, ALL, ALL, ifx));
         }
     }
 };
