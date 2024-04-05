@@ -22,6 +22,7 @@ class RadGas;
 class Range;
 
 //! Conversion from primitive to conservative variables
+//! @param[in] range output iteration range
 //! @param[in] eos equation of state
 //! @param[in] rho density array 3D
 //! @param[in] u velocity array 3D
@@ -39,6 +40,7 @@ void conv_prim_to_cons(
 
 
 //! Conversion from conservative to primitive variables
+//! @param[in] range output iteration range
 //! @param[in] eos equation of state
 //! @param[in] rho density array 3D
 //! @param[in] rhou momentum array 3D

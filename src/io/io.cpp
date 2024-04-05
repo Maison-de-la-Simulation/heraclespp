@@ -105,14 +105,14 @@ void write_pdi(
         NULL);
 }
 
-should_output_fn::should_output_fn(int freq, int iter_max, double time_out)
+ShouldOutput::ShouldOutput(int freq, int iter_max, double time_out)
     : m_freq(freq)
     , m_iter_max(iter_max)
     , m_time_out(time_out)
 {
 }
 
-bool should_output_fn::operator()(int iter, double current, double dt) const
+bool ShouldOutput::operator()(int iter, double current, double dt) const
 {
     bool result = (m_freq > 0)
                   && (((iter + 1) >= m_iter_max) || ((iter + 1) % m_freq == 0)
@@ -161,7 +161,7 @@ void read_pdi(
     modify_host(rho, u, P, fx, x_glob, y_glob, z_glob);
 }
 
-void writeXML(
+void write_xml(
         Grid const& grid,
         std::vector<std::pair<int, double>> const& outputs_record,
         std::string directory,

@@ -11,6 +11,11 @@
 
 namespace novapp {
 
+//! Computes the position of nodes in a regular mesh given the length of cells
+//! @param[out] x The coordinates of nodes
+//! @param[in] ng The number of halo cells
+//! @param[in] xmin The coordinate of xmin
+//! @param[in] dx The length of cells
 void compute_regular_mesh_1d(
         KVH_double_1d const& x,
         int const ng,

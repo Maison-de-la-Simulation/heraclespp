@@ -35,14 +35,27 @@
 *.app
 
 # Build folders
-build*/*
+build*/
 
+# ccls
 .ccls-cache
 .ccls-root
 
+# clangd
+.cache
+
+# compilation database
 compile_commands.json
 
-bin
+bin/
+
+## Python
+############################
+__pycache__/
+
+## Doxygen
+############################
+Doxyfile
 
 ## Emacs
 ##############################
@@ -77,17 +90,12 @@ flycheck_*.el
 # directory configuration
 .dir-locals.el
 
-## VScode
+## VS Code
 ############################
 .vscode
 
-##
-
+## Apple
+############################
 .DS_Store
-src/.DS_Store
-test/.DS_Store
-test/__pycache__/
-
-Doxyfile
 
 vendor/install_pdi/

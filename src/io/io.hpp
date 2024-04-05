@@ -17,14 +17,14 @@ namespace novapp
 class Grid;
 class Param;
 
-class should_output_fn
+class ShouldOutput
 {
     int m_freq;
     int m_iter_max;
     double m_time_out;
 
 public:
-    should_output_fn(int freq, int iter_max, double time_out);
+    ShouldOutput(int freq, int iter_max, double time_out);
 
     [[nodiscard]] bool operator()(int iter, double current, double dt) const;
 };
@@ -65,7 +65,7 @@ void read_pdi(
     KDV_double_1d y_glob,
     KDV_double_1d z_glob);
 
-void writeXML(
+void write_xml(
     Grid const& grid,
     std::vector<std::pair<int, double>> const& outputs_record,
     std::string directory,

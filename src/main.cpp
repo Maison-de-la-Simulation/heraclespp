@@ -303,11 +303,11 @@ int nova_main(int argc, char** argv)
         modify_device(T);
 
         outputs_record.emplace_back(iter, t);
-        writeXML(grid, outputs_record, param.directory, param.prefix, x_glob, y_glob, z_glob);
+        write_xml(grid, outputs_record, param.directory, param.prefix, x_glob, y_glob, z_glob);
         write_pdi(param.directory, param.prefix, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
     }
 
-    should_output_fn const should_output(param.output_frequency, param.max_iter, param.t_end);
+    ShouldOutput const should_output(param.output_frequency, param.max_iter, param.t_end);
 
     Kokkos::fence();
     MPI_Barrier(grid.comm_cart);
@@ -371,7 +371,7 @@ int nova_main(int argc, char** argv)
             modify_device(T);
 
             outputs_record.emplace_back(iter, t);
-            writeXML(grid, outputs_record, param.directory, param.prefix, x_glob, y_glob, z_glob);
+            write_xml(grid, outputs_record, param.directory, param.prefix, x_glob, y_glob, z_glob);
             write_pdi(param.directory, param.prefix, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
         }
     }

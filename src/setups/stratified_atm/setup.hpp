@@ -154,7 +154,7 @@ public:
 
         Kokkos::parallel_for(
             m_label,
-            Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+            Kokkos::MDRangePolicy<int, Kokkos::Rank<3>>(begin, end),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
                 double gravity_x = gravity(i, j, k, 0) * units::acc;

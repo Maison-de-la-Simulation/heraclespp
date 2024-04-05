@@ -68,7 +68,7 @@ void NullGradient::execute(KV_double_3d rho,
     int const& bc_idim = m_bc_idim;
     Kokkos::parallel_for(
         m_label,
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+        Kokkos::MDRangePolicy<int, Kokkos::Rank<3>>(begin, end),
         KOKKOS_LAMBDA(int i, int j, int k)
         {
             Kokkos::Array<int, 3> offsets {i, j, k};
@@ -128,7 +128,7 @@ void ReflexiveCondition::execute(KV_double_3d rho,
     int const& bc_idim = m_bc_idim;
     Kokkos::parallel_for(
         m_label,
-        Kokkos::MDRangePolicy<Kokkos::Rank<3>>(begin, end),
+        Kokkos::MDRangePolicy<int, Kokkos::Rank<3>>(begin, end),
         KOKKOS_LAMBDA(int i, int j, int k)
         {
             Kokkos::Array<int, 3> offsets {i, j, k};

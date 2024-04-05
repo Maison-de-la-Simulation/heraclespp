@@ -29,7 +29,7 @@ void compute_cell_size(KV_cdouble_1d const& x, KV_double_1d const& dx)
     assert(x.extent_int(0) == dx.extent_int(0) + 1);
     Kokkos::parallel_for(
         "fill_cell_size_array",
-        dx.extent_int(0),
+        Kokkos::RangePolicy<int>(0, dx.extent_int(0)),
         KOKKOS_LAMBDA(int i)
         {
             dx(i) = x(i+1) - x(i);
@@ -41,7 +41,7 @@ void compute_cell_center(KV_cdouble_1d const& x, KV_double_1d const& x_center)
     assert(x.extent_int(0) == x_center.extent_int(0) + 1);
     Kokkos::parallel_for(
         "fill_cell_center_array",
-        x_center.extent_int(0),
+        Kokkos::RangePolicy<int>(0, x_center.extent_int(0)),
         KOKKOS_LAMBDA(int i)
         {
             x_center(i) = (x(i) + x(i+1)) / 2;

@@ -1,5 +1,5 @@
 //!
-//! @file source_term.hpp
+//! @file source_terms.hpp
 //!
 
 #pragma once
