@@ -14,6 +14,8 @@
 #include <utility>    // for pair
 #include "ini.h"      // for ini_parse
 
+INIReader::INIReader() = default;
+
 INIReader::INIReader(const std::string& filename)
 {
     int const ec = ini_parse(filename.c_str(), ValueHandler, this);

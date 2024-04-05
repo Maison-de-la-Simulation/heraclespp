@@ -16,6 +16,8 @@
 class INIReader
 {
 public:
+    INIReader();
+
     // Construct INIReader and parse given filename. See ini.h for more info
     // about the parsing.
     INIReader(const std::string& filename);
