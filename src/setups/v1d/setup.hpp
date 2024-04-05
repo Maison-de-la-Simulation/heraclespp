@@ -27,7 +27,6 @@ class ParamSetup
 {
 public:
     std::string init_filename;
-    double xmin;
     double ymin;
     double ymax;
     double zmin;
@@ -36,7 +35,6 @@ public:
 
     explicit ParamSetup(INIReader const& reader)
         : init_filename(reader.Get("problem", "init_file", ""))
-        , xmin(reader.GetReal("Grid", "xmin", 0.0))
         , ymin(reader.GetReal("Grid", "ymin", 0.0))
         , ymax(reader.GetReal("Grid", "ymax", 1.0))
         , zmin(reader.GetReal("Grid", "zmin", 0.0))
@@ -115,6 +113,7 @@ public:
         auto const xc = grid.x_center;
         auto const yc = grid.y_center;
         auto const zc = grid.z_center;
+        double xmin = grid.x(grid.Nghost[0]);
 
         int ny = rho.extent_int(1) - 4;
         int nz = rho.extent_int(2) - 4;
@@ -163,11 +162,10 @@ public:
                         {
                             perturb_th_ph += A * Kokkos::sin(j / kth + alpha1) * Kokkos::cos(k / kph + alpha2);
                         }
-
                     }
 
                     // r perturbation
-                    double x0 = param_setup.xchoc - param_setup.xmin;
+                    double x0 = param_setup.xchoc - xmin;
                     double sigma = 0.1 * x0 * x0;
                     petrurb_r = Kokkos::exp(-(xc(i) - x0) * (xc(i) - x0) / sigma) * Kokkos::cos(kx1 * xc(i) + kx2 * xc(i));
 
@@ -178,6 +176,10 @@ public:
                 rho(i, j, k) = rho(i, j, k) * (1 + perturb + 0.01 * noise);
                 u(i, j, k, 0) = u(i, j, k, 0) * (1 + perturb + 0.01 * noise);
             });
+
+            std::cout << xmin << std::endl;
+
+        // other type of perturbation
 
         /*  double kx = 60;
         int ny = 20;
@@ -200,7 +202,7 @@ public:
                     noise = generator.drand(-1.0, 1.0);
                     random_pool.free_state(generator);
 
-                    double x0 = param_setup.xchoc - param_setup.xmin;
+                    double x0 = param_setup.xchoc - xmin;
                     double sigma = 0.1 * x0 * x0;
                     perturb = Kokkos::exp(-(xc(i) - x0) * (xc(i) - x0) / sigma) * Kokkos::cos(kx * xc(i));
                     if (ndim == 2)
