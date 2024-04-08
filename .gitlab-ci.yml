@@ -5,6 +5,7 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
   GIT_SUBMODULE_DEPTH: 1
   GIT_SUBMODULE_UPDATE_FLAGS: --jobs 2
+  CMAKE_BUILD_PARALLEL_LEVEL: 2
 
 before_script:
   - git config --global --add safe.directory $CI_PROJECT_DIR/vendor/kokkos
@@ -130,11 +131,11 @@ build-job:cuda:3d:
     NVCC_WRAPPER_DEFAULT_COMPILER: g++-11
   script:
     - cmake -B build-kokkos -S vendor/kokkos -DCMAKE_CXX_COMPILER=$CI_PROJECT_DIR/vendor/kokkos/bin/nvcc_wrapper -DCMAKE_CXX_EXTENSIONS=OFF -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_CUDA=ON -DKokkos_ARCH_AMPERE80=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_COMPILER_WARNINGS=ON
-    - cmake --build build-kokkos --parallel 3
+    - cmake --build build-kokkos
     - cmake --install build-kokkos --prefix $CI_PROJECT_DIR/opt/kokkos
     - export Kokkos_ROOT=$CI_PROJECT_DIR/opt/kokkos
     - cmake -B build -S . -DCMAKE_BUILD_TYPE=None -DCMAKE_CXX_COMPILER=$CI_PROJECT_DIR/vendor/kokkos/bin/nvcc_wrapper -DBUILD_TESTING=ON -DCMAKE_CXX_EXTENSIONS=OFF -DCMAKE_CXX_FLAGS="-Werror=all -Werror=extra -Wpedantic -Werror=cross-execution-space-call" -DNovapp_NDIM=3 -DNovapp_SETUP=advection_gaussian -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED
-    - cmake --build build --parallel 3
+    - cmake --build build
 
 build-job:hip:3d:
   rules:
