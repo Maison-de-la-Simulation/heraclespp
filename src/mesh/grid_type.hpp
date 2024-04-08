@@ -39,10 +39,14 @@ public:
 
 class Regular : public IGridType
 {
-private :
-    Param m_param;
+private:
+    std::array<double, 3> m_min;
+
+    std::array<double, 3> m_max;
 
 public:
+    Regular(std::array<double, 3> min, std::array<double, 3> max);
+
     explicit Regular(Param const& param);
 
     void execute(

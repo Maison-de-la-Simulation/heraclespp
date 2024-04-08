@@ -43,8 +43,15 @@ IGridType& IGridType::operator=(IGridType const& rhs) = default;
 IGridType& IGridType::operator=(IGridType&& rhs) noexcept = default;
 
 
+Regular::Regular(std::array<double, 3> min, std::array<double, 3> max)
+   : m_min(min)
+   , m_max(max)
+{
+}
+
 Regular::Regular(Param const& param)
-   : m_param(param)
+   : m_min{param.xmin, param.ymin, param.zmin}
+   , m_max{param.xmax, param.ymax, param.zmax}
 {
 }
 
@@ -55,9 +62,9 @@ void Regular::execute(
     KVH_double_1d y_glob,
     KVH_double_1d z_glob) const
 {
-    compute_regular_mesh_1d(x_glob, Nghost[0], m_param.xmin, (m_param.xmax - m_param.xmin) / Nx_glob_ng[0]);
-    compute_regular_mesh_1d(y_glob, Nghost[1], m_param.ymin, (m_param.ymax - m_param.ymin) / Nx_glob_ng[1]);
-    compute_regular_mesh_1d(z_glob, Nghost[2], m_param.zmin, (m_param.zmax - m_param.zmin) / Nx_glob_ng[2]);
+    compute_regular_mesh_1d(x_glob, Nghost[0], m_min[0], (m_max[0] - m_min[0]) / Nx_glob_ng[0]);
+    compute_regular_mesh_1d(y_glob, Nghost[1], m_min[1], (m_max[1] - m_min[1]) / Nx_glob_ng[1]);
+    compute_regular_mesh_1d(z_glob, Nghost[2], m_min[2], (m_max[2] - m_min[2]) / Nx_glob_ng[2]);
 }
 
 } // namespace novapp
