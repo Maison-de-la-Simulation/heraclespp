@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <Kokkos_Core.hpp>
+#include <Kokkos_MathematicalConstants.hpp>
 
 namespace novapp::units
 {
