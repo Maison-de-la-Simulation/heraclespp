@@ -6,7 +6,7 @@ import h5py
 import sys
 
 print("********************************")
-print("  Advection test : gaussian")
+print("  Advection test : sinus")
 print("********************************")
 
 filename = sys.argv[1]
@@ -35,12 +35,12 @@ for i in range(2, len(rho)+2):
 rho0 = np.zeros(len(rho))
 
 for i in range(len(rho0)):
-    rho0[i] = 1 * np.exp(-15 * (1. / 2  - xc[i])**2) # Sinusoïdale
+    rho0[i] = 1 + 0.1 * np.sin(2 * np.pi * xc[i]) # Sinusoïdale
 
 # ------------------------------------------
 
 plt.figure(figsize=(10,8))
-plt.title('Gaussain advection test')
+plt.title('Sinus advection test')
 plt.plot(xc, rho0, '--', label='t = 0')
 plt.plot(xc, rho, label=f't = {t:.1f}')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])

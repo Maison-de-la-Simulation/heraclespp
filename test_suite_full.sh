@@ -21,7 +21,7 @@ cmake -B "$BUILD_DIRECTORY" -S . -DBUILD_TESTING=OFF -DNovapp_SETUP=advection_ga
 cmake "$BUILD_DIRECTORY" -DNovapp_SETUP=advection_gap -DNovapp_NDIM=1 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian
 cmake --build "$BUILD_DIRECTORY"
 
-cmake "$BUILD_DIRECTORY" -DNovapp_SETUP=advection_gaussian -DNovapp_NDIM=1 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian
+cmake "$BUILD_DIRECTORY" -DNovapp_SETUP=advection_sinus -DNovapp_NDIM=1 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian
 cmake --build "$BUILD_DIRECTORY"
 
 cmake "$BUILD_DIRECTORY" -DNovapp_SETUP=sedov1d -DNovapp_NDIM=1 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian

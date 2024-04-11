@@ -17,7 +17,7 @@ def ExactSolution(x):
     output :
     rho    : array : density
     """
-    return np.exp(-15 * ((1. / 2) - x)**2)
+    return 1 + 0.1 * np.sin(2 * np.pi * x)
 
 def Error(filename):
     """Compute L1 error between exact solution and solver resolution
@@ -34,7 +34,7 @@ def Error(filename):
     return np.sum(np.abs(exact - solver) * np.diff(x))
 
 if __name__ == "__main__":
-    filenames = glob.glob('convergence_test_advection_gaussian_[0-9]*.h5')
+    filenames = glob.glob('convergence_test_advection_sinus_[0-9]*.h5')
     filenames.sort()
     val_error = np.empty(len(filenames))
     for i in range(len(filenames)):
@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
     result = stats.linregress(np.log10(dx), np.log10(val_error))
     theoretical_slope = 2
-    tol = 0.15
+    tol = 0.05
     order_error = np.fabs(result.slope - theoretical_slope) / theoretical_slope
     if(order_error > tol):
         print("FAILURE")
