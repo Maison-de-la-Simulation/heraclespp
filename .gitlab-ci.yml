@@ -6,6 +6,7 @@ variables:
   GIT_SUBMODULE_DEPTH: 1
   GIT_SUBMODULE_UPDATE_FLAGS: --jobs 2
   CMAKE_BUILD_PARALLEL_LEVEL: 2
+  CMAKE_GENERATOR: Ninja
 
 before_script:
   - git config --global --add safe.directory $CI_PROJECT_DIR/vendor/kokkos
@@ -23,8 +24,6 @@ env-job:common:gtest:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: env
   needs: []
-  variables:
-    CMAKE_GENERATOR: Ninja
   script:
     - cmake -B build -S vendor/googletest
     - cmake --build build
@@ -40,8 +39,6 @@ env-job:serial:kokkos:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: env
   needs: []
-  variables:
-    CMAKE_GENERATOR: Ninja
   script:
     - cmake -B build -S vendor/kokkos -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_DEBUG=ON -DKokkos_ENABLE_DEBUG_DUALVIEW_MODIFY_CHECK=ON -DKokkos_ENABLE_DEBUG_BOUNDS_CHECK=ON -DKokkos_ENABLE_COMPILER_WARNINGS=ON
     - cmake --build build
@@ -57,8 +54,6 @@ build-job:serial:all:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: build
   needs: []
-  variables:
-    CMAKE_GENERATOR: Ninja
   script:
     - bash ./test_suite_full.sh
 
@@ -69,7 +64,6 @@ build-job:serial:1d:
   stage: build
   needs: ["env-job:common:gtest", "env-job:serial:kokkos"]
   variables:
-    CMAKE_GENERATOR: Ninja
     GTest_ROOT: $CI_PROJECT_DIR/opt/gtest
     Kokkos_ROOT: $CI_PROJECT_DIR/opt/kokkos
   script:
@@ -88,7 +82,6 @@ build-job:serial:2d:
   stage: build
   needs: ["env-job:common:gtest", "env-job:serial:kokkos"]
   variables:
-    CMAKE_GENERATOR: Ninja
     GTest_ROOT: $CI_PROJECT_DIR/opt/gtest
     Kokkos_ROOT: $CI_PROJECT_DIR/opt/kokkos
   script:
@@ -107,7 +100,6 @@ build-job:serial:3d:
   stage: build
   needs: ["env-job:common:gtest", "env-job:serial:kokkos"]
   variables:
-    CMAKE_GENERATOR: Ninja
     GTest_ROOT: $CI_PROJECT_DIR/opt/gtest
     Kokkos_ROOT: $CI_PROJECT_DIR/opt/kokkos
   script:
@@ -126,7 +118,6 @@ build-job:cuda:3d:
   stage: build
   needs: ["env-job:common:gtest"]
   variables:
-    CMAKE_GENERATOR: Ninja
     GTest_ROOT: $CI_PROJECT_DIR/opt/gtest
     NVCC_WRAPPER_DEFAULT_COMPILER: g++-11
   script:
@@ -144,7 +135,6 @@ build-job:hip:3d:
   stage: build
   needs: ["env-job:common:gtest"]
   variables:
-    CMAKE_GENERATOR: Ninja
     GTest_ROOT: $CI_PROJECT_DIR/opt/gtest
   script:
     - cmake -B build-kokkos -S vendor/kokkos -DCMAKE_CXX_COMPILER=hipcc -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_HIP=ON -DKokkos_ENABLE_ROCTHRUST=OFF -DKokkos_ARCH_VEGA90A=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_COMPILER_WARNINGS=ON
