@@ -91,13 +91,19 @@ public:
                 {
                     auto const [i_m, j_m, k_m] = lindex(idim, i, j, k); // i - 1
                     auto const [i_p, j_p, k_p] = rindex(idim, i, j, k); // i + 1
-                    double dx = kron(idim,0) * grid.dx(i)
-                                + kron(idim,1) * grid.dy(j)
-                                + kron(idim,2) * grid.dz(k);
+                    double const dx = kron(idim,0) * grid.dx(i)
+                                    + kron(idim,1) * grid.dy(j)
+                                    + kron(idim,2) * grid.dz(k);
+                    double const dx_m = kron(idim,0) * grid.dx(i_m)
+                                      + kron(idim,1) * grid.dy(j_m)
+                                      + kron(idim,2) * grid.dz(k_m);
+                    double const dx_p = kron(idim,0) * grid.dx(i_p)
+                                      + kron(idim,1) * grid.dy(j_p)
+                                      + kron(idim,2) * grid.dz(k_p);
 
                     double const slope = slope_limiter(
-                        (var(i_p, j_p, k_p) - var(i, j, k)) / dx,
-                        (var(i, j, k) - var(i_m, j_m, k_m)) / dx);
+                        (var(i_p, j_p, k_p) - var(i, j, k)) / ((dx + dx_p) / 2),
+                        (var(i, j, k) - var(i_m, j_m, k_m)) / ((dx_m + dx) / 2));
 
                     var_rec(i, j, k, 0, idim) =  var(i, j, k) - (dx / 2) * slope;
                     var_rec(i, j, k, 1, idim) =  var(i, j, k) + (dx / 2) * slope;
