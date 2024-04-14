@@ -5,7 +5,6 @@
 #pragma once
 
 #include <Kokkos_Core.hpp>
-#include <eos.hpp>
 #include <ndim.hpp>
 
 namespace novapp
@@ -65,11 +64,12 @@ double compute_evol(EulerCons const& cons) noexcept
 //! @param[in] locdim index of the direction X, Y or Z
 //! @param[in] eos Equation of state
 //! @return flux
+template <class EoS>
 KOKKOS_FORCEINLINE_FUNCTION
 EulerFlux compute_flux(
         EulerPrim const& prim,
         int locdim,
-        EOS const& eos) noexcept
+        EoS const& eos) noexcept
 {
     KOKKOS_ASSERT(locdim >= 0)
     KOKKOS_ASSERT(locdim < ndim)
@@ -91,11 +91,12 @@ EulerFlux compute_flux(
 //! @param[in] locdim index of the direction X, Y or Z
 //! @param[in] eos Equation of state
 //! @return flux
+template <class EoS>
 KOKKOS_FORCEINLINE_FUNCTION
 EulerFlux compute_flux(
         EulerCons const& cons,
         int locdim,
-        EOS const& eos) noexcept
+        EoS const& eos) noexcept
 {
     KOKKOS_ASSERT(locdim >= 0)
     KOKKOS_ASSERT(locdim < ndim)
@@ -113,10 +114,11 @@ EulerFlux compute_flux(
     return flux;
 }
 
+template <class EoS>
 KOKKOS_FORCEINLINE_FUNCTION
 EulerPrim to_prim(
         EulerCons const& cons,
-        EOS const& eos) noexcept
+        EoS const& eos) noexcept
 {
     EulerPrim prim;
     double const evol = compute_evol(cons);
@@ -129,8 +131,9 @@ EulerPrim to_prim(
     return prim;
 }
 
+template <class EoS>
 KOKKOS_FORCEINLINE_FUNCTION
-EulerCons to_cons(EulerPrim const& prim, EOS const& eos) noexcept
+EulerCons to_cons(EulerPrim const& prim, EoS const& eos) noexcept
 {
     EulerCons cons;
     cons.rho = prim.rho;

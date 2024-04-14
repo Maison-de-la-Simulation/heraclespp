@@ -1,6 +1,5 @@
 #pragma once
 
-#include <eos.hpp>
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
 #include <range.hpp>
@@ -12,9 +11,10 @@
 namespace novapp
 {
 
-inline void pressure_fix(
+template <class EoS>
+void pressure_fix(
     Range const& range,
-    EOS const& eos,
+    EoS const& eos,
     Grid const& grid,
     double const dt,
     double const eps,

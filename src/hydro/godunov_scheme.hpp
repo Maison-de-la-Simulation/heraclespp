@@ -9,7 +9,6 @@
 #include <string>
 #include <type_traits>
 
-#include <eos.hpp>
 #include <geom.hpp>
 #include <grid.hpp>
 #include <kokkos_shortcut.hpp>
@@ -56,7 +55,7 @@ public:
         KV_double_4d fx_new) const = 0;
 };
 
-template <class RiemannSolver, class Gravity>
+template <class RiemannSolver, class Gravity, class EoS>
 class RiemannBasedGodunovScheme : public IGodunovScheme
 {
     static_assert(
@@ -66,20 +65,20 @@ class RiemannBasedGodunovScheme : public IGodunovScheme
                 EulerCons,
                 EulerCons,
                 int,
-                EOS>,
+                EoS>,
             "Incompatible Riemann solver.");
 
 private:
     RiemannSolver m_riemann_solver;
     Gravity m_gravity;
-    EOS m_eos;
+    EoS m_eos;
     Grid m_grid;
 
 public:
     RiemannBasedGodunovScheme(
         RiemannSolver const &riemann_solver,
         Gravity const& gravity,
-        EOS const& eos, 
+        EoS const& eos,
         Grid const& grid)
         : m_riemann_solver(riemann_solver)
         , m_gravity(gravity)
@@ -288,26 +287,26 @@ public:
     }
 };
 
-template <class Gravity>
+template <class EoS, class Gravity>
 inline std::unique_ptr<IGodunovScheme> factory_godunov_scheme(
     std::string const& riemann_solver,
-    EOS const& eos,
+    EoS const& eos,
     Grid const& grid,
     Gravity const& gravity)
 {
     if (riemann_solver == "HLL")
     {
-        return std::make_unique<RiemannBasedGodunovScheme<HLL, Gravity>>
+        return std::make_unique<RiemannBasedGodunovScheme<HLL, Gravity, EoS>>
                 (HLL(), gravity, eos, grid);
     }
     if (riemann_solver == "HLLC")
     {
-        return std::make_unique<RiemannBasedGodunovScheme<HLLC, Gravity>>
+        return std::make_unique<RiemannBasedGodunovScheme<HLLC, Gravity, EoS>>
                 (HLLC(), gravity, eos, grid);
     }
     if (riemann_solver == "Low Mach")
     {
-        return std::make_unique<RiemannBasedGodunovScheme<Splitting, Gravity>>
+        return std::make_unique<RiemannBasedGodunovScheme<Splitting, Gravity, EoS>>
                 (Splitting(), gravity, eos, grid);
     }
     throw std::runtime_error("Invalid riemann solver: " + riemann_solver + ".");

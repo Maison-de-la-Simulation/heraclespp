@@ -276,10 +276,10 @@ int nova_main(int argc, char** argv)
             = factory_face_reconstruction(param.reconstruction_type, grid);
 
     std::unique_ptr<IExtrapolationReconstruction> time_reconstruction
-            = std::make_unique<ExtrapolationTimeReconstruction<Gravity>>(eos, grid, *g);
+            = std::make_unique<ExtrapolationTimeReconstruction<EOS, Gravity>>(eos, grid, *g);
 
     std::unique_ptr<IHydroReconstruction> reconstruction
-        = std::make_unique<MUSCLHancockHydroReconstruction>(std::move(face_reconstruction),
+        = std::make_unique<MUSCLHancockHydroReconstruction<EOS>>(std::move(face_reconstruction),
                                                             std::move(time_reconstruction),
                                                             eos, P_rec, u_rec);
 

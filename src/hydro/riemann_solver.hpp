@@ -5,7 +5,6 @@
 #pragma once
 
 #include <Kokkos_Core.hpp>
-#include <eos.hpp>
 
 #include "euler_equations.hpp"
 
@@ -20,12 +19,13 @@ public:
     //! @param[in] locdim index of the direction X, Y or Z
     //! @param[in] eos Equation of state
     //! @return intercell EulerFlux
+    template <class EoS>
     KOKKOS_FORCEINLINE_FUNCTION
     EulerFlux operator()(
             EulerCons const& consL,
             EulerCons const& consR,
             int locdim,
-            EOS const& eos) const noexcept
+            EoS const& eos) const noexcept
     {
         KOKKOS_ASSERT(locdim >= 0)
         KOKKOS_ASSERT(locdim < ndim)
@@ -76,12 +76,13 @@ public:
 class HLLC
 {
 public:
+    template <class EoS>
     KOKKOS_FORCEINLINE_FUNCTION
     EulerFlux operator()(
             EulerCons const& consL,
             EulerCons const& consR,
             int locdim,
-            EOS const& eos) const noexcept
+            EoS const& eos) const noexcept
     {
         KOKKOS_ASSERT(locdim >= 0)
         KOKKOS_ASSERT(locdim < ndim)
@@ -170,12 +171,13 @@ public:
 class Splitting
 {
 public:
+    template <class EoS>
     KOKKOS_FORCEINLINE_FUNCTION
     EulerFlux operator()(
             EulerCons const& consL,
             EulerCons const& consR,
             int locdim,
-            EOS const& eos) const noexcept
+            EoS const& eos) const noexcept
     {
         KOKKOS_ASSERT(locdim >= 0)
         KOKKOS_ASSERT(locdim < ndim)

@@ -8,7 +8,6 @@
 #include <utility>
 
 #include <Kokkos_Core.hpp>
-#include <eos.hpp>
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
 #include <range.hpp>
@@ -49,11 +48,12 @@ public:
             = 0;
 };
 
+template <class EoS>
 class MUSCLHancockHydroReconstruction : public IHydroReconstruction
 {
     std::unique_ptr<IFaceReconstruction> m_face_reconstruction;
     std::unique_ptr<IExtrapolationReconstruction> m_hancock_reconstruction;
-    EOS m_eos;
+    EoS m_eos;
     KV_double_5d m_P_rec;
     KV_double_6d m_u_rec;
 
@@ -61,7 +61,7 @@ public:
     MUSCLHancockHydroReconstruction(
             std::unique_ptr<IFaceReconstruction> face_reconstruction,
             std::unique_ptr<IExtrapolationReconstruction> hancock_reconstruction,
-            EOS const& eos,
+            EoS const& eos,
             KV_double_5d P_rec,
             KV_double_6d u_rec)
         : m_face_reconstruction(std::move(face_reconstruction))

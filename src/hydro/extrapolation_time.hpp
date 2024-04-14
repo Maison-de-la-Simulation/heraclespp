@@ -7,7 +7,6 @@
 #include <type_traits>
 
 #include <Kokkos_Core.hpp>
-#include <eos.hpp>
 #include <geom.hpp>
 #include <grid.hpp>
 #include <kokkos_shortcut.hpp>
@@ -48,7 +47,7 @@ public:
         = 0;
 };
 
-template <class Gravity>
+template <class EoS, class Gravity>
 class ExtrapolationTimeReconstruction : public IExtrapolationReconstruction
 {
     static_assert(
@@ -62,13 +61,13 @@ class ExtrapolationTimeReconstruction : public IExtrapolationReconstruction
             "Incompatible gravity.");
 
 private:
-    EOS m_eos;
+    EoS m_eos;
     Grid m_grid;
     Gravity m_gravity;
 
 public:
     ExtrapolationTimeReconstruction(
-            EOS const& eos,
+            EoS const& eos,
             Grid const& grid,
             Gravity const& gravity)
         : m_eos(eos)
