@@ -315,7 +315,7 @@ int nova_main(int argc, char** argv)
 
     while (!should_exit)
     {
-        double dt = time_step(grid.range.all_ghosts(), eos, grid, param.cfl, rho.d_view, u.d_view, P.d_view);
+        double dt = param.cfl * time_step(grid.range.all_ghosts(), eos, grid, rho.d_view, u.d_view, P.d_view);
         bool const make_output = should_output(iter, t, dt);
         if ((t + dt) >= param.t_end)
         {

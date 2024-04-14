@@ -22,7 +22,6 @@ namespace novapp
 //! @param[in] range output iteration range
 //! @param[in] eos equation of state
 //! @param[in] grid mesh metadata
-//! @param[in] cfl CFL stability factor to apply
 //! @param[in] rho density array 3D
 //! @param[in] u velocity array 3D
 //! @param[in] P pressure array 3D
@@ -32,7 +31,6 @@ template <class EoS>
     Range const& range,
     EoS const& eos,
     Grid const& grid,
-    double const cfl,
     KV_cdouble_3d const rho,
     KV_cdouble_4d const u,
     KV_cdouble_3d const P)
@@ -76,7 +74,7 @@ template <class EoS>
 
     MPI_Allreduce(MPI_IN_PLACE, &inverse_dt, 1, MPI_DOUBLE, MPI_MAX, grid.comm_cart);
 
-    return cfl / inverse_dt;
+    return 1 / inverse_dt;
 }
 
 } // namespace novapp
