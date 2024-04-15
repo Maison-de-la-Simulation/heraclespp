@@ -39,10 +39,10 @@ public:
 
     void execute(
         [[maybe_unused]] Range const& range,
-        [[maybe_unused]] KV_double_3d const rho,
-        [[maybe_unused]] KV_double_4d const u,
-        [[maybe_unused]] KV_double_3d const P,
-        [[maybe_unused]] KV_double_4d const fx) const final
+        [[maybe_unused]] KV_double_3d const& rho,
+        [[maybe_unused]] KV_double_4d const& u,
+        [[maybe_unused]] KV_double_3d const& P,
+        [[maybe_unused]] KV_double_4d const& fx) const final
     {
         throw std::runtime_error("Setup not implemented");
     }

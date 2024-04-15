@@ -28,9 +28,9 @@ void NoUserStep::execute(
         [[maybe_unused]] Range const &range,
         [[maybe_unused]] double const t,
         [[maybe_unused]] double const dt,
-        [[maybe_unused]] KV_double_3d rho,
-        [[maybe_unused]] KV_double_3d E,
-        [[maybe_unused]] KV_double_4d fx) const
+        [[maybe_unused]] KV_double_3d const& rho,
+        [[maybe_unused]] KV_double_3d const& E,
+        [[maybe_unused]] KV_double_4d const& fx) const
 {
 }
 
@@ -39,9 +39,9 @@ void HeatNickelStep::execute(
     Range const &range,
     double const t,
     double const dt,
-    KV_double_3d rho,
-    KV_double_3d E,
-    KV_double_4d fx) const
+    KV_double_3d const& rho,
+    KV_double_3d const& E,
+    KV_double_4d const& fx) const
 {
     double tau_ni56 = 8.8 * units::day; // s
     double tau_co56 = 111.3 * units::day;

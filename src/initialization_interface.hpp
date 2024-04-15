@@ -28,10 +28,10 @@ public:
 
     virtual void execute(
         Range const& range,
-        KV_double_3d rho,
-        KV_double_4d u,
-        KV_double_3d P,
-        KV_double_4d fx) const
+        KV_double_3d const& rho,
+        KV_double_4d const& u,
+        KV_double_3d const& P,
+        KV_double_4d const& fx) const
         = 0;
 };
 

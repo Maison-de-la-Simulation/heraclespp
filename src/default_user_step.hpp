@@ -14,9 +14,9 @@ public:
         [[maybe_unused]] Range const &range,
         [[maybe_unused]] double const t,
         [[maybe_unused]] double const dt,
-        [[maybe_unused]] KV_double_3d rho,
-        [[maybe_unused]] KV_double_3d E,
-        [[maybe_unused]] KV_double_4d fx) const final
+        [[maybe_unused]] KV_double_3d const& rho,
+        [[maybe_unused]] KV_double_3d const& E,
+        [[maybe_unused]] KV_double_4d const& fx) const final
     {
         throw std::runtime_error("User step not implemented");
     }

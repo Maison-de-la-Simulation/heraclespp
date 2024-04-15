@@ -41,10 +41,10 @@ NullGradient::NullGradient(int idim, int iface, Grid const& grid)
 {
 }
 
-void NullGradient::execute(KV_double_3d rho,
-                           KV_double_4d rhou,
-                           KV_double_3d E,
-                           KV_double_4d fx) const
+void NullGradient::execute(KV_double_3d const& rho,
+                           KV_double_4d const& rhou,
+                           KV_double_3d const& E,
+                           KV_double_4d const& fx) const
 {
     assert(rho.extent(0) == rhou.extent(0));
     assert(rhou.extent(0) == E.extent(0));
@@ -92,10 +92,10 @@ PeriodicCondition::PeriodicCondition(int idim, int iface)
 {
 }
 
-void PeriodicCondition::execute([[maybe_unused]] KV_double_3d rho,
-                                [[maybe_unused]] KV_double_4d rhou,
-                                [[maybe_unused]] KV_double_3d E,
-                                [[maybe_unused]] KV_double_4d fx) const
+void PeriodicCondition::execute([[maybe_unused]] KV_double_3d const& rho,
+                                [[maybe_unused]] KV_double_4d const& rhou,
+                                [[maybe_unused]] KV_double_3d const& E,
+                                [[maybe_unused]] KV_double_4d const& fx) const
 {
     // do nothing
 }
@@ -108,10 +108,10 @@ ReflexiveCondition::ReflexiveCondition(int idim, int iface, Grid const& grid)
 {
 }
 
-void ReflexiveCondition::execute(KV_double_3d rho,
-                                 KV_double_4d rhou,
-                                 KV_double_3d E,
-                                 KV_double_4d fx) const
+void ReflexiveCondition::execute(KV_double_3d const& rho,
+                                 KV_double_4d const& rhou,
+                                 KV_double_3d const& E,
+                                 KV_double_4d const& fx) const
 {
     Kokkos::Array<int, 3> begin {0, 0, 0};
     Kokkos::Array<int, 3> end {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)};

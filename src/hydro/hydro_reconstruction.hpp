@@ -37,14 +37,14 @@ public:
     virtual void execute(
             Range const& range,
             double dt,
-            KV_cdouble_3d rho,
-            KV_cdouble_4d u,
-            KV_cdouble_3d P,
-            KV_cdouble_4d fx,
-            KV_double_5d rho_rec,
-            KV_double_6d rhou_rec,
-            KV_double_5d E_rec,
-            KV_double_6d fx_rec) const
+            KV_cdouble_3d const& rho,
+            KV_cdouble_4d const& u,
+            KV_cdouble_3d const& P,
+            KV_cdouble_4d const& fx,
+            KV_double_5d const& rho_rec,
+            KV_double_6d const& rhou_rec,
+            KV_double_5d const& E_rec,
+            KV_double_6d const& fx_rec) const
             = 0;
 };
 
@@ -67,22 +67,22 @@ public:
         : m_face_reconstruction(std::move(face_reconstruction))
         , m_hancock_reconstruction(std::move(hancock_reconstruction))
         , m_eos(eos)
-        , m_P_rec(P_rec)
-        , m_u_rec(u_rec)
+        , m_P_rec(std::move(P_rec))
+        , m_u_rec(std::move(u_rec))
     {
     }
 
     void execute(
             Range const& range,
             double const dt,
-            KV_cdouble_3d const rho,
-            KV_cdouble_4d const u,
-            KV_cdouble_3d const P,
-            KV_cdouble_4d const fx,
-            KV_double_5d const rho_rec,
-            KV_double_6d const rhou_rec,
-            KV_double_5d const E_rec,
-            KV_double_6d const fx_rec) const final
+            KV_cdouble_3d const& rho,
+            KV_cdouble_4d const& u,
+            KV_cdouble_3d const& P,
+            KV_cdouble_4d const& fx,
+            KV_double_5d const& rho_rec,
+            KV_double_6d const& rhou_rec,
+            KV_double_5d const& E_rec,
+            KV_double_6d const& fx_rec) const final
     {
         m_face_reconstruction->execute(range, rho, rho_rec);
         m_face_reconstruction->execute(range, P, m_P_rec);

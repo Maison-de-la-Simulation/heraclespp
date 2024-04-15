@@ -14,7 +14,7 @@ namespace novapp
 double integrate(
     Range const& range,
     Grid const& grid,
-    KV_cdouble_3d const var)
+    KV_cdouble_3d const& var)
 {
     double sum = 0;
 

@@ -58,9 +58,9 @@ Regular::Regular(Param const& param)
 void Regular::execute(
     std::array<int, 3> Nghost,
     std::array<int, 3> Nx_glob_ng,
-    KVH_double_1d x_glob,
-    KVH_double_1d y_glob,
-    KVH_double_1d z_glob) const
+    KVH_double_1d const& x_glob,
+    KVH_double_1d const& y_glob,
+    KVH_double_1d const& z_glob) const
 {
     compute_regular_mesh_1d(x_glob, Nghost[0], m_min[0], (m_max[0] - m_min[0]) / Nx_glob_ng[0]);
     compute_regular_mesh_1d(y_glob, Nghost[1], m_min[1], (m_max[1] - m_min[1]) / Nx_glob_ng[1]);

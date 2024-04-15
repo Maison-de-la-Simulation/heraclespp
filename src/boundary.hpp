@@ -36,10 +36,10 @@ public:
 
     IBoundaryCondition& operator=(IBoundaryCondition&& rhs) noexcept;
 
-    virtual void execute(KV_double_3d rho,
-                         KV_double_4d rhou,
-                         KV_double_3d E,
-                         KV_double_4d fx) const = 0;
+    virtual void execute(KV_double_3d const& rho,
+                         KV_double_4d const& rhou,
+                         KV_double_3d const& E,
+                         KV_double_4d const& fx) const = 0;
 };
 
 class NullGradient : public IBoundaryCondition
@@ -51,10 +51,10 @@ private:
 public:
     NullGradient(int idim, int iface, Grid const& grid);
 
-    void execute(KV_double_3d rho,
-                 KV_double_4d rhou,
-                 KV_double_3d E,
-                 KV_double_4d fx) const final;
+    void execute(KV_double_3d const& rho,
+                 KV_double_4d const& rhou,
+                 KV_double_3d const& E,
+                 KV_double_4d const& fx) const final;
 };
 
 class PeriodicCondition : public IBoundaryCondition
@@ -62,10 +62,10 @@ class PeriodicCondition : public IBoundaryCondition
 public:
     PeriodicCondition(int idim, int iface);
 
-    void execute(KV_double_3d rho,
-                 KV_double_4d rhou,
-                 KV_double_3d E,
-                 KV_double_4d fx) const final;
+    void execute(KV_double_3d const& rho,
+                 KV_double_4d const& rhou,
+                 KV_double_3d const& E,
+                 KV_double_4d const& fx) const final;
 };
 
 class ReflexiveCondition : public IBoundaryCondition
@@ -77,10 +77,10 @@ private:
 public:
     ReflexiveCondition(int idim, int iface, Grid const& grid);
 
-    void execute(KV_double_3d rho,
-                 KV_double_4d rhou,
-                 KV_double_3d E,
-                 KV_double_4d fx) const final;
+    void execute(KV_double_3d const& rho,
+                 KV_double_4d const& rhou,
+                 KV_double_3d const& E,
+                 KV_double_4d const& fx) const final;
 };
 
 } // namespace novapp

@@ -6,7 +6,7 @@
 
 namespace novapp {
 
-void broadcast(Range const& range, double const in, KV_double_3d const out)
+void broadcast(Range const& range, double const in, KV_double_3d const& out)
 {
     assert(range.NgEff == 0);
     Kokkos::parallel_for(
@@ -15,7 +15,7 @@ void broadcast(Range const& range, double const in, KV_double_3d const out)
             KOKKOS_LAMBDA(const int i, const int j, const int k) { out(i, j, k) = in; });
 }
 
-void broadcast(Range const& range, KV_cdouble_1d const in, KV_double_3d const out)
+void broadcast(Range const& range, KV_cdouble_1d const& in, KV_double_3d const& out)
 {
     assert(range.NgEff == 0);
     assert(in.extent_int(0) + 2 * range.Nghost[0] == out.extent_int(0));

@@ -32,9 +32,9 @@ public:
     virtual void execute(
         std::array<int, 3> Nghost,
         std::array<int, 3> Nx_glob_ng,
-        KVH_double_1d x_glob,
-        KVH_double_1d y_glob,
-        KVH_double_1d z_glob) const = 0;
+        KVH_double_1d const& x_glob,
+        KVH_double_1d const& y_glob,
+        KVH_double_1d const& z_glob) const = 0;
 };
 
 class Regular : public IGridType
@@ -52,9 +52,9 @@ public:
     void execute(
         std::array<int, 3> Nghost,
         std::array<int, 3> Nx_glob_ng,
-        KVH_double_1d x_glob,
-        KVH_double_1d y_glob,
-        KVH_double_1d z_glob) const final;
+        KVH_double_1d const& x_glob,
+        KVH_double_1d const& y_glob,
+        KVH_double_1d const& z_glob) const final;
 };
 
 } // namespace novapp

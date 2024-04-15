@@ -41,8 +41,8 @@ public:
     //! @param[out] var_rec reconstructed values at interfaces
     virtual void execute(
         Range const& range,
-        KV_cdouble_3d var,
-        KV_double_5d var_rec) const
+        KV_cdouble_3d const& var,
+        KV_double_5d const& var_rec) const
         = 0;
 };
 
@@ -72,8 +72,8 @@ public:
 
     void execute(
         Range const& range,
-        KV_cdouble_3d var,
-        KV_double_5d var_rec) const final
+        KV_cdouble_3d const& var,
+        KV_double_5d const& var_rec) const final
     {
         assert(var.extent(0) == var_rec.extent(0));
         assert(var.extent(1) == var_rec.extent(1));

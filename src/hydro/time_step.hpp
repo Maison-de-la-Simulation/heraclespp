@@ -31,9 +31,9 @@ template <class EoS>
     Range const& range,
     EoS const& eos,
     Grid const& grid,
-    KV_cdouble_3d const rho,
-    KV_cdouble_4d const u,
-    KV_cdouble_3d const P)
+    KV_cdouble_3d const& rho,
+    KV_cdouble_4d const& u,
+    KV_cdouble_3d const& P)
 {
     auto const& dx = grid.dx;
     auto const& dy = grid.dy;

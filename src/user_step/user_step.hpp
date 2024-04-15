@@ -30,9 +30,9 @@ public:
         Range const &range,
         double t,
         double dt,
-        KV_double_3d rho,
-        KV_double_3d E,
-        KV_double_4d fx) const = 0;
+        KV_double_3d const& rho,
+        KV_double_3d const& E,
+        KV_double_4d const& fx) const = 0;
 };
 
 class NoUserStep : public IUserStep
@@ -42,9 +42,9 @@ public:
         Range const &range,
         double t,
         double dt,
-        KV_double_3d rho,
-        KV_double_3d E,
-        KV_double_4d fx) const final;
+        KV_double_3d const& rho,
+        KV_double_3d const& E,
+        KV_double_4d const& fx) const final;
 };
 
 class HeatNickelStep : public IUserStep
@@ -54,9 +54,9 @@ public:
         Range const &range,
         double t,
         double dt,
-        KV_double_3d rho,
-        KV_double_3d E,
-        KV_double_4d fx) const final;
+        KV_double_3d const& rho,
+        KV_double_3d const& E,
+        KV_double_4d const& fx) const final;
 };
 
 } // namespace novapp

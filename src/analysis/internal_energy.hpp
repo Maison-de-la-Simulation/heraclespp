@@ -15,8 +15,8 @@ class Grid;
 [[nodiscard]] double internal_energy(
     Range const& range,
     Grid const& grid,
-    KV_cdouble_3d rho,
-    KV_cdouble_4d rhou,
-    KV_cdouble_3d E);
+    KV_cdouble_3d const& rho,
+    KV_cdouble_4d const& rhou,
+    KV_cdouble_3d const& E);
 
 } // namespace novapp
