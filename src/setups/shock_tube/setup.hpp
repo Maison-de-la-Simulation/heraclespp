@@ -130,8 +130,8 @@ public:
         std::array<int, 3> Nghost,
         std::array<int, 3> Nx_glob_ng,
         KVH_double_1d const& x_glob,
-        [[maybe_unused]] KVH_double_1d const& y_glob,
-        [[maybe_unused]] KVH_double_1d const& z_glob) const final
+        KVH_double_1d const& y_glob,
+        KVH_double_1d const& z_glob) const final
     {
         double Lx = m_param.xmax - m_param.xmin;
         double dx = Lx / Nx_glob_ng[0];
