@@ -55,7 +55,7 @@ build-job:serial:all:
   stage: build
   needs: []
   script:
-    - bash ./test_suite_full.sh
+    - bash ./test/build_suite_full.sh
 
 build-job:serial:1d:
   rules:
