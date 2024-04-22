@@ -114,7 +114,6 @@ public:
         auto const yc = grid.y_center;
         auto const zc = grid.z_center;
         auto const x = grid.x;
-        double xmin = x(grid.Nghost[0]);
 
         int ny = rho.extent_int(1) - 4;
         int nz = rho.extent_int(2) - 4;
@@ -166,6 +165,7 @@ public:
                     }
 
                     // r perturbation
+		    double xmin = x(grid.Nghost[0]);
                     double x0 = param_setup.xchoc - xmin;
                     double sigma = 0.1 * x0 * x0;
                     petrurb_r = Kokkos::exp(-(xc(i) - x0) * (xc(i) - x0) / sigma) * Kokkos::cos(kx1 * xc(i) + kx2 * xc(i));
@@ -177,8 +177,6 @@ public:
                 rho(i, j, k) = rho(i, j, k) * (1 + perturb + 0.01 * noise);
                 u(i, j, k, 0) = u(i, j, k, 0) * (1 + perturb + 0.01 * noise);
             });
-
-            std::cout << xmin << std::endl;
 
         // other type of perturbation
 
