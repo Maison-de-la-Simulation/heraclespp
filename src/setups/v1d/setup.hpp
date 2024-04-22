@@ -113,7 +113,8 @@ public:
         auto const xc = grid.x_center;
         auto const yc = grid.y_center;
         auto const zc = grid.z_center;
-        double xmin = grid.x(grid.Nghost[0]);
+        auto const x = grid.x;
+        double xmin = x(grid.Nghost[0]);
 
         int ny = rho.extent_int(1) - 4;
         int nz = rho.extent_int(2) - 4;
