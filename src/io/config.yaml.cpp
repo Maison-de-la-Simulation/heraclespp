@@ -47,7 +47,7 @@ pdi:
   plugins:
     mpi:
     decl_hdf5:
-      - file: ../${directory}/${prefix}_${iter:08}.h5
+      - file: ${directory}/${prefix}_${iter:08}.h5
         collision_policy: replace
         communicator: '$grid_communicator'
         on_event: write_file
