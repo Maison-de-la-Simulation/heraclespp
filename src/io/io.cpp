@@ -103,21 +103,30 @@ void write_pdi(
         "fx", fx.h_view.data(), PDI_OUT,
         "T", T.h_view.data(), PDI_OUT,
         NULL);
+
+    int mpi_rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
+    if (mpi_rank == 0) {
+        std::cout << std::left << std::setw(80) << std::setfill('*') << "*" << std::endl;
+        std::cout << "current iteration " << iter << " : " << std::endl;
+        std::cout << "current time = " << t
+                  << std::endl
+                  << std::endl;
+    }
 }
 
-ShouldOutput::ShouldOutput(int freq, int iter_max, double time_out)
+ShouldOutput::ShouldOutput(int freq, int iter_max)
     : m_freq(freq)
     , m_iter_max(iter_max)
-    , m_time_out(time_out)
 {
 }
 
-bool ShouldOutput::operator()(int iter, double current, double dt) const
+bool ShouldOutput::operator()(int iter) const
 {
     bool result = (m_freq > 0)
-                  && (((iter + 1) >= m_iter_max) || ((iter + 1) % m_freq == 0)
-                      || (current + dt >= m_time_out));
-    int mpi_rank;
+                  && (((iter + 1) >= m_iter_max) || ((iter + 1) % m_freq == 0));
+
+    /* int mpi_rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
     if (result && (mpi_rank == 0)) {
         std::cout << std::left << std::setw(80) << std::setfill('*') << "*" << std::endl;
@@ -125,7 +134,7 @@ bool ShouldOutput::operator()(int iter, double current, double dt) const
         std::cout << "current time = " << current << " ( ~ " << 100 * (current) / m_time_out << "%)"
                   << std::endl
                   << std::endl;
-    }
+    } */
 
     return result;
 }

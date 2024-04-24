@@ -21,12 +21,11 @@ class ShouldOutput
 {
     int m_freq;
     int m_iter_max;
-    double m_time_out;
 
 public:
-    ShouldOutput(int freq, int iter_max, double time_out);
+    ShouldOutput(int freq, int iter_max);
 
-    [[nodiscard]] bool operator()(int iter, double current, double dt) const;
+    [[nodiscard]] bool operator()(int iter) const;
 };
 
 void write_pdi_init(
