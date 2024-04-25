@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <iosfwd>
 #include <string>
 #include <utility>
 #include <vector>
@@ -16,6 +17,8 @@ namespace novapp
 
 class Grid;
 class Param;
+
+void print_simulation_status(std::ostream& os, int iter, double current, double time_out);
 
 class ShouldOutput
 {

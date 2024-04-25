@@ -2,6 +2,7 @@
 
 #include <array>
 #include <fstream>
+#include <ostream>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -27,6 +28,23 @@ bool span_is_contiguous(Views const&... views)
 
 namespace novapp
 {
+
+void print_simulation_status(
+        std::ostream& os,
+        int const iter,
+        double const current,
+        double const time_out)
+{
+    int mpi_rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
+    if (mpi_rank == 0) {
+        std::stringstream ss;
+        ss << std::string(80, '*') << "\n";
+        ss << "current iteration " << iter << " : \n";
+        ss << "current time = " << current << " ( ~ " << 100 * current / time_out << "%)\n\n";
+        os << ss.str();
+    }
+}
 
 void write_pdi_init(
     std::string directory,
@@ -103,16 +121,6 @@ void write_pdi(
         "fx", fx.h_view.data(), PDI_OUT,
         "T", T.h_view.data(), PDI_OUT,
         NULL);
-
-    int mpi_rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
-    if (mpi_rank == 0) {
-        std::cout << std::left << std::setw(80) << std::setfill('*') << "*" << std::endl;
-        std::cout << "current iteration " << iter << " : " << std::endl;
-        std::cout << "current time = " << t
-                  << std::endl
-                  << std::endl;
-    }
 }
 
 ShouldOutput::ShouldOutput(int freq, int iter_max)

@@ -306,6 +306,7 @@ int nova_main(int argc, char** argv)
         outputs_record.emplace_back(iter, t);
         write_xml(grid, outputs_record, param.directory, param.prefix, x_glob, y_glob, z_glob);
         write_pdi(param.directory, param.prefix, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
+        print_simulation_status(std::cout, iter, t, param.t_end);
     }
 
     ShouldOutput const should_output(param.iter_output_frequency, param.max_iter);
@@ -388,6 +389,7 @@ int nova_main(int argc, char** argv)
             outputs_record.emplace_back(iter, t);
             write_xml(grid, outputs_record, param.directory, param.prefix, x_glob, y_glob, z_glob);
             write_pdi(param.directory, param.prefix, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
+            print_simulation_status(std::cout, iter, t, param.t_end);
         }
     }
 
@@ -399,6 +401,7 @@ int nova_main(int argc, char** argv)
         outputs_record.emplace_back(iter, t);
         write_xml(grid, outputs_record, param.directory, param.prefix, x_glob, y_glob, z_glob);
         write_pdi(param.directory, param.prefix, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
+        print_simulation_status(std::cout, iter, t, param.t_end);
     }
 
     double final_mass = integrate(grid.range.no_ghosts(), grid, rho.d_view);
