@@ -41,8 +41,8 @@ public:
     //! @param[out] var_rec reconstructed values at interfaces
     virtual void execute(
         Range const& range,
-        KV_cdouble_3d var,
-        KV_double_5d var_rec) const
+        KV_cdouble_3d const& var,
+        KV_double_5d const& var_rec) const
         = 0;
 };
 
@@ -72,8 +72,8 @@ public:
 
     void execute(
         Range const& range,
-        KV_cdouble_3d var,
-        KV_double_5d var_rec) const final
+        KV_cdouble_3d const& var,
+        KV_double_5d const& var_rec) const final
     {
         assert(var.extent(0) == var_rec.extent(0));
         assert(var.extent(1) == var_rec.extent(1));
@@ -91,13 +91,19 @@ public:
                 {
                     auto const [i_m, j_m, k_m] = lindex(idim, i, j, k); // i - 1
                     auto const [i_p, j_p, k_p] = rindex(idim, i, j, k); // i + 1
-                    double dx = kron(idim,0) * grid.dx(i)
-                                + kron(idim,1) * grid.dy(j)
-                                + kron(idim,2) * grid.dz(k);
+                    double const dx = kron(idim,0) * grid.dx(i)
+                                    + kron(idim,1) * grid.dy(j)
+                                    + kron(idim,2) * grid.dz(k);
+                    double const dx_m = kron(idim,0) * grid.dx(i_m)
+                                      + kron(idim,1) * grid.dy(j_m)
+                                      + kron(idim,2) * grid.dz(k_m);
+                    double const dx_p = kron(idim,0) * grid.dx(i_p)
+                                      + kron(idim,1) * grid.dy(j_p)
+                                      + kron(idim,2) * grid.dz(k_p);
 
                     double const slope = slope_limiter(
-                        (var(i_p, j_p, k_p) - var(i, j, k)) / dx,
-                        (var(i, j, k) - var(i_m, j_m, k_m)) / dx);
+                        (var(i_p, j_p, k_p) - var(i, j, k)) / ((dx + dx_p) / 2),
+                        (var(i, j, k) - var(i_m, j_m, k_m)) / ((dx_m + dx) / 2));
 
                     var_rec(i, j, k, 0, idim) =  var(i, j, k) - (dx / 2) * slope;
                     var_rec(i, j, k, 1, idim) =  var(i, j, k) + (dx / 2) * slope;

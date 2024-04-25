@@ -37,8 +37,9 @@ Param::Param(INIReader const& reader)
     cfl = reader.GetReal("Run", "cfl", 0.4);
 
     max_iter = reader.GetInteger("Output", "max_iter", 10000);
-    output_frequency = reader.GetInteger("Output", "frequency", 10);
-    directory = reader.Get("Output", "directory", "build");
+    iter_output_frequency = reader.GetInteger("Output", "iter_frequency", 0);
+    time_output_frequency = reader.GetReal("Output", "time_frequency", 0.0);
+    directory = reader.Get("Output", "directory", "../build");
     prefix = reader.Get("Output", "prefix", "result");
 
     reconstruction_type = reader.Get("Hydro", "reconstruction", "VanLeer");

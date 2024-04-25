@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <PerfectGas.hpp>
 #include <godunov_scheme.hpp>
 
 template <class RiemannSolver>
@@ -27,7 +28,7 @@ TYPED_TEST_SUITE(RiemannSolverFixture, RiemannSolvers, );
 
 TYPED_TEST(RiemannSolverFixture, Consistency)
 {
-    novapp::EOS const eos(1.4, 1.);
+    novapp::thermodynamics::PerfectGas const eos(1.4, 1.);
     novapp::EulerPrim prim;
     prim.rho = 2.;
     prim.u = {3.};
@@ -42,7 +43,7 @@ TYPED_TEST(RiemannSolverFixture, Consistency)
 
 TYPED_TEST(RiemannSolverFixture, Symmetry)
 {
-    novapp::EOS const eos(1.4, 1.);
+    novapp::thermodynamics::PerfectGas const eos(1.4, 1.);
     novapp::EulerPrim prim_left;
     prim_left.rho = 2.;
     prim_left.u = {3.};

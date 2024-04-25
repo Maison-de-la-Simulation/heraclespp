@@ -29,7 +29,8 @@ public :
     double t_end;
     double cfl;
     int max_iter;
-    int output_frequency;
+    int iter_output_frequency;
+    double time_output_frequency;
     std::string directory;
     std::string prefix;
     std::string reconstruction_type;

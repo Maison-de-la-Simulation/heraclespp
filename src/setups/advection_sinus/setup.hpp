@@ -54,10 +54,10 @@ public:
     }
     void execute(
         Range const& range,
-        KV_double_3d const rho,
-        KV_double_4d const u,
-        KV_double_3d const P,
-        [[maybe_unused]] KV_double_4d const fx) const final
+        KV_double_3d const& rho,
+        KV_double_4d const& u,
+        KV_double_3d const& P,
+        [[maybe_unused]] KV_double_4d const& fx) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -70,11 +70,11 @@ public:
         auto const& param_setup = m_param_setup;
 
         Kokkos::parallel_for(
-            "advection_gaussian_init",
+            "advection_sinus_init",
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                rho(i, j, k) = 1 * Kokkos::exp(- 15 * Kokkos::pow(1. / 2 - xc(i), 2)) * units::density;
+                rho(i, j, k) = (1 + 0.1 * Kokkos::sin(2 * Kokkos::numbers::pi * xc(i))) * units::density;
 
                 for (int idim = 0; idim < ndim; ++idim)
                 {

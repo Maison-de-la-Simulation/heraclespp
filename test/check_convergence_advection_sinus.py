@@ -5,31 +5,22 @@ import glob
 from scipy import stats
 import sys
 
-L = 1
-
 print("********************************")
 print(" Convergence advection sinusoide")
 print("********************************")
 
-def ExactSolution(N):
+def ExactSolution(x):
     """Exact solution sinusoide density
     input  :
-    N      : float : size array
+    x      : array : position
 
     output :
     rho    : array : density
     """
-    dx = L / N
-    x = np.zeros(N) # Center
-    for i in range(N):
-        x[i] = i * dx  + dx / 2
-    rho = np.zeros(N)
-    for i in range(N):
-        rho[i] = 1 * np.exp(-15 * ((1. / 2)  - x[i])**2)
-    return rho
+    return 1 + 0.1 * np.sin(2 * np.pi * x)
 
 def Error(filename):
-    """Compute error between exact solution and solver resolution
+    """Compute L1 error between exact solution and solver resolution
     input    :
     filename : str   : file name solver resolution
 
@@ -38,12 +29,12 @@ def Error(filename):
     """
     with h5py.File(filename, 'r') as f:
         solver = f['rho'][0, 0, :]
-    N = len(solver)
-    exact = ExactSolution(N)
-    return np.sum((exact - solver)**2) * (1 / N)
+        x = f['x'][2:-2] # remove ghost layers
+    exact = ExactSolution((x[1:] + x[:-1]) / 2)
+    return np.sum(np.abs(exact - solver) * np.diff(x))
 
 if __name__ == "__main__":
-    filenames = glob.glob('convergence_test_advection_gaussian_[0-9]*.h5')
+    filenames = glob.glob('convergence_test_advection_sinus_[0-9]*.h5')
     filenames.sort()
     val_error = np.empty(len(filenames))
     for i in range(len(filenames)):
@@ -60,8 +51,7 @@ if __name__ == "__main__":
     theoretical_slope = 2
     tol = 0.05
     order_error = np.fabs(result.slope - theoretical_slope) / theoretical_slope
-    if(result.slope < 2 - tol):
-    #if order_error > tol:
+    if(order_error > tol):
         print("FAILURE")
         print(result)
         sys.exit(1)

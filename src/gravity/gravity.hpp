@@ -19,8 +19,8 @@ private :
     KV_double_1d m_g;
 
 public :
-    explicit UniformGravity(KV_double_1d const g)
-        : m_g(g)
+    explicit UniformGravity(KV_double_1d g)
+        : m_g(std::move(g))
     {
     }
 
@@ -53,8 +53,8 @@ private :
     KV_double_1d m_g;
 
 public :
-    explicit PointMassGravity(KV_double_1d const g)
-        : m_g(g)
+    explicit PointMassGravity(KV_double_1d g)
+        : m_g(std::move(g))
     {
     }
 

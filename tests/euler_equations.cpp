@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <PerfectGas.hpp>
 #include <euler_equations.hpp>
 
 TEST(EulerEquations, KineticEnergyFromPrim)
@@ -22,7 +23,7 @@ TEST(EulerEquations, KineticEnergyFromCons)
 
 TEST(EulerEquations, FluxFromPrim)
 {
-    novapp::EOS eos(1.4, 1.);
+    novapp::thermodynamics::PerfectGas eos(1.4, 1.);
     novapp::EulerPrim prim;
     prim.rho = 2.;
     prim.u = {10.};
@@ -35,7 +36,7 @@ TEST(EulerEquations, FluxFromPrim)
 
 TEST(EulerEquations, FluxFromCons)
 {
-    novapp::EOS eos(1.4, 1.);
+    novapp::thermodynamics::PerfectGas eos(1.4, 1.);
     novapp::EulerCons cons;
     cons.rho = 2.;
     cons.rhou = {20.};
@@ -48,7 +49,7 @@ TEST(EulerEquations, FluxFromCons)
 
 TEST(EulerEquations, PrimToConsToPrim)
 {
-    novapp::EOS eos(1.4, 1.);
+    novapp::thermodynamics::PerfectGas eos(1.4, 1.);
     novapp::EulerPrim prim;
     prim.rho = 2.;
     prim.u = {10.};

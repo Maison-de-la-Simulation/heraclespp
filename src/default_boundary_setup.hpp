@@ -25,10 +25,10 @@ public:
     {
     }
 
-    void execute([[maybe_unused]] KV_double_3d rho,
-        [[maybe_unused]] KV_double_4d rhou,
-        [[maybe_unused]] KV_double_3d E,
-        [[maybe_unused]] KV_double_4d fx) const final
+    void execute([[maybe_unused]] KV_double_3d const& rho,
+        [[maybe_unused]] KV_double_4d const& rhou,
+        [[maybe_unused]] KV_double_3d const& E,
+        [[maybe_unused]] KV_double_4d const& fx) const final
     {
         throw std::runtime_error("Boundary setup not implemented");
     }

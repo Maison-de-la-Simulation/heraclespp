@@ -7,7 +7,6 @@
 #include <type_traits>
 
 #include <Kokkos_Core.hpp>
-#include <eos.hpp>
 #include <geom.hpp>
 #include <grid.hpp>
 #include <kokkos_shortcut.hpp>
@@ -39,16 +38,16 @@ public:
     virtual void execute(
         Range const& range,
         double dt_reconstruction,
-        KV_cdouble_6d loc_u_rec,
-        KV_cdouble_5d loc_P_rec,
-        KV_double_5d rho_rec,
-        KV_double_6d rhou_rec,
-        KV_double_5d E_rec,
-        KV_double_6d fx_rec) const
+        KV_cdouble_6d const& loc_u_rec,
+        KV_cdouble_5d const& loc_P_rec,
+        KV_double_5d const& rho_rec,
+        KV_double_6d const& rhou_rec,
+        KV_double_5d const& E_rec,
+        KV_double_6d const& fx_rec) const
         = 0;
 };
 
-template <class Gravity>
+template <class EoS, class Gravity>
 class ExtrapolationTimeReconstruction : public IExtrapolationReconstruction
 {
     static_assert(
@@ -62,13 +61,13 @@ class ExtrapolationTimeReconstruction : public IExtrapolationReconstruction
             "Incompatible gravity.");
 
 private:
-    EOS m_eos;
+    EoS m_eos;
     Grid m_grid;
     Gravity m_gravity;
 
 public:
     ExtrapolationTimeReconstruction(
-            EOS const& eos,
+            EoS const& eos,
             Grid const& grid,
             Gravity const& gravity)
         : m_eos(eos)
@@ -80,12 +79,12 @@ public:
     void execute(
         Range const& range,
         double const dt_reconstruction,
-        KV_cdouble_6d const loc_u_rec,
-        KV_cdouble_5d const loc_P_rec,
-        KV_double_5d const rho_rec,
-        KV_double_6d const rhou_rec,
-        KV_double_5d const E_rec,
-        KV_double_6d const fx_rec) const final
+        KV_cdouble_6d const& loc_u_rec,
+        KV_cdouble_5d const& loc_P_rec,
+        KV_double_5d const& rho_rec,
+        KV_double_6d const& rhou_rec,
+        KV_double_5d const& E_rec,
+        KV_double_6d const& fx_rec) const final
     {
         assert(rho_rec.extent(0) == rhou_rec.extent(0));
         assert(rhou_rec.extent(0) == E_rec.extent(0));

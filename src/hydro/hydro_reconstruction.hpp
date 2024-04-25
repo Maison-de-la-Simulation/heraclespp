@@ -8,7 +8,6 @@
 #include <utility>
 
 #include <Kokkos_Core.hpp>
-#include <eos.hpp>
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
 #include <range.hpp>
@@ -38,22 +37,23 @@ public:
     virtual void execute(
             Range const& range,
             double dt,
-            KV_cdouble_3d rho,
-            KV_cdouble_4d u,
-            KV_cdouble_3d P,
-            KV_cdouble_4d fx,
-            KV_double_5d rho_rec,
-            KV_double_6d rhou_rec,
-            KV_double_5d E_rec,
-            KV_double_6d fx_rec) const
+            KV_cdouble_3d const& rho,
+            KV_cdouble_4d const& u,
+            KV_cdouble_3d const& P,
+            KV_cdouble_4d const& fx,
+            KV_double_5d const& rho_rec,
+            KV_double_6d const& rhou_rec,
+            KV_double_5d const& E_rec,
+            KV_double_6d const& fx_rec) const
             = 0;
 };
 
+template <class EoS>
 class MUSCLHancockHydroReconstruction : public IHydroReconstruction
 {
     std::unique_ptr<IFaceReconstruction> m_face_reconstruction;
     std::unique_ptr<IExtrapolationReconstruction> m_hancock_reconstruction;
-    EOS m_eos;
+    EoS m_eos;
     KV_double_5d m_P_rec;
     KV_double_6d m_u_rec;
 
@@ -61,28 +61,28 @@ public:
     MUSCLHancockHydroReconstruction(
             std::unique_ptr<IFaceReconstruction> face_reconstruction,
             std::unique_ptr<IExtrapolationReconstruction> hancock_reconstruction,
-            EOS const& eos,
+            EoS const& eos,
             KV_double_5d P_rec,
             KV_double_6d u_rec)
         : m_face_reconstruction(std::move(face_reconstruction))
         , m_hancock_reconstruction(std::move(hancock_reconstruction))
         , m_eos(eos)
-        , m_P_rec(P_rec)
-        , m_u_rec(u_rec)
+        , m_P_rec(std::move(P_rec))
+        , m_u_rec(std::move(u_rec))
     {
     }
 
     void execute(
             Range const& range,
             double const dt,
-            KV_cdouble_3d const rho,
-            KV_cdouble_4d const u,
-            KV_cdouble_3d const P,
-            KV_cdouble_4d const fx,
-            KV_double_5d const rho_rec,
-            KV_double_6d const rhou_rec,
-            KV_double_5d const E_rec,
-            KV_double_6d const fx_rec) const final
+            KV_cdouble_3d const& rho,
+            KV_cdouble_4d const& u,
+            KV_cdouble_3d const& P,
+            KV_cdouble_4d const& fx,
+            KV_double_5d const& rho_rec,
+            KV_double_6d const& rhou_rec,
+            KV_double_5d const& E_rec,
+            KV_double_6d const& fx_rec) const final
     {
         m_face_reconstruction->execute(range, rho, rho_rec);
         m_face_reconstruction->execute(range, P, m_P_rec);

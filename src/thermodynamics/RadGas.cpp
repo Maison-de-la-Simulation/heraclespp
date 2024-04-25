@@ -1,6 +1,6 @@
 #include <stdexcept>
 
-#include <Kokkos_Core.hpp>
+#include <Kokkos_MathematicalFunctions.hpp>
 
 #include "RadGas.hpp"
 

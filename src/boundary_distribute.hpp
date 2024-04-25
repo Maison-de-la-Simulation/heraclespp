@@ -38,10 +38,10 @@ public:
             Param const& param,
             std::array<std::unique_ptr<IBoundaryCondition>, ndim * 2> bcs);
 
-    void operator()(KV_double_3d rho,
-                    KV_double_4d rhou,
-                    KV_double_3d E,
-                    KV_double_4d fx) const;
+    void operator()(KV_double_3d const& rho,
+                    KV_double_4d const& rhou,
+                    KV_double_3d const& E,
+                    KV_double_4d const& fx) const;
 };
 
 } // namespace novapp

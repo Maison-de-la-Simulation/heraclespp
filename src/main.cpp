@@ -115,7 +115,7 @@ int nova_main(int argc, char** argv)
 
     EOS const eos(param.gamma, param.mu);
 
-    write_pdi_init(param.directory, param.prefix, param.max_iter, param.output_frequency, grid, param);
+    write_pdi_init(param.directory, param.prefix, param.max_iter, param.iter_output_frequency, grid, param);
 
     std::string bc_choice_dir;
     std::array<std::string, ndim*2> bc_choice_faces;
@@ -276,10 +276,10 @@ int nova_main(int argc, char** argv)
             = factory_face_reconstruction(param.reconstruction_type, grid);
 
     std::unique_ptr<IExtrapolationReconstruction> time_reconstruction
-            = std::make_unique<ExtrapolationTimeReconstruction<Gravity>>(eos, grid, *g);
+            = std::make_unique<ExtrapolationTimeReconstruction<EOS, Gravity>>(eos, grid, *g);
 
     std::unique_ptr<IHydroReconstruction> reconstruction
-        = std::make_unique<MUSCLHancockHydroReconstruction>(std::move(face_reconstruction),
+        = std::make_unique<MUSCLHancockHydroReconstruction<EOS>>(std::move(face_reconstruction),
                                                             std::move(time_reconstruction),
                                                             eos, P_rec, u_rec);
 
@@ -297,7 +297,8 @@ int nova_main(int argc, char** argv)
     double initial_mass = integrate(grid.range.no_ghosts(), grid, rho.d_view);
 
     std::vector<std::pair<int, double>> outputs_record;
-    if (param.output_frequency > 0)
+    int nout = 1;
+    if (param.iter_output_frequency > 0 || param.time_output_frequency > 0)
     {
         temperature(grid.range.all_ghosts(), eos, rho.d_view, P.d_view, T.d_view);
         modify_device(T);
@@ -307,7 +308,7 @@ int nova_main(int argc, char** argv)
         write_pdi(param.directory, param.prefix, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
     }
 
-    ShouldOutput const should_output(param.output_frequency, param.max_iter, param.t_end);
+    ShouldOutput const should_output(param.iter_output_frequency, param.max_iter);
 
     Kokkos::fence();
     MPI_Barrier(grid.comm_cart);
@@ -315,15 +316,29 @@ int nova_main(int argc, char** argv)
 
     while (!should_exit)
     {
-        double dt = time_step(grid.range.all_ghosts(), eos, grid, param.cfl, rho.d_view, u.d_view, P.d_view);
-        bool const make_output = should_output(iter, t, dt);
+        double dt = param.cfl * time_step(grid.range.all_ghosts(), eos, grid, rho.d_view, u.d_view, P.d_view);
+        bool make_output = should_output(iter);
+
+        if (param.time_output_frequency > 0)
+        {
+            double next_output = param.t_ini + nout * param.time_output_frequency;
+            if ((t + dt) >= next_output)
+            {
+                dt = next_output - t;
+                make_output = true;
+                nout += 1;
+            }
+        }
+
         if ((t + dt) >= param.t_end)
         {
             dt = param.t_end - t;
+            make_output = false;
             should_exit = true;
         }
         if ((iter + 1) >= param.max_iter)
         {
+            make_output = false;
             should_exit = true;
         }
 
@@ -374,6 +389,16 @@ int nova_main(int argc, char** argv)
             write_xml(grid, outputs_record, param.directory, param.prefix, x_glob, y_glob, z_glob);
             write_pdi(param.directory, param.prefix, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
         }
+    }
+
+    if (param.iter_output_frequency > 0 || param.time_output_frequency > 0)
+    {
+        temperature(grid.range.all_ghosts(), eos, rho.d_view, P.d_view, T.d_view);
+        modify_device(T);
+
+        outputs_record.emplace_back(iter, t);
+        write_xml(grid, outputs_record, param.directory, param.prefix, x_glob, y_glob, z_glob);
+        write_pdi(param.directory, param.prefix, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
     }
 
     double final_mass = integrate(grid.range.no_ghosts(), grid, rho.d_view);

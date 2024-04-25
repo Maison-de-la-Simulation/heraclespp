@@ -58,10 +58,10 @@ public:
 
     void execute(
         Range const& range,
-        KV_double_3d const rho,
-        KV_double_4d const u,
-        KV_double_3d const P,
-        [[maybe_unused]] KV_double_4d fx) const final
+        KV_double_3d const& rho,
+        KV_double_4d const& u,
+        KV_double_3d const& P,
+        [[maybe_unused]] KV_double_4d const& fx) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -121,10 +121,10 @@ public:
     {
     }
 
-    void execute(KV_double_3d rho,
-                 KV_double_4d rhou,
-                 KV_double_3d E,
-                 [[maybe_unused]] KV_double_4d fx) const final
+    void execute(KV_double_3d const& rho,
+                 KV_double_4d const& rhou,
+                 KV_double_3d const& E,
+                 [[maybe_unused]] KV_double_4d const& fx) const final
     {
         assert(rho.extent(0) == rhou.extent(0));
         assert(rhou.extent(0) == E.extent(0));

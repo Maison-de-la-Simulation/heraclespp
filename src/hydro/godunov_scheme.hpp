@@ -9,7 +9,6 @@
 #include <string>
 #include <type_traits>
 
-#include <eos.hpp>
 #include <geom.hpp>
 #include <grid.hpp>
 #include <kokkos_shortcut.hpp>
@@ -42,21 +41,21 @@ public:
     virtual void execute(
         Range const &range,
         double dt,
-        KV_cdouble_3d rho,
-        KV_cdouble_4d rhou,
-        KV_cdouble_3d E,
-        KV_cdouble_4d fx,
-        KV_cdouble_5d rho_rec,
-        KV_cdouble_6d rhou_rec,
-        KV_cdouble_5d E_rec,
-        KV_cdouble_6d fx_rec,
-        KV_double_3d rho_new,
-        KV_double_4d rhou_new,
-        KV_double_3d E_new,
-        KV_double_4d fx_new) const = 0;
+        KV_cdouble_3d const& rho,
+        KV_cdouble_4d const& rhou,
+        KV_cdouble_3d const& E,
+        KV_cdouble_4d const& fx,
+        KV_cdouble_5d const& rho_rec,
+        KV_cdouble_6d const& rhou_rec,
+        KV_cdouble_5d const& E_rec,
+        KV_cdouble_6d const& fx_rec,
+        KV_double_3d const& rho_new,
+        KV_double_4d const& rhou_new,
+        KV_double_3d const& E_new,
+        KV_double_4d const& fx_new) const = 0;
 };
 
-template <class RiemannSolver, class Gravity>
+template <class RiemannSolver, class Gravity, class EoS>
 class RiemannBasedGodunovScheme : public IGodunovScheme
 {
     static_assert(
@@ -66,20 +65,20 @@ class RiemannBasedGodunovScheme : public IGodunovScheme
                 EulerCons,
                 EulerCons,
                 int,
-                EOS>,
+                EoS>,
             "Incompatible Riemann solver.");
 
 private:
     RiemannSolver m_riemann_solver;
     Gravity m_gravity;
-    EOS m_eos;
+    EoS m_eos;
     Grid m_grid;
 
 public:
     RiemannBasedGodunovScheme(
         RiemannSolver const &riemann_solver,
         Gravity const& gravity,
-        EOS const& eos, 
+        EoS const& eos,
         Grid const& grid)
         : m_riemann_solver(riemann_solver)
         , m_gravity(gravity)
@@ -91,18 +90,18 @@ public:
     void execute(
         Range const& range,
         double const dt,
-        KV_cdouble_3d const rho,
-        KV_cdouble_4d const rhou,
-        KV_cdouble_3d const E,
-        KV_cdouble_4d const fx,
-        KV_cdouble_5d const rho_rec,
-        KV_cdouble_6d const rhou_rec,
-        KV_cdouble_5d const E_rec,
-        KV_cdouble_6d const fx_rec,
-        KV_double_3d const rho_new,
-        KV_double_4d const rhou_new,
-        KV_double_3d const E_new,
-        KV_double_4d const fx_new) const final
+        KV_cdouble_3d const& rho,
+        KV_cdouble_4d const& rhou,
+        KV_cdouble_3d const& E,
+        KV_cdouble_4d const& fx,
+        KV_cdouble_5d const& rho_rec,
+        KV_cdouble_6d const& rhou_rec,
+        KV_cdouble_5d const& E_rec,
+        KV_cdouble_6d const& fx_rec,
+        KV_double_3d const& rho_new,
+        KV_double_4d const& rhou_new,
+        KV_double_3d const& E_new,
+        KV_double_4d const& fx_new) const final
     {
         int const nfx = fx.extent_int(3);
         auto const x = m_grid.x;
@@ -282,41 +281,32 @@ public:
             {
                 for (int ifx = 0; ifx < nfx; ++ifx)
                 {
-                    fx_new(i, j, k, ifx) /= rho_new(i, j, k);
-
-                    if (fx_new(i, j, k, ifx) > 1)
-                    {
-                        fx_new(i, j, k, ifx) = 1;
-                    }
-                    if (fx_new(i, j, k, ifx) < 0)
-                    {
-                        fx_new(i, j, k, ifx) = 0;
-                    }
+                    fx_new(i, j, k, ifx) = Kokkos::clamp(fx_new(i, j, k, ifx) / rho_new(i, j, k), 0., 1.);
                 }
             });
     }
 };
 
-template <class Gravity>
+template <class EoS, class Gravity>
 inline std::unique_ptr<IGodunovScheme> factory_godunov_scheme(
     std::string const& riemann_solver,
-    EOS const& eos,
+    EoS const& eos,
     Grid const& grid,
     Gravity const& gravity)
 {
     if (riemann_solver == "HLL")
     {
-        return std::make_unique<RiemannBasedGodunovScheme<HLL, Gravity>>
+        return std::make_unique<RiemannBasedGodunovScheme<HLL, Gravity, EoS>>
                 (HLL(), gravity, eos, grid);
     }
     if (riemann_solver == "HLLC")
     {
-        return std::make_unique<RiemannBasedGodunovScheme<HLLC, Gravity>>
+        return std::make_unique<RiemannBasedGodunovScheme<HLLC, Gravity, EoS>>
                 (HLLC(), gravity, eos, grid);
     }
     if (riemann_solver == "Low Mach")
     {
-        return std::make_unique<RiemannBasedGodunovScheme<Splitting, Gravity>>
+        return std::make_unique<RiemannBasedGodunovScheme<Splitting, Gravity, EoS>>
                 (Splitting(), gravity, eos, grid);
     }
     throw std::runtime_error("Invalid riemann solver: " + riemann_solver + ".");

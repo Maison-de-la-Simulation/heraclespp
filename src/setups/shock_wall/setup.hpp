@@ -57,10 +57,10 @@ public:
 
     void execute(
         Range const& range,
-        KV_double_3d const rho,
-        KV_double_4d const u,
-        KV_double_3d const P,
-        [[maybe_unused]] KV_double_4d const fx) const final
+        KV_double_3d const& rho,
+        KV_double_4d const& u,
+        KV_double_3d const& P,
+        [[maybe_unused]] KV_double_4d const& fx) const final
     {
         assert(rho.extent(0) == u.extent(0));
         assert(u.extent(0) == P.extent(0));
@@ -111,9 +111,9 @@ public:
     void execute(
         std::array<int, 3> Nghost,
         std::array<int, 3> Nx_glob_ng,
-        KVH_double_1d x_glob,
-        [[maybe_unused]] KVH_double_1d y_glob,
-        [[maybe_unused]] KVH_double_1d z_glob) const final
+        KVH_double_1d const& x_glob,
+        KVH_double_1d const& y_glob,
+        KVH_double_1d const& z_glob) const final
     {
         double dx = m_param.xmax / (2 * Nx_glob_ng[0]);
         x_glob(Nghost[0]) = 0;
