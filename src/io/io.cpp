@@ -193,7 +193,7 @@ void write_xml(
         return;
     }
 
-    std::string const name_file("../" + directory + "/" + prefix);
+    std::string const name_file(directory + "/" + prefix);
     std::string const xdmfFilenameFull(name_file + ".xmf");
     std::ofstream xdmfFile(xdmfFilenameFull, std::ofstream::trunc);
 
