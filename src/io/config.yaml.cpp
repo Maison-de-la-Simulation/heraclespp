@@ -7,6 +7,9 @@ pdi:
     nfx: int
     max_iter: int
     frequency: int
+    output_id: int
+    iter_output_id: int
+    time_output_id: int
     iter: int
     gamma: double
     time_out: double
@@ -47,7 +50,7 @@ pdi:
   plugins:
     mpi:
     decl_hdf5:
-      - file: ${directory}/${prefix}_${iter:08}.h5
+      - file: ${directory}/${prefix}_${output_id:08}.h5
         collision_policy: replace
         communicator: '$grid_communicator'
         on_event: write_file
@@ -61,6 +64,9 @@ pdi:
           fx:  {type: array, subtype: double, size: ['$nfx', '$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
           T:   {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
         write:
+          output_id:
+          iter_output_id:
+          time_output_id:
           iter:
           current_time:
           gamma:
@@ -138,6 +144,9 @@ pdi:
           uy:  {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
           uz:  {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
         read:
+          output_id:
+          iter_output_id:
+          time_output_id:
           iter:
           current_time:
           rho:

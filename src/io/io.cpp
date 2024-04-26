@@ -85,6 +85,9 @@ void write_pdi_init(
 void write_pdi(
     std::string directory,
     std::string prefix,
+    int output_id,
+    int iter_output_id,
+    int time_output_id,
     int iter,
     double t,
     double gamma,
@@ -108,6 +111,9 @@ void write_pdi(
         "directory", directory.data(), PDI_OUT,
         "prefix_size", &prefix_size, PDI_INOUT,
         "prefix", prefix.data(), PDI_OUT,
+        "output_id", &output_id, PDI_OUT,
+        "iter_output_id", &iter_output_id, PDI_OUT,
+        "time_output_id", &time_output_id, PDI_OUT,
         "iter", &iter, PDI_OUT,
         "current_time", &t, PDI_OUT,
         "gamma", &gamma, PDI_OUT,
@@ -123,32 +129,11 @@ void write_pdi(
         NULL);
 }
 
-ShouldOutput::ShouldOutput(int freq, int iter_max)
-    : m_freq(freq)
-    , m_iter_max(iter_max)
-{
-}
-
-bool ShouldOutput::operator()(int iter) const
-{
-    bool result = (m_freq > 0)
-                  && (((iter + 1) >= m_iter_max) || ((iter + 1) % m_freq == 0));
-
-    /* int mpi_rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
-    if (result && (mpi_rank == 0)) {
-        std::cout << std::left << std::setw(80) << std::setfill('*') << "*" << std::endl;
-        std::cout << "current iteration " << iter + 1 << " : " << std::endl;
-        std::cout << "current time = " << current << " ( ~ " << 100 * (current) / m_time_out << "%)"
-                  << std::endl
-                  << std::endl;
-    } */
-
-    return result;
-}
-
 void read_pdi(
     std::string restart_file,
+    int& output_id,
+    int& iter_output_id,
+    int& time_output_id,
     int& iter,
     double& t,
     KDV_double_3d& rho,
@@ -165,6 +150,9 @@ void read_pdi(
         "read_file",
         "restart_filename_size", &filename_size, PDI_INOUT,
         "restart_filename", restart_file.data(), PDI_INOUT,
+        "output_id", &output_id, PDI_INOUT,
+        "iter_output_id", &iter_output_id, PDI_INOUT,
+        "time_output_id", &time_output_id, PDI_INOUT,
         "iter", &iter, PDI_INOUT,
         "current_time", &t, PDI_INOUT,
         "rho", rho.h_view.data(), PDI_INOUT,
