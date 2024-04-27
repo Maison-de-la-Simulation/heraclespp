@@ -156,8 +156,13 @@ int nova_main(int argc, char** argv)
     KV_double_4d fx_new("fx_new", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], param.nfx);
     KV_double_6d fx_rec("fx_rec", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim, param.nfx);
 
+    int output_id = -1;
+    int time_output_id = -1;
+    int iter_output_id = -1;
+    std::vector<std::pair<int, double>> outputs_record;
+    int const iter_ini = 0;
     double t = param.t_ini;
-    int iter = 0;
+    int iter = iter_ini;
     bool should_exit = false;
 
     KDV_double_1d x_glob("x_glob", grid.Nx_glob_ng[0]+2*grid.Nghost[0]+1);
@@ -209,7 +214,7 @@ int nova_main(int argc, char** argv)
 
     if(param.restart) // complete restart with a file fom the code
     {
-        read_pdi(param.restart_file, iter, t, rho, u, P, fx, x_glob, y_glob, z_glob); // read data into host view
+        read_pdi(param.restart_file, output_id, iter_output_id, time_output_id, iter, t, rho, u, P, fx, x_glob, y_glob, z_glob); // read data into host view
         sync_device(x_glob, y_glob, z_glob);
         grid.set_grid(x_glob.d_view, y_glob.d_view, z_glob.d_view);
 #if defined(NOVAPP_GRAVITY_Uniform)
@@ -294,21 +299,22 @@ int nova_main(int argc, char** argv)
 
     modify_device(rho, u, P, fx, rhou, E);
 
-    double initial_mass = integrate(grid.range.no_ghosts(), grid, rho.d_view);
-
-    std::vector<std::pair<int, double>> outputs_record;
-    int nout = 1;
-    if (param.iter_output_frequency > 0 || param.time_output_frequency > 0)
+    if (!param.restart && (param.iter_output_frequency > 0 || param.time_output_frequency > 0))
     {
+        ++iter_output_id;
+        ++time_output_id;
+
         temperature(grid.range.all_ghosts(), eos, rho.d_view, P.d_view, T.d_view);
         modify_device(T);
 
         outputs_record.emplace_back(iter, t);
+        ++output_id;
         write_xml(grid, outputs_record, param.directory, param.prefix, x_glob, y_glob, z_glob);
-        write_pdi(param.directory, param.prefix, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
+        write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
+        print_simulation_status(std::cout, iter, t, param.t_end);
     }
 
-    ShouldOutput const should_output(param.iter_output_frequency, param.max_iter);
+    double initial_mass = integrate(grid.range.no_ghosts(), grid, rho.d_view);
 
     Kokkos::fence();
     MPI_Barrier(grid.comm_cart);
@@ -317,28 +323,36 @@ int nova_main(int argc, char** argv)
     while (!should_exit)
     {
         double dt = param.cfl * time_step(grid.range.all_ghosts(), eos, grid, rho.d_view, u.d_view, P.d_view);
-        bool make_output = should_output(iter);
 
+        bool make_output = false;
+        if (param.iter_output_frequency > 0)
+        {
+            int const next_output = iter_ini + (iter_output_id + 1) * param.iter_output_frequency;
+            if ((iter + 1) >= next_output)
+            {
+                make_output = true;
+                ++iter_output_id;
+            }
+        }
         if (param.time_output_frequency > 0)
         {
-            double next_output = param.t_ini + nout * param.time_output_frequency;
+            double const next_output = param.t_ini + (time_output_id + 1) * param.time_output_frequency;
             if ((t + dt) >= next_output)
             {
                 dt = next_output - t;
                 make_output = true;
-                nout += 1;
+                ++time_output_id;
             }
         }
 
         if ((t + dt) >= param.t_end)
         {
             dt = param.t_end - t;
-            make_output = false;
+            make_output = true;
             should_exit = true;
         }
         if ((iter + 1) >= param.max_iter)
         {
-            make_output = false;
             should_exit = true;
         }
 
@@ -386,19 +400,11 @@ int nova_main(int argc, char** argv)
             modify_device(T);
 
             outputs_record.emplace_back(iter, t);
+            ++output_id;
             write_xml(grid, outputs_record, param.directory, param.prefix, x_glob, y_glob, z_glob);
-            write_pdi(param.directory, param.prefix, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
+            write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
+            print_simulation_status(std::cout, iter, t, param.t_end);
         }
-    }
-
-    if (param.iter_output_frequency > 0 || param.time_output_frequency > 0)
-    {
-        temperature(grid.range.all_ghosts(), eos, rho.d_view, P.d_view, T.d_view);
-        modify_device(T);
-
-        outputs_record.emplace_back(iter, t);
-        write_xml(grid, outputs_record, param.directory, param.prefix, x_glob, y_glob, z_glob);
-        write_pdi(param.directory, param.prefix, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
     }
 
     double final_mass = integrate(grid.range.no_ghosts(), grid, rho.d_view);

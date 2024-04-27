@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <iosfwd>
 #include <string>
 #include <utility>
 #include <vector>
@@ -17,16 +18,7 @@ namespace novapp
 class Grid;
 class Param;
 
-class ShouldOutput
-{
-    int m_freq;
-    int m_iter_max;
-
-public:
-    ShouldOutput(int freq, int iter_max);
-
-    [[nodiscard]] bool operator()(int iter) const;
-};
+void print_simulation_status(std::ostream& os, int iter, double current, double time_out);
 
 void write_pdi_init(
     std::string directory,
@@ -39,6 +31,9 @@ void write_pdi_init(
 void write_pdi(
     std::string directory,
     std::string prefix,
+    int output_id,
+    int iter_output_id,
+    int time_output_id,
     int iter,
     double t,
     double gamma,
@@ -54,6 +49,9 @@ void write_pdi(
 
 void read_pdi(
     std::string restart_file,
+    int& output_id,
+    int& iter_output_id,
+    int& time_output_id,
     int& iter,
     double& t,
     KDV_double_3d& rho,

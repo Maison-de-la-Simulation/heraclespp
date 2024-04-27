@@ -2,6 +2,7 @@
 
 #include <array>
 #include <fstream>
+#include <ostream>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -27,6 +28,23 @@ bool span_is_contiguous(Views const&... views)
 
 namespace novapp
 {
+
+void print_simulation_status(
+        std::ostream& os,
+        int const iter,
+        double const current,
+        double const time_out)
+{
+    int mpi_rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
+    if (mpi_rank == 0) {
+        std::stringstream ss;
+        ss << std::string(80, '*') << "\n";
+        ss << "current iteration " << iter << " : \n";
+        ss << "current time = " << current << " ( ~ " << 100 * current / time_out << "%)\n\n";
+        os << ss.str();
+    }
+}
 
 void write_pdi_init(
     std::string directory,
@@ -67,6 +85,9 @@ void write_pdi_init(
 void write_pdi(
     std::string directory,
     std::string prefix,
+    int output_id,
+    int iter_output_id,
+    int time_output_id,
     int iter,
     double t,
     double gamma,
@@ -90,6 +111,9 @@ void write_pdi(
         "directory", directory.data(), PDI_OUT,
         "prefix_size", &prefix_size, PDI_INOUT,
         "prefix", prefix.data(), PDI_OUT,
+        "output_id", &output_id, PDI_OUT,
+        "iter_output_id", &iter_output_id, PDI_OUT,
+        "time_output_id", &time_output_id, PDI_OUT,
         "iter", &iter, PDI_OUT,
         "current_time", &t, PDI_OUT,
         "gamma", &gamma, PDI_OUT,
@@ -103,44 +127,13 @@ void write_pdi(
         "fx", fx.h_view.data(), PDI_OUT,
         "T", T.h_view.data(), PDI_OUT,
         NULL);
-
-    int mpi_rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
-    if (mpi_rank == 0) {
-        std::cout << std::left << std::setw(80) << std::setfill('*') << "*" << std::endl;
-        std::cout << "current iteration " << iter << " : " << std::endl;
-        std::cout << "current time = " << t
-                  << std::endl
-                  << std::endl;
-    }
-}
-
-ShouldOutput::ShouldOutput(int freq, int iter_max)
-    : m_freq(freq)
-    , m_iter_max(iter_max)
-{
-}
-
-bool ShouldOutput::operator()(int iter) const
-{
-    bool result = (m_freq > 0)
-                  && (((iter + 1) >= m_iter_max) || ((iter + 1) % m_freq == 0));
-
-    /* int mpi_rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
-    if (result && (mpi_rank == 0)) {
-        std::cout << std::left << std::setw(80) << std::setfill('*') << "*" << std::endl;
-        std::cout << "current iteration " << iter + 1 << " : " << std::endl;
-        std::cout << "current time = " << current << " ( ~ " << 100 * (current) / m_time_out << "%)"
-                  << std::endl
-                  << std::endl;
-    } */
-
-    return result;
 }
 
 void read_pdi(
     std::string restart_file,
+    int& output_id,
+    int& iter_output_id,
+    int& time_output_id,
     int& iter,
     double& t,
     KDV_double_3d& rho,
@@ -157,6 +150,9 @@ void read_pdi(
         "read_file",
         "restart_filename_size", &filename_size, PDI_INOUT,
         "restart_filename", restart_file.data(), PDI_INOUT,
+        "output_id", &output_id, PDI_INOUT,
+        "iter_output_id", &iter_output_id, PDI_INOUT,
+        "time_output_id", &time_output_id, PDI_INOUT,
         "iter", &iter, PDI_INOUT,
         "current_time", &t, PDI_INOUT,
         "rho", rho.h_view.data(), PDI_INOUT,
@@ -185,7 +181,7 @@ void write_xml(
         return;
     }
 
-    std::string const name_file("../" + directory + "/" + prefix);
+    std::string const name_file(directory + "/" + prefix);
     std::string const xdmfFilenameFull(name_file + ".xmf");
     std::ofstream xdmfFile(xdmfFilenameFull, std::ofstream::trunc);
 
