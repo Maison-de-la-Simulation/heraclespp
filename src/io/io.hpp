@@ -64,6 +64,7 @@ void read_pdi(
 
 void write_xml(
     Grid const& grid,
+    int output_id,
     std::vector<std::pair<int, double>> const& outputs_record,
     std::string const& directory,
     std::string const& prefix,

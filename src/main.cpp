@@ -309,7 +309,7 @@ int nova_main(int argc, char** argv)
 
         outputs_record.emplace_back(iter, t);
         ++output_id;
-        write_xml(grid, outputs_record, param.directory, param.prefix, x_glob, y_glob, z_glob);
+        write_xml(grid, output_id, outputs_record, param.directory, param.prefix, x_glob, y_glob, z_glob);
         write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
         print_simulation_status(std::cout, iter, t, param.t_end);
     }
@@ -401,7 +401,7 @@ int nova_main(int argc, char** argv)
 
             outputs_record.emplace_back(iter, t);
             ++output_id;
-            write_xml(grid, outputs_record, param.directory, param.prefix, x_glob, y_glob, z_glob);
+            write_xml(grid, output_id, outputs_record, param.directory, param.prefix, x_glob, y_glob, z_glob);
             write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
             print_simulation_status(std::cout, iter, t, param.t_end);
         }

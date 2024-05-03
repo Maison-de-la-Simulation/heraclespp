@@ -168,6 +168,7 @@ void read_pdi(
 
 void write_xml(
         Grid const& grid,
+        int output_id,
         std::vector<std::pair<int, double>> const& outputs_record,
         std::string const& directory,
         std::string const& prefix,
@@ -181,17 +182,15 @@ void write_xml(
         return;
     }
 
-    std::string const name_file(directory + "/" + prefix);
-    std::string const xdmfFilenameFull(name_file + ".xmf");
-    std::ofstream xdmfFile(xdmfFilenameFull, std::ofstream::trunc);
-
     auto const getFilename = [&](int num) {
         std::ostringstream restartNum;
         restartNum << std::setw(8);
         restartNum << std::setfill('0');
         restartNum << num;
-        return name_file + '_' + restartNum.str() + ".h5";
+        return prefix + '_' + restartNum.str() + ".h5";
     };
+
+    std::ofstream xdmfFile(directory + "/" + prefix + ".xmf", std::ofstream::trunc);
 
     xdmfFile << "<?xml version=\"1.0\"?>\n";
     xdmfFile << "<!DOCTYPE Xdmf SYSTEM \"Xdmf.dtd\" []>\n";
@@ -208,14 +207,15 @@ void write_xml(
 
     int const precision = sizeof(double);
 
-    for (std::pair<int, double> const& it : outputs_record)
+    int const first_output_id = output_id + 1 - outputs_record.size();
+    for (std::size_t i = 0; i < outputs_record.size(); ++i)
     {
         xdmfFile << std::string(6, ' ');
         xdmfFile << "<Grid Name=" << '"' << "output" << '"';
         xdmfFile << " GridType=" << '"' << "Uniform" << '"';
         xdmfFile << ">\n";
         xdmfFile << std::string(8, ' ');
-        xdmfFile << "<Time Value=" << '"' << it.second << '"' << "/>\n";
+        xdmfFile << "<Time Value=" << '"' << outputs_record[i].second << '"' << "/>\n";
 
         // topology CoRectMesh
         xdmfFile << std::string(8, ' ');
@@ -281,7 +281,7 @@ void write_xml(
 
             xdmfFile << " Format=" << '"' << "HDF" << '"';
             xdmfFile << ">\n";
-            xdmfFile << std::string(12, ' ') << getFilename(it.first) << ":/" << var_name
+            xdmfFile << std::string(12, ' ') << getFilename(first_output_id + i) << ":/" << var_name
                      << "\n";
             xdmfFile << std::string(10, ' ') << "</DataItem>\n";
             xdmfFile << std::string(8, ' ') << "</Attribute>\n";
@@ -312,7 +312,7 @@ void write_xml(
 
                 xdmfFile << " Format=" << '"' << "HDF" << '"';
                 xdmfFile << ">\n";
-                xdmfFile << std::string(12, ' ') << getFilename(it.first) << ":/" << var_name << components[icomp]
+                xdmfFile << std::string(12, ' ') << getFilename(first_output_id + i) << ":/" << var_name << components[icomp]
                          << "\n";
                 xdmfFile << std::string(10, ' ') << "</DataItem>\n";
                 xdmfFile << std::string(8, ' ') << "</Attribute>\n";
