@@ -56,13 +56,24 @@ void read_pdi(
     KDV_double_1d& y_glob,
     KDV_double_1d& z_glob);
 
-void write_xml(
-    Grid const& grid,
-    int output_id,
-    std::vector<std::pair<int, double>> const& outputs_record,
-    std::string const& directory,
-    std::string const& prefix,
-    KDV_double_1d& x,
-    KDV_double_1d& y,
-    KDV_double_1d& z);
+class XmlWriter
+{
+    std::string m_directory;
+
+    std::string m_prefix;
+
+    std::vector<std::string> m_var_names;
+
+public:
+    XmlWriter(std::string directory, std::string prefix, int nfx);
+
+    void operator()(
+            Grid const& grid,
+            int output_id,
+            std::vector<std::pair<int, double>> const& outputs_record,
+            KDV_double_1d& x,
+            KDV_double_1d& y,
+            KDV_double_1d& z) const;
+};
+
 }

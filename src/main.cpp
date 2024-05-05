@@ -299,6 +299,8 @@ int nova_main(int argc, char** argv)
 
     modify_device(rho, u, P, fx, rhou, E);
 
+    XmlWriter const xml_writer(param.directory, param.prefix, param.nfx);
+
     if (!param.restart && (param.iter_output_frequency > 0 || param.time_output_frequency > 0))
     {
         ++iter_output_id;
@@ -309,7 +311,7 @@ int nova_main(int argc, char** argv)
 
         outputs_record.emplace_back(iter, t);
         ++output_id;
-        write_xml(grid, output_id, outputs_record, param.directory, param.prefix, x_glob, y_glob, z_glob);
+        xml_writer(grid, output_id, outputs_record, x_glob, y_glob, z_glob);
         write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
         print_simulation_status(std::cout, iter, t, param.t_end);
     }
@@ -401,7 +403,7 @@ int nova_main(int argc, char** argv)
 
             outputs_record.emplace_back(iter, t);
             ++output_id;
-            write_xml(grid, output_id, outputs_record, param.directory, param.prefix, x_glob, y_glob, z_glob);
+            xml_writer(grid, output_id, outputs_record, x_glob, y_glob, z_glob);
             write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
             print_simulation_status(std::cout, iter, t, param.t_end);
         }

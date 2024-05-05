@@ -171,15 +171,27 @@ void read_pdi(
     modify_host(rho, u, P, fx, x_glob, y_glob, z_glob);
 }
 
-void write_xml(
+XmlWriter::XmlWriter(std::string directory, std::string prefix, int const nfx)
+    : m_directory(std::move(directory))
+    , m_prefix(std::move(prefix))
+    , m_var_names({"rho", "P", "E", "T"})
+{
+    if (nfx > 0) {
+        m_var_names.emplace_back("fx");
+    }
+    std::array<std::string_view, 3> const velocity {"ux", "uy", "uz"};
+    for (int idim = 0; idim < ndim; ++idim) {
+        m_var_names.emplace_back(velocity[idim]);
+    }
+}
+
+void XmlWriter::operator()(
         Grid const& grid,
-        int output_id,
+        int const output_id,
         std::vector<std::pair<int, double>> const& outputs_record,
-        std::string const& directory,
-        std::string const& prefix,
         KDV_double_1d& x,
         KDV_double_1d& y,
-        KDV_double_1d& z)
+        KDV_double_1d& z) const
 {
     sync_host(x, y, z);
     if (grid.mpi_rank != 0)
@@ -187,7 +199,7 @@ void write_xml(
         return;
     }
 
-    std::ofstream xdmfFile(directory + "/" + prefix + ".xmf", std::ofstream::trunc);
+    std::ofstream xdmfFile(m_directory + "/" + m_prefix + ".xmf", std::ofstream::trunc);
 
     xdmfFile << "<?xml version=\"1.0\"?>\n";
     xdmfFile << "<!DOCTYPE Xdmf SYSTEM \"Xdmf.dtd\" []>\n";
@@ -253,8 +265,8 @@ void write_xml(
 
         xdmfFile << indent(8) << "</Geometry>\n";
 
-        std::string const output_filename = get_output_filename(prefix, first_output_id + i);
-        for (std::string_view var_name : {"rho", "P", "E", "fx"})
+        std::string const output_filename = get_output_filename(m_prefix, first_output_id + i);
+        for (std::string const& var_name : m_var_names)
         {
             xdmfFile << indent(8) << "<Attribute";
             xdmfFile << " Center=" << '"' << "Cell" << '"';
@@ -278,36 +290,6 @@ void write_xml(
                      << '\n';
             xdmfFile << indent(10) << "</DataItem>\n";
             xdmfFile << indent(8) << "</Attribute>\n";
-        }
-
-        std::vector<std::string> const components {"x", "y", "z"};
-        for (std::string_view var_name : {"u"})
-        {
-            for (int icomp = 0; icomp < ndim; ++icomp)
-            {
-                xdmfFile << indent(8) << "<Attribute";
-                xdmfFile << " Center=" << '"' << "Cell" << '"';
-                xdmfFile << " Name=" << '"' << var_name << components[icomp] << '"';
-                xdmfFile << " AttributeType=" << '"' << "Scalar" << '"';
-                xdmfFile << ">\n";
-                xdmfFile << indent(10) << "<DataItem";
-                xdmfFile << " NumberType=" << '"' << "Float" << '"';
-                xdmfFile << " Precision=" << '"' << precision << '"';
-
-                xdmfFile << " Dimensions=" << '"';
-                for (int idim = 2; idim >= 0; --idim)
-                {
-                    xdmfFile << ncells[idim];
-                    xdmfFile << (idim == 0 ? '"' : ' ');
-                }
-
-                xdmfFile << " Format=" << '"' << "HDF" << '"';
-                xdmfFile << ">\n";
-                xdmfFile << indent(12) << output_filename << ":/" << var_name << components[icomp]
-                         << '\n';
-                xdmfFile << indent(10) << "</DataItem>\n";
-                xdmfFile << indent(8) << "</Attribute>\n";
-            }
         }
 
         // finalize grid file for the current time step
