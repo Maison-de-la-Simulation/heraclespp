@@ -25,6 +25,17 @@ bool span_is_contiguous(Views const&... views)
     return (views.span_is_contiguous() && ...);
 }
 
+std::string get_output_filename(std::string const& prefix, int const num) {
+    std::ostringstream output_filename;
+    output_filename << prefix;
+    output_filename << '_';
+    output_filename << std::setw(8);
+    output_filename << std::setfill('0');
+    output_filename << num;
+    output_filename << ".h5";
+    return output_filename.str();
+}
+
 std::string_view indent(int const width) noexcept
 {
     assert(width > 0);
@@ -96,14 +107,15 @@ void write_pdi(
 {
     assert(span_is_contiguous(rho, u, P, E, fx, T));
     int directory_size = directory.size();
-    int prefix_size = prefix.size();
+    std::string output_filename = get_output_filename(prefix, output_id);
+    int output_filename_size = output_filename.size();
     sync_host(rho, u, P, E, fx, T, x, y, z);
     PDI_multi_expose(
         "write_file",
         "directory_size", &directory_size, PDI_OUT,
         "directory", directory.data(), PDI_OUT,
-        "prefix_size", &prefix_size, PDI_OUT,
-        "prefix", prefix.data(), PDI_OUT,
+        "output_filename_size", &output_filename_size, PDI_OUT,
+        "output_filename", output_filename.data(), PDI_OUT,
         "output_id", &output_id, PDI_OUT,
         "iter_output_id", &iter_output_id, PDI_OUT,
         "time_output_id", &time_output_id, PDI_OUT,
@@ -175,14 +187,6 @@ void write_xml(
         return;
     }
 
-    auto const getFilename = [&](int num) {
-        std::ostringstream restartNum;
-        restartNum << std::setw(8);
-        restartNum << std::setfill('0');
-        restartNum << num;
-        return prefix + '_' + restartNum.str() + ".h5";
-    };
-
     std::ofstream xdmfFile(directory + "/" + prefix + ".xmf", std::ofstream::trunc);
 
     xdmfFile << "<?xml version=\"1.0\"?>\n";
@@ -249,6 +253,7 @@ void write_xml(
 
         xdmfFile << indent(8) << "</Geometry>\n";
 
+        std::string const output_filename = get_output_filename(prefix, first_output_id + i);
         for (std::string_view var_name : {"rho", "P", "E", "fx"})
         {
             xdmfFile << indent(8) << "<Attribute";
@@ -269,7 +274,7 @@ void write_xml(
 
             xdmfFile << " Format=" << '"' << "HDF" << '"';
             xdmfFile << ">\n";
-            xdmfFile << indent(12) << getFilename(first_output_id + i) << ":/" << var_name
+            xdmfFile << indent(12) << output_filename << ":/" << var_name
                      << '\n';
             xdmfFile << indent(10) << "</DataItem>\n";
             xdmfFile << indent(8) << "</Attribute>\n";
@@ -298,7 +303,7 @@ void write_xml(
 
                 xdmfFile << " Format=" << '"' << "HDF" << '"';
                 xdmfFile << ">\n";
-                xdmfFile << indent(12) << getFilename(first_output_id + i) << ":/" << var_name << components[icomp]
+                xdmfFile << indent(12) << output_filename << ":/" << var_name << components[icomp]
                          << '\n';
                 xdmfFile << indent(10) << "</DataItem>\n";
                 xdmfFile << indent(8) << "</Attribute>\n";
