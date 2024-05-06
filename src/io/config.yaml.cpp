@@ -5,17 +5,12 @@ pdi:
   metadata:
     ndim: int
     nfx: int
-    max_iter: int
-    frequency: int
     output_id: int
     iter_output_id: int
     time_output_id: int
     iter: int
     gamma: double
-    time_out: double
     current_time: double
-    mpi_rank: int
-    mpi_size: int
     nx_glob_ng: {type: array, subtype: int, size: 3}
     nx_local_ng: {type: array, subtype: int, size: 3}
     nx_local_wg: {type: array, subtype: int, size: 3}

@@ -47,32 +47,16 @@ void print_simulation_status(
 }
 
 void write_pdi_init(
-    std::string directory,
-    std::string prefix,
-    int max_iter,
-    int frequency,
     Grid const& grid,
     Param const& param)
 {
-    int mpi_rank = grid.mpi_rank;
-    int mpi_size = grid.mpi_size;
     int simu_ndim = ndim;
     int simu_nfx = param.nfx;
-    int directory_size = directory.size();
-    int prefix_size = prefix.size();
 
     PDI_multi_expose(
         "init_PDI",
-        "directory_size", &directory_size, PDI_INOUT,
-        "directory", &directory, PDI_OUT,
-        "prefix_size", &prefix_size, PDI_INOUT,
-        "prefix", &prefix, PDI_OUT,
-        "max_iter", &max_iter, PDI_OUT,
-        "frequency", &frequency, PDI_OUT,
         "ndim", &simu_ndim, PDI_OUT,
         "nfx", &simu_nfx, PDI_OUT,
-        "mpi_rank", &mpi_rank, PDI_OUT,
-        "mpi_size", &mpi_size, PDI_OUT,
         "n_ghost", grid.Nghost.data(), PDI_OUT,
         "nx_glob_ng", grid.Nx_glob_ng.data(), PDI_OUT,
         "nx_local_ng", grid.Nx_local_ng.data(), PDI_OUT,

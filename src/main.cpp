@@ -115,7 +115,7 @@ int nova_main(int argc, char** argv)
 
     EOS const eos(param.gamma, param.mu);
 
-    write_pdi_init(param.directory, param.prefix, param.max_iter, param.iter_output_frequency, grid, param);
+    write_pdi_init(grid, param);
 
     std::string bc_choice_dir;
     std::array<std::string, ndim*2> bc_choice_faces;

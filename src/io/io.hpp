@@ -20,13 +20,7 @@ class Param;
 
 void print_simulation_status(std::ostream& os, int iter, double current, double time_out);
 
-void write_pdi_init(
-    std::string directory,
-    std::string prefix,
-    int max_iter,
-    int frequency,
-    Grid const& grid,
-    Param const& param);
+void write_pdi_init(Grid const& grid, Param const& param);
 
 void write_pdi(
     std::string directory,
