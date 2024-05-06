@@ -91,9 +91,9 @@ void write_pdi(
     sync_host(rho, u, P, E, fx, T, x, y, z);
     PDI_multi_expose(
         "write_file",
-        "directory_size", &directory_size, PDI_INOUT,
+        "directory_size", &directory_size, PDI_OUT,
         "directory", directory.data(), PDI_OUT,
-        "prefix_size", &prefix_size, PDI_INOUT,
+        "prefix_size", &prefix_size, PDI_OUT,
         "prefix", prefix.data(), PDI_OUT,
         "output_id", &output_id, PDI_OUT,
         "iter_output_id", &iter_output_id, PDI_OUT,
@@ -132,8 +132,8 @@ void read_pdi(
     int filename_size = restart_file.size();
     PDI_multi_expose(
         "read_file",
-        "restart_filename_size", &filename_size, PDI_INOUT,
-        "restart_filename", restart_file.data(), PDI_INOUT,
+        "restart_filename_size", &filename_size, PDI_OUT,
+        "restart_filename", restart_file.data(), PDI_OUT,
         "output_id", &output_id, PDI_INOUT,
         "iter_output_id", &iter_output_id, PDI_INOUT,
         "time_output_id", &time_output_id, PDI_INOUT,

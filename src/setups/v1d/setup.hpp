@@ -75,8 +75,8 @@ public:
         int filename_size = m_param_setup.init_filename.size();
         PDI_multi_expose(
             "read_hydro_1d",
-            "init_filename_size", &filename_size, PDI_INOUT,
-            "init_filename", m_param_setup.init_filename.data(), PDI_INOUT,
+            "init_filename_size", &filename_size, PDI_OUT,
+            "init_filename", m_param_setup.init_filename.data(), PDI_OUT,
             "rho_1d", rho_1d.h_view.data(), PDI_INOUT,
             "u_1d", u_1d.h_view.data(), PDI_INOUT,
             "P_1d", P_1d.h_view.data(), PDI_INOUT,
@@ -121,8 +121,8 @@ public:
         int filename_size = init_file.size();
         PDI_multi_expose(
             "read_mesh_1d",
-            "init_filename_size", &filename_size, PDI_INOUT,
-            "init_filename", init_file.data(), PDI_INOUT,
+            "init_filename_size", &filename_size, PDI_OUT,
+            "init_filename", init_file.data(), PDI_OUT,
             "x", x_glob.data(), PDI_INOUT,
             NULL);
 
