@@ -2,6 +2,7 @@
 
 #include <array>
 #include <fstream>
+#include <iomanip>
 #include <ostream>
 #include <sstream>
 #include <string>
@@ -24,6 +25,14 @@ bool span_is_contiguous(Views const&... views)
     return (views.span_is_contiguous() && ...);
 }
 
+std::string_view indent(int const width) noexcept
+{
+    assert(width > 0);
+    assert(width <= 20);
+    static constexpr std::string_view spaces("                    ");
+    return spaces.substr(0, width);
+}
+
 } // namespace
 
 namespace novapp
@@ -39,7 +48,7 @@ void print_simulation_status(
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
     if (mpi_rank == 0) {
         std::stringstream ss;
-        ss << std::string(80, '*') << "\n";
+        ss << std::setfill('*') << std::setw(81) << '\n';
         ss << "current iteration " << iter << " : \n";
         ss << "current time = " << current << " ( ~ " << 100 * current / time_out << "%)\n\n";
         os << ss.str();
@@ -179,9 +188,8 @@ void write_xml(
     xdmfFile << "<?xml version=\"1.0\"?>\n";
     xdmfFile << "<!DOCTYPE Xdmf SYSTEM \"Xdmf.dtd\" []>\n";
     xdmfFile << "<Xdmf Version=\"2.0\">\n";
-    xdmfFile << std::string(2, ' ') << "<Domain>\n";
-    xdmfFile << std::string(4, ' ');
-    xdmfFile << "<Grid";
+    xdmfFile << indent(2) << "<Domain>\n";
+    xdmfFile << indent(4) << "<Grid";
     xdmfFile << " Name=" << '"' << "TimeSeries" << '"';
     xdmfFile << " GridType=" << '"' << "Collection" << '"';
     xdmfFile << " CollectionType=" << '"' << "Temporal" << '"';
@@ -194,28 +202,27 @@ void write_xml(
     int const first_output_id = output_id + 1 - outputs_record.size();
     for (std::size_t i = 0; i < outputs_record.size(); ++i)
     {
-        xdmfFile << std::string(6, ' ');
-        xdmfFile << "<Grid Name=" << '"' << "output" << '"';
+        xdmfFile << indent(6) << "<Grid";
+        xdmfFile << " Name=" << '"' << "output" << '"';
         xdmfFile << " GridType=" << '"' << "Uniform" << '"';
         xdmfFile << ">\n";
-        xdmfFile << std::string(8, ' ');
-        xdmfFile << "<Time Value=" << '"' << outputs_record[i].second << '"' << "/>\n";
+        xdmfFile << indent(8) << "<Time";
+        xdmfFile << " Value=" << '"' << outputs_record[i].second << '"';
+        xdmfFile << "/>\n";
 
         // topology CoRectMesh
-        xdmfFile << std::string(8, ' ');
-        xdmfFile << "<Topology";
+        xdmfFile << indent(8) << "<Topology";
         xdmfFile << " TopologyType=" << '"' << "3DRectMesh" << '"';
         xdmfFile << " Dimensions=" << '"';
         for (int idim = 2; idim >= 0; --idim)
         {
             xdmfFile << ncells[idim] + 1;
-            xdmfFile << (idim == 0 ? "\"" : " ");
+            xdmfFile << (idim == 0 ? '"' : ' ');
         }
         xdmfFile << "/>\n";
 
         // geometry
-        xdmfFile << std::string(8, ' ');
-        xdmfFile << "<Geometry";
+        xdmfFile << indent(8) << "<Geometry";
         xdmfFile << " GeometryType=" << '"' << "VXVYVZ" << '"';
         xdmfFile << ">\n";
 
@@ -224,51 +231,48 @@ void write_xml(
         {
             auto arrays = {x.h_view, y.h_view, z.h_view};
             auto array = arrays.begin()[idim];
-            xdmfFile << std::string(10, ' ');
-            xdmfFile << "<DataItem";
+            xdmfFile << indent(10) << "<DataItem";
             xdmfFile << " NumberType=" << '"' << "Float" << '"';
             xdmfFile << " Precision=" << '"' << precision << '"';
             xdmfFile << " Dimensions=" << '"' << array.extent_int(0) - 2 * nghost[idim] << '"';
             xdmfFile << " Format=" << '"' << "XML" << '"';
             xdmfFile << ">\n";
-            xdmfFile << std::string(12, ' ');
+            xdmfFile << indent(12);
             for (int ix = nghost[idim]; ix < array.extent_int(0) - 1 - nghost[idim]; ++ix)
             {
                 xdmfFile << array(ix);
-                xdmfFile << " ";
+                xdmfFile << ' ';
             }
-            xdmfFile << array(array.extent_int(0) - 1 - nghost[idim]) << "\n";
-            xdmfFile << std::string(10, ' ') << "</DataItem>\n";
+            xdmfFile << array(array.extent_int(0) - 1 - nghost[idim]) << '\n';
+            xdmfFile << indent(10) << "</DataItem>\n";
         }
 
-        xdmfFile << std::string(8, ' ') << "</Geometry>\n";
+        xdmfFile << indent(8) << "</Geometry>\n";
 
         for (std::string_view var_name : {"rho", "P", "E", "fx"})
         {
-            xdmfFile << std::string(8, ' ');
-            xdmfFile << "<Attribute";
+            xdmfFile << indent(8) << "<Attribute";
             xdmfFile << " Center=" << '"' << "Cell" << '"';
             xdmfFile << " Name=" << '"' << var_name << '"';
             xdmfFile << " AttributeType=" << '"' << "Scalar" << '"';
             xdmfFile << ">\n";
-            xdmfFile << std::string(10, ' ');
-            xdmfFile << "<DataItem";
+            xdmfFile << indent(10) << "<DataItem";
             xdmfFile << " NumberType=" << '"' << "Float" << '"';
             xdmfFile << " Precision=" << '"' << precision << '"';
 
-            xdmfFile << " Dimensions=\"";
+            xdmfFile << " Dimensions=" << '"';
             for (int idim = 2; idim >= 0; --idim)
             {
                 xdmfFile << ncells[idim];
-                xdmfFile << (idim == 0 ? "\"" : " ");
+                xdmfFile << (idim == 0 ? '"' : ' ');
             }
 
             xdmfFile << " Format=" << '"' << "HDF" << '"';
             xdmfFile << ">\n";
-            xdmfFile << std::string(12, ' ') << getFilename(first_output_id + i) << ":/" << var_name
-                     << "\n";
-            xdmfFile << std::string(10, ' ') << "</DataItem>\n";
-            xdmfFile << std::string(8, ' ') << "</Attribute>\n";
+            xdmfFile << indent(12) << getFilename(first_output_id + i) << ":/" << var_name
+                     << '\n';
+            xdmfFile << indent(10) << "</DataItem>\n";
+            xdmfFile << indent(8) << "</Attribute>\n";
         }
 
         std::vector<std::string> const components {"x", "y", "z"};
@@ -276,40 +280,38 @@ void write_xml(
         {
             for (int icomp = 0; icomp < ndim; ++icomp)
             {
-                xdmfFile << std::string(8, ' ');
-                xdmfFile << "<Attribute";
+                xdmfFile << indent(8) << "<Attribute";
                 xdmfFile << " Center=" << '"' << "Cell" << '"';
                 xdmfFile << " Name=" << '"' << var_name << components[icomp] << '"';
                 xdmfFile << " AttributeType=" << '"' << "Scalar" << '"';
                 xdmfFile << ">\n";
-                xdmfFile << std::string(10, ' ');
-                xdmfFile << "<DataItem";
+                xdmfFile << indent(10) << "<DataItem";
                 xdmfFile << " NumberType=" << '"' << "Float" << '"';
                 xdmfFile << " Precision=" << '"' << precision << '"';
 
-                xdmfFile << " Dimensions=\"";
+                xdmfFile << " Dimensions=" << '"';
                 for (int idim = 2; idim >= 0; --idim)
                 {
                     xdmfFile << ncells[idim];
-                    xdmfFile << (idim == 0 ? "\"" : " ");
+                    xdmfFile << (idim == 0 ? '"' : ' ');
                 }
 
                 xdmfFile << " Format=" << '"' << "HDF" << '"';
                 xdmfFile << ">\n";
-                xdmfFile << std::string(12, ' ') << getFilename(first_output_id + i) << ":/" << var_name << components[icomp]
-                         << "\n";
-                xdmfFile << std::string(10, ' ') << "</DataItem>\n";
-                xdmfFile << std::string(8, ' ') << "</Attribute>\n";
+                xdmfFile << indent(12) << getFilename(first_output_id + i) << ":/" << var_name << components[icomp]
+                         << '\n';
+                xdmfFile << indent(10) << "</DataItem>\n";
+                xdmfFile << indent(8) << "</Attribute>\n";
             }
         }
 
         // finalize grid file for the current time step
-        xdmfFile << std::string(6, ' ') << "</Grid>\n";
+        xdmfFile << indent(6) << "</Grid>\n";
     }
 
     // finalize Xdmf wrapper file
-    xdmfFile << std::string(4, ' ') << "</Grid>\n";
-    xdmfFile << std::string(2, ' ') << "</Domain>\n";
+    xdmfFile << indent(4) << "</Grid>\n";
+    xdmfFile << indent(2) << "</Domain>\n";
     xdmfFile << "</Xdmf>\n";
 }
 
