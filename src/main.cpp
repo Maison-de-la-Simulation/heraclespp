@@ -115,7 +115,7 @@ int nova_main(int argc, char** argv)
 
     EOS const eos(param.gamma, param.mu);
 
-    write_pdi_init(param.directory, param.prefix, param.max_iter, param.iter_output_frequency, grid, param);
+    write_pdi_init(grid, param);
 
     std::string bc_choice_dir;
     std::array<std::string, ndim*2> bc_choice_faces;
@@ -299,6 +299,8 @@ int nova_main(int argc, char** argv)
 
     modify_device(rho, u, P, fx, rhou, E);
 
+    XmlWriter const xml_writer(param.directory, param.prefix, param.nfx);
+
     if (!param.restart && (param.iter_output_frequency > 0 || param.time_output_frequency > 0))
     {
         ++iter_output_id;
@@ -309,9 +311,9 @@ int nova_main(int argc, char** argv)
 
         outputs_record.emplace_back(iter, t);
         ++output_id;
-        write_xml(grid, outputs_record, param.directory, param.prefix, x_glob, y_glob, z_glob);
+        xml_writer(grid, output_id, outputs_record, x_glob, y_glob, z_glob);
         write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
-        print_simulation_status(std::cout, iter, t, param.t_end);
+        print_simulation_status(std::cout, iter, t, param.t_end, output_id);
     }
 
     double initial_mass = integrate(grid.range.no_ghosts(), grid, rho.d_view);
@@ -319,6 +321,9 @@ int nova_main(int argc, char** argv)
     Kokkos::fence();
     MPI_Barrier(grid.comm_cart);
     std::chrono::steady_clock::time_point const start = std::chrono::steady_clock::now();
+
+    std::chrono::hours time_save(20); // 20 hours save
+    //std::chrono::seconds time_save(20); //to test
 
     while (!should_exit)
     {
@@ -355,6 +360,14 @@ int nova_main(int argc, char** argv)
         {
             should_exit = true;
         }
+
+        // if time save > duration simulation
+        if ((std::chrono::steady_clock::now() - start) >= time_save)
+        {
+            make_output = true;
+            should_exit = true;
+        }
+        MPI_Bcast(&should_exit, 1, MPI_C_BOOL, 0, grid.comm_cart);
 
         double min_internal_energy = internal_energy(grid.range.no_ghosts(), grid, rho.d_view, rhou.d_view, E.d_view);
         if (Kokkos::isnan(min_internal_energy) || min_internal_energy < 0)
@@ -401,9 +414,9 @@ int nova_main(int argc, char** argv)
 
             outputs_record.emplace_back(iter, t);
             ++output_id;
-            write_xml(grid, outputs_record, param.directory, param.prefix, x_glob, y_glob, z_glob);
+            xml_writer(grid, output_id, outputs_record, x_glob, y_glob, z_glob);
             write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
-            print_simulation_status(std::cout, iter, t, param.t_end);
+            print_simulation_status(std::cout, iter, t, param.t_end, output_id);
         }
     }
 

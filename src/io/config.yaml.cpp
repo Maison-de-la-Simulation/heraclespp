@@ -5,17 +5,12 @@ pdi:
   metadata:
     ndim: int
     nfx: int
-    max_iter: int
-    frequency: int
     output_id: int
     iter_output_id: int
     time_output_id: int
     iter: int
     gamma: double
-    time_out: double
     current_time: double
-    mpi_rank: int
-    mpi_size: int
     nx_glob_ng: {type: array, subtype: int, size: 3}
     nx_local_ng: {type: array, subtype: int, size: 3}
     nx_local_wg: {type: array, subtype: int, size: 3}
@@ -25,12 +20,11 @@ pdi:
     restart_filename: { type: array, subtype: char, size: $restart_filename_size }
     directory_size: int
     directory: { type: array, subtype: char, size: $directory_size }
-    prefix_size: int
-    prefix: { type: array, subtype: char, size: $prefix_size }
+    output_filename_size: int
+    output_filename: { type: array, subtype: char, size: $output_filename_size }
     init_filename_size: int
     init_filename: { type: array, subtype: char, size: $init_filename_size }
     grid_communicator: MPI_Comm
-
 
   data: # this describes the data that is local to each process
     u:   { type: array, subtype: double, size: ['$ndim', '$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]'] }
@@ -50,7 +44,7 @@ pdi:
   plugins:
     mpi:
     decl_hdf5:
-      - file: ${directory}/${prefix}_${output_id:08}.h5
+      - file: ${directory}//${output_filename}
         collision_policy: replace
         communicator: '$grid_communicator'
         on_event: write_file

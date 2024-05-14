@@ -241,12 +241,12 @@ public:
 
                                     // Velocity term (e_{phi}): cot(th) * rho * u_{phi} * u_{th} / r
                                     rhou_rec(i, j, k, 0, ipos, 2) -= source_grad_u_phi(dtodv, y(j), y(j+1),
-                                                                    primL.rho, primL.u[1], primL.u[2],
-                                                                    primR.rho, primR.u[1], primR.u[2],
+                                                                    primL.rho, primR.rho, primL.u[1], primR.u[1],
+                                                                    primL.u[2], primR.u[2],
                                                                     ds(i, j, k, idim), ds(i_p, j_p, k_p, idim));
                                     rhou_rec(i, j, k, 1, ipos, 2) -= source_grad_u_phi(dtodv, y(j), y(j+1),
-                                                                    primL.rho, primL.u[1], primL.u[2],
-                                                                    primR.rho, primR.u[1], primR.u[2],
+                                                                    primL.rho, primR.rho, primL.u[1], primR.u[1],
+                                                                    primL.u[2], primR.u[2],
                                                                     ds(i, j, k, idim), ds(i_p, j_p, k_p, idim));
                                 }
                             }
