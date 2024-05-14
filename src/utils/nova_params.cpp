@@ -41,6 +41,7 @@ Param::Param(INIReader const& reader)
     time_output_frequency = reader.GetReal("Output", "time_frequency", 0.0);
     directory = reader.Get("Output", "directory", "../build");
     prefix = reader.Get("Output", "prefix", "result");
+    time_job = reader.GetInteger("Output", "time_job", 20);
 
     reconstruction_type = reader.Get("Hydro", "reconstruction", "VanLeer");
     riemann_solver = reader.Get("Hydro", "riemann_solver", "HLL");

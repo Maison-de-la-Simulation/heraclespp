@@ -322,8 +322,7 @@ int nova_main(int argc, char** argv)
     MPI_Barrier(grid.comm_cart);
     std::chrono::steady_clock::time_point const start = std::chrono::steady_clock::now();
 
-    std::chrono::hours time_save(20); // 20 hours save
-    //std::chrono::seconds time_save(20); //to test
+    std::chrono::hours time_save(param.time_job);
 
     while (!should_exit)
     {
