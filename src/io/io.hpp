@@ -18,7 +18,12 @@ namespace novapp
 class Grid;
 class Param;
 
-void print_simulation_status(std::ostream& os, int iter, double current, double time_out);
+void print_simulation_status(
+    std::ostream& os,
+    int iter,
+    double current,
+    double time_out,
+    int output_id);
 
 void write_pdi_init(Grid const& grid, Param const& param);
 

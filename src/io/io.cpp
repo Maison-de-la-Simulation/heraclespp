@@ -53,7 +53,8 @@ void print_simulation_status(
         std::ostream& os,
         int const iter,
         double const current,
-        double const time_out)
+        double const time_out,
+        int const output_id)
 {
     int mpi_rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
@@ -61,7 +62,8 @@ void print_simulation_status(
         std::stringstream ss;
         ss << std::setfill('*') << std::setw(81) << '\n';
         ss << "current iteration " << iter << " : \n";
-        ss << "current time = " << current << " ( ~ " << 100 * current / time_out << "%)\n\n";
+        ss << "current time = " << current << " ( ~ " << 100 * current / time_out << "%)\n";
+        ss << "file number  = " << output_id << "\n\n";
         os << ss.str();
     }
 }
