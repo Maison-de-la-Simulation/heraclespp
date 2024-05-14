@@ -48,6 +48,7 @@ public :
     bool mpi_device_aware;
     std::string pressure_fix;
     double eps_pf;
+    int time_job;
 
     explicit Param(INIReader const& reader);
 
