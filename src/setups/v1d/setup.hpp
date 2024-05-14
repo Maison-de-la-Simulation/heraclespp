@@ -115,10 +115,8 @@ public:
         auto const zc = grid.z_center;
         auto const x = grid.x;
 
-        int ny = rho.extent_int(1) - 4;
-        int nz = rho.extent_int(2) - 4;
-        //double xchoc = 6.1E9; // tini = 500
-        //double xchoc = 5.5E8; // tini = 50
+        int ny = rho.extent_int(1) - 2 * grid.Nghost[1];
+        int nz = rho.extent_int(2) - 2 * grid.Nghost[2];
 
         Kokkos::Random_XorShift64_Pool<> random_pool(54321);
         int kx1 = 60;
@@ -165,14 +163,14 @@ public:
                     }
 
                     // r perturbation
-		    double xmin = x(grid.Nghost[0]);
+                    double xmin = x(grid.Nghost[0]);
                     double x0 = param_setup.xchoc - xmin;
                     double sigma = 0.1 * x0 * x0;
                     petrurb_r = Kokkos::exp(-(xc(i) - x0) * (xc(i) - x0) / sigma) * Kokkos::cos(kx1 * xc(i) + kx2 * xc(i));
 
                     random_pool.free_state(generator);
                 }
-
+                double rho_av = rho(i, j, k);
                 double perturb = 0.1 * petrurb_r + perturb_th_ph;
                 rho(i, j, k) = rho(i, j, k) * (1 + perturb + 0.01 * noise);
                 u(i, j, k, 0) = u(i, j, k, 0) * (1 + perturb + 0.01 * noise);
