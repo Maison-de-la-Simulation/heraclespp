@@ -114,7 +114,8 @@ public:
         auto const yc = grid.y_center;
         auto const zc = grid.z_center;
         auto const x = grid.x;
-        double xmin = x(grid.Nghost[0]);
+        auto const y = grid.y;
+        auto const z = grid.z;
 
         /* int ny = rho.extent_int(1) - 2 * grid.Nghost[1];
         int nz = rho.extent_int(2) - 2 * grid.Nghost[2];
@@ -164,6 +165,7 @@ public:
                     }
 
                     // r perturbation
+                    double xmin = x(grid.Nghost[0]);
                     double x0 = param_setup.xchoc - xmin;
                     double sigma = 0.1 * x0 * x0;
                     petrurb_r = Kokkos::exp(-(xc(i) - x0) * (xc(i) - x0) / sigma) * Kokkos::cos(kx1 * xc(i) + kx2 * xc(i));
@@ -181,8 +183,6 @@ public:
         double kx = 60;
         int ny = 20;
         int nz = 20;
-        double ky = (2 * units::pi * ny) / (param_setup.ymax - param_setup.ymin);
-        double kz = (2 * units::pi * nz) / (param_setup.zmax - param_setup.zmin);
         Kokkos::Random_XorShift64_Pool<> random_pool(12345 + grid.mpi_rank);
 
         Kokkos::parallel_for(
@@ -190,6 +190,14 @@ public:
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
+                double xmin = x(grid.Nghost[0]);
+                double ymin = y(grid.Nghost[1]);
+                double ymax = y(grid.Nx_local_ng[1] + grid.Nghost[1]);
+                double zmax = z(grid.Nx_local_ng[2] + grid.Nghost[2]);
+                double zmin = z(grid.Nghost[2]);
+                double ky = (2 * units::pi * ny) / (ymax - ymin);
+                double kz = (2 * units::pi * nz) / (zmax - zmin);
+
                 double perturb = 0;
                 double noise = 0;
 
@@ -215,8 +223,6 @@ public:
                 double u_av = u(i, j, k, 0);
                 rho(i, j, k) *= 1 + 0.1 * perturb + 0.01 * noise;
                 u(i, j, k, 0) *= 1 + 0.1 * perturb + 0.01 * noise;
-                std::cout << xc(i) << " " << rho_av << " " << rho(i, j, k) << std::endl;
-                std::cout << xc(i) << " " << u_av << " " << u(i, j, k, 0) << std::endl;
             });
     }
 };
