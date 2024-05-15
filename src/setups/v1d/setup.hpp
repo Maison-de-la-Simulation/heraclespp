@@ -114,8 +114,9 @@ public:
         auto const yc = grid.y_center;
         auto const zc = grid.z_center;
         auto const x = grid.x;
+        double xmin = x(grid.Nghost[0]);
 
-        int ny = rho.extent_int(1) - 2 * grid.Nghost[1];
+        /* int ny = rho.extent_int(1) - 2 * grid.Nghost[1];
         int nz = rho.extent_int(2) - 2 * grid.Nghost[2];
 
         Kokkos::Random_XorShift64_Pool<> random_pool(54321);
@@ -163,7 +164,6 @@ public:
                     }
 
                     // r perturbation
-                    double xmin = x(grid.Nghost[0]);
                     double x0 = param_setup.xchoc - xmin;
                     double sigma = 0.1 * x0 * x0;
                     petrurb_r = Kokkos::exp(-(xc(i) - x0) * (xc(i) - x0) / sigma) * Kokkos::cos(kx1 * xc(i) + kx2 * xc(i));
@@ -174,11 +174,11 @@ public:
                 double perturb = 0.1 * petrurb_r + perturb_th_ph;
                 rho(i, j, k) = rho(i, j, k) * (1 + perturb + 0.01 * noise);
                 u(i, j, k, 0) = u(i, j, k, 0) * (1 + perturb + 0.01 * noise);
-            });
+            }); */
 
         // other type of perturbation
 
-        /*  double kx = 60;
+        double kx = 60;
         int ny = 20;
         int nz = 20;
         double ky = (2 * units::pi * ny) / (param_setup.ymax - param_setup.ymin);
@@ -211,10 +211,13 @@ public:
                         perturb *= Kokkos::sin(ky * yc(j)) * Kokkos::cos(kz * zc(k));
                     }
                 }
-
+                double rho_av = rho(i, j, k);
+                double u_av = u(i, j, k, 0);
                 rho(i, j, k) *= 1 + 0.1 * perturb + 0.01 * noise;
                 u(i, j, k, 0) *= 1 + 0.1 * perturb + 0.01 * noise;
-            }); */
+                std::cout << xc(i) << " " << rho_av << " " << rho(i, j, k) << std::endl;
+                std::cout << xc(i) << " " << u_av << " " << u(i, j, k, 0) << std::endl;
+            });
     }
 };
 
