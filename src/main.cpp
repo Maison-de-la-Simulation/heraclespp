@@ -366,7 +366,7 @@ int nova_main(int argc, char** argv)
             make_output = true;
             should_exit = true;
         }
-        MPI_Bcast(&should_exit, 1, MPI_C_BOOL, 0, grid.comm_cart);
+        MPI_Bcast(&should_exit, 1, MPI_CXX_BOOL, 0, grid.comm_cart);
 
         double min_internal_energy = internal_energy(grid.range.no_ghosts(), grid, rho.d_view, rhou.d_view, E.d_view);
         if (Kokkos::isnan(min_internal_energy) || min_internal_energy < 0)
