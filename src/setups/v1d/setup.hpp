@@ -117,7 +117,7 @@ public:
         auto const y = grid.y;
         auto const z = grid.z;
 
-        /* int ny = rho.extent_int(1) - 2 * grid.Nghost[1];
+        int ny = rho.extent_int(1) - 2 * grid.Nghost[1];
         int nz = rho.extent_int(2) - 2 * grid.Nghost[2];
 
         Kokkos::Random_XorShift64_Pool<> random_pool(54321);
@@ -176,11 +176,11 @@ public:
                 double perturb = 0.1 * petrurb_r + perturb_th_ph;
                 rho(i, j, k) = rho(i, j, k) * (1 + perturb + 0.01 * noise);
                 u(i, j, k, 0) = u(i, j, k, 0) * (1 + perturb + 0.01 * noise);
-            }); */
+            });
 
         // other type of perturbation
 
-        double kx = 60;
+        /* double kx = 60;
         int ny = 20;
         int nz = 20;
         Kokkos::Random_XorShift64_Pool<> random_pool(12345 + grid.mpi_rank);
@@ -223,7 +223,7 @@ public:
                 double u_av = u(i, j, k, 0);
                 rho(i, j, k) *= 1 + 0.1 * perturb + 0.01 * noise;
                 u(i, j, k, 0) *= 1 + 0.1 * perturb + 0.01 * noise;
-            });
+            }); */
     }
 };
 
