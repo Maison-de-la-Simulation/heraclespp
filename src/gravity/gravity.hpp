@@ -63,9 +63,13 @@ public :
             int i,
             [[maybe_unused]] int j,
             [[maybe_unused]] int k,
-            [[maybe_unused]] int dir) const
+            int dir) const
     {
-        return m_g(i);
+        if (dir == 0)
+        {
+            return m_g(i);
+        }
+        return 0;
     }
 };
 
