@@ -227,10 +227,10 @@ int nova_main(int argc, char** argv)
 
         if(grid.mpi_rank==0)
         {
-            std::cout << std::endl << std::left << std::setw(80) << std::setfill('*') << "*" << std::endl;
-            std::cout << "read from file " << param.restart_file << std::endl;
+            std::cout << '\n' << std::left << std::setw(81) << std::setfill('*') << '\n';
+            std::cout << "read from file " << param.restart_file << '\n';
             std::cout << "starting at time " << t << " ( ~ "<<100*t/param.t_end<<"%)"
-                    << ", with iteration  "<< iter << std::endl << std::endl;
+                    << ", with iteration  "<< iter << "\n\n";
         }
     }
     else
@@ -371,7 +371,7 @@ int nova_main(int argc, char** argv)
         double min_internal_energy = internal_energy(grid.range.no_ghosts(), grid, rho.d_view, rhou.d_view, E.d_view);
         if (Kokkos::isnan(min_internal_energy) || min_internal_energy < 0)
         {
-            std::cout << "Time  = " << t << " and number of iterations = " << iter << std::endl;
+            std::cout << "Time  = " << t << " and number of iterations = " << iter << '\n';
             throw std::runtime_error("Volumic internal energy < 0");
         }
 
@@ -436,10 +436,10 @@ int nova_main(int argc, char** argv)
         double const nb_cell_updates_per_sec = nb_iter * nb_cells / duration;
         double const mega = 1E-6;
         double mass_change = std::abs(initial_mass - final_mass);
-        std::cout << "Final time = " << t << " and number of iterations = " << iter << std::endl;
-        std::cout << "Mean performance: " << mega * nb_cell_updates_per_sec << " Mcell-updates/s" << std::endl;
-        std::cout << "Initial mass = " << initial_mass << " and change in mass = " << mass_change << std::endl;
-        std::cout << "--- End ---" << std::endl;
+        std::cout << "Final time = " << t << " and number of iterations = " << iter << '\n';
+        std::cout << "Mean performance: " << mega * nb_cell_updates_per_sec << " Mcell-updates/s\n";
+        std::cout << "Initial mass = " << initial_mass << " and change in mass = " << mass_change << '\n';
+        std::cout << "--- End ---\n";
     }
     MPI_Comm_free(&(const_cast<Grid&>(grid).comm_cart));
     PDI_finalize();
@@ -458,7 +458,7 @@ int main(int argc, char** argv)
     }
     catch(std::exception const& e)
     {
-        std::cerr << e.what() << std::endl;
+        std::cerr << e.what() << '\n';
     }
 
     return EXIT_FAILURE;

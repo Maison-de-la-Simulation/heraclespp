@@ -27,7 +27,7 @@ void print_info(std::string_view const var_name, T const var_value)
 {
     using namespace std;
     cout << left  << setw(40) << setfill('.') << var_name;
-    cout << right << setw(40) << setfill('.') << var_value << endl;
+    cout << right << setw(40) << setfill('.') << var_value << '\n';
 }
 
 class Grid
