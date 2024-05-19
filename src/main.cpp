@@ -43,6 +43,7 @@
 #include <paraconf.h>
 #include <pdi.h>
 #include <pressure_fix.hpp>
+#include <print_info.hpp>
 #include <range.hpp>
 #include <temperature.hpp>
 #include <time_step.hpp>
@@ -109,9 +110,10 @@ int nova_main(int argc, char** argv)
     if (grid.mpi_rank == 0)
     {
         Kokkos::print_configuration(std::cout);
+
+        grid.print_grid(std::cout);
     }
 
-    grid.print_grid();
 
     EOS const eos(param.gamma, param.mu);
 
@@ -171,22 +173,22 @@ int nova_main(int argc, char** argv)
 
      if(grid.mpi_rank==0)
     {
-        print_info("SETUP", MY_SETUP);
-        print_info("EOS", eos_choice);
-        print_info("GEOMETRIE", geom_choice);
+        print_info(std::cout, "SETUP", MY_SETUP);
+        print_info(std::cout, "EOS", eos_choice);
+        print_info(std::cout, "GEOMETRIE", geom_choice);
     }
 
 #if defined(NOVAPP_GRAVITY_Uniform)
     using Gravity = UniformGravity;
     if(grid.mpi_rank==0)
     {
-        print_info("GRAVITY", "Uniform");
+        print_info(std::cout, "GRAVITY", "Uniform");
     }
 #elif defined(NOVAPP_GRAVITY_Point_mass)
     using Gravity = PointMassGravity;
     if(grid.mpi_rank==0)
     {
-        print_info("GRAVITY", "Point_mass");
+        print_info(std::cout, "GRAVITY", "Point_mass");
     }
 #else
     static_assert(false, "Gravity not defined");
@@ -206,10 +208,10 @@ int nova_main(int argc, char** argv)
     {
         if (param.pressure_fix == "On")
         {
-            print_info("PRESSURE_FIX", param.pressure_fix);
+            print_info(std::cout, "PRESSURE_FIX", param.pressure_fix);
         }
-        print_info("RIEMANN_SOLVER", param.riemann_solver);
-        print_info("USER_STEP", param.user_step);
+        print_info(std::cout, "RIEMANN_SOLVER", param.riemann_solver);
+        print_info(std::cout, "USER_STEP", param.user_step);
     }
 
     if(param.restart) // complete restart with a file fom the code

@@ -11,6 +11,7 @@
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
 #include <nova_params.hpp>
+#include <print_info.hpp>
 
 #include "geometry.hpp"
 #include "geometry_factory.hpp"
@@ -199,49 +200,46 @@ void Grid::set_grid(KV_double_1d const& x_glob, KV_double_1d const& y_glob, KV_d
     grid_geometry->execute(range.all_ghosts(), x, y, z, dx, dy, dz, ds, dv);
 }
 
-void Grid::print_grid() const
+void Grid::print_grid(std::ostream& os) const
 {
-    if(mpi_rank==0)
-    {
-        print_info("Ndim", ndim);
-        print_info("Nghost[0]", Nghost[0]);
-        print_info("Nghost[1]", Nghost[1]);
-        print_info("Nghost[2]", Nghost[2]);
+    print_info(os, "Ndim", ndim);
+    print_info(os, "Nghost[0]", Nghost[0]);
+    print_info(os, "Nghost[1]", Nghost[1]);
+    print_info(os, "Nghost[2]", Nghost[2]);
 
-        print_info("Ncpu", Ncpu);
+    print_info(os, "Ncpu", Ncpu);
 
-        print_info("Ncpu_x[0]", Ncpu_x[0]);
-        print_info("Ncpu_x[1]", Ncpu_x[1]);
-        print_info("Ncpu_x[2]", Ncpu_x[2]);
+    print_info(os, "Ncpu_x[0]", Ncpu_x[0]);
+    print_info(os, "Ncpu_x[1]", Ncpu_x[1]);
+    print_info(os, "Ncpu_x[2]", Ncpu_x[2]);
 
-        print_info("Nx_glob_ng[0]", Nx_glob_ng[0]);
-        print_info("Nx_glob_ng[1]", Nx_glob_ng[1]);
-        print_info("Nx_glob_ng[2]", Nx_glob_ng[2]);
+    print_info(os, "Nx_glob_ng[0]", Nx_glob_ng[0]);
+    print_info(os, "Nx_glob_ng[1]", Nx_glob_ng[1]);
+    print_info(os, "Nx_glob_ng[2]", Nx_glob_ng[2]);
 
-        print_info("Nx[0]", Nx_local_ng[0]);
-        print_info("Nx[1]", Nx_local_ng[1]);
-        print_info("Nx[2]", Nx_local_ng[2]);
+    print_info(os, "Nx[0]", Nx_local_ng[0]);
+    print_info(os, "Nx[1]", Nx_local_ng[1]);
+    print_info(os, "Nx[2]", Nx_local_ng[2]);
 
-        print_info("Nx_local_wg[0]", Nx_local_wg[0]);
-        print_info("Nx_local_wg[1]", Nx_local_wg[1]);
-        print_info("Nx_local_wg[2]", Nx_local_wg[2]);
+    print_info(os, "Nx_local_wg[0]", Nx_local_wg[0]);
+    print_info(os, "Nx_local_wg[1]", Nx_local_wg[1]);
+    print_info(os, "Nx_local_wg[2]", Nx_local_wg[2]);
 
-        print_info("NBlock[0]", NBlock[0]);
-        print_info("NBlock[1]", NBlock[1]);
-        print_info("NBlock[2]", NBlock[2]);
+    print_info(os, "NBlock[0]", NBlock[0]);
+    print_info(os, "NBlock[1]", NBlock[1]);
+    print_info(os, "NBlock[2]", NBlock[2]);
 
-        print_info("Nx_block[0]", Nx_block[0]);
-        print_info("Nx_block[1]", Nx_block[1]);
-        print_info("Nx_block[2]", Nx_block[2]);
+    print_info(os, "Nx_block[0]", Nx_block[0]);
+    print_info(os, "Nx_block[1]", Nx_block[1]);
+    print_info(os, "Nx_block[2]", Nx_block[2]);
 
-        print_info("Corner_min[0]", range.Corner_min[0]);
-        print_info("Corner_min[1]", range.Corner_min[1]);
-        print_info("Corner_min[2]", range.Corner_min[2]);
+    print_info(os, "Corner_min[0]", range.Corner_min[0]);
+    print_info(os, "Corner_min[1]", range.Corner_min[1]);
+    print_info(os, "Corner_min[2]", range.Corner_min[2]);
 
-        print_info("Corner_max[0]", range.Corner_max[0]);
-        print_info("Corner_max[1]", range.Corner_max[1]);
-        print_info("Corner_max[2]", range.Corner_max[2]);
-    }
+    print_info(os, "Corner_max[0]", range.Corner_max[0]);
+    print_info(os, "Corner_max[1]", range.Corner_max[1]);
+    print_info(os, "Corner_max[2]", range.Corner_max[2]);
 }
 
 } // namespace novapp
