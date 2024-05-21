@@ -77,7 +77,7 @@ inline PointMassGravity make_point_mass_gravity(
     Param const& param,
     Grid const& grid)
 {
-    KV_double_1d g_array_dv("g_array", grid.Nx_local_wg[0]);
+    KV_double_1d g_array("g_array", grid.Nx_local_wg[0]);
     double const M = param.M;
 
     Kokkos::parallel_for(
@@ -85,10 +85,10 @@ inline PointMassGravity make_point_mass_gravity(
         Kokkos::RangePolicy<int>(0, grid.Nx_local_wg[0]),
         KOKKOS_LAMBDA(int i)
         {
-            auto const xc = grid.x_center(i);
-            g_array_dv(i) = - units::G * M / (xc * xc);
+            double const xc = grid.x_center(i);
+            g_array(i) = - units::G * M / (xc * xc);
         });
-    return PointMassGravity(g_array_dv);
+    return PointMassGravity(g_array);
 }
 
 } // namespace novapp
