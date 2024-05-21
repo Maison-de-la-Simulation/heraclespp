@@ -362,13 +362,16 @@ int nova_main(int argc, char** argv)
             should_exit = true;
         }
 
-        // if time save > duration simulation
-        if ((std::chrono::steady_clock::now() - start) >= time_save)
         {
-            make_output = true;
-            should_exit = true;
+            // if time save > duration simulation
+            bool save_and_exit = (std::chrono::steady_clock::now() - start) >= time_save;
+            MPI_Bcast(&save_and_exit, 1, MPI_CXX_BOOL, 0, grid.comm_cart);
+            if (save_and_exit)
+            {
+                make_output = true;
+                should_exit = true;
+            }
         }
-        MPI_Bcast(&should_exit, 1, MPI_CXX_BOOL, 0, grid.comm_cart);
 
         double min_internal_energy = internal_energy(grid.range.no_ghosts(), grid, rho.d_view, rhou.d_view, E.d_view);
         if (Kokkos::isnan(min_internal_energy) || min_internal_energy < 0)
