@@ -72,11 +72,12 @@ void write_pdi_init(
     Grid const& grid,
     Param const& param)
 {
-    int simu_ndim = ndim;
-    int simu_nfx = param.nfx;
+    int const simu_ndim = ndim;
+    int const simu_nfx = param.nfx;
 
     PDI_multi_expose(
         "init_PDI",
+        "nullptr", nullptr, PDI_OUT,
         "ndim", &simu_ndim, PDI_OUT,
         "nfx", &simu_nfx, PDI_OUT,
         "n_ghost", grid.Nghost.data(), PDI_OUT,
@@ -85,18 +86,18 @@ void write_pdi_init(
         "nx_local_wg", grid.Nx_local_wg.data(), PDI_OUT,
         "start", grid.range.Corner_min.data(), PDI_OUT,
         "grid_communicator", &grid.comm_cart, PDI_OUT,
-        NULL);
+        nullptr);
 }
 
 void write_pdi(
-    std::string directory,
-    std::string prefix,
-    int output_id,
-    int iter_output_id,
-    int time_output_id,
-    int iter,
-    double t,
-    double gamma,
+    std::string const& directory,
+    std::string const& prefix,
+    int const output_id,
+    int const iter_output_id,
+    int const time_output_id,
+    int const iter,
+    double const t,
+    double const gamma,
     KDV_double_3d& rho,
     KDV_double_4d& u,
     KDV_double_3d& P,
@@ -108,12 +109,13 @@ void write_pdi(
     KDV_double_3d& T)
 {
     assert(span_is_contiguous(rho, u, P, E, fx, T));
-    int directory_size = directory.size();
-    std::string output_filename = get_output_filename(prefix, output_id);
-    int output_filename_size = output_filename.size();
+    int const directory_size = directory.size();
+    std::string const output_filename = get_output_filename(prefix, output_id);
+    int const output_filename_size = output_filename.size();
     sync_host(rho, u, P, E, fx, T, x, y, z);
     PDI_multi_expose(
         "write_file",
+        "nullptr", nullptr, PDI_OUT,
         "directory_size", &directory_size, PDI_OUT,
         "directory", directory.data(), PDI_OUT,
         "output_filename_size", &output_filename_size, PDI_OUT,
@@ -133,11 +135,11 @@ void write_pdi(
         "z", z.h_view.data(), PDI_OUT,
         "fx", fx.h_view.data(), PDI_OUT,
         "T", T.h_view.data(), PDI_OUT,
-        NULL);
+        nullptr);
 }
 
 void read_pdi(
-    std::string restart_file,
+    std::string const& restart_file,
     int& output_id,
     int& iter_output_id,
     int& time_output_id,
@@ -152,9 +154,10 @@ void read_pdi(
     KDV_double_1d& z_glob)
 {
     assert(span_is_contiguous(rho, u, P, fx));
-    int filename_size = restart_file.size();
+    int const filename_size = restart_file.size();
     PDI_multi_expose(
         "read_file",
+        "nullptr", nullptr, PDI_OUT,
         "restart_filename_size", &filename_size, PDI_OUT,
         "restart_filename", restart_file.data(), PDI_OUT,
         "output_id", &output_id, PDI_INOUT,
@@ -169,7 +172,7 @@ void read_pdi(
         "x", x_glob.h_view.data(), PDI_INOUT,
         "y", y_glob.h_view.data(), PDI_INOUT,
         "z", z_glob.h_view.data(), PDI_INOUT,
-        NULL);
+        nullptr);
     modify_host(rho, u, P, fx, x_glob, y_glob, z_glob);
 }
 

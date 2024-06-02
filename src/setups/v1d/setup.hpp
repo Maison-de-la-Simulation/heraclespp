@@ -72,16 +72,17 @@ public:
         KDV_double_1d P_1d("P_1d", m_grid.Nx_local_ng[0]);
         KDV_double_2d fx_1d("fx_1d", m_grid.Nx_local_ng[0], fx.extent_int(3));
 
-        int filename_size = m_param_setup.init_filename.size();
+        int const filename_size = m_param_setup.init_filename.size();
         PDI_multi_expose(
             "read_hydro_1d",
+            "nullptr", nullptr, PDI_OUT,
             "init_filename_size", &filename_size, PDI_OUT,
             "init_filename", m_param_setup.init_filename.data(), PDI_OUT,
             "rho_1d", rho_1d.h_view.data(), PDI_INOUT,
             "u_1d", u_1d.h_view.data(), PDI_INOUT,
             "P_1d", P_1d.h_view.data(), PDI_INOUT,
             "fx_1d", fx_1d.h_view.data(), PDI_INOUT,
-            NULL);
+            nullptr);
         modify_host(rho_1d, u_1d, P_1d, fx_1d);
         sync_device(rho_1d, u_1d, P_1d, fx_1d);
 
@@ -117,14 +118,15 @@ public:
         KVH_double_1d const& y_glob,
         KVH_double_1d const& z_glob) const final
     {
-        std::string init_file = m_param.reader.Get("problem", "init_file", "");
-        int filename_size = init_file.size();
+        std::string const init_file = m_param.reader.Get("problem", "init_file", "");
+        int const filename_size = init_file.size();
         PDI_multi_expose(
             "read_mesh_1d",
+            "nullptr", nullptr, PDI_OUT,
             "init_filename_size", &filename_size, PDI_OUT,
             "init_filename", init_file.data(), PDI_OUT,
             "x", x_glob.data(), PDI_INOUT,
-            NULL);
+            nullptr);
 
         compute_regular_mesh_1d(y_glob, Nghost[1], m_param.ymin, (m_param.ymax - m_param.ymin) / Nx_glob_ng[1]);
         compute_regular_mesh_1d(z_glob, Nghost[2], m_param.zmin, (m_param.zmax - m_param.zmin) / Nx_glob_ng[2]);
