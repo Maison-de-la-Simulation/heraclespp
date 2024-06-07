@@ -28,6 +28,7 @@
 #include <extrapolation_time.hpp>
 #include <face_reconstruction.hpp>
 #include <geom.hpp>
+#include <git_version.hpp>
 #include <godunov_scheme.hpp>
 #include <gravity.hpp>
 #include <grid.hpp>
@@ -212,6 +213,10 @@ int nova_main(int argc, char** argv)
         }
         print_info(std::cout, "RIEMANN_SOLVER", param.riemann_solver);
         print_info(std::cout, "USER_STEP", param.user_step);
+        print_info(std::cout, "git_branch", git_branch);
+        print_info(std::cout, "git_build_string", git_build_string);
+        print_info(std::cout, "compile_date", compile_date);
+        print_info(std::cout, "compile_time", compile_time);
     }
 
     if(param.restart) // complete restart with a file fom the code
@@ -314,7 +319,7 @@ int nova_main(int argc, char** argv)
         outputs_record.emplace_back(iter, t);
         ++output_id;
         xml_writer(grid, output_id, outputs_record, x_glob, y_glob, z_glob);
-        write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
+        write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), grid, rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
         print_simulation_status(std::cout, iter, t, param.t_end, output_id);
     }
 
@@ -419,7 +424,7 @@ int nova_main(int argc, char** argv)
             outputs_record.emplace_back(iter, t);
             ++output_id;
             xml_writer(grid, output_id, outputs_record, x_glob, y_glob, z_glob);
-            write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
+            write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), grid, rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
             print_simulation_status(std::cout, iter, t, param.t_end, output_id);
         }
     }

@@ -36,6 +36,7 @@ void write_pdi(
     int iter,
     double t,
     double gamma,
+    Grid const& grid,
     KDV_double_3d& rho,
     KDV_double_4d& u,
     KDV_double_3d& P,

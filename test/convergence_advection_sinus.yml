@@ -9,6 +9,10 @@ pdi:
     n_ghost: {type: array, subtype: int, size: 3}
     start: {type: array, subtype: int, size: 3}
     grid_communicator: MPI_Comm
+    directory_size: int
+    directory: { type: array, subtype: char, size: $directory_size }
+    output_filename_size: int
+    output_filename: { type: array, subtype: char, size: $output_filename_size }
 
   data: # this describe the data that will be send by each proc
     rho: { type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]' ] }
@@ -19,7 +23,7 @@ pdi:
   plugins:
     mpi:
     decl_hdf5:
-      - file: convergence_test_advection_sinus_${nx_glob_ng[0]:08}.h5
+      - file: ${directory}//${output_filename}
         collision_policy: write_into
         communicator: '$grid_communicator'
         on_event: write_file

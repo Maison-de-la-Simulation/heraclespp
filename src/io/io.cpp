@@ -5,12 +5,15 @@
 #include <iomanip>
 #include <ostream>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <utility>
 #include <vector>
 
+#include <git_version.hpp>
 #include <grid.hpp>
+#include <hdf5.h>
 #include <ndim.hpp>
 #include <nova_params.hpp>
 #include <pdi.h>
@@ -18,6 +21,66 @@
 #include "io.hpp"
 
 namespace {
+
+class raii_h5_hid
+{
+private:
+    hid_t m_id;
+
+    std::function<herr_t(hid_t)> m_close;
+
+public:
+    raii_h5_hid(hid_t id, herr_t (*f)(hid_t)) : m_id(id), m_close(f)
+    {
+        if (m_id < 0 || !m_close) {
+            throw std::runtime_error("Nova++ error: creating h5 id failed");
+        }
+    }
+
+    raii_h5_hid(const raii_h5_hid&) = delete;
+
+    raii_h5_hid(raii_h5_hid&&) = delete;
+
+    ~raii_h5_hid() noexcept
+    {
+        if (m_id >= 0 && m_close) {
+            m_close(m_id);
+        }
+    }
+
+    raii_h5_hid& operator=(const raii_h5_hid&) = delete;
+
+    raii_h5_hid& operator=(raii_h5_hid&&) = delete;
+
+    hid_t operator*() const noexcept
+    {
+        return m_id;
+    }
+};
+
+void write_string_attribute(
+        raii_h5_hid const& file_id,
+        char const* const attribute_name,
+        std::string_view const attribute_value)
+{
+    raii_h5_hid const space_id(::H5Screate(H5S_SCALAR), ::H5Sclose);
+
+    raii_h5_hid const type_id(::H5Tcopy(H5T_C_S1), ::H5Tclose);
+    if (::H5Tset_size(*type_id, attribute_value.size()) < 0) {
+        throw std::runtime_error("Nova++ error: defining the size of the datatype failed");
+    }
+    if (::H5Tset_cset(*type_id, H5T_CSET_UTF8) < 0) {
+        throw std::runtime_error("Nova++ error: defining utf-8 character set failed");
+    }
+
+    raii_h5_hid const attr_id(
+            ::H5Acreate2(*file_id, attribute_name, *type_id, *space_id, H5P_DEFAULT, H5P_DEFAULT),
+            ::H5Aclose);
+
+    if (::H5Awrite(*attr_id, *type_id, attribute_value.data()) < 0) {
+        throw std::runtime_error("Nova++ error: writing attribute failed");
+    }
+}
 
 template <class... Views>
 bool span_is_contiguous(Views const&... views)
@@ -98,6 +161,7 @@ void write_pdi(
     int const iter,
     double const t,
     double const gamma,
+    Grid const& grid,
     KDV_double_3d& rho,
     KDV_double_4d& u,
     KDV_double_3d& P,
@@ -136,6 +200,14 @@ void write_pdi(
         "fx", fx.h_view.data(), PDI_OUT,
         "T", T.h_view.data(), PDI_OUT,
         nullptr);
+    if (grid.mpi_rank == 0)
+    {
+        raii_h5_hid const file_id(::H5Fopen((directory + '/' + output_filename).c_str(), H5F_ACC_RDWR, H5P_DEFAULT), H5Fclose);
+        write_string_attribute(file_id, "git_build_string", git_build_string);
+        write_string_attribute(file_id, "git_branch", git_branch);
+        write_string_attribute(file_id, "compile_date", compile_date);
+        write_string_attribute(file_id, "compile_time", compile_time);
+    }
 }
 
 void read_pdi(
