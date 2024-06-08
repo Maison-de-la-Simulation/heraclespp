@@ -9,6 +9,7 @@ variables:
   CMAKE_GENERATOR: Ninja
 
 before_script:
+  - git config --global --add safe.directory $CI_PROJECT_DIR
   - git config --global --add safe.directory $CI_PROJECT_DIR/vendor/kokkos
 
 stages:
