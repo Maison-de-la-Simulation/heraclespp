@@ -36,8 +36,10 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     python3-pip \
  && apt-get install -y --no-install-recommends \
     cuda-toolkit-11-8 \
+    libhdf5-openmpi-dev \
     libopenmpi-dev \
     libpdi-dev \
+    ninja-build \
     pdidev-archive-keyring \
     pdiplugin-decl-hdf5-openmpi \
     pdiplugin-mpi-openmpi \
