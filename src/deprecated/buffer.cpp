@@ -7,10 +7,10 @@
 namespace novapp
 {
 
-Buffer::Buffer(std::array<int, 3> const & ng, 
-               std::array<int, 3> const & nx_local_ng, 
+Buffer::Buffer(std::array<int, 3> const & ng,
+               std::array<int, 3> const & nx_local_ng,
                int const nvar)
-{    
+{
     Nghost[0] = ng[0];
     Nghost[1] = ng[1];
     Nghost[2] = ng[2];
@@ -28,7 +28,7 @@ Buffer::Buffer(std::array<int, 3> const & ng,
         if(Nghost[0] && Nghost[2]) edgeBuffer[1][e] = KDV_double_4d ("edgeBuffer", Nghost[0], nx_local_ng[1], Nghost[2], nvar);
         if(Nghost[0] && Nghost[1]) edgeBuffer[2][e] = KDV_double_4d ("edgeBuffer", Nghost[0], Nghost[1], nx_local_ng[2], nvar);
     }
-    
+
     if(Nghost[0] && Nghost[1] && Nghost[2])
     {
         for (int z=0; z<2; z++)
@@ -42,8 +42,8 @@ Buffer::Buffer(std::array<int, 3> const & ng,
 }
 
 
-Buffer::Buffer(std::array<int, 3> const & ng, 
-               std::array<int, 3> const & nx_local_wg, 
+Buffer::Buffer(std::array<int, 3> const & ng,
+               std::array<int, 3> const & nx_local_wg,
                int const idim, int const nvar)
 {   std::array<int, 3> buf_size = nx_local_wg;
     buf_size[idim] = ng[idim];

@@ -101,7 +101,7 @@ public:
         double const rcL = primL.rho * (wsL - primL.u[locdim]);
         double const rcR = primR.rho * (wsR - primR.u[locdim]);
 
-        double const ustar = (primR.P - primL.P + rcL * primL.u[locdim] - rcR * primR.u[locdim]) 
+        double const ustar = (primR.P - primL.P + rcL * primL.u[locdim] - rcR * primR.u[locdim])
                             / (rcL - rcR);
         double const pstar = 1. / 2 * (primL.P + primR.P + rcL * (ustar - primL.u[locdim])
                             + rcR * (ustar - primR.u[locdim]));
