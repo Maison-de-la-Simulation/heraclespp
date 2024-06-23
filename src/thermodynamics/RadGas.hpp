@@ -78,9 +78,9 @@ public:
     double compute_T_from_P(double const rho, double const P) const noexcept
     {
         double T;
-        double C1 = rho * units::kb / (m_mmw * units::mp);
-        double Tg = P / C1;
-        double Tr = Kokkos::pow(3 * P / units::ar, 1. / 4);
+        double const C1 = rho * units::kb / (m_mmw * units::mp);
+        double const Tg = P / C1;
+        double const Tr = Kokkos::pow(3 * P / units::ar, 1. / 4);
         double T0 = Tg;
         if (Tr > Tg)
         {
@@ -92,9 +92,9 @@ public:
         double delta_T = 0;
         for (int i = 0; i < max_itr; ++i)
         {
-            double T3 = T * T * T;
-            double f = units::ar * T3 * T / 3 + C1 * T - P;
-            double df = 4 * units::ar * T3 / 3 + C1;
+            double const T3 = T * T * T;
+            double const f = units::ar * T3 * T / 3 + C1 * T - P;
+            double const df = 4 * units::ar * T3 / 3 + C1;
             delta_T = -f / df;
             T += delta_T;
             itr = i;
@@ -115,9 +115,9 @@ public:
     {
         // evol = rho * eint
         double T;
-        double C1 = rho * units::kb / (m_mmw * units::mp * m_gamma_m1);
-        double Tg = evol / C1;
-        double Tr = Kokkos::pow(evol / units::ar, 1. / 4);
+        double const C1 = rho * units::kb / (m_mmw * units::mp * m_gamma_m1);
+        double const Tg = evol / C1;
+        double const Tr = Kokkos::pow(evol / units::ar, 1. / 4);
         double T0 = Tg;
         if (Tr > Tg)
         {
@@ -129,9 +129,9 @@ public:
         double delta_T = 0;
         for (int i = 0; i < max_itr; ++i)
         {
-            double T3 = T * T * T;
-            double f = units::ar * T3 * T + C1 * T - evol;
-            double df = 4 * units::ar * T3 + C1;
+            double const T3 = T * T * T;
+            double const f = units::ar * T3 * T + C1 * T - evol;
+            double const df = 4 * units::ar * T3 + C1;
             delta_T = -f / df;
             T += delta_T;
             itr = i;
@@ -150,14 +150,14 @@ public:
     KOKKOS_FORCEINLINE_FUNCTION
     double compute_speed_of_sound(double const rho, double const P) const noexcept
     {
-        double T = compute_T_from_P(rho, P);
-        double Pg = rho * units::kb * T / (m_mmw * units::mp);
+        double const T = compute_T_from_P(rho, P);
+        double const Pg = rho * units::kb * T / (m_mmw * units::mp);
         auto const T4 = T * T * T * T;
-        double Pr = units::ar * T4 / 3;
-        double alpha = Pr / Pg;
-        double num = m_gamma / (m_gamma - 1) + 20 * alpha + 16 * alpha * alpha;
-        double den = 1. / (m_gamma - 1) + 12 * alpha;
-        double gamma_eff = num / den;
+        double const Pr = units::ar * T4 / 3;
+        double const alpha = Pr / Pg;
+        double const num = m_gamma / (m_gamma - 1) + 20 * alpha + 16 * alpha * alpha;
+        double const den = 1. / (m_gamma - 1) + 12 * alpha;
+        double const gamma_eff = num / den;
         return Kokkos::sqrt(gamma_eff * P / rho);
     }
 

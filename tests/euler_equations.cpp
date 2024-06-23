@@ -23,7 +23,7 @@ TEST(EulerEquations, KineticEnergyFromCons)
 
 TEST(EulerEquations, FluxFromPrim)
 {
-    novapp::thermodynamics::PerfectGas eos(1.4, 1.);
+    novapp::thermodynamics::PerfectGas const eos(1.4, 1.);
     novapp::EulerPrim prim;
     prim.rho = 2.;
     prim.u = {10.};
@@ -36,7 +36,7 @@ TEST(EulerEquations, FluxFromPrim)
 
 TEST(EulerEquations, FluxFromCons)
 {
-    novapp::thermodynamics::PerfectGas eos(1.4, 1.);
+    novapp::thermodynamics::PerfectGas const eos(1.4, 1.);
     novapp::EulerCons cons;
     cons.rho = 2.;
     cons.rhou = {20.};
@@ -49,7 +49,7 @@ TEST(EulerEquations, FluxFromCons)
 
 TEST(EulerEquations, PrimToConsToPrim)
 {
-    novapp::thermodynamics::PerfectGas eos(1.4, 1.);
+    novapp::thermodynamics::PerfectGas const eos(1.4, 1.);
     novapp::EulerPrim prim;
     prim.rho = 2.;
     prim.u = {10.};

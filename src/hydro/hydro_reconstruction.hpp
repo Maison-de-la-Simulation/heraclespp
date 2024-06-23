@@ -93,7 +93,7 @@ public:
                     Kokkos::subview(u, ALL, ALL, ALL, idim),
                     Kokkos::subview(m_u_rec, ALL, ALL, ALL, ALL, ALL, idim));
         }
-        int nfx = fx.extent_int(3);
+        int const nfx = fx.extent_int(3);
         for (int ifx = 0; ifx < nfx; ++ifx)
         {
             m_face_reconstruction->execute(

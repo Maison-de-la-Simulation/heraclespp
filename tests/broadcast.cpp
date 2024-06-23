@@ -88,7 +88,7 @@ TEST(BroadcastArray, Case1d)
     novapp::KDV_double_3d array("array", 12, 11, 12);
     Kokkos::deep_copy(array.d_view, 0.);
     array.modify_device();
-    novapp::KV_double_1d arr("arr", 10);
+    novapp::KV_double_1d const arr("arr", 10);
     Kokkos::deep_copy(arr, 5.5);
     novapp::broadcast(rng.no_ghosts(), arr, array.d_view);
     array.modify_device();
@@ -115,7 +115,7 @@ TEST(BroadcastArray, Case2d)
     novapp::KDV_double_3d array("array", 12, 13, 12);
     Kokkos::deep_copy(array.d_view, 0.);
     array.modify_device();
-    novapp::KV_double_1d arr("arr", 10);
+    novapp::KV_double_1d const arr("arr", 10);
     Kokkos::deep_copy(arr, 5.5);
     novapp::broadcast(rng.no_ghosts(), arr, array.d_view);
     array.modify_device();
@@ -142,7 +142,7 @@ TEST(BroadcastArray, Case3d)
     novapp::KDV_double_3d array("array", 12, 13, 14);
     Kokkos::deep_copy(array.d_view, 0.);
     array.modify_device();
-    novapp::KV_double_1d arr("arr", 10);
+    novapp::KV_double_1d const arr("arr", 10);
     Kokkos::deep_copy(arr, 5.5);
     novapp::broadcast(rng.no_ghosts(), arr, array.d_view);
     array.modify_device();
