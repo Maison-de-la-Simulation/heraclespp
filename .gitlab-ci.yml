@@ -211,7 +211,7 @@ clang-tidy-job:
   needs: []
   script:
     - cmake -B build -S . -DCMAKE_CXX_COMPILER=clang++-14 -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBUILD_TESTING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF
-    - find src tests -path src/deprecated -prune -o -name '*.cpp' -exec clang-tidy -p build -header-filter=$CI_PROJECT_DIR/src/.* --checks="-*,bugprone-*,-bugprone-easily-swappable-parameters,-bugprone-exception-escape,-bugprone-implicit-widening-of-multiplication-result,-bugprone-narrowing-conversions,hicpp-*,-hicpp-member-init,-hicpp-vararg,misc-const-correctness,modernize-use-nodiscard,readability-avoid-const-params-in-decls" --warnings-as-errors="*" '{}' '+'
+    - find src tests -path src/deprecated -prune -o -name '*.cpp' -exec clang-tidy -p build -header-filter=$CI_PROJECT_DIR/src/.* --checks="-*,bugprone-*,-bugprone-easily-swappable-parameters,-bugprone-exception-escape,-bugprone-implicit-widening-of-multiplication-result,-bugprone-narrowing-conversions,hicpp-*,-hicpp-member-init,-hicpp-vararg,misc-*,-misc-non-private-member-variables-in-classes,-misc-unused-parameters,mpi-*,modernize-use-nodiscard,openmp-*,performance-*,readability-avoid-const-params-in-decls" --warnings-as-errors="*" '{}' '+'
 
 trailing-whitespaces-job:
   rules:
