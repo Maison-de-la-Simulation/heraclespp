@@ -105,7 +105,7 @@ public:
         auto const ds = m_grid.ds;
         auto const dv = m_grid.dv;
 
-        KV_double_6d fx_rec_old("fx_rec_old", fx_rec.layout());
+        KV_double_6d const fx_rec_old("fx_rec_old", fx_rec.layout());
         Kokkos::deep_copy(fx_rec_old, fx_rec);
 
         Kokkos::parallel_for(
@@ -268,8 +268,8 @@ public:
                     {
                         for (int ipos = 0; ipos < ndim; ++ipos)
                         {
-                            double flux_fx_L = fx_rec_old(i, j, k, 0, idim, ifx) * fluxL.rho;
-                            double flux_fx_R = fx_rec_old(i, j, k, 1, idim, ifx) * fluxR.rho;
+                            double const flux_fx_L = fx_rec_old(i, j, k, 0, idim, ifx) * fluxL.rho;
+                            double const flux_fx_R = fx_rec_old(i, j, k, 1, idim, ifx) * fluxR.rho;
 
                             fx_rec(i, j, k, 0, ipos, ifx) += dtodv * (flux_fx_L * ds(i, j, k, idim)
                                                                 - flux_fx_R * ds(i_p, j_p, k_p, idim));

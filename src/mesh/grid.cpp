@@ -140,7 +140,7 @@ void Grid::MPI_Decomp()
     {
         for(int iface=0; iface<2; iface++)
         {
-            int displ = iface==0? -1 : 1;
+            int const displ = iface==0? -1 : 1;
             MPI_Cart_shift(comm_cart, idim, displ, &neighbor_src[idim*2+iface], &neighbor_dest[idim*2+iface]);
         }
     }

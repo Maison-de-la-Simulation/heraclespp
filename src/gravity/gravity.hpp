@@ -77,7 +77,7 @@ inline PointMassGravity make_point_mass_gravity(
     Param const& param,
     Grid const& grid)
 {
-    KV_double_1d g_array("g_array", grid.Nx_local_wg[0]);
+    KV_double_1d const g_array("g_array", grid.Nx_local_wg[0]);
     double const M = param.M;
 
     Kokkos::parallel_for(

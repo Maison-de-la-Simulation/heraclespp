@@ -76,7 +76,7 @@ void DistributedBoundaryCondition::ghost_sync(
     int bc_idim,
     int bc_iface) const
 {
-    int ng = m_grid.Nghost[bc_idim];
+    int const ng = m_grid.Nghost[bc_idim];
 
     mpi_buffer_type buf = m_mpi_buffer[bc_idim];
 

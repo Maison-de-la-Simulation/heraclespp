@@ -55,7 +55,7 @@ void NullGradient::execute(KV_double_3d const& rho,
 
     Kokkos::Array<int, 3> begin {0, 0, 0};
     Kokkos::Array<int, 3> end {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)};
-    int nfx = fx.extent_int(3);
+    int const nfx = fx.extent_int(3);
 
     int const ng = m_grid.Nghost[m_bc_idim];
     if (m_bc_iface == 1)
@@ -115,7 +115,7 @@ void ReflexiveCondition::execute(KV_double_3d const& rho,
 {
     Kokkos::Array<int, 3> begin {0, 0, 0};
     Kokkos::Array<int, 3> end {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)};
-    int nfx = fx.extent_int(3);
+    int const nfx = fx.extent_int(3);
 
     int const ng = m_grid.Nghost[m_bc_idim];
     if (m_bc_iface == 1)

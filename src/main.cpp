@@ -145,19 +145,19 @@ int nova_main(int argc, char** argv)
     KDV_double_3d E("E",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Energy
     KDV_double_3d T("T",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Temperature
 
-    KV_double_5d rho_rec("rho_rec",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim);
-    KV_double_6d rhou_rec("rhou_rec", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim, ndim);
-    KV_double_5d E_rec("E_rec",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim);
-    KV_double_6d u_rec("u_rec",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim, ndim);
-    KV_double_5d P_rec("P_rec",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim);
+    KV_double_5d const rho_rec("rho_rec",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim);
+    KV_double_6d const rhou_rec("rhou_rec", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim, ndim);
+    KV_double_5d const E_rec("E_rec",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim);
+    KV_double_6d const u_rec("u_rec",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim, ndim);
+    KV_double_5d const P_rec("P_rec",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim);
 
-    KV_double_3d rho_new("rhonew",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
-    KV_double_4d rhou_new("rhounew", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim);
-    KV_double_3d E_new("Enew",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
+    KV_double_3d const rho_new("rhonew",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
+    KV_double_4d const rhou_new("rhounew", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim);
+    KV_double_3d const E_new("Enew",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
 
     KDV_double_4d fx("fx",        grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], param.nfx);
-    KV_double_4d fx_new("fx_new", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], param.nfx);
-    KV_double_6d fx_rec("fx_rec", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim, param.nfx);
+    KV_double_4d const fx_new("fx_new", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], param.nfx);
+    KV_double_6d const fx_rec("fx_rec", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim, param.nfx);
 
     int output_id = -1;
     int time_output_id = -1;
@@ -323,13 +323,13 @@ int nova_main(int argc, char** argv)
         print_simulation_status(std::cout, iter, t, param.t_end, output_id);
     }
 
-    double initial_mass = integrate(grid.range.no_ghosts(), grid, rho.d_view);
+    double const initial_mass = integrate(grid.range.no_ghosts(), grid, rho.d_view);
 
     Kokkos::fence();
     MPI_Barrier(grid.comm_cart);
     std::chrono::steady_clock::time_point const start = std::chrono::steady_clock::now();
 
-    std::chrono::hours time_save(param.time_job);
+    std::chrono::hours const time_save(param.time_job);
 
     while (!should_exit)
     {
@@ -378,7 +378,7 @@ int nova_main(int argc, char** argv)
             }
         }
 
-        double min_internal_energy = internal_energy(grid.range.no_ghosts(), grid, rho.d_view, rhou.d_view, E.d_view);
+        double const min_internal_energy = internal_energy(grid.range.no_ghosts(), grid, rho.d_view, rhou.d_view, E.d_view);
         if (Kokkos::isnan(min_internal_energy) || min_internal_energy < 0)
         {
             std::cout << "Time  = " << t << " and number of iterations = " << iter << '\n';
@@ -429,7 +429,7 @@ int nova_main(int argc, char** argv)
         }
     }
 
-    double final_mass = integrate(grid.range.no_ghosts(), grid, rho.d_view);
+    double const final_mass = integrate(grid.range.no_ghosts(), grid, rho.d_view);
 
     Kokkos::fence();
     MPI_Barrier(grid.comm_cart);
@@ -445,7 +445,7 @@ int nova_main(int argc, char** argv)
         double const duration = std::chrono::duration<double>(end - start).count();
         double const nb_cell_updates_per_sec = nb_iter * nb_cells / duration;
         double const mega = 1E-6;
-        double mass_change = std::abs(initial_mass - final_mass);
+        double const mass_change = std::abs(initial_mass - final_mass);
         std::cout << "Final time = " << t << " and number of iterations = " << iter << '\n';
         std::cout << "Mean performance: " << mega * nb_cell_updates_per_sec << " Mcell-updates/s\n";
         std::cout << "Initial mass = " << initial_mass << " and change in mass = " << mass_change << '\n';
