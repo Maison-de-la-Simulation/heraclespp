@@ -108,7 +108,8 @@ void DistributedBoundaryCondition::ghost_sync(
         ptr = buf.d_view.data();
     }
 
-    int src, dst;
+    int src;
+    int dst;
     MPI_Cart_shift(m_grid.comm_cart, bc_idim, bc_iface == 0 ? -1 : 1, &src, &dst);
 
     MPI_Sendrecv_replace(
