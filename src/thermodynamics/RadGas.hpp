@@ -31,26 +31,26 @@ public:
 
     RadGas& operator=(RadGas&& rhs) noexcept = default;
 
-    KOKKOS_FORCEINLINE_FUNCTION
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
     double adiabatic_index() const noexcept
     {
         return m_gamma;
     }
 
-    KOKKOS_FORCEINLINE_FUNCTION
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
     double mean_molecular_weight() const noexcept
     {
         return m_mmw;
     }
 
-    KOKKOS_FORCEINLINE_FUNCTION
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
     double compute_evol_from_P(double const rho, double const P) const noexcept
     {
         // evol = rho * eint
         return compute_evol_from_T(rho, compute_T_from_P(rho, P));
     }
 
-    KOKKOS_FORCEINLINE_FUNCTION
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
     double compute_evol_from_T(double const rho, double const T) const noexcept
     {
         // evol = rho * eint
@@ -58,14 +58,14 @@ public:
         return rho * units::kb * T / (m_mmw * units::mp * m_gamma_m1) + units::ar * T4;
     }
 
-    KOKKOS_FORCEINLINE_FUNCTION
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
     double compute_P_from_evol(double const rho, double const evol) const noexcept
     {
         // evol = rho * eint
         return compute_P_from_T(rho, compute_T_from_evol(rho, evol));
     }
 
-    KOKKOS_FORCEINLINE_FUNCTION
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
     double compute_P_from_T(double const rho, double const T) const noexcept
     {
         auto const T4 = T * T * T * T;
@@ -74,7 +74,7 @@ public:
         return rho * units::kb * T / (m_mmw * units::mp) + units::ar * T4 / 3;
     }
 
-    KOKKOS_FORCEINLINE_FUNCTION
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
     double compute_T_from_P(double const rho, double const P) const noexcept
     {
         double T;
@@ -110,7 +110,7 @@ public:
         return T;
     }
 
-    KOKKOS_FORCEINLINE_FUNCTION
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
     double compute_T_from_evol(double const rho, double const evol) const noexcept
     {
         // evol = rho * eint
@@ -147,7 +147,7 @@ public:
         return T;
     }
 
-    KOKKOS_FORCEINLINE_FUNCTION
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
     double compute_speed_of_sound(double const rho, double const P) const noexcept
     {
         double const T = compute_T_from_P(rho, P);

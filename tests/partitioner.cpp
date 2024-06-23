@@ -20,9 +20,9 @@ public:
 
     Partitioner(int size, int block) noexcept;
 
-    iterator begin() const noexcept;
+    [[nodiscard]] iterator begin() const noexcept;
 
-    iterator end() const noexcept;
+    [[nodiscard]] iterator end() const noexcept;
 };
 
 class Partitioner::iterator
