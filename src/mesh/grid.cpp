@@ -110,14 +110,14 @@ void Grid::MPI_Decomp()
     std::array<int, 3> cmax {0, 0, 0};
     for(int i=0; i<3; i++)
     {
-        remain_dims[i]=true;
+        remain_dims[i] = 1;
         MPI_Comm comm_cart_1d;
         MPI_Cart_sub(comm_cart, remain_dims.data(), &comm_cart_1d);
         MPI_Exscan(&Nx_local_ng[i], &cmin[i], 1, MPI_INT, MPI_SUM, comm_cart_1d);
         MPI_Comm_free(&comm_cart_1d);
         cmax[i] = cmin[i] + Nx_local_ng[i];
 
-        remain_dims[i]=false;
+        remain_dims[i] = 0;
     }
 
     range = Range(cmin, cmax, Ng);
