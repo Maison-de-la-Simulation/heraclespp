@@ -55,7 +55,7 @@ class MUSCLHancockHydroReconstruction : public IHydroReconstruction<Gravity>
 {
     std::unique_ptr<IFaceReconstruction> m_face_reconstruction;
     std::unique_ptr<IExtrapolationReconstruction<Gravity>> m_hancock_reconstruction;
-    EOS m_eos;
+    EoS m_eos;
     KV_double_5d m_P_rec;
     KV_double_6d m_u_rec;
 
