@@ -23,6 +23,7 @@
 namespace novapp
 {
 
+template <class Gravity>
 class IGodunovScheme
 {
 public:
@@ -40,6 +41,7 @@ public:
 
     virtual void execute(
         Range const &range,
+        Gravity const& gravity,
         double dt,
         KV_cdouble_3d const& rho,
         KV_cdouble_4d const& rhou,
@@ -56,7 +58,7 @@ public:
 };
 
 template <class RiemannSolver, class Gravity, class EoS>
-class RiemannBasedGodunovScheme : public IGodunovScheme
+class RiemannBasedGodunovScheme : public IGodunovScheme<Gravity>
 {
     static_assert(
             std::is_invocable_r_v<
@@ -70,18 +72,15 @@ class RiemannBasedGodunovScheme : public IGodunovScheme
 
 private:
     RiemannSolver m_riemann_solver;
-    Gravity m_gravity;
     EoS m_eos;
     Grid m_grid;
 
 public:
     RiemannBasedGodunovScheme(
         RiemannSolver const &riemann_solver,
-        Gravity const& gravity,
         EoS const& eos,
         Grid const& grid)
         : m_riemann_solver(riemann_solver)
-        , m_gravity(gravity)
         , m_eos(eos)
         , m_grid(grid)
     {
@@ -89,6 +88,7 @@ public:
 
     void execute(
         Range const& range,
+        Gravity const& gravity,
         double const dt,
         KV_cdouble_3d const& rho,
         KV_cdouble_4d const& rhou,
@@ -109,7 +109,6 @@ public:
         auto const ds = m_grid.ds;
         auto const dv = m_grid.dv;
         auto const& eos = m_eos;
-        auto const& gravity = m_gravity;
         auto const& riemann_solver = m_riemann_solver;
 
         Kokkos::parallel_for(
@@ -288,26 +287,25 @@ public:
 };
 
 template <class EoS, class Gravity>
-inline std::unique_ptr<IGodunovScheme> factory_godunov_scheme(
+inline std::unique_ptr<IGodunovScheme<Gravity>> factory_godunov_scheme(
     std::string const& riemann_solver,
     EoS const& eos,
-    Grid const& grid,
-    Gravity const& gravity)
+    Grid const& grid)
 {
     if (riemann_solver == "HLL")
     {
         return std::make_unique<RiemannBasedGodunovScheme<HLL, Gravity, EoS>>
-                (HLL(), gravity, eos, grid);
+                (HLL(), eos, grid);
     }
     if (riemann_solver == "HLLC")
     {
         return std::make_unique<RiemannBasedGodunovScheme<HLLC, Gravity, EoS>>
-                (HLLC(), gravity, eos, grid);
+                (HLLC(), eos, grid);
     }
     if (riemann_solver == "Low Mach")
     {
         return std::make_unique<RiemannBasedGodunovScheme<Splitting, Gravity, EoS>>
-                (Splitting(), gravity, eos, grid);
+                (Splitting(), eos, grid);
     }
     throw std::runtime_error("Invalid riemann solver: " + riemann_solver + ".");
 }

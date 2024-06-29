@@ -19,6 +19,7 @@
 namespace novapp
 {
 
+template <class Gravity>
 class IHydroReconstruction
 {
 public:
@@ -36,6 +37,7 @@ public:
 
     virtual void execute(
             Range const& range,
+            Gravity const& gravity,
             double dt,
             KV_cdouble_3d const& rho,
             KV_cdouble_4d const& u,
@@ -48,19 +50,19 @@ public:
             = 0;
 };
 
-template <class EoS>
-class MUSCLHancockHydroReconstruction : public IHydroReconstruction
+template <class EoS, class Gravity>
+class MUSCLHancockHydroReconstruction : public IHydroReconstruction<Gravity>
 {
     std::unique_ptr<IFaceReconstruction> m_face_reconstruction;
-    std::unique_ptr<IExtrapolationReconstruction> m_hancock_reconstruction;
-    EoS m_eos;
+    std::unique_ptr<IExtrapolationReconstruction<Gravity>> m_hancock_reconstruction;
+    EOS m_eos;
     KV_double_5d m_P_rec;
     KV_double_6d m_u_rec;
 
 public:
     MUSCLHancockHydroReconstruction(
             std::unique_ptr<IFaceReconstruction> face_reconstruction,
-            std::unique_ptr<IExtrapolationReconstruction> hancock_reconstruction,
+            std::unique_ptr<IExtrapolationReconstruction<Gravity>> hancock_reconstruction,
             EoS const& eos,
             KV_double_5d P_rec,
             KV_double_6d u_rec)
@@ -74,6 +76,7 @@ public:
 
     void execute(
             Range const& range,
+            Gravity const& gravity,
             double const dt,
             KV_cdouble_3d const& rho,
             KV_cdouble_4d const& u,
@@ -117,7 +120,7 @@ public:
             }
         }
 
-        m_hancock_reconstruction->execute(range, dt, m_u_rec, m_P_rec, rho_rec, rhou_rec, E_rec, fx_rec);
+        m_hancock_reconstruction->execute(range, gravity, dt, m_u_rec, m_P_rec, rho_rec, rhou_rec, E_rec, fx_rec);
     }
 };
 

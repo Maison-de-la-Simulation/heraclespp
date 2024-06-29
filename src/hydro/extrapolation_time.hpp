@@ -20,6 +20,7 @@
 namespace novapp
 {
 
+template <class Gravity>
 class IExtrapolationReconstruction
 {
 public:
@@ -37,6 +38,7 @@ public:
 
     virtual void execute(
         Range const& range,
+        Gravity const& gravity,
         double dt_reconstruction,
         KV_cdouble_6d const& loc_u_rec,
         KV_cdouble_5d const& loc_P_rec,
@@ -48,7 +50,7 @@ public:
 };
 
 template <class EoS, class Gravity>
-class ExtrapolationTimeReconstruction : public IExtrapolationReconstruction
+class ExtrapolationTimeReconstruction : public IExtrapolationReconstruction<Gravity>
 {
     static_assert(
             std::is_invocable_r_v<
@@ -63,21 +65,19 @@ class ExtrapolationTimeReconstruction : public IExtrapolationReconstruction
 private:
     EoS m_eos;
     Grid m_grid;
-    Gravity m_gravity;
 
 public:
     ExtrapolationTimeReconstruction(
             EoS const& eos,
-            Grid const& grid,
-            Gravity const& gravity)
+            Grid const& grid)
         : m_eos(eos)
         , m_grid(grid)
-        , m_gravity(gravity)
     {
     }
 
     void execute(
         Range const& range,
+        Gravity const& gravity,
         double const dt_reconstruction,
         KV_cdouble_6d const& loc_u_rec,
         KV_cdouble_5d const& loc_P_rec,
@@ -98,7 +98,6 @@ public:
         assert(rhou_rec.extent(4) == E_rec.extent(4));
 
         auto const& eos = m_eos;
-        auto const& gravity = m_gravity;
         int const nfx = fx_rec.extent_int(5);
         auto const x = m_grid.x;
         auto const y = m_grid.y;

@@ -287,16 +287,16 @@ int nova_main(int argc, char** argv)
     std::unique_ptr<IFaceReconstruction> face_reconstruction
             = factory_face_reconstruction(param.reconstruction_type, grid);
 
-    std::unique_ptr<IExtrapolationReconstruction> time_reconstruction
-            = std::make_unique<ExtrapolationTimeReconstruction<EOS, Gravity>>(eos, grid, *g);
+    std::unique_ptr<IExtrapolationReconstruction<Gravity>> time_reconstruction
+            = std::make_unique<ExtrapolationTimeReconstruction<EOS, Gravity>>(eos, grid);
 
-    std::unique_ptr<IHydroReconstruction> reconstruction
-        = std::make_unique<MUSCLHancockHydroReconstruction<EOS>>(std::move(face_reconstruction),
+    std::unique_ptr<IHydroReconstruction<Gravity>> reconstruction
+        = std::make_unique<MUSCLHancockHydroReconstruction<EOS, Gravity>>(std::move(face_reconstruction),
                                                             std::move(time_reconstruction),
                                                             eos, P_rec, u_rec);
 
-    std::unique_ptr<IGodunovScheme> godunov_scheme
-            = factory_godunov_scheme(param.riemann_solver, eos, grid, *g);
+    std::unique_ptr<IGodunovScheme<Gravity>> godunov_scheme
+            = factory_godunov_scheme<EOS, Gravity>(param.riemann_solver, eos, grid);
 
     conv_prim_to_cons(grid.range.no_ghosts(), eos, rho.d_view, u.d_view, P.d_view, rhou.d_view, E.d_view);
 
@@ -385,10 +385,12 @@ int nova_main(int argc, char** argv)
             throw std::runtime_error("Volumic internal energy < 0");
         }
 
-        reconstruction->execute(grid.range.with_ghosts(1), dt/2, rho.d_view, u.d_view, P.d_view, fx.d_view,
+        reconstruction->execute(grid.range.with_ghosts(1), *g, dt/2,
+                                rho.d_view, u.d_view, P.d_view, fx.d_view,
                                 rho_rec, rhou_rec, E_rec, fx_rec);
 
-        godunov_scheme->execute(grid.range.no_ghosts(), dt, rho.d_view, rhou.d_view, E.d_view, fx.d_view,
+        godunov_scheme->execute(grid.range.no_ghosts(), *g, dt,
+                                rho.d_view, rhou.d_view, E.d_view, fx.d_view,
                                 rho_rec, rhou_rec, E_rec, fx_rec,
                                 rho_new, rhou_new, E_new, fx_new);
 
