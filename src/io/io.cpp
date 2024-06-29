@@ -319,30 +319,24 @@ void XmlWriter::operator()(
         xdmfFile << " GeometryType=" << '"' << "VXVYVZ" << '"';
         xdmfFile << ">\n";
 
-        auto nghost = grid.range.Nghost;
+        std::string const output_filename = get_output_filename(m_prefix, first_output_id + i);
+        std::array const axes_arrays {x.h_view, y.h_view, z.h_view};
+        std::array const axes_labels {"x_ng", "y_ng", "z_ng"};
         for (int idim = 0; idim < 3; ++idim)
         {
-            auto arrays = {x.h_view, y.h_view, z.h_view};
-            auto array = arrays.begin()[idim];
             xdmfFile << indent(10) << "<DataItem";
             xdmfFile << " NumberType=" << '"' << "Float" << '"';
             xdmfFile << " Precision=" << '"' << precision << '"';
-            xdmfFile << " Dimensions=" << '"' << array.extent_int(0) - 2 * nghost[idim] << '"';
-            xdmfFile << " Format=" << '"' << "XML" << '"';
+            xdmfFile << " Dimensions=" << '"' << axes_arrays[idim].extent_int(0) << '"';
+            xdmfFile << " Format=" << '"' << "HDF" << '"';
             xdmfFile << ">\n";
-            xdmfFile << indent(12);
-            for (int ix = nghost[idim]; ix < array.extent_int(0) - 1 - nghost[idim]; ++ix)
-            {
-                xdmfFile << array(ix);
-                xdmfFile << ' ';
-            }
-            xdmfFile << array(array.extent_int(0) - 1 - nghost[idim]) << '\n';
+            xdmfFile << indent(12) << output_filename << ":/" << axes_labels[idim]
+                     << '\n';
             xdmfFile << indent(10) << "</DataItem>\n";
         }
 
         xdmfFile << indent(8) << "</Geometry>\n";
 
-        std::string const output_filename = get_output_filename(m_prefix, first_output_id + i);
         for (std::string const& var_name : m_var_names)
         {
             xdmfFile << indent(8) << "<Attribute";
