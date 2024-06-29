@@ -39,6 +39,8 @@ public:
     int Ncpu;
 
     MPI_Comm comm_cart;
+    MPI_Comm comm_cart_horizontal;
+    MPI_Comm comm_cart_vertical;
     int mpi_rank;
     int mpi_size;
     std::array<int, 3> mpi_rank_cart;

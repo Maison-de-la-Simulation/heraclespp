@@ -89,7 +89,7 @@ void Grid::MPI_Decomp()
     }
     std::array<int, 3> periodic = {1,1,1};
 
-    MPI_Cart_create(MPI_COMM_WORLD, 3, Ncpu_x.data(), periodic.data(), 1, &comm_cart);
+    MPI_Cart_create(MPI_COMM_WORLD, 3, Ncpu_x.data(), periodic.data(), 0, &comm_cart);
     MPI_Comm_size(comm_cart, &mpi_size);
     MPI_Comm_rank(comm_cart, &mpi_rank);
     MPI_Cart_coords(comm_cart, mpi_rank, 3, mpi_rank_cart.data());
@@ -160,6 +160,12 @@ void Grid::MPI_Decomp()
         is_border[i][0] = (mpi_rank_cart[i] == 0);
         is_border[i][1] = (mpi_rank_cart[i] == Ncpu_x[i]-1);
     }
+
+    remain_dims = {0, 1, 1};
+    MPI_Cart_sub(comm_cart, remain_dims.data(), &comm_cart_horizontal);
+
+    remain_dims = {1, 0, 0};
+    MPI_Cart_sub(comm_cart, remain_dims.data(), &comm_cart_vertical);
 }
 
 void Grid::set_grid(KV_double_1d const& x_glob, KV_double_1d const& y_glob, KV_double_1d const& z_glob)

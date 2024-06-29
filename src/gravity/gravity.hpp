@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <grid.hpp>
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
@@ -90,6 +91,163 @@ inline PointMassGravity make_point_mass_gravity(
             g_array(i) = - units::G * M / (xc(i) * xc(i));
         });
     return PointMassGravity(g_array);
+}
+
+class InternalMassGravity
+{
+private :
+    KV_cdouble_1d m_g;
+
+public :
+    explicit InternalMassGravity(KV_cdouble_1d g)
+        : m_g(std::move(g))
+    {
+    }
+
+    KOKKOS_FORCEINLINE_FUNCTION
+    double operator()(
+            int i,
+            [[maybe_unused]] int j,
+            [[maybe_unused]] int k,
+            int dir) const
+    {
+        if (dir == 0)
+        {
+            return m_g(i);
+        }
+        return 0;
+    }
+};
+
+inline InternalMassGravity make_internal_mass_gravity(
+    Param const& param,
+    Grid const& grid,
+    KV_cdouble_3d const& rho)
+{
+    KV_double_1d g_array_dv("g_array", grid.Nx_local_wg[0]);
+    KV_double_1d dv_total("dv_mean_array", grid.Nx_local_ng[0] + grid.Nghost[0]); // sum dv
+    KV_double_1d rho_mean("rho_mean_array", grid.Nx_local_ng[0] + grid.Nghost[0]); // sum (rho * dv) / (sum dv)
+
+    KV_double_1d M_r("M_r_array", grid.Nx_local_wg[0]); // total mass at r
+    double const M_star = param.M;
+    auto const x = grid.x;
+    auto const xc = grid.x_center;
+    auto const dv = grid.dv;
+
+    //Kokkos::deep_copy(rho, grid.mpi_rank_cart[0]);
+
+    Kokkos::Array<int, 3> nghost;
+    std::copy(grid.Nghost.begin(), grid.Nghost.end(), nghost.data());
+
+    for (int i = 0; i < grid.Nx_local_ng[0] + grid.Nghost[0]; ++i)
+    {
+        Kokkos::parallel_reduce(
+            "integration_shell",
+            Kokkos::MDRangePolicy<int, Kokkos::Rank<2>>
+            ({0, 0},
+            {grid.Nx_local_ng[1], grid.Nx_local_ng[2]}),
+            KOKKOS_LAMBDA(int j, int k, double& local_sum_mass, double& local_sum_dv)
+            {
+                int offset_i = i + nghost[0];
+                int offset_j = j + nghost[1];
+                int offset_k = k + nghost[2];
+                local_sum_mass += rho(offset_i, offset_j, offset_k) * dv(offset_i, offset_j, offset_k);
+                local_sum_dv += dv(offset_i, offset_j, offset_k);
+            },
+            Kokkos::Sum(Kokkos::subview(rho_mean, i)), Kokkos::Sum(Kokkos::subview(dv_total, i)));
+    }
+
+    //réduction horizontale dans le plan sur le processus 0
+    /* if (grid.mpi_rank_cart[1] == 0 && grid.mpi_rank_cart[2] == 0)
+    {
+        MPI_Reduce(MPI_IN_PLACE, dv_total.data(), dv_total.extent_int(0), MPI_DOUBLE, MPI_SUM, 0, grid.comm_cart_horizontal);
+    }
+    else
+    {
+         MPI_Reduce(dv_total.data(), dv_total.data(), dv_total.extent_int(0), MPI_DOUBLE, MPI_SUM, 0, grid.comm_cart_horizontal);
+    } */
+    //MPI_Reduce(MPI_IN_PLACE, rho_mean.data(), rho_mean.extent_int(0), MPI_DOUBLE, MPI_SUM, 0, grid.comm_cart_horizontal);
+
+    // sur un processus, test alignement rang
+    /* if (grid.mpi_rank_cart[1] == 0 && grid.mpi_rank_cart[2] == 0)
+    {
+        for (int i = 0; i < grid.Nx_local_ng[0]; ++i)
+        {
+            rho_mean(i) /= dv_total(i);
+        }
+        KV_double_1d rho_mean_gathered;
+        if (grid.mpi_rank_cart[0] == 0)
+        {
+            rho_mean_gathered = KV_double_1d("rho_mean_gathered", grid.Nx_glob_ng[0]);
+        }
+        int size_rho_mean = rho_mean.extent_int(0);
+        Kokkos::View<int *> size_gathered("size_gathered", grid.Ncpu_x[0]); //nb de processus en r
+        Kokkos::View<int *> displs("displs", grid.Ncpu_x[0]);
+        displs(0) = 0;
+        for (int i = 1; i < grid.Ncpu_x[0]; ++i)
+        {
+            displs(i) = size_gathered(i-1) + displs(i-1);
+        }
+        MPI_Gather(&size_rho_mean, 1, MPI_INT, size_gathered.data(), 1, MPI_INT, 0, grid.comm_cart_vertical);
+        MPI_Gatherv(rho_mean.data(), rho_mean.extent_int(0), MPI_DOUBLE,
+            rho_mean_gathered.data(), size_gathered.data(), displs.data(), MPI_DOUBLE, 0, grid.comm_cart_vertical); //hypothèse identique send/reciv
+
+        if (grid.mpi_rank_cart[0] == 0)
+        {
+            for (int i = 0; i < grid.Nx_glob_ng[0]; ++i)
+            {
+                std::cout << rho_mean_gathered(i) << std::endl;
+            }
+        }
+    }
+******************************************* */
+
+    Kokkos::parallel_for(
+        "rho_mean_o_dv_tot",
+        Kokkos::RangePolicy<int>(0, grid.Nx_local_ng[0] + grid.Nghost[0]),
+        KOKKOS_LAMBDA(int i)
+        {
+            rho_mean(i) /= dv_total(i);
+        });
+
+    Kokkos::parallel_for(
+        "ghost_cells_Mr",
+        Kokkos::RangePolicy<int>(0, grid.Nghost[0]),
+        KOKKOS_LAMBDA(int i)
+        {
+            M_r(i) = M_star;
+        });
+
+    Kokkos::parallel_scan(
+        "mass_mid_cell",
+        Kokkos::RangePolicy<int>(grid.Nghost[0], grid.Nx_local_ng[0] + 2 * grid.Nghost[0]),
+        KOKKOS_LAMBDA(int i, double& partial_sum, bool is_final)
+        {
+            int offset  = i - nghost[0];
+            double x3 = x(i) * x(i) * x(i);
+            if (i == nghost[0])
+            {
+                partial_sum += 4. / 3 * units::pi * (xc(i) * xc(i) * xc(i) - x3) * rho_mean(offset);
+            }
+            else
+            {
+                partial_sum +=  4. / 3 * units::pi * (x3 - xc(i-1) * xc(i-1) * xc(i-1)) * rho_mean(offset-1)
+                    + 4. / 3 * units::pi * (xc(i) * xc(i) * xc(i) - x3) * rho_mean(offset);
+            }
+            if (is_final)
+            {
+                M_r(i) = partial_sum;
+            }
+        });
+
+    Kokkos::parallel_for(
+        "internal_mass_gravity",
+        Kokkos::RangePolicy<int>(0, grid.Nx_local_wg[0]),
+        KOKKOS_LAMBDA(int i)
+        {
+            g_array_dv(i) = - units::G * M_r(i) / (xc(i) * xc(i));
+        });
+    return InternalMassGravity(g_array_dv);
 }
 
 } // namespace novapp
