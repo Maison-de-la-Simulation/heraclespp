@@ -16,10 +16,10 @@ namespace novapp
 class UniformGravity
 {
 private :
-    KV_double_1d m_g;
+    KV_cdouble_1d m_g;
 
 public :
-    explicit UniformGravity(KV_double_1d g)
+    explicit UniformGravity(KV_cdouble_1d g)
         : m_g(std::move(g))
     {
     }
@@ -50,10 +50,10 @@ inline UniformGravity make_uniform_gravity(
 class PointMassGravity
 {
 private :
-    KV_double_1d m_g;
+    KV_cdouble_1d m_g;
 
 public :
-    explicit PointMassGravity(KV_double_1d g)
+    explicit PointMassGravity(KV_cdouble_1d g)
         : m_g(std::move(g))
     {
     }

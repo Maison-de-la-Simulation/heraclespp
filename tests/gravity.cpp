@@ -2,9 +2,8 @@
 
 #include <gravity.hpp>
 #include <grid_type.hpp>
+#include <kokkos_shortcut.hpp>
 #include <units.hpp>
-
-#include "kokkos_shortcut.hpp"
 
 namespace {
 
