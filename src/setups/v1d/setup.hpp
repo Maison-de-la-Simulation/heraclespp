@@ -43,7 +43,6 @@ private:
 public:
     InitializationSetup(
         EOS const& eos,
-        Grid const& grid,
         ParamSetup const& param_set_up,
         [[maybe_unused]] Gravity const& gravity)
         : m_eos(eos)
