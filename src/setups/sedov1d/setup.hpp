@@ -70,6 +70,8 @@ public:
         assert(rho.extent(2) == u.extent(2));
         assert(u.extent(2) == P.extent(2));
 
+        int const mpi_rank = grid.mpi_rank;
+
         double dv = grid.dv(2, 0, 0);
         double alpha;
 
@@ -101,7 +103,7 @@ public:
                 double T = eos.compute_T_from_evol(rho(i, j, k), param_setup.E0 / dv * units::evol);
                 P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), T) * units::pressure;
 
-                if(grid.mpi_rank == 0 && i == 2)
+                if(mpi_rank == 0 && i == 2)
                 {
                     double T_perturb = eos.compute_T_from_evol(rho(i, j, k), alpha * param_setup.E1 / dv * units::evol);
                     P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), T_perturb) * units::pressure;

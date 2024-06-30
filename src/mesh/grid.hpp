@@ -63,6 +63,16 @@ public:
 
     explicit Grid(Param const& param);
 
+    Grid(Grid const& rhs) = delete;
+
+    Grid(Grid&& rhs) noexcept = delete;
+
+    ~Grid() noexcept = default;
+
+    Grid& operator=(Grid const& rhs) = delete;
+
+    Grid& operator=(Grid&& rhs) noexcept = delete;
+
     void print_grid(std::ostream& os) const;
 
     void set_grid(KV_double_1d const& x_glob, KV_double_1d const& y_glob, KV_double_1d const& z_glob);

@@ -80,13 +80,14 @@ inline PointMassGravity make_point_mass_gravity(
     KV_double_1d const g_array("g_array", grid.Nx_local_wg[0]);
     double const M = param.M;
 
+    KV_cdouble_1d const xc = grid.x_center;
+
     Kokkos::parallel_for(
         "point_mass_gravity",
         Kokkos::RangePolicy<int>(0, grid.Nx_local_wg[0]),
         KOKKOS_LAMBDA(int i)
         {
-            double const xc = grid.x_center(i);
-            g_array(i) = - units::G * M / (xc * xc);
+            g_array(i) = - units::G * M / (xc(i) * xc(i));
         });
     return PointMassGravity(g_array);
 }

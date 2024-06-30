@@ -18,12 +18,14 @@ double integrate(
 {
     double sum = 0;
 
+    KV_cdouble_3d const dv = grid.dv;
+
     Kokkos::parallel_reduce(
         "integration",
         cell_mdrange(range),
         KOKKOS_LAMBDA(int i, int j, int k, double& local_sum)
         {
-            local_sum += var(i, j, k) * grid.dv(i, j, k);
+            local_sum += var(i, j, k) * dv(i, j, k);
         },
         Kokkos::Sum<double>(sum));
 
