@@ -10,13 +10,11 @@
 namespace novapp
 {
 
-class Grid;
 class IBoundaryCondition;
 
 std::unique_ptr<IBoundaryCondition> factory_boundary_construction(
     std::string const& boundary,
     int idim,
-    int iface,
-    Grid const& grid);
+    int iface);
 
 } // namespace novapp

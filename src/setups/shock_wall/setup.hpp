@@ -40,23 +40,21 @@ class InitializationSetup : public IInitializationProblem
 {
 private:
     EOS m_eos;
-    Grid m_grid;
     ParamSetup m_param_setup;
 
 public:
     InitializationSetup(
         EOS const& eos,
-        Grid const& grid,
         ParamSetup const& param_set_up,
         [[maybe_unused]] Gravity const& gravity)
         : m_eos(eos)
-        , m_grid(grid)
         , m_param_setup(param_set_up)
     {
     }
 
     void execute(
         Range const& range,
+        [[maybe_unused]] Grid const& grid,
         KV_double_3d const& rho,
         KV_double_4d const& u,
         KV_double_3d const& P,

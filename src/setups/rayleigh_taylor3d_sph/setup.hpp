@@ -40,18 +40,15 @@ class InitializationSetup : public IInitializationProblem
 {
 private:
     thermodynamics::PerfectGas m_eos;
-    Grid m_grid;
     ParamSetup m_param_setup;
     Gravity m_gravity;
 
 public:
     InitializationSetup(
         thermodynamics::PerfectGas const& eos,
-        Grid const& grid,
         ParamSetup const& param_set_up,
         Gravity const& gravity)
         : m_eos(eos)
-        , m_grid(grid)
         , m_param_setup(param_set_up)
         , m_gravity(gravity)
     {
@@ -59,6 +56,7 @@ public:
 
     void execute(
         Range const& range,
+        Grid const& grid,
         KV_double_3d const& rho,
         KV_double_4d const& u,
         KV_double_3d const& P,
@@ -71,10 +69,9 @@ public:
         assert(rho.extent(2) == u.extent(2));
         assert(u.extent(2) == P.extent(2));
 
-        auto const x = m_grid.x;
-        auto const y = m_grid.y;
-        auto const z = m_grid.z;
-        auto const& grid = m_grid;
+        auto const x = grid.x;
+        auto const y = grid.y;
+        auto const z = grid.z;
         auto const& param_setup = m_param_setup;
         auto const& eos = m_eos;
 

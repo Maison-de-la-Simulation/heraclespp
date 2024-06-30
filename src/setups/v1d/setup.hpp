@@ -38,7 +38,6 @@ class InitializationSetup : public IInitializationProblem
 {
 private:
     EOS m_eos;
-    Grid m_grid;
     ParamSetup m_param_setup;
 
 public:
@@ -48,13 +47,13 @@ public:
         ParamSetup const& param_set_up,
         [[maybe_unused]] Gravity const& gravity)
         : m_eos(eos)
-        , m_grid(grid)
         , m_param_setup(param_set_up)
     {
     }
 
     void execute(
         Range const& range,
+        Grid const& grid,
         KV_double_3d const& rho,
         KV_double_4d const& u,
         KV_double_3d const& P,
@@ -67,10 +66,10 @@ public:
         assert(rho.extent(2) == u.extent(2));
         assert(u.extent(2) == P.extent(2));
 
-        KDV_double_1d rho_1d("rho_1d", m_grid.Nx_local_ng[0]);
-        KDV_double_1d u_1d("u_1d", m_grid.Nx_local_ng[0]);
-        KDV_double_1d P_1d("P_1d", m_grid.Nx_local_ng[0]);
-        KDV_double_2d fx_1d("fx_1d", m_grid.Nx_local_ng[0], fx.extent_int(3));
+        KDV_double_1d rho_1d("rho_1d", grid.Nx_local_ng[0]);
+        KDV_double_1d u_1d("u_1d", grid.Nx_local_ng[0]);
+        KDV_double_1d P_1d("P_1d", grid.Nx_local_ng[0]);
+        KDV_double_2d fx_1d("fx_1d", grid.Nx_local_ng[0], fx.extent_int(3));
 
         int const filename_size = m_param_setup.init_filename.size();
         PDI_multi_expose(

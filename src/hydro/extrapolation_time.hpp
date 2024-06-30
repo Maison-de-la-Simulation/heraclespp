@@ -38,6 +38,7 @@ public:
 
     virtual void execute(
         Range const& range,
+        Grid const& grid,
         Gravity const& gravity,
         double dt_reconstruction,
         KV_cdouble_6d const& loc_u_rec,
@@ -64,19 +65,16 @@ class ExtrapolationTimeReconstruction : public IExtrapolationReconstruction<Grav
 
 private:
     EoS m_eos;
-    Grid m_grid;
 
 public:
-    ExtrapolationTimeReconstruction(
-            EoS const& eos,
-            Grid const& grid)
+    explicit ExtrapolationTimeReconstruction(EoS const& eos)
         : m_eos(eos)
-        , m_grid(grid)
     {
     }
 
     void execute(
         Range const& range,
+        Grid const& grid,
         Gravity const& gravity,
         double const dt_reconstruction,
         KV_cdouble_6d const& loc_u_rec,
@@ -99,10 +97,10 @@ public:
 
         auto const& eos = m_eos;
         int const nfx = fx_rec.extent_int(5);
-        auto const x = m_grid.x;
-        auto const y = m_grid.y;
-        auto const ds = m_grid.ds;
-        auto const dv = m_grid.dv;
+        auto const x = grid.x;
+        auto const y = grid.y;
+        auto const ds = grid.ds;
+        auto const dv = grid.dv;
 
         KV_double_6d const fx_rec_old("fx_rec_old", fx_rec.layout());
         Kokkos::deep_copy(fx_rec_old, fx_rec);

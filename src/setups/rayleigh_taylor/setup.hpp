@@ -48,18 +48,15 @@ class InitializationSetup : public IInitializationProblem
 {
 private:
     EOS m_eos;
-    Grid m_grid;
     ParamSetup m_param_setup;
     Gravity m_gravity;
 
 public:
     InitializationSetup(
         EOS const& eos,
-        Grid const& grid,
         ParamSetup const& param_set_up,
         Gravity const& gravity)
         : m_eos(eos)
-        , m_grid(grid)
         , m_param_setup(param_set_up)
         , m_gravity(gravity)
     {
@@ -67,6 +64,7 @@ public:
 
     void execute(
         Range const& range,
+        Grid const& grid,
         KV_double_3d const& rho,
         KV_double_4d const& u,
         KV_double_3d const& P,
@@ -81,8 +79,8 @@ public:
 
         double P0 = (10. / 7 + 1. / 4) * units::pressure;
 
-        auto const x_d = m_grid.x;
-        auto const y_d = m_grid.y;
+        auto const x_d = grid.x;
+        auto const y_d = grid.y;
         auto const& gravity = m_gravity;
         auto const& param_setup = m_param_setup;
 
@@ -109,8 +107,8 @@ public:
 
                 u(i, j, k, 0) = param_setup.u0 * units::velocity;
                 u(i, j, k, 1) = param_setup.u0 * units::velocity;
-                /* u(i, j, k, 1) = (param_setup.A/4) * (1+Kokkos::cos(2*Kokkos::numbers::pi*x/m_grid.L[0]))
-                                * (1+Kokkos::cos(2*Kokkos::numbers::pi*y/m_grid.L[1])); */
+                /* u(i, j, k, 1) = (param_setup.A/4) * (1+Kokkos::cos(2*Kokkos::numbers::pi*x/grid.L[0]))
+                                * (1+Kokkos::cos(2*Kokkos::numbers::pi*y/grid.L[1])); */
 
                 P(i, j, k) = (P0 + rho(i, j, k) * gravity(i, j, k, 1) * units::acc * y) * units::pressure;
             });

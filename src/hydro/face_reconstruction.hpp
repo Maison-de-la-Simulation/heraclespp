@@ -37,10 +37,12 @@ public:
     IFaceReconstruction& operator=(IFaceReconstruction&& rhs) noexcept = default;
 
     //! @param[in] range output iteration range
+    //! @param[in] grid provides grid information
     //! @param[in] var cell values
     //! @param[out] var_rec reconstructed values at interfaces
     virtual void execute(
         Range const& range,
+        Grid const& grid,
         KV_cdouble_3d const& var,
         KV_double_5d const& var_rec) const
         = 0;
@@ -59,19 +61,16 @@ class LimitedLinearReconstruction : public IFaceReconstruction
 
 private:
     SlopeLimiter m_slope_limiter;
-    Grid m_grid;
 
 public:
-    LimitedLinearReconstruction(
-            SlopeLimiter const& slope_limiter,
-            Grid const& grid)
+    explicit LimitedLinearReconstruction(SlopeLimiter const& slope_limiter)
         : m_slope_limiter(slope_limiter)
-        , m_grid(grid)
     {
     }
 
     void execute(
         Range const& range,
+        Grid const& grid,
         KV_cdouble_3d const& var,
         KV_double_5d const& var_rec) const final
     {
@@ -79,7 +78,6 @@ public:
         assert(var.extent(1) == var_rec.extent(1));
         assert(var.extent(2) == var_rec.extent(2));
 
-        auto const& grid = m_grid;
         auto const& slope_limiter = m_slope_limiter;
 
         Kokkos::parallel_for(
@@ -113,27 +111,26 @@ public:
 };
 
 inline std::unique_ptr<IFaceReconstruction> factory_face_reconstruction(
-        std::string const& slope,
-        Grid const& grid)
+        std::string const& slope)
 {
     if (slope == "Constant")
     {
-        return std::make_unique<LimitedLinearReconstruction<Constant>>(Constant(), grid);
+        return std::make_unique<LimitedLinearReconstruction<Constant>>(Constant());
     }
 
     if (slope == "VanLeer")
     {
-        return std::make_unique<LimitedLinearReconstruction<VanLeer>>(VanLeer(), grid);
+        return std::make_unique<LimitedLinearReconstruction<VanLeer>>(VanLeer());
     }
 
     if (slope == "Minmod")
     {
-        return std::make_unique<LimitedLinearReconstruction<Minmod>>(Minmod(), grid);
+        return std::make_unique<LimitedLinearReconstruction<Minmod>>(Minmod());
     }
 
     if (slope == "VanAlbada")
     {
-        return std::make_unique<LimitedLinearReconstruction<VanAlbada>>(VanAlbada(), grid);
+        return std::make_unique<LimitedLinearReconstruction<VanAlbada>>(VanAlbada());
     }
 
     throw std::runtime_error("Unknown face reconstruction algorithm: " + slope + ".");

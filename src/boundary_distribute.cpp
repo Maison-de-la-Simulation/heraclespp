@@ -72,11 +72,12 @@ void generate_order(std::array<int, ndim * 2>& bc_order, std::string const& bc_p
 } // namespace
 
 void DistributedBoundaryCondition::ghost_sync(
+    Grid const& grid,
     std::vector<KV_double_3d> const& views,
     int bc_idim,
     int bc_iface) const
 {
-    int const ng = m_grid.Nghost[bc_idim];
+    int const ng = grid.Nghost[bc_idim];
 
     mpi_buffer_type buf = m_mpi_buffer[bc_idim];
 
@@ -110,7 +111,7 @@ void DistributedBoundaryCondition::ghost_sync(
 
     int src;
     int dst;
-    MPI_Cart_shift(m_grid.comm_cart, bc_idim, bc_iface == 0 ? -1 : 1, &src, &dst);
+    MPI_Cart_shift(grid.comm_cart, bc_idim, bc_iface == 0 ? -1 : 1, &src, &dst);
 
     MPI_Sendrecv_replace(
             ptr,
@@ -120,7 +121,7 @@ void DistributedBoundaryCondition::ghost_sync(
             bc_idim,
             src,
             bc_idim,
-            m_grid.comm_cart,
+            grid.comm_cart,
             MPI_STATUS_IGNORE);
 
     if (!m_param.mpi_device_aware)
@@ -145,14 +146,13 @@ DistributedBoundaryCondition::DistributedBoundaryCondition(
     Param const& param,
     std::array<std::unique_ptr<IBoundaryCondition>, ndim * 2> bcs)
     : m_bcs(std::move(bcs))
-    , m_grid(grid)
     , m_param(param)
 {
     for(int idim=0; idim<ndim; idim++)
     {
         for(int iface=0; iface<2; iface++)
         {
-            if (!m_grid.is_border[idim][iface])
+            if (!grid.is_border[idim][iface])
             {
                 m_bcs[idim * 2 + iface] = std::make_unique<PeriodicCondition>(idim, iface);
             }
@@ -170,7 +170,8 @@ DistributedBoundaryCondition::DistributedBoundaryCondition(
     generate_order(m_bc_order, m_param.bc_priority);
 }
 
-void DistributedBoundaryCondition::operator()(KV_double_3d const& rho,
+void DistributedBoundaryCondition::operator()(Grid const& grid,
+                                              KV_double_3d const& rho,
                                               KV_double_4d const& rhou,
                                               KV_double_3d const& E,
                                               KV_double_4d const& fx) const
@@ -192,13 +193,13 @@ void DistributedBoundaryCondition::operator()(KV_double_3d const& rho,
     {
         for (int iface = 0; iface < 2; iface++)
         {
-            ghost_sync(views, idim, iface);
+            ghost_sync(grid, views, idim, iface);
         }
     }
 
     for ( int const bc_id : m_bc_order )
     {
-        m_bcs[bc_id]->execute(rho, rhou, E, fx);
+        m_bcs[bc_id]->execute(grid, rho, rhou, E, fx);
     }
 }
 

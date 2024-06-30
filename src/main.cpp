@@ -261,8 +261,8 @@ int nova_main(int argc, char** argv)
         g = std::make_unique<Gravity>(make_point_mass_gravity(param, grid));
 #endif
         std::unique_ptr<IInitializationProblem> initialization
-            = std::make_unique<InitializationSetup<Gravity>>(eos, grid, param_setup, *g);
-        initialization->execute(grid.range.no_ghosts(), rho.d_view, u.d_view, P.d_view, fx.d_view);
+            = std::make_unique<InitializationSetup<Gravity>>(eos, param_setup, *g);
+        initialization->execute(grid.range.no_ghosts(), grid, rho.d_view, u.d_view, P.d_view, fx.d_view);
     }
 
     std::array<std::unique_ptr<IBoundaryCondition>, ndim * 2> bcs_array;
@@ -272,12 +272,12 @@ int nova_main(int argc, char** argv)
         {
             if (bc_choice_faces[idim * 2 + iface] == "UserDefined")
             {
-                bcs_array[idim * 2 + iface] = std::make_unique<BoundarySetup<Gravity>>(idim, iface, eos, grid, param_setup, *g);
+                bcs_array[idim * 2 + iface] = std::make_unique<BoundarySetup<Gravity>>(idim, iface, eos, param_setup, *g);
             }
             else
             {
                 bcs_array[idim * 2 + iface] = factory_boundary_construction(
-                    bc_choice_faces[idim * 2 + iface], idim, iface, grid);
+                    bc_choice_faces[idim * 2 + iface], idim, iface);
             }
         }
     }
@@ -285,10 +285,10 @@ int nova_main(int argc, char** argv)
     DistributedBoundaryCondition const bcs(grid, param, std::move(bcs_array));
 
     std::unique_ptr<IFaceReconstruction> face_reconstruction
-            = factory_face_reconstruction(param.reconstruction_type, grid);
+            = factory_face_reconstruction(param.reconstruction_type);
 
     std::unique_ptr<IExtrapolationReconstruction<Gravity>> time_reconstruction
-            = std::make_unique<ExtrapolationTimeReconstruction<EOS, Gravity>>(eos, grid);
+            = std::make_unique<ExtrapolationTimeReconstruction<EOS, Gravity>>(eos);
 
     std::unique_ptr<IHydroReconstruction<Gravity>> reconstruction
         = std::make_unique<MUSCLHancockHydroReconstruction<EOS, Gravity>>(std::move(face_reconstruction),
@@ -296,11 +296,11 @@ int nova_main(int argc, char** argv)
                                                             eos, P_rec, u_rec);
 
     std::unique_ptr<IGodunovScheme<Gravity>> godunov_scheme
-            = factory_godunov_scheme<EOS, Gravity>(param.riemann_solver, eos, grid);
+            = factory_godunov_scheme<EOS, Gravity>(param.riemann_solver, eos);
 
     conv_prim_to_cons(grid.range.no_ghosts(), eos, rho.d_view, u.d_view, P.d_view, rhou.d_view, E.d_view);
 
-    bcs(rho.d_view, rhou.d_view, E.d_view, fx.d_view);
+    bcs(grid, rho.d_view, rhou.d_view, E.d_view, fx.d_view);
 
     conv_cons_to_prim(grid.range.all_ghosts(), eos, rho.d_view, rhou.d_view, E.d_view, u.d_view, P.d_view);
 
@@ -385,11 +385,11 @@ int nova_main(int argc, char** argv)
             throw std::runtime_error("Volumic internal energy < 0");
         }
 
-        reconstruction->execute(grid.range.with_ghosts(1), *g, dt/2,
+        reconstruction->execute(grid.range.with_ghosts(1), grid, *g, dt/2,
                                 rho.d_view, u.d_view, P.d_view, fx.d_view,
                                 rho_rec, rhou_rec, E_rec, fx_rec);
 
-        godunov_scheme->execute(grid.range.no_ghosts(), *g, dt,
+        godunov_scheme->execute(grid.range.no_ghosts(), grid, *g, dt,
                                 rho.d_view, rhou.d_view, E.d_view, fx.d_view,
                                 rho_rec, rhou_rec, E_rec, fx_rec,
                                 rho_new, rhou_new, E_new, fx_new);
@@ -404,7 +404,7 @@ int nova_main(int argc, char** argv)
 
         user_step->execute(grid.range.no_ghosts(), t, dt, rho_new, E_new, fx_new);
 
-        bcs(rho_new, rhou_new, E_new, fx_new);
+        bcs(grid, rho_new, rhou_new, E_new, fx_new);
 
         conv_cons_to_prim(grid.range.all_ghosts(), eos, rho_new, rhou_new, E_new, u.d_view, P.d_view);
 

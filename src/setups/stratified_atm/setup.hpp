@@ -39,18 +39,15 @@ class InitializationSetup : public IInitializationProblem
 {
 private:
     EOS m_eos;
-    Grid m_grid;
     ParamSetup m_param_setup;
     Gravity m_gravity;
 
 public:
     InitializationSetup(
         EOS const& eos,
-        Grid const& grid,
         ParamSetup const& param_setup,
         Gravity const& gravity)
         : m_eos(eos)
-        , m_grid(grid)
         , m_param_setup(param_setup)
         , m_gravity(gravity)
     {
@@ -58,6 +55,7 @@ public:
 
     void execute(
         Range const& range,
+        Grid const& grid,
         KV_double_3d const& rho,
         KV_double_4d const& u,
         KV_double_3d const& P,
@@ -70,7 +68,7 @@ public:
         assert(rho.extent(2) == u.extent(2));
         assert(u.extent(2) == P.extent(2));
 
-        auto const xc = m_grid.x_center;
+        auto const xc = grid.x_center;
         auto const& eos = m_eos;
         auto const& gravity = m_gravity;
         auto const& param_setup = m_param_setup;
@@ -105,26 +103,24 @@ class BoundarySetup : public IBoundaryCondition
 
 private:
     EOS m_eos;
-    Grid m_grid;
     ParamSetup m_param_setup;
     Gravity m_gravity;
 
 public:
     BoundarySetup(int idim, int iface,
         [[maybe_unused]] EOS const& eos,
-        [[maybe_unused]] Grid const& grid,
         [[maybe_unused]] ParamSetup const& param_setup,
         [[maybe_unused]] Gravity const& gravity)
         : IBoundaryCondition(idim, iface)
         , m_label("UserDefined" + bc_dir[idim] + bc_face[iface])
         , m_eos(eos)
-        , m_grid(grid)
         , m_param_setup(param_setup)
         , m_gravity(gravity)
     {
     }
 
-    void execute(KV_double_3d const& rho,
+    void execute(Grid const& grid,
+                 KV_double_3d const& rho,
                  KV_double_4d const& rhou,
                  KV_double_3d const& E,
                  [[maybe_unused]] KV_double_4d const& fx) const final
@@ -139,13 +135,13 @@ public:
         Kokkos::Array<int, 3> begin {0, 0, 0};
         Kokkos::Array<int, 3> end {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)};
 
-        auto const xc = m_grid.x_center;
+        auto const xc = grid.x_center;
         auto const& eos = m_eos;
         auto const& gravity = m_gravity;
         auto const& param_setup = m_param_setup;
         double mu = m_eos.mean_molecular_weight();
 
-        int const ng = m_grid.Nghost[m_bc_idim];
+        int const ng = grid.Nghost[m_bc_idim];
         if (m_bc_iface == 1)
         {
             begin[m_bc_idim] = rho.extent_int(m_bc_idim) - ng;

@@ -34,14 +34,14 @@ IBoundaryCondition& IBoundaryCondition::operator=(IBoundaryCondition const& rhs)
 IBoundaryCondition& IBoundaryCondition::operator=(IBoundaryCondition&& rhs) noexcept = default;
 
 
-NullGradient::NullGradient(int idim, int iface, Grid const& grid)
+NullGradient::NullGradient(int idim, int iface)
     : IBoundaryCondition(idim, iface)
     , m_label("NullGradient" + bc_dir[idim] + bc_face[iface])
-    , m_grid(grid)
 {
 }
 
-void NullGradient::execute(KV_double_3d const& rho,
+void NullGradient::execute(Grid const& grid,
+                           KV_double_3d const& rho,
                            KV_double_4d const& rhou,
                            KV_double_3d const& E,
                            KV_double_4d const& fx) const
@@ -57,7 +57,7 @@ void NullGradient::execute(KV_double_3d const& rho,
     Kokkos::Array<int, 3> end {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)};
     int const nfx = fx.extent_int(3);
 
-    int const ng = m_grid.Nghost[m_bc_idim];
+    int const ng = grid.Nghost[m_bc_idim];
     if (m_bc_iface == 1)
     {
         begin[m_bc_idim] = rho.extent_int(m_bc_idim) - ng;
@@ -92,7 +92,8 @@ PeriodicCondition::PeriodicCondition(int idim, int iface)
 {
 }
 
-void PeriodicCondition::execute([[maybe_unused]] KV_double_3d const& rho,
+void PeriodicCondition::execute([[maybe_unused]] Grid const& grid,
+                                [[maybe_unused]] KV_double_3d const& rho,
                                 [[maybe_unused]] KV_double_4d const& rhou,
                                 [[maybe_unused]] KV_double_3d const& E,
                                 [[maybe_unused]] KV_double_4d const& fx) const
@@ -101,14 +102,14 @@ void PeriodicCondition::execute([[maybe_unused]] KV_double_3d const& rho,
 }
 
 
-ReflexiveCondition::ReflexiveCondition(int idim, int iface, Grid const& grid)
+ReflexiveCondition::ReflexiveCondition(int idim, int iface)
     : IBoundaryCondition(idim, iface)
     , m_label("Reflexive" + bc_dir[idim] + bc_face[iface])
-    , m_grid(grid)
 {
 }
 
-void ReflexiveCondition::execute(KV_double_3d const& rho,
+void ReflexiveCondition::execute(Grid const& grid,
+                                 KV_double_3d const& rho,
                                  KV_double_4d const& rhou,
                                  KV_double_3d const& E,
                                  KV_double_4d const& fx) const
@@ -117,7 +118,7 @@ void ReflexiveCondition::execute(KV_double_3d const& rho,
     Kokkos::Array<int, 3> end {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)};
     int const nfx = fx.extent_int(3);
 
-    int const ng = m_grid.Nghost[m_bc_idim];
+    int const ng = grid.Nghost[m_bc_idim];
     if (m_bc_iface == 1)
     {
         begin[m_bc_idim] = rho.extent_int(m_bc_idim) - ng;

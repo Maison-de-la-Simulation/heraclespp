@@ -37,6 +37,7 @@ public:
 
     virtual void execute(
             Range const& range,
+            Grid const& grid,
             Gravity const& gravity,
             double dt,
             KV_cdouble_3d const& rho,
@@ -76,6 +77,7 @@ public:
 
     void execute(
             Range const& range,
+            Grid const& grid,
             Gravity const& gravity,
             double const dt,
             KV_cdouble_3d const& rho,
@@ -87,12 +89,13 @@ public:
             KV_double_5d const& E_rec,
             KV_double_6d const& fx_rec) const final
     {
-        m_face_reconstruction->execute(range, rho, rho_rec);
-        m_face_reconstruction->execute(range, P, m_P_rec);
+        m_face_reconstruction->execute(range, grid, rho, rho_rec);
+        m_face_reconstruction->execute(range, grid, P, m_P_rec);
         for (int idim = 0; idim < ndim; ++idim)
         {
             m_face_reconstruction->execute(
                     range,
+                    grid,
                     Kokkos::subview(u, ALL, ALL, ALL, idim),
                     Kokkos::subview(m_u_rec, ALL, ALL, ALL, ALL, ALL, idim));
         }
@@ -101,6 +104,7 @@ public:
         {
             m_face_reconstruction->execute(
                     range,
+                    grid,
                     Kokkos::subview(fx, ALL, ALL, ALL, ifx),
                     Kokkos::subview(fx_rec, ALL, ALL, ALL, ALL, ALL, ifx));
         }
@@ -120,7 +124,7 @@ public:
             }
         }
 
-        m_hancock_reconstruction->execute(range, gravity, dt, m_u_rec, m_P_rec, rho_rec, rhou_rec, E_rec, fx_rec);
+        m_hancock_reconstruction->execute(range, grid, gravity, dt, m_u_rec, m_P_rec, rho_rec, rhou_rec, E_rec, fx_rec);
     }
 };
 

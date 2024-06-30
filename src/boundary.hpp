@@ -7,12 +7,13 @@
 #include <array>
 #include <string>
 
-#include <grid.hpp>
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
 
 namespace novapp
 {
+
+class Grid;
 
 extern std::array<std::string, 3> const bc_dir;
 extern std::array<std::string, 2> const bc_face;
@@ -36,7 +37,8 @@ public:
 
     IBoundaryCondition& operator=(IBoundaryCondition&& rhs) noexcept;
 
-    virtual void execute(KV_double_3d const& rho,
+    virtual void execute(Grid const& grid,
+                         KV_double_3d const& rho,
                          KV_double_4d const& rhou,
                          KV_double_3d const& E,
                          KV_double_4d const& fx) const = 0;
@@ -46,12 +48,12 @@ class NullGradient : public IBoundaryCondition
 {
 private:
     std::string m_label;
-    Grid m_grid;
 
 public:
-    NullGradient(int idim, int iface, Grid const& grid);
+    NullGradient(int idim, int iface);
 
-    void execute(KV_double_3d const& rho,
+    void execute(Grid const& grid,
+                 KV_double_3d const& rho,
                  KV_double_4d const& rhou,
                  KV_double_3d const& E,
                  KV_double_4d const& fx) const final;
@@ -62,7 +64,8 @@ class PeriodicCondition : public IBoundaryCondition
 public:
     PeriodicCondition(int idim, int iface);
 
-    void execute(KV_double_3d const& rho,
+    void execute(Grid const& grid,
+                 KV_double_3d const& rho,
                  KV_double_4d const& rhou,
                  KV_double_3d const& E,
                  KV_double_4d const& fx) const final;
@@ -72,12 +75,12 @@ class ReflexiveCondition : public IBoundaryCondition
 {
 private:
     std::string m_label;
-    Grid m_grid;
 
 public:
-    ReflexiveCondition(int idim, int iface, Grid const& grid);
+    ReflexiveCondition(int idim, int iface);
 
-    void execute(KV_double_3d const& rho,
+    void execute(Grid const& grid,
+                 KV_double_3d const& rho,
                  KV_double_4d const& rhou,
                  KV_double_3d const& E,
                  KV_double_4d const& fx) const final;
