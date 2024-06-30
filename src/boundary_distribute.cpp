@@ -37,30 +37,30 @@ void generate_order(std::array<int, ndim * 2>& bc_order, std::string const& bc_p
     }
     std::array<std::string, ndim * 2> tmp_arr;
     std::stringstream ssin(bc_priority);
-    for (int i = 0; i < ndim * 2 && ssin.good(); i++) {
+    for (int i = 0; i < ndim * 2 && ssin.good(); ++i) {
         ssin >> tmp_arr[i];
     }
 
     int counter = 0;
-    for (int i = 0; i < ndim * 2; i++) {
+    for (int i = 0; i < ndim * 2; ++i) {
         if (tmp_arr[i] == "X_left") {
             bc_order[0] = i;
-            counter++;
+            ++counter;
         } else if (tmp_arr[i] == "X_right") {
             bc_order[1] = i;
-            counter++;
+            ++counter;
         } else if (tmp_arr[i] == "Y_left" && ndim >= 2) {
             bc_order[2] = i;
-            counter++;
+            ++counter;
         } else if (tmp_arr[i] == "Y_right" && ndim >= 2) {
             bc_order[3] = i;
-            counter++;
+            ++counter;
         } else if (tmp_arr[i] == "Z_left" && ndim == 3) {
             bc_order[4] = i;
-            counter++;
+            ++counter;
         } else if (tmp_arr[i] == "Z_right" && ndim == 3) {
             bc_order[5] = i;
-            counter++;
+            ++counter;
         }
     }
     std::reverse(bc_order.begin(), bc_order.end());
@@ -148,9 +148,9 @@ DistributedBoundaryCondition::DistributedBoundaryCondition(
     : m_bcs(std::move(bcs))
     , m_param(param)
 {
-    for(int idim=0; idim<ndim; idim++)
+    for(int idim=0; idim<ndim; ++idim)
     {
-        for(int iface=0; iface<2; iface++)
+        for(int iface=0; iface<2; ++iface)
         {
             if (!grid.is_border[idim][iface])
             {
@@ -160,7 +160,7 @@ DistributedBoundaryCondition::DistributedBoundaryCondition(
     }
 
     std::array<int, 3> buf_size = grid.Nx_local_wg;
-    for (int idim = 0; idim < ndim; idim++)
+    for (int idim = 0; idim < ndim; ++idim)
     {
         buf_size[idim] = grid.Nghost[idim];
         m_mpi_buffer[idim] = mpi_buffer_type("", buf_size[0], buf_size[1], buf_size[2], ndim + 2 + param.nfx);
@@ -189,9 +189,9 @@ void DistributedBoundaryCondition::operator()(Grid const& grid,
         views.emplace_back(Kokkos::subview(fx, ALL, ALL, ALL, i3));
     }
 
-    for (int idim = 0; idim < ndim; idim++)
+    for (int idim = 0; idim < ndim; ++idim)
     {
-        for (int iface = 0; iface < 2; iface++)
+        for (int iface = 0; iface < 2; ++iface)
         {
             ghost_sync(grid, views, idim, iface);
         }

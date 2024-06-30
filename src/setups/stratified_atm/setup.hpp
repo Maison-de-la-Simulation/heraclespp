@@ -160,7 +160,7 @@ public:
 
                 rho(i, j, k) = param_setup.rho0 * units::density * Kokkos::exp(- xc(i) / x0);
 
-                for (int n = 0; n < rhou.extent_int(3); n++)
+                for (int n = 0; n < rhou.extent_int(3); ++n)
                 {
                     rhou(i, j, k, n) = param_setup.rho0 * units::density * param_setup.u0 * units::velocity;
                 }

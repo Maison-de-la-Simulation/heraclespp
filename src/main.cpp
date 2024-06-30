@@ -122,10 +122,10 @@ int nova_main(int argc, char** argv)
 
     std::string bc_choice_dir;
     std::array<std::string, ndim*2> bc_choice_faces;
-    for(int idim = 0; idim < ndim; idim++)
+    for(int idim = 0; idim < ndim; ++idim)
     {
         bc_choice_dir = reader.Get("Boundary Condition", "BC" + bc_dir[idim], param.bc_choice);
-        for (int iface = 0; iface < 2; iface++)
+        for (int iface = 0; iface < 2; ++iface)
         {
             bc_choice_faces[idim * 2 + iface] = reader.Get("Boundary Condition",
                                                        "BC" + bc_dir[idim]+bc_face[iface],
@@ -266,9 +266,9 @@ int nova_main(int argc, char** argv)
     }
 
     std::array<std::unique_ptr<IBoundaryCondition>, ndim * 2> bcs_array;
-    for(int idim = 0; idim < ndim; idim++)
+    for(int idim = 0; idim < ndim; ++idim)
     {
-        for(int iface = 0; iface < 2; iface++)
+        for(int iface = 0; iface < 2; ++iface)
         {
             if (bc_choice_faces[idim * 2 + iface] == "UserDefined")
             {
@@ -416,7 +416,7 @@ int nova_main(int argc, char** argv)
         modify_device(rho, u, P, E, rhou, fx);
 
         t += dt;
-        iter++;
+        ++iter;
 
         if(make_output)
         {

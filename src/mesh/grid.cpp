@@ -59,7 +59,7 @@ Grid::Grid(Param const& param)
     , Ncpu_x(param.Ncpu_x)
     , mpi_rank_cart {0, 0, 0}
 {
-    for (int idim = 0; idim < ndim; idim++)
+    for (int idim = 0; idim < ndim; ++idim)
     {
         Nghost[idim] = Ng;
     }
@@ -77,7 +77,7 @@ void Grid::MPI_Decomp()
     MPI_Comm_size(MPI_COMM_WORLD, &Ncpu);
 
     MPI_Dims_create(Ncpu, ndim, Ncpu_x.data());
-    for(int n=ndim; n<3; n++)
+    for(int n=ndim; n<3; ++n)
     {
         Ncpu_x[n] = 1;
     }
@@ -88,7 +88,7 @@ void Grid::MPI_Decomp()
     MPI_Comm_rank(comm_cart, &mpi_rank);
     MPI_Cart_coords(comm_cart, mpi_rank, 3, mpi_rank_cart.data());
 
-    for(int i=0; i<3; i++)
+    for(int i=0; i<3; ++i)
     {
         Nx_local_ng[i] = Nx_glob_ng[i]/Ncpu_x[i];
         start_cell_wg[i] = Nx_local_ng[i] * mpi_rank_cart[i];
@@ -108,7 +108,7 @@ void Grid::MPI_Decomp()
     std::array<int, 3> remain_dims {0, 0, 0};
     std::array<int, 3> cmin {0, 0, 0};
     std::array<int, 3> cmax {0, 0, 0};
-    for(int i=0; i<3; i++)
+    for(int i=0; i<3; ++i)
     {
         remain_dims[i] = 1;
         MPI_Comm comm_cart_1d;
@@ -123,11 +123,11 @@ void Grid::MPI_Decomp()
     range = Range(cmin, cmax, Ng);
 
     std::array<int, 3> tmp_coord;
-    for(int i=-1; i<2; i++)
+    for(int i=-1; i<2; ++i)
     {
-        for(int j=-1; j<2; j++)
+        for(int j=-1; j<2; ++j)
         {
-            for(int k=-1; k<2; k++)
+            for(int k=-1; k<2; ++k)
             {
                 tmp_coord[0] = mpi_rank_cart[0]+i;
                 tmp_coord[1] = mpi_rank_cart[1]+j;
@@ -136,9 +136,9 @@ void Grid::MPI_Decomp()
             }
         }
     }
-    for(int idim=0; idim<ndim; idim++)
+    for(int idim=0; idim<ndim; ++idim)
     {
-        for(int iface=0; iface<2; iface++)
+        for(int iface=0; iface<2; ++iface)
         {
             int const displ = iface==0? -1 : 1;
             MPI_Cart_shift(comm_cart, idim, displ, &neighbor_src[idim*2+iface], &neighbor_dest[idim*2+iface]);
@@ -149,7 +149,7 @@ void Grid::MPI_Decomp()
 
     Nx_block = Nx_local_wg;
 
-    for(int i=0; i<3; i++)
+    for(int i=0; i<3; ++i)
     {
         is_border[i][0] = (mpi_rank_cart[i] == 0);
         is_border[i][1] = (mpi_rank_cart[i] == Ncpu_x[i]-1);

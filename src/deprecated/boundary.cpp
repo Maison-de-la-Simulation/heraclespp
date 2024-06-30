@@ -78,7 +78,7 @@ void NullGradient::execute(
                 Kokkos::Array<int, 3> offsets {i, j, k};
                 offsets[bc_idim] = offset;
                 rho(i, j, k) = rho(offsets[0], offsets[1], offsets[2]);
-                for (int n = 0; n < rhou.extent_int(3); n++) {
+                for (int n = 0; n < rhou.extent_int(3); ++n) {
                     rhou(i, j, k, n) = rhou(offsets[0], offsets[1], offsets[2], n);
                 }
                 E(i, j, k) = E(offsets[0], offsets[1], offsets[2]);
@@ -134,7 +134,7 @@ void ReflexiveCondition::execute(
                 Kokkos::Array<int, 3> offsets {i, j, k};
                 offsets[bc_idim] = mirror - offsets[bc_idim];
                 rho(i, j, k) = rho(offsets[0], offsets[1], offsets[2]);
-                for (int n = 0; n < rhou.extent_int(3); n++) {
+                for (int n = 0; n < rhou.extent_int(3); ++n) {
                     rhou(i, j, k, n) = rhou(offsets[0], offsets[1], offsets[2], n);
                 }
                 rhou(i, j, k, bc_idim) = -rhou(i, j, k, bc_idim);

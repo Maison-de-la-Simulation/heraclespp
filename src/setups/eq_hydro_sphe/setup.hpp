@@ -151,7 +151,7 @@ public:
         {
             double x0 = units::kb * param_setup.T / (mu * units::mp * units::G * param_setup.M);
             rho(i, j, k) = param_setup.rho0 * Kokkos::exp(1. / (xc(i) * x0));
-            for (int n = 0; n < rhou.extent_int(3); n++)
+            for (int n = 0; n < rhou.extent_int(3); ++n)
             {
                 rhou(i, j, k, n) = param_setup.rho0 * param_setup.u0;
             }
