@@ -327,7 +327,7 @@ void XmlWriter::operator()(
             xdmfFile << indent(10) << "<DataItem";
             xdmfFile << " NumberType=" << '"' << "Float" << '"';
             xdmfFile << " Precision=" << '"' << precision << '"';
-            xdmfFile << " Dimensions=" << '"' << axes_arrays[idim].extent_int(0) << '"';
+            xdmfFile << " Dimensions=" << '"' << axes_arrays[idim].extent_int(0) - 2 * grid.Nghost[idim] << '"';
             xdmfFile << " Format=" << '"' << "HDF" << '"';
             xdmfFile << ">\n";
             xdmfFile << indent(12) << output_filename << ":/" << axes_labels[idim]
