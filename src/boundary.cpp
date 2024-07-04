@@ -17,34 +17,14 @@ namespace novapp
 std::array<std::string, 3> const bc_dir {"_X", "_Y", "_Z"};
 std::array<std::string, 2> const bc_face {"_left", "_right"};
 
-IBoundaryCondition::IBoundaryCondition(int idim, int iface)
-    : m_bc_idim(idim)
-    , m_bc_iface(iface)
-{
-}
 
-IBoundaryCondition::IBoundaryCondition(IBoundaryCondition const& rhs) = default;
-
-IBoundaryCondition::IBoundaryCondition(IBoundaryCondition&& rhs) noexcept = default;
-
-IBoundaryCondition::~IBoundaryCondition() noexcept = default;
-
-IBoundaryCondition& IBoundaryCondition::operator=(IBoundaryCondition const& rhs) = default;
-
-IBoundaryCondition& IBoundaryCondition::operator=(IBoundaryCondition&& rhs) noexcept = default;
-
-
-NullGradient::NullGradient(int idim, int iface)
-    : IBoundaryCondition(idim, iface)
-    , m_label("NullGradient" + bc_dir[idim] + bc_face[iface])
-{
-}
-
-void NullGradient::execute(Grid const& grid,
-                           KV_double_3d const& rho,
-                           KV_double_4d const& rhou,
-                           KV_double_3d const& E,
-                           KV_double_4d const& fx) const
+void null_gradient_condition(int m_bc_idim, int m_bc_iface,
+                             std::string const& m_label,
+                             Grid const& grid,
+                             KV_double_3d const& rho,
+                             KV_double_4d const& rhou,
+                             KV_double_3d const& E,
+                             KV_double_4d const& fx)
 {
     assert(rho.extent(0) == rhou.extent(0));
     assert(rhou.extent(0) == E.extent(0));
@@ -87,32 +67,13 @@ void NullGradient::execute(Grid const& grid,
 }
 
 
-PeriodicCondition::PeriodicCondition(int idim, int iface)
-    : IBoundaryCondition(idim, iface)
-{
-}
-
-void PeriodicCondition::execute([[maybe_unused]] Grid const& grid,
-                                [[maybe_unused]] KV_double_3d const& rho,
-                                [[maybe_unused]] KV_double_4d const& rhou,
-                                [[maybe_unused]] KV_double_3d const& E,
-                                [[maybe_unused]] KV_double_4d const& fx) const
-{
-    // do nothing
-}
-
-
-ReflexiveCondition::ReflexiveCondition(int idim, int iface)
-    : IBoundaryCondition(idim, iface)
-    , m_label("Reflexive" + bc_dir[idim] + bc_face[iface])
-{
-}
-
-void ReflexiveCondition::execute(Grid const& grid,
-                                 KV_double_3d const& rho,
-                                 KV_double_4d const& rhou,
-                                 KV_double_3d const& E,
-                                 KV_double_4d const& fx) const
+void reflexive_condition(int m_bc_idim, int m_bc_iface,
+                         std::string const& m_label,
+                         Grid const& grid,
+                         KV_double_3d const& rho,
+                         KV_double_4d const& rhou,
+                         KV_double_3d const& E,
+                         KV_double_4d const& fx)
 {
     Kokkos::Array<int, 3> begin {0, 0, 0};
     Kokkos::Array<int, 3> end {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)};

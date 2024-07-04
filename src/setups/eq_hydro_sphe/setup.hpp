@@ -96,7 +96,7 @@ public:
 };
 
 template <class Gravity>
-class BoundarySetup : public IBoundaryCondition
+class BoundarySetup : public IBoundaryCondition<Gravity>
 {
     std::string m_label;
 
@@ -107,9 +107,8 @@ private:
 public:
     BoundarySetup(int idim, int iface,
         EOS const& eos,
-        ParamSetup const& param_setup,
-        [[maybe_unused]] Gravity const& gravity)
-        : IBoundaryCondition(idim, iface)
+        ParamSetup const& param_setup)
+        : IBoundaryCondition<Gravity>(idim, iface)
         , m_label("UserDefined" + bc_dir[idim] + bc_face[iface])
         , m_eos(eos)
         , m_param_setup(param_setup)
@@ -117,6 +116,7 @@ public:
     }
 
     void execute(Grid const& grid,
+                 [[maybe_unused]] Gravity const& gravity,
                  KV_double_3d const& rho,
                  KV_double_4d const& rhou,
                  KV_double_3d const& E,
@@ -137,12 +137,12 @@ public:
         auto const& param_setup = m_param_setup;
         double const mu = m_eos.mean_molecular_weight();
 
-        int const ng = grid.Nghost[m_bc_idim];
-        if (m_bc_iface == 1)
+        int const ng = grid.Nghost[this->m_bc_idim];
+        if (this->m_bc_iface == 1)
         {
-            begin[m_bc_idim] = rho.extent_int(m_bc_idim) - ng;
+            begin[this->m_bc_idim] = rho.extent_int(this->m_bc_idim) - ng;
         }
-        end[m_bc_idim] = begin[m_bc_idim] + ng;
+        end[this->m_bc_idim] = begin[this->m_bc_idim] + ng;
 
         Kokkos::parallel_for(
         m_label,

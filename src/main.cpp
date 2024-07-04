@@ -264,24 +264,24 @@ int nova_main(int argc, char** argv)
         initialization->execute(grid.range.no_ghosts(), grid, rho.d_view, u.d_view, P.d_view, fx.d_view);
     }
 
-    std::array<std::unique_ptr<IBoundaryCondition>, ndim * 2> bcs_array;
+    std::array<std::unique_ptr<IBoundaryCondition<Gravity>>, ndim * 2> bcs_array;
     for(int idim = 0; idim < ndim; ++idim)
     {
         for(int iface = 0; iface < 2; ++iface)
         {
             if (bc_choice_faces[idim * 2 + iface] == "UserDefined")
             {
-                bcs_array[idim * 2 + iface] = std::make_unique<BoundarySetup<Gravity>>(idim, iface, eos, param_setup, *g);
+                bcs_array[idim * 2 + iface] = std::make_unique<BoundarySetup<Gravity>>(idim, iface, eos, param_setup);
             }
             else
             {
-                bcs_array[idim * 2 + iface] = factory_boundary_construction(
+                bcs_array[idim * 2 + iface] = factory_boundary_construction<Gravity>(
                     bc_choice_faces[idim * 2 + iface], idim, iface);
             }
         }
     }
 
-    DistributedBoundaryCondition const bcs(grid, param, std::move(bcs_array));
+    DistributedBoundaryCondition const bcs(grid, param);
 
     std::unique_ptr<IFaceReconstruction> face_reconstruction
             = factory_face_reconstruction(param.reconstruction_type);
@@ -299,7 +299,7 @@ int nova_main(int argc, char** argv)
 
     conv_prim_to_cons(grid.range.no_ghosts(), eos, rho.d_view, u.d_view, P.d_view, rhou.d_view, E.d_view);
 
-    bcs(grid, rho.d_view, rhou.d_view, E.d_view, fx.d_view);
+    bcs(bcs_array, grid, *g, rho.d_view, rhou.d_view, E.d_view, fx.d_view);
 
     conv_cons_to_prim(grid.range.all_ghosts(), eos, rho.d_view, rhou.d_view, E.d_view, u.d_view, P.d_view);
 
@@ -403,7 +403,7 @@ int nova_main(int argc, char** argv)
 
         user_step->execute(grid.range.no_ghosts(), t, dt, rho_new, E_new, fx_new);
 
-        bcs(grid, rho_new, rhou_new, E_new, fx_new);
+        bcs(bcs_array, grid, *g, rho_new, rhou_new, E_new, fx_new);
 
         conv_cons_to_prim(grid.range.all_ghosts(), eos, rho_new, rhou_new, E_new, u.d_view, P.d_view);
 
