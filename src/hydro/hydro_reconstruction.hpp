@@ -90,7 +90,6 @@ public:
             KV_double_6d const& fx_rec) const final
     {
         m_face_reconstruction->execute(range, grid, rho, rho_rec);
-        m_face_reconstruction->execute(range, grid, P, m_P_rec);
         for (int idim = 0; idim < ndim; ++idim)
         {
             m_face_reconstruction->execute(
@@ -99,6 +98,7 @@ public:
                     Kokkos::subview(u, ALL, ALL, ALL, idim),
                     Kokkos::subview(m_u_rec, ALL, ALL, ALL, ALL, ALL, idim));
         }
+        m_face_reconstruction->execute(range, grid, P, m_P_rec);
         int const nfx = fx.extent_int(3);
         for (int ifx = 0; ifx < nfx; ++ifx)
         {

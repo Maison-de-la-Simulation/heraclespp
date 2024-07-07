@@ -41,8 +41,8 @@ public:
         Grid const& grid,
         Gravity const& gravity,
         double dt_reconstruction,
-        KV_cdouble_6d const& loc_u_rec,
-        KV_cdouble_5d const& loc_P_rec,
+        KV_cdouble_6d const& u_rec,
+        KV_cdouble_5d const& P_rec,
         KV_double_5d const& rho_rec,
         KV_double_6d const& rhou_rec,
         KV_double_5d const& E_rec,
@@ -77,8 +77,8 @@ public:
         Grid const& grid,
         Gravity const& gravity,
         double const dt_reconstruction,
-        KV_cdouble_6d const& loc_u_rec,
-        KV_cdouble_5d const& loc_P_rec,
+        KV_cdouble_6d const& u_rec,
+        KV_cdouble_5d const& P_rec,
         KV_double_5d const& rho_rec,
         KV_double_6d const& rhou_rec,
         KV_double_5d const& E_rec,
@@ -138,18 +138,18 @@ public:
                     primL.rho = rho_old[0][idim];
                     for (int idr = 0; idr < ndim; ++idr)
                     {
-                        primL.u[idr] = loc_u_rec(i, j, k, 0, idim, idr);
+                        primL.u[idr] = u_rec(i, j, k, 0, idim, idr);
                     }
-                    primL.P = loc_P_rec(i, j, k, 0, idim);
+                    primL.P = P_rec(i, j, k, 0, idim);
                     EulerFlux const fluxL = compute_flux(primL, idim, eos);
 
                     EulerPrim primR; // Right, back, top
                     primR.rho = rho_old[1][idim];
                     for (int idr = 0; idr < ndim; ++idr)
                     {
-                        primR.u[idr] = loc_u_rec(i, j, k, 1, idim, idr);
+                        primR.u[idr] = u_rec(i, j, k, 1, idim, idr);
                     }
-                    primR.P = loc_P_rec(i, j, k, 1, idim);
+                    primR.P = P_rec(i, j, k, 1, idim);
                     EulerFlux const fluxR = compute_flux(primR, idim, eos);
 
                     double const dtodv = dt_reconstruction / dv(i, j, k);
