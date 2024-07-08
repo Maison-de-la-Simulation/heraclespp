@@ -31,6 +31,10 @@ void conv_prim_to_cons(
     Kokkos::View<double****, Kokkos::LayoutStride> const& rhou,
     Kokkos::View<double***, Kokkos::LayoutStride> const& E)
 {
+    assert(equal_extents({0, 1, 2}, rho, rhou, E, u, P));
+    assert(equal_extents(3, rhou, u));
+    assert(u.extent_int(3) == ndim);
+
     Kokkos::parallel_for(
         "conv_prim_to_cons_array",
         cell_mdrange(range),
@@ -72,6 +76,10 @@ void conv_cons_to_prim(
     KV_double_4d const& u,
     KV_double_3d const& P)
 {
+    assert(equal_extents({0, 1, 2}, rho, rhou, E, u, P));
+    assert(equal_extents(3, rhou, u));
+    assert(u.extent_int(3) == ndim);
+
     Kokkos::parallel_for(
         "conv_cons_to_prim_array",
         cell_mdrange(range),

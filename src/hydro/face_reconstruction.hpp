@@ -74,9 +74,9 @@ public:
         KV_cdouble_3d const& var,
         KV_double_5d const& var_rec) const final
     {
-        assert(var.extent(0) == var_rec.extent(0));
-        assert(var.extent(1) == var_rec.extent(1));
-        assert(var.extent(2) == var_rec.extent(2));
+        assert(equal_extents({0, 1, 2}, var, var_rec));
+        assert(var_rec.extent(3) == 2);
+        assert(var_rec.extent(4) == ndim);
 
         auto const& slope_limiter = m_slope_limiter;
 

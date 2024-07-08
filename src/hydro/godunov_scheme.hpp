@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <cassert>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -102,6 +103,13 @@ public:
         KV_double_3d const& E_new,
         KV_double_4d const& fx_new) const final
     {
+        assert(equal_extents({0, 1, 2}, rho, rhou, E, fx, rho_new, rhou_new, E_new, fx_new));
+        assert(equal_extents({0, 1, 2, 3, 4}, rho_rec, rhou_rec, E_rec, fx_rec));
+        assert(equal_extents({0, 1, 2}, rho, rho_rec));
+        assert(equal_extents(3, rhou, rhou_new));
+        assert(rhou_rec.extent(5) == ndim);
+        assert(rhou.extent(3) == ndim);
+
         int const nfx = fx.extent_int(3);
         auto const x = grid.x;
         auto const y = grid.y;

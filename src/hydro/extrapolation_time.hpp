@@ -84,16 +84,8 @@ public:
         KV_double_5d const& E_rec,
         KV_double_6d const& fx_rec) const final
     {
-        assert(rho_rec.extent(0) == rhou_rec.extent(0));
-        assert(rhou_rec.extent(0) == E_rec.extent(0));
-        assert(rho_rec.extent(1) == rhou_rec.extent(1));
-        assert(rhou_rec.extent(1) == E_rec.extent(1));
-        assert(rho_rec.extent(2) == rhou_rec.extent(2));
-        assert(rhou_rec.extent(2) == E_rec.extent(2));
-        assert(rho_rec.extent(3) == rhou_rec.extent(3));
-        assert(rhou_rec.extent(3) == E_rec.extent(3));
-        assert(rho_rec.extent(4) == rhou_rec.extent(4));
-        assert(rhou_rec.extent(4) == E_rec.extent(4));
+        assert(equal_extents({0, 1, 2, 3, 4}, rho_rec, rhou_rec, E_rec, fx_rec, u_rec, P_rec));
+        assert(equal_extents(5, rhou_rec, u_rec));
 
         auto const& eos = m_eos;
         int const nfx = fx_rec.extent_int(5);

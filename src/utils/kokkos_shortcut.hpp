@@ -4,6 +4,9 @@
 
 #pragma once
 
+#include <initializer_list>
+#include <numeric>
+#include <utility>
 #include <Kokkos_Core.hpp>
 #include <Kokkos_DualView.hpp>
 
@@ -44,25 +47,46 @@ using KDV_cdouble_4d=Kokkos::DualView<const double****, Kokkos::LayoutLeft>;
 template <class... DualViews>
 void modify_host(DualViews&... views)
 {
-    (views.modify_host(),...);
+    static_assert((Kokkos::is_dual_view_v<DualViews> && ...));
+    (views.modify_host(), ...);
 }
 
 template <class... DualViews>
 void modify_device(DualViews&... views)
 {
-    (views.modify_device(),...);
+    static_assert((Kokkos::is_dual_view_v<DualViews> && ...));
+    (views.modify_device(), ...);
 }
 
 template <class... DualViews>
 void sync_host(DualViews&... views)
 {
-    (views.sync_host(),...);
+    static_assert((Kokkos::is_dual_view_v<DualViews> && ...));
+    (views.sync_host(), ...);
 }
 
 template <class... DualViews>
 void sync_device(DualViews&... views)
 {
-    (views.sync_device(),...);
+    static_assert((Kokkos::is_dual_view_v<DualViews> && ...));
+    (views.sync_device(), ...);
+}
+
+template <class View0, class... Views>
+bool equal_extents(std::size_t const i, View0 const& view0, Views const&... views) noexcept
+{
+    static_assert(Kokkos::is_view_v<View0> || Kokkos::is_dual_view_v<View0>);
+    return ((view0.extent(i) == views.extent(i)) && ...);
+}
+
+template <class View0, class... Views>
+bool equal_extents(
+        std::initializer_list<std::size_t> idx,
+        View0 const& view0,
+        Views const&... views) noexcept
+{
+    auto pred = [&](std::size_t const i) -> bool { return equal_extents(i, view0, views...); };
+    return std::all_of(idx.begin(), idx.end(), std::move(pred));
 }
 
 } // namespace novapp

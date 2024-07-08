@@ -62,12 +62,8 @@ public:
         KV_double_3d const& P,
         [[maybe_unused]] KV_double_4d const& fx) const final
     {
-        assert(rho.extent(0) == u.extent(0));
-        assert(u.extent(0) == P.extent(0));
-        assert(rho.extent(1) == u.extent(1));
-        assert(u.extent(1) == P.extent(1));
-        assert(rho.extent(2) == u.extent(2));
-        assert(u.extent(2) == P.extent(2));
+        assert(equal_extents({0, 1, 2}, rho, u, P, fx));
+        assert(u.extent_int(3) == ndim);
 
         auto const xc = grid.x_center;
         auto const& param_setup = m_param_setup;

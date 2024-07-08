@@ -35,6 +35,9 @@ template <class EoS>
     KV_cdouble_4d const& u,
     KV_cdouble_3d const& P)
 {
+    assert(equal_extents({0, 1, 2}, rho, u, P));
+    assert(u.extent(3) == ndim);
+
     auto const& dx = grid.dx;
     auto const& dy = grid.dy;
     auto const& dz = grid.dz;
