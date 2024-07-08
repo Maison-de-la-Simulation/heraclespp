@@ -84,12 +84,13 @@ int nova_main(int argc, char** argv)
     std::filesystem::path io_config_path;
     for(int iarg = 2; iarg < argc; ++iarg)
     {
-        std::string_view const option(argv[iarg]);
-        std::string_view const prefix("--io-config=");
-        if (std::string_view::size_type const pos = option.find_first_of(prefix);
-            pos != std::string_view::npos)
+        std::string_view const arg(argv[iarg]);
+        std::string_view const option_name("--io-config=");
+        if (arg.find(option_name) == 0)
         {
-            io_config_path = option.substr(pos);
+            std::string_view option_value = arg;
+            option_value.remove_prefix(option_name.size());
+            io_config_path = option_value;
         }
     }
 
