@@ -62,6 +62,25 @@ using namespace novapp;
 namespace
 {
 
+#if defined(NOVAPP_GRAVITY_Uniform)
+using Gravity = UniformGravity;
+std::string_view gravity_label("Uniform");
+#elif defined(NOVAPP_GRAVITY_Point_mass)
+using Gravity = PointMassGravity;
+std::string_view gravity_label("Point_mass");
+#else
+static_assert(false, "Gravity not defined");
+#endif
+
+Gravity make_gravity(Param const& param, [[maybe_unused]] Grid const& grid)
+{
+#if defined(NOVAPP_GRAVITY_Uniform)
+    return make_uniform_gravity(param);
+#elif defined(NOVAPP_GRAVITY_Point_mass)
+    return make_point_mass_gravity(param, grid);
+#endif
+}
+
 void display_help_message(std::filesystem::path const& executable)
 {
     std::cout << "usage: " << executable.filename().native() << " <path to the ini file> [options]\n";
@@ -114,6 +133,18 @@ int nova_main(int argc, char** argv)
         Kokkos::print_configuration(std::cout);
 
         grid.print_grid(std::cout);
+
+        print_info(std::cout, "setup", MY_SETUP);
+        print_info(std::cout, "eos", eos_choice);
+        print_info(std::cout, "geometry", geom_choice);
+        print_info(std::cout, "gravity", gravity_label);
+        print_info(std::cout, "pressure_fix", param.pressure_fix);
+        print_info(std::cout, "riemann_solver", param.riemann_solver);
+        print_info(std::cout, "user_step", param.user_step);
+        print_info(std::cout, "git_branch", git_branch);
+        print_info(std::cout, "git_build_string", git_build_string);
+        print_info(std::cout, "compile_date", compile_date);
+        print_info(std::cout, "compile_time", compile_time);
     }
 
 
@@ -172,30 +203,6 @@ int nova_main(int argc, char** argv)
     KDV_double_1d y_glob("y_glob", grid.Nx_glob_ng[1]+2*grid.Nghost[1]+1);
     KDV_double_1d z_glob("z_glob", grid.Nx_glob_ng[2]+2*grid.Nghost[2]+1);
 
-    if(grid.mpi_rank==0)
-    {
-        print_info(std::cout, "SETUP", MY_SETUP);
-        print_info(std::cout, "EOS", eos_choice);
-        print_info(std::cout, "GEOMETRIE", geom_choice);
-    }
-
-#if defined(NOVAPP_GRAVITY_Uniform)
-    using Gravity = UniformGravity;
-    if(grid.mpi_rank==0)
-    {
-        print_info(std::cout, "GRAVITY", "Uniform");
-    }
-#elif defined(NOVAPP_GRAVITY_Point_mass)
-    using Gravity = PointMassGravity;
-    if(grid.mpi_rank==0)
-    {
-        print_info(std::cout, "GRAVITY", "Point_mass");
-    }
-#else
-    static_assert(false, "Gravity not defined");
-#endif
-    std::unique_ptr<Gravity> g;
-
     std::unique_ptr<IUserStep> user_step;
     if (param.user_step == "UserDefined")
     {
@@ -205,32 +212,17 @@ int nova_main(int argc, char** argv)
     {
         user_step = factory_user_step(param.user_step);
     }
-    if(grid.mpi_rank==0)
-    {
-        if (param.pressure_fix == "On")
-        {
-            print_info(std::cout, "PRESSURE_FIX", param.pressure_fix);
-        }
-        print_info(std::cout, "RIEMANN_SOLVER", param.riemann_solver);
-        print_info(std::cout, "USER_STEP", param.user_step);
-        print_info(std::cout, "git_branch", git_branch);
-        print_info(std::cout, "git_build_string", git_build_string);
-        print_info(std::cout, "compile_date", compile_date);
-        print_info(std::cout, "compile_time", compile_time);
-    }
+
+    std::unique_ptr<Gravity> g;
 
     if(param.restart) // complete restart with a file fom the code
     {
         read_pdi(param.restart_file, output_id, iter_output_id, time_output_id, iter, t, rho, u, P, fx, x_glob, y_glob, z_glob); // read data into host view
         sync_device(x_glob, y_glob, z_glob);
         grid.set_grid(x_glob.d_view, y_glob.d_view, z_glob.d_view);
-#if defined(NOVAPP_GRAVITY_Uniform)
-        g = std::make_unique<Gravity>(make_uniform_gravity(param));
-#elif defined(NOVAPP_GRAVITY_Point_mass)
-        g = std::make_unique<Gravity>(make_point_mass_gravity(param, grid));
-#endif
 
         sync_device(rho, u, P, fx);
+        g = std::make_unique<Gravity>(make_gravity(param, grid));
 
         if(grid.mpi_rank==0)
         {
@@ -255,11 +247,7 @@ int nova_main(int argc, char** argv)
         modify_host(x_glob, y_glob, z_glob);
         sync_device(x_glob, y_glob, z_glob);
         grid.set_grid(x_glob.d_view, y_glob.d_view, z_glob.d_view);
-#if defined(NOVAPP_GRAVITY_Uniform)
-        g = std::make_unique<Gravity>(make_uniform_gravity(param));
-#elif defined(NOVAPP_GRAVITY_Point_mass)
-        g = std::make_unique<Gravity>(make_point_mass_gravity(param, grid));
-#endif
+        g = std::make_unique<Gravity>(make_gravity(param, grid));
         std::unique_ptr<IInitializationProblem> initialization
             = std::make_unique<InitializationSetup<Gravity>>(eos, param_setup, *g);
         initialization->execute(grid.range.no_ghosts(), grid, rho.d_view, u.d_view, P.d_view, fx.d_view);
