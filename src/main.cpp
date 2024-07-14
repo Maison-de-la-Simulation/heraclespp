@@ -203,16 +203,6 @@ int nova_main(int argc, char** argv)
     KDV_double_1d y_glob("y_glob", grid.Nx_glob_ng[1]+2*grid.Nghost[1]+1);
     KDV_double_1d z_glob("z_glob", grid.Nx_glob_ng[2]+2*grid.Nghost[2]+1);
 
-    std::unique_ptr<IUserStep> user_step;
-    if (param.user_step == "UserDefined")
-    {
-        user_step = std::make_unique<UserStep>();
-    }
-    else
-    {
-        user_step = factory_user_step(param.user_step);
-    }
-
     std::unique_ptr<Gravity> g;
 
     if(param.restart) // complete restart with a file fom the code
@@ -253,6 +243,7 @@ int nova_main(int argc, char** argv)
         initialization->execute(grid.range.no_ghosts(), grid, rho.d_view, u.d_view, P.d_view, fx.d_view);
     }
 
+    // Create the operators of the main time loop
     std::array<std::unique_ptr<IBoundaryCondition<Gravity>>, ndim * 2> bcs_array;
     for(int idim = 0; idim < ndim; ++idim)
     {
@@ -285,6 +276,16 @@ int nova_main(int argc, char** argv)
 
     std::unique_ptr<IGodunovScheme<Gravity>> godunov_scheme
             = factory_godunov_scheme<EOS, Gravity>(param.riemann_solver, eos);
+
+    std::unique_ptr<IUserStep> user_step;
+    if (param.user_step == "UserDefined")
+    {
+        user_step = std::make_unique<UserStep>();
+    }
+    else
+    {
+        user_step = factory_user_step(param.user_step);
+    }
 
     conv_prim_to_cons(grid.range.no_ghosts(), eos, rho.d_view, u.d_view, P.d_view, rhou.d_view, E.d_view);
 
