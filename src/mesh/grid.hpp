@@ -67,7 +67,7 @@ public:
 
     Grid(Grid&& rhs) noexcept = delete;
 
-    ~Grid() noexcept = default;
+    ~Grid() noexcept;
 
     Grid& operator=(Grid const& rhs) = delete;
 

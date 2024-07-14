@@ -442,7 +442,7 @@ int nova_main(int argc, char** argv)
         std::cout << "Initial mass = " << initial_mass << " and change in mass = " << mass_change << '\n';
         std::cout << "--- End ---\n";
     }
-    MPI_Comm_free(&(const_cast<Grid&>(grid).comm_cart));
+
     PDI_finalize();
     PC_tree_destroy(&conf);
 

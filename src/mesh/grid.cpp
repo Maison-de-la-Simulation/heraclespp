@@ -16,7 +16,6 @@
 #include "geometry.hpp"
 #include "geometry_factory.hpp"
 #include "grid.hpp"
-#include "grid_type.hpp"
 #include "range.hpp"
 
 namespace novapp
@@ -65,6 +64,13 @@ Grid::Grid(Param const& param)
     }
 
     MPI_Decomp();
+}
+
+Grid::~Grid() noexcept
+{
+    if (comm_cart != MPI_COMM_NULL) {
+        MPI_Comm_free(&comm_cart);
+    }
 }
 
 /* ****************************************************************
