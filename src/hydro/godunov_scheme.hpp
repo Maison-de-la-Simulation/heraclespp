@@ -303,16 +303,19 @@ inline std::unique_ptr<IGodunovScheme<Gravity>> factory_godunov_scheme(
         return std::make_unique<RiemannBasedGodunovScheme<HLL, Gravity, EoS>>
                 (HLL(), eos);
     }
+
     if (riemann_solver == "HLLC")
     {
         return std::make_unique<RiemannBasedGodunovScheme<HLLC, Gravity, EoS>>
                 (HLLC(), eos);
     }
+
     if (riemann_solver == "Low Mach")
     {
         return std::make_unique<RiemannBasedGodunovScheme<Splitting, Gravity, EoS>>
                 (Splitting(), eos);
     }
+
     throw std::runtime_error("Invalid riemann solver: " + riemann_solver + ".");
 }
 

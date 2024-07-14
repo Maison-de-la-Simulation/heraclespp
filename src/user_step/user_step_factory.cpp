@@ -18,10 +18,12 @@ std::unique_ptr<IUserStep> factory_user_step(std::string const& user_step)
     {
         return std::make_unique<NoUserStep>();
     }
+
     if (user_step == "Heat_nickel")
     {
         return std::make_unique<HeatNickelStep>();
     }
+
     throw std::runtime_error("Unknown user step: " + user_step + ".");
 }
 
