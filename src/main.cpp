@@ -313,7 +313,7 @@ int nova_main(int argc, char** argv)
 
     double const initial_mass = integrate(grid.range.no_ghosts(), grid, rho.d_view);
 
-    Kokkos::fence();
+    Kokkos::fence("Nova++: before main loop");
     MPI_Barrier(grid.comm_cart);
     std::chrono::steady_clock::time_point const start = std::chrono::steady_clock::now();
 
@@ -421,7 +421,7 @@ int nova_main(int argc, char** argv)
 
     double const final_mass = integrate(grid.range.no_ghosts(), grid, rho.d_view);
 
-    Kokkos::fence();
+    Kokkos::fence("Nova++: after main loop");
     MPI_Barrier(grid.comm_cart);
     std::chrono::steady_clock::time_point const end = std::chrono::steady_clock::now();
 
