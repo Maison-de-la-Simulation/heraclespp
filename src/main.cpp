@@ -11,6 +11,7 @@
 #include <filesystem>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
@@ -90,7 +91,7 @@ std::string display_help_message(std::filesystem::path const& executable)
     return ss.str();
 }
 
-void nova_main(int argc, char** argv)
+void novapp_main(int argc, char** argv)
 {
     if (argc < 2)
     {
@@ -99,7 +100,7 @@ void nova_main(int argc, char** argv)
 
     MpiScopeGuard const mpi_guard(argc, argv);
 
-    Kokkos::ScopeGuard const guard(argc, argv);
+    Kokkos::ScopeGuard const kokkos_guard(argc, argv);
 
     INIReader const reader(argv[1]);
 
@@ -370,11 +371,13 @@ void nova_main(int argc, char** argv)
             }
         }
 
-        double const min_internal_energy = internal_energy(grid.range.no_ghosts(), grid, rho.d_view, rhou.d_view, E.d_view);
+        double const min_internal_energy = minimum_internal_energy(grid.range.no_ghosts(), grid, rho.d_view, rhou.d_view, E.d_view);
         if (Kokkos::isnan(min_internal_energy) || min_internal_energy < 0)
         {
-            std::cout << "Time  = " << t << " and number of iterations = " << iter << '\n';
-            throw std::runtime_error("Volumic internal energy < 0");
+            std::stringstream ss;
+            ss << "Time = " << t << ", iteration = " << iter;
+            ss << ": detected invalid volumic internal energy";
+            throw std::runtime_error(ss.str());
         }
 
         reconstruction->execute(grid.range.with_ghosts(1), grid, *g, dt/2,
@@ -456,7 +459,7 @@ int main(int argc, char** argv)
 {
     try
     {
-        nova_main(argc, argv);
+        novapp_main(argc, argv);
     }
     catch(std::exception const& e)
     {

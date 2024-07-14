@@ -12,7 +12,7 @@ namespace novapp
 class Range;
 class Grid;
 
-[[nodiscard]] double internal_energy(
+[[nodiscard]] double minimum_internal_energy(
     Range const& range,
     Grid const& grid,
     KV_cdouble_3d const& rho,

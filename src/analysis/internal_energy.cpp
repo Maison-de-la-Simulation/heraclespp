@@ -9,7 +9,7 @@
 namespace novapp
 {
 
-double internal_energy(
+double minimum_internal_energy(
     Range const& range,
     Grid const& grid,
     KV_cdouble_3d const& rho,
