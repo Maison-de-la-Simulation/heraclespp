@@ -7,10 +7,12 @@
 
 #include <array>
 #include <chrono>
+#include <cstdlib>
 #include <filesystem>
 #include <iomanip>
 #include <iostream>
 #include <memory>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -81,17 +83,18 @@ Gravity make_gravity(Param const& param, [[maybe_unused]] Grid const& grid)
 #endif
 }
 
-void display_help_message(std::filesystem::path const& executable)
+std::string display_help_message(std::filesystem::path const& executable)
 {
-    std::cout << "usage: " << executable.filename().native() << " <path to the ini file> [options]\n";
+    std::stringstream ss;
+    ss << "usage: " << executable.filename() << " <path to the ini file> [options]";
+    return ss.str();
 }
 
-int nova_main(int argc, char** argv)
+void nova_main(int argc, char** argv)
 {
     if (argc < 2)
     {
-        display_help_message(argv[0]);
-        return EXIT_FAILURE;
+        throw std::runtime_error(display_help_message(argv[0]));
     }
 
     MpiScopeGuard const mpi_guard(argc, argv);
@@ -445,8 +448,6 @@ int nova_main(int argc, char** argv)
 
     PDI_finalize();
     PC_tree_destroy(&conf);
-
-    return EXIT_SUCCESS;
 }
 
 }
@@ -455,12 +456,13 @@ int main(int argc, char** argv)
 {
     try
     {
-        return nova_main(argc, argv);
+        nova_main(argc, argv);
     }
     catch(std::exception const& e)
     {
         std::cerr << e.what() << '\n';
+        return EXIT_FAILURE;
     }
 
-    return EXIT_FAILURE;
+    return EXIT_SUCCESS;
 }
