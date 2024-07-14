@@ -297,11 +297,8 @@ int nova_main(int argc, char** argv)
 
     XmlWriter const xml_writer(param.directory, param.prefix, param.nfx);
 
-    if (!param.restart && (param.iter_output_frequency > 0 || param.time_output_frequency > 0))
+    auto const output = [&]() -> void
     {
-        ++iter_output_id;
-        ++time_output_id;
-
         temperature(grid.range.all_ghosts(), eos, rho.d_view, P.d_view, T.d_view);
         modify_device(T);
 
@@ -310,6 +307,14 @@ int nova_main(int argc, char** argv)
         xml_writer(grid, output_id, outputs_record, x_glob, y_glob, z_glob);
         write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), grid, rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
         print_simulation_status(std::cout, iter, t, param.t_end, output_id);
+    };
+
+    if (!param.restart && (param.iter_output_frequency > 0 || param.time_output_frequency > 0))
+    {
+        ++iter_output_id;
+        ++time_output_id;
+
+        output();
     }
 
     double const initial_mass = integrate(grid.range.no_ghosts(), grid, rho.d_view);
@@ -409,14 +414,7 @@ int nova_main(int argc, char** argv)
 
         if(make_output)
         {
-            temperature(grid.range.all_ghosts(), eos, rho.d_view, P.d_view, T.d_view);
-            modify_device(T);
-
-            outputs_record.emplace_back(iter, t);
-            ++output_id;
-            xml_writer(grid, output_id, outputs_record, x_glob, y_glob, z_glob);
-            write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), grid, rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
-            print_simulation_status(std::cout, iter, t, param.t_end, output_id);
+            output();
         }
     }
 
