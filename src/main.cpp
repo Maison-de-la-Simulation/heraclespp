@@ -202,6 +202,7 @@ void novapp_main(int argc, char** argv)
     double t = param.t_ini;
     int iter = iter_ini;
     bool should_exit = false;
+    std::chrono::hours const time_save(param.time_job);
 
     KDV_double_1d x_glob("x_glob", grid.Nx_glob_ng[0]+2*grid.Nghost[0]+1);
     KDV_double_1d y_glob("y_glob", grid.Nx_glob_ng[1]+2*grid.Nghost[1]+1);
@@ -318,11 +319,10 @@ void novapp_main(int argc, char** argv)
 
     double const initial_mass = integrate(grid.range.no_ghosts(), grid, rho.d_view);
 
-    Kokkos::fence("Nova++: before main loop");
+    Kokkos::fence("Nova++: before main time loop");
     MPI_Barrier(grid.comm_cart);
     std::chrono::steady_clock::time_point const start = std::chrono::steady_clock::now();
-
-    std::chrono::hours const time_save(param.time_job);
+    Kokkos::Profiling::pushRegion("Nova++: main time loop");
 
     while (!should_exit)
     {
@@ -426,11 +426,12 @@ void novapp_main(int argc, char** argv)
         }
     }
 
-    double const final_mass = integrate(grid.range.no_ghosts(), grid, rho.d_view);
-
-    Kokkos::fence("Nova++: after main loop");
+    Kokkos::fence("Nova++: after main time loop");
     MPI_Barrier(grid.comm_cart);
+    Kokkos::Profiling::popRegion();
     std::chrono::steady_clock::time_point const end = std::chrono::steady_clock::now();
+
+    double const final_mass = integrate(grid.range.no_ghosts(), grid, rho.d_view);
 
     if (grid.mpi_rank == 0)
     {
