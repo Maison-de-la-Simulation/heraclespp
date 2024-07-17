@@ -149,6 +149,7 @@ void novapp_main(int argc, char** argv)
         print_info(std::cout, "git_build_string", git_build_string);
         print_info(std::cout, "compile_date", compile_date);
         print_info(std::cout, "compile_time", compile_time);
+        std::cout << std::flush;
     }
 
 
@@ -315,6 +316,7 @@ void novapp_main(int argc, char** argv)
         xml_writer(grid, output_id, outputs_record, x_glob, y_glob, z_glob);
         write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), grid, rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
         print_simulation_status(std::cout, iter, t, param.t_end, output_id);
+        std::cout << std::flush;
     }
 
     double const initial_mass = integrate(grid.range.no_ghosts(), grid, rho.d_view);
@@ -423,6 +425,7 @@ void novapp_main(int argc, char** argv)
             xml_writer(grid, output_id, outputs_record, x_glob, y_glob, z_glob);
             write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), grid, rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
             print_simulation_status(std::cout, iter, t, param.t_end, output_id);
+            std::cout << std::flush;
         }
     }
 
