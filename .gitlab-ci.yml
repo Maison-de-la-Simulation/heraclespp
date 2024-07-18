@@ -9,6 +9,7 @@ variables:
   CMAKE_GENERATOR: Ninja
 
 before_script:
+  - git config --global --add safe.directory $CI_PROJECT_DIR
   - git config --global --add safe.directory $CI_PROJECT_DIR/vendor/kokkos
 
 stages:
@@ -67,7 +68,7 @@ build-job:serial:1d:
     GTest_ROOT: $CI_PROJECT_DIR/opt/gtest
     Kokkos_ROOT: $CI_PROJECT_DIR/opt/kokkos
   script:
-    - cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DCMAKE_CXX_FLAGS="-Werror=all -Werror=extra -Werror=pedantic -pedantic-errors -Werror=extra-semi" -DNovapp_NDIM=1 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED
+    - cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DCMAKE_CXX_FLAGS="-Werror=all -Werror=extra -Werror=pedantic -pedantic-errors -Werror=old-style-cast -Werror=extra-semi" -DNovapp_NDIM=1 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED
     - cmake --build build
   artifacts:
     expire_in: 1h
@@ -85,7 +86,7 @@ build-job:serial:2d:
     GTest_ROOT: $CI_PROJECT_DIR/opt/gtest
     Kokkos_ROOT: $CI_PROJECT_DIR/opt/kokkos
   script:
-    - cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DCMAKE_CXX_FLAGS="-Werror=all -Werror=extra -Werror=pedantic -pedantic-errors -Werror=extra-semi" -DNovapp_NDIM=2 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED
+    - cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DCMAKE_CXX_FLAGS="-Werror=all -Werror=extra -Werror=pedantic -pedantic-errors -Werror=old-style-cast -Werror=extra-semi" -DNovapp_NDIM=2 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED
     - cmake --build build
   artifacts:
     expire_in: 1h
@@ -103,7 +104,7 @@ build-job:serial:3d:
     GTest_ROOT: $CI_PROJECT_DIR/opt/gtest
     Kokkos_ROOT: $CI_PROJECT_DIR/opt/kokkos
   script:
-    - cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DCMAKE_CXX_FLAGS="-Werror=all -Werror=extra -Werror=pedantic -pedantic-errors -Werror=extra-semi" -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED
+    - cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DCMAKE_CXX_FLAGS="-Werror=all -Werror=extra -Werror=pedantic -pedantic-errors -Werror=old-style-cast -Werror=extra-semi" -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED
     - cmake --build build
   artifacts:
     expire_in: 1h
@@ -125,7 +126,7 @@ build-job:cuda:3d:
     - cmake --build build-kokkos
     - cmake --install build-kokkos --prefix $CI_PROJECT_DIR/opt/kokkos
     - export Kokkos_ROOT=$CI_PROJECT_DIR/opt/kokkos
-    - cmake -B build -S . -DCMAKE_BUILD_TYPE=None -DCMAKE_CXX_COMPILER=$CI_PROJECT_DIR/vendor/kokkos/bin/nvcc_wrapper -DBUILD_TESTING=ON -DCMAKE_CXX_EXTENSIONS=OFF -DCMAKE_CXX_FLAGS="-Werror=all -Werror=extra -Wpedantic -Werror=cross-execution-space-call" -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED
+    - cmake -B build -S . -DCMAKE_BUILD_TYPE=None -DCMAKE_CXX_COMPILER=$CI_PROJECT_DIR/vendor/kokkos/bin/nvcc_wrapper -DBUILD_TESTING=ON -DCMAKE_CXX_EXTENSIONS=OFF -DCMAKE_CXX_FLAGS="-Werror=all -Werror=extra -Werror=all-warnings" -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED
     - cmake --build build
 
 build-job:hip:3d:
@@ -141,7 +142,7 @@ build-job:hip:3d:
     - cmake --build build-kokkos
     - cmake --install build-kokkos --prefix $CI_PROJECT_DIR/opt/kokkos
     - export Kokkos_ROOT=$CI_PROJECT_DIR/opt/kokkos
-    - cmake -B build -S . -DCMAKE_BUILD_TYPE=None -DCMAKE_CXX_COMPILER=hipcc -DBUILD_TESTING=ON -DCMAKE_CXX_FLAGS="-Werror=all -Werror=extra -Werror=pedantic" -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED
+    - cmake -B build -S . -DCMAKE_BUILD_TYPE=None -DCMAKE_CXX_COMPILER=hipcc -DBUILD_TESTING=ON -DCMAKE_CXX_FLAGS="-Werror=all -Werror=extra -Werror=pedantic -pedantic-errors -Werror=old-style-cast -Werror=extra-semi" -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED
     - cmake --build build
 
 unit-test-job:serial:1d:
@@ -210,7 +211,16 @@ clang-tidy-job:
   needs: []
   script:
     - cmake -B build -S . -DCMAKE_CXX_COMPILER=clang++-14 -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBUILD_TESTING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF
-    - find src tests -path src/deprecated -prune -o -name '*.cpp' -exec clang-tidy -p build -header-filter=$CI_PROJECT_DIR/src/.* --checks="-*,bugprone-*,-bugprone-easily-swappable-parameters,-bugprone-exception-escape,-bugprone-implicit-widening-of-multiplication-result,-bugprone-narrowing-conversions,hicpp-*,-hicpp-member-init,-hicpp-vararg,readability-avoid-const-params-in-decls" --warnings-as-errors="*" '{}' '+'
+    - find src tests -path src/deprecated -prune -o -name '*.cpp' -exec clang-tidy -p build -header-filter=$CI_PROJECT_DIR/src/.* --checks="-*,bugprone-*,-bugprone-easily-swappable-parameters,-bugprone-exception-escape,-bugprone-implicit-widening-of-multiplication-result,-bugprone-narrowing-conversions,hicpp-*,-hicpp-member-init,-hicpp-vararg,misc-*,-misc-non-private-member-variables-in-classes,-misc-unused-parameters,mpi-*,modernize-use-nodiscard,openmp-*,performance-*,readability-*,-readability-identifier-length,-readability-magic-numbers,-readability-function-cognitive-complexity" --warnings-as-errors="*" '{}' '+'
+
+trailing-whitespaces-job:
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  stage: lint
+  needs: []
+  script:
+    - find src tests inputs -type f \( -name '*.[c|h]pp' -o -name 'CMakeLists.txt' \) -exec ./test/trailing_spaces.py --Werror '{}' '+'
 
 doxygen-job:
   rules:

@@ -9,6 +9,7 @@
 namespace novapp
 {
 
+class Grid;
 class Range;
 
 class IInitializationProblem
@@ -28,6 +29,7 @@ public:
 
     virtual void execute(
         Range const& range,
+        Grid const& grid,
         KV_double_3d const& rho,
         KV_double_4d const& u,
         KV_double_3d const& P,

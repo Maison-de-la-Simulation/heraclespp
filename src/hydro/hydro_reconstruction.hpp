@@ -19,6 +19,7 @@
 namespace novapp
 {
 
+template <class Gravity>
 class IHydroReconstruction
 {
 public:
@@ -36,6 +37,8 @@ public:
 
     virtual void execute(
             Range const& range,
+            Grid const& grid,
+            Gravity const& gravity,
             double dt,
             KV_cdouble_3d const& rho,
             KV_cdouble_4d const& u,
@@ -48,11 +51,11 @@ public:
             = 0;
 };
 
-template <class EoS>
-class MUSCLHancockHydroReconstruction : public IHydroReconstruction
+template <class EoS, class Gravity>
+class MUSCLHancockHydroReconstruction : public IHydroReconstruction<Gravity>
 {
     std::unique_ptr<IFaceReconstruction> m_face_reconstruction;
-    std::unique_ptr<IExtrapolationReconstruction> m_hancock_reconstruction;
+    std::unique_ptr<IExtrapolationReconstruction<Gravity>> m_hancock_reconstruction;
     EoS m_eos;
     KV_double_5d m_P_rec;
     KV_double_6d m_u_rec;
@@ -60,7 +63,7 @@ class MUSCLHancockHydroReconstruction : public IHydroReconstruction
 public:
     MUSCLHancockHydroReconstruction(
             std::unique_ptr<IFaceReconstruction> face_reconstruction,
-            std::unique_ptr<IExtrapolationReconstruction> hancock_reconstruction,
+            std::unique_ptr<IExtrapolationReconstruction<Gravity>> hancock_reconstruction,
             EoS const& eos,
             KV_double_5d P_rec,
             KV_double_6d u_rec)
@@ -74,6 +77,8 @@ public:
 
     void execute(
             Range const& range,
+            Grid const& grid,
+            Gravity const& gravity,
             double const dt,
             KV_cdouble_3d const& rho,
             KV_cdouble_4d const& u,
@@ -84,20 +89,22 @@ public:
             KV_double_5d const& E_rec,
             KV_double_6d const& fx_rec) const final
     {
-        m_face_reconstruction->execute(range, rho, rho_rec);
-        m_face_reconstruction->execute(range, P, m_P_rec);
+        m_face_reconstruction->execute(range, grid, rho, rho_rec);
         for (int idim = 0; idim < ndim; ++idim)
         {
             m_face_reconstruction->execute(
                     range,
+                    grid,
                     Kokkos::subview(u, ALL, ALL, ALL, idim),
                     Kokkos::subview(m_u_rec, ALL, ALL, ALL, ALL, ALL, idim));
         }
-        int nfx = fx.extent_int(3);
+        m_face_reconstruction->execute(range, grid, P, m_P_rec);
+        int const nfx = fx.extent_int(3);
         for (int ifx = 0; ifx < nfx; ++ifx)
         {
             m_face_reconstruction->execute(
                     range,
+                    grid,
                     Kokkos::subview(fx, ALL, ALL, ALL, ifx),
                     Kokkos::subview(fx_rec, ALL, ALL, ALL, ALL, ALL, ifx));
         }
@@ -117,7 +124,7 @@ public:
             }
         }
 
-        m_hancock_reconstruction->execute(range, dt, m_u_rec, m_P_rec, rho_rec, rhou_rec, E_rec, fx_rec);
+        m_hancock_reconstruction->execute(range, grid, gravity, dt, m_u_rec, m_P_rec, rho_rec, rhou_rec, E_rec, fx_rec);
     }
 };
 

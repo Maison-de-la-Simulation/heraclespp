@@ -15,6 +15,13 @@ void broadcast(Range const& range, double const in, KV_double_3d const& out)
             KOKKOS_LAMBDA(const int i, const int j, const int k) { out(i, j, k) = in; });
 }
 
+void broadcast(Range const& range, double const in, KV_double_4d const& out)
+{
+    for (int i = 0; i < out.extent_int(3); ++i) {
+        broadcast(range, in, Kokkos::subview(out, ALL, ALL, ALL, i));
+    }
+}
+
 void broadcast(Range const& range, KV_cdouble_1d const& in, KV_double_3d const& out)
 {
     assert(range.NgEff == 0);
@@ -27,6 +34,13 @@ void broadcast(Range const& range, KV_cdouble_1d const& in, KV_double_3d const& 
             KOKKOS_LAMBDA(const int i, const int j, const int k) {
                 out(i, j, k) = in(i - ghost_x);
             });
+}
+
+void broadcast(Range const& range, KV_cdouble_1d const& in, KV_double_4d const& out)
+{
+    for (int i = 0; i < out.extent_int(3); ++i) {
+        broadcast(range, in, Kokkos::subview(out, ALL, ALL, ALL, i));
+    }
 }
 
 } // namespace novapp

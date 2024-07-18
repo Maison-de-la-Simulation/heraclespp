@@ -5,12 +5,15 @@
 #include <iomanip>
 #include <ostream>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <utility>
 #include <vector>
 
+#include <git_version.hpp>
 #include <grid.hpp>
+#include <hdf5.h>
 #include <ndim.hpp>
 #include <nova_params.hpp>
 #include <pdi.h>
@@ -18,6 +21,66 @@
 #include "io.hpp"
 
 namespace {
+
+class raii_h5_hid
+{
+private:
+    hid_t m_id;
+
+    std::function<herr_t(hid_t)> m_close;
+
+public:
+    raii_h5_hid(hid_t id, herr_t (*f)(hid_t)) : m_id(id), m_close(f)
+    {
+        if (m_id < 0 || !m_close) {
+            throw std::runtime_error("Nova++ error: creating h5 id failed");
+        }
+    }
+
+    raii_h5_hid(const raii_h5_hid&) = delete;
+
+    raii_h5_hid(raii_h5_hid&&) = delete;
+
+    ~raii_h5_hid() noexcept
+    {
+        if (m_id >= 0 && m_close) {
+            m_close(m_id);
+        }
+    }
+
+    raii_h5_hid& operator=(const raii_h5_hid&) = delete;
+
+    raii_h5_hid& operator=(raii_h5_hid&&) = delete;
+
+    hid_t operator*() const noexcept
+    {
+        return m_id;
+    }
+};
+
+void write_string_attribute(
+        raii_h5_hid const& file_id,
+        char const* const attribute_name,
+        std::string_view const attribute_value)
+{
+    raii_h5_hid const space_id(::H5Screate(H5S_SCALAR), ::H5Sclose);
+
+    raii_h5_hid const type_id(::H5Tcopy(H5T_C_S1), ::H5Tclose);
+    if (::H5Tset_size(*type_id, attribute_value.size()) < 0) {
+        throw std::runtime_error("Nova++ error: defining the size of the datatype failed");
+    }
+    if (::H5Tset_cset(*type_id, H5T_CSET_UTF8) < 0) {
+        throw std::runtime_error("Nova++ error: defining utf-8 character set failed");
+    }
+
+    raii_h5_hid const attr_id(
+            ::H5Acreate2(*file_id, attribute_name, *type_id, *space_id, H5P_DEFAULT, H5P_DEFAULT),
+            ::H5Aclose);
+
+    if (::H5Awrite(*attr_id, *type_id, attribute_value.data()) < 0) {
+        throw std::runtime_error("Nova++ error: writing attribute failed");
+    }
+}
 
 template <class... Views>
 bool span_is_contiguous(Views const&... views)
@@ -72,11 +135,12 @@ void write_pdi_init(
     Grid const& grid,
     Param const& param)
 {
-    int simu_ndim = ndim;
-    int simu_nfx = param.nfx;
+    int const simu_ndim = ndim;
+    int const simu_nfx = param.nfx;
 
     PDI_multi_expose(
         "init_PDI",
+        "nullptr", nullptr, PDI_OUT,
         "ndim", &simu_ndim, PDI_OUT,
         "nfx", &simu_nfx, PDI_OUT,
         "n_ghost", grid.Nghost.data(), PDI_OUT,
@@ -85,18 +149,19 @@ void write_pdi_init(
         "nx_local_wg", grid.Nx_local_wg.data(), PDI_OUT,
         "start", grid.range.Corner_min.data(), PDI_OUT,
         "grid_communicator", &grid.comm_cart, PDI_OUT,
-        NULL);
+        nullptr);
 }
 
 void write_pdi(
-    std::string directory,
-    std::string prefix,
-    int output_id,
-    int iter_output_id,
-    int time_output_id,
-    int iter,
-    double t,
-    double gamma,
+    std::string const& directory,
+    std::string const& prefix,
+    int const output_id,
+    int const iter_output_id,
+    int const time_output_id,
+    int const iter,
+    double const t,
+    double const gamma,
+    Grid const& grid,
     KDV_double_3d& rho,
     KDV_double_4d& u,
     KDV_double_3d& P,
@@ -108,12 +173,13 @@ void write_pdi(
     KDV_double_3d& T)
 {
     assert(span_is_contiguous(rho, u, P, E, fx, T));
-    int directory_size = directory.size();
-    std::string output_filename = get_output_filename(prefix, output_id);
-    int output_filename_size = output_filename.size();
+    int const directory_size = directory.size();
+    std::string const output_filename = get_output_filename(prefix, output_id);
+    int const output_filename_size = output_filename.size();
     sync_host(rho, u, P, E, fx, T, x, y, z);
     PDI_multi_expose(
         "write_file",
+        "nullptr", nullptr, PDI_OUT,
         "directory_size", &directory_size, PDI_OUT,
         "directory", directory.data(), PDI_OUT,
         "output_filename_size", &output_filename_size, PDI_OUT,
@@ -133,11 +199,19 @@ void write_pdi(
         "z", z.h_view.data(), PDI_OUT,
         "fx", fx.h_view.data(), PDI_OUT,
         "T", T.h_view.data(), PDI_OUT,
-        NULL);
+        nullptr);
+    if (grid.mpi_rank == 0)
+    {
+        raii_h5_hid const file_id(::H5Fopen((directory + '/' + output_filename).c_str(), H5F_ACC_RDWR, H5P_DEFAULT), H5Fclose);
+        write_string_attribute(file_id, "git_build_string", git_build_string);
+        write_string_attribute(file_id, "git_branch", git_branch);
+        write_string_attribute(file_id, "compile_date", compile_date);
+        write_string_attribute(file_id, "compile_time", compile_time);
+    }
 }
 
 void read_pdi(
-    std::string restart_file,
+    std::string const& restart_file,
     int& output_id,
     int& iter_output_id,
     int& time_output_id,
@@ -152,9 +226,10 @@ void read_pdi(
     KDV_double_1d& z_glob)
 {
     assert(span_is_contiguous(rho, u, P, fx));
-    int filename_size = restart_file.size();
+    int const filename_size = restart_file.size();
     PDI_multi_expose(
         "read_file",
+        "nullptr", nullptr, PDI_OUT,
         "restart_filename_size", &filename_size, PDI_OUT,
         "restart_filename", restart_file.data(), PDI_OUT,
         "output_id", &output_id, PDI_INOUT,
@@ -169,7 +244,7 @@ void read_pdi(
         "x", x_glob.h_view.data(), PDI_INOUT,
         "y", y_glob.h_view.data(), PDI_INOUT,
         "z", z_glob.h_view.data(), PDI_INOUT,
-        NULL);
+        nullptr);
     modify_host(rho, u, P, fx, x_glob, y_glob, z_glob);
 }
 
@@ -244,30 +319,24 @@ void XmlWriter::operator()(
         xdmfFile << " GeometryType=" << '"' << "VXVYVZ" << '"';
         xdmfFile << ">\n";
 
-        auto nghost = grid.range.Nghost;
+        std::string const output_filename = get_output_filename(m_prefix, first_output_id + i);
+        std::array const axes_arrays {x.h_view, y.h_view, z.h_view};
+        std::array const axes_labels {"x_ng", "y_ng", "z_ng"};
         for (int idim = 0; idim < 3; ++idim)
         {
-            auto arrays = {x.h_view, y.h_view, z.h_view};
-            auto array = arrays.begin()[idim];
             xdmfFile << indent(10) << "<DataItem";
             xdmfFile << " NumberType=" << '"' << "Float" << '"';
             xdmfFile << " Precision=" << '"' << precision << '"';
-            xdmfFile << " Dimensions=" << '"' << array.extent_int(0) - 2 * nghost[idim] << '"';
-            xdmfFile << " Format=" << '"' << "XML" << '"';
+            xdmfFile << " Dimensions=" << '"' << axes_arrays[idim].extent_int(0) - 2 * grid.Nghost[idim] << '"';
+            xdmfFile << " Format=" << '"' << "HDF" << '"';
             xdmfFile << ">\n";
-            xdmfFile << indent(12);
-            for (int ix = nghost[idim]; ix < array.extent_int(0) - 1 - nghost[idim]; ++ix)
-            {
-                xdmfFile << array(ix);
-                xdmfFile << ' ';
-            }
-            xdmfFile << array(array.extent_int(0) - 1 - nghost[idim]) << '\n';
+            xdmfFile << indent(12) << output_filename << ":/" << axes_labels[idim]
+                     << '\n';
             xdmfFile << indent(10) << "</DataItem>\n";
         }
 
         xdmfFile << indent(8) << "</Geometry>\n";
 
-        std::string const output_filename = get_output_filename(m_prefix, first_output_id + i);
         for (std::string const& var_name : m_var_names)
         {
             xdmfFile << indent(8) << "<Attribute";

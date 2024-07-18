@@ -20,9 +20,9 @@ public:
 
     Partitioner(int size, int block) noexcept;
 
-    iterator begin() const noexcept;
+    [[nodiscard]] iterator begin() const noexcept;
 
-    iterator end() const noexcept;
+    [[nodiscard]] iterator end() const noexcept;
 };
 
 class Partitioner::iterator
@@ -159,7 +159,7 @@ TEST(Partitionner, SomeTest)
                     {
                         for (int i = ibegin; i < iend; ++i)
                         {
-                            std::array<int, 3> elem {rng_x[0] + i, rng_y[0] + j, rng_z[0] + k};
+                            std::array<int, 3> const elem {rng_x[0] + i, rng_y[0] + j, rng_z[0] + k};
                             list_of_cells.erase(elem);
                         }
                     }

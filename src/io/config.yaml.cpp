@@ -57,6 +57,9 @@ pdi:
           E:   {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
           fx:  {type: array, subtype: double, size: ['$nfx', '$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
           T:   {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
+          x_ng: {type: array, subtype: double, size: '$nx_glob_ng[0]+1' }
+          y_ng: {type: array, subtype: double, size: '$nx_glob_ng[1]+1' }
+          z_ng: {type: array, subtype: double, size: '$nx_glob_ng[2]+1' }
         write:
           output_id:
           iter_output_id:
@@ -111,6 +114,21 @@ pdi:
             dataset_selection:
               size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
               start: [ '$start[2]', '$start[1]', '$start[0]']
+          x:
+            dataset: x_ng
+            memory_selection:
+              size: '$nx_glob_ng[0] + 1'
+              start: '$n_ghost[0]'
+          y:
+            dataset: y_ng
+            memory_selection:
+              size: '$nx_glob_ng[1] + 1'
+              start: '$n_ghost[1]'
+          z:
+            dataset: z_ng
+            memory_selection:
+              size: '$nx_glob_ng[2] + 1'
+              start: '$n_ghost[2]'
           x:
           y:
           z:

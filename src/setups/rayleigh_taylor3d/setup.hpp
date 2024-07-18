@@ -44,18 +44,15 @@ class InitializationSetup : public IInitializationProblem
 {
 private:
     thermodynamics::PerfectGas m_eos;
-    Grid m_grid;
     ParamSetup m_param_setup;
     Gravity m_gravity;
 
 public:
     InitializationSetup(
         thermodynamics::PerfectGas const& eos,
-        Grid const& grid,
         ParamSetup const& param_set_up,
         Gravity const& gravity)
         : m_eos(eos)
-        , m_grid(grid)
         , m_param_setup(param_set_up)
         , m_gravity(gravity)
     {
@@ -63,20 +60,17 @@ public:
 
     void execute(
         Range const& range,
+        Grid const& grid,
         KV_double_3d const& rho,
         KV_double_4d const& u,
         KV_double_3d const& P,
         KV_double_4d const& fx) const final
     {
-        assert(rho.extent(0) == u.extent(0));
-        assert(u.extent(0) == P.extent(0));
-        assert(rho.extent(1) == u.extent(1));
-        assert(u.extent(1) == P.extent(1));
-        assert(rho.extent(2) == u.extent(2));
-        assert(u.extent(2) == P.extent(2));
+        assert(equal_extents({0, 1, 2}, rho, u, P, fx));
+        assert(u.extent_int(3) == ndim);
 
-        int mpi_rank = m_grid.mpi_rank;
-        MPI_Comm comm_cart = m_grid.comm_cart;
+        int mpi_rank = grid.mpi_rank;
+        MPI_Comm comm_cart = grid.comm_cart;
 
         std::array<double, 4> data_to_broadcast;
 
@@ -118,9 +112,9 @@ public:
         // double hrms = 3E-4 * L;
         // double H = Kokkos::sqrt((1. / 4) * (ak * ak + bk * bk + ck * ck + dk * dk)) / hrms;
 
-        auto const x_d = m_grid.x;
-        auto const y_d = m_grid.y;
-        auto const z_d = m_grid.z;
+        auto const x_d = grid.x;
+        auto const y_d = grid.y;
+        auto const z_d = grid.z;
         auto const& gravity = m_gravity;
         auto const& param_setup = m_param_setup;
 

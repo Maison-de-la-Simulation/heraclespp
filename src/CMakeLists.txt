@@ -11,7 +11,7 @@ add_subdirectory(units)
 add_subdirectory(user_step)
 add_subdirectory(utils)
 
-add_library(libnova++ boundary.cpp boundary_distribute.cpp boundary_factory.cpp broadcast.cpp initialization_interface.cpp mpi_scope_guard.cpp)
+add_library(libnova++ boundary.cpp boundary_distribute.cpp broadcast.cpp initialization_interface.cpp mpi_scope_guard.cpp)
 target_include_directories(libnova++ PUBLIC setups/${Novapp_SETUP}/)
 target_include_directories(libnova++ PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 

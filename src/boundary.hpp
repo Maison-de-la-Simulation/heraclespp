@@ -7,16 +7,34 @@
 #include <array>
 #include <string>
 
-#include <grid.hpp>
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
 
 namespace novapp
 {
 
+class Grid;
+
 extern std::array<std::string, 3> const bc_dir;
 extern std::array<std::string, 2> const bc_face;
 
+void null_gradient_condition(int m_bc_idim, int m_bc_iface,
+                             std::string const& m_label,
+                             Grid const& grid,
+                             KV_double_3d const& rho,
+                             KV_double_4d const& rhou,
+                             KV_double_3d const& E,
+                             KV_double_4d const& fx);
+
+void reflexive_condition(int m_bc_idim, int m_bc_iface,
+                         std::string const& m_label,
+                         Grid const& grid,
+                         KV_double_3d const& rho,
+                         KV_double_4d const& rhou,
+                         KV_double_3d const& E,
+                         KV_double_4d const& fx);
+
+template <class Gravity>
 class IBoundaryCondition
 {
 protected:
@@ -24,63 +42,90 @@ protected:
     int m_bc_iface;
 
 public:
-    IBoundaryCondition(int idim, int iface);
+    IBoundaryCondition(int idim, int iface) : m_bc_idim(idim), m_bc_iface(iface) {}
 
-    IBoundaryCondition(IBoundaryCondition const& rhs);
+    IBoundaryCondition(IBoundaryCondition const& rhs) = default;
 
-    IBoundaryCondition(IBoundaryCondition&& rhs) noexcept;
+    IBoundaryCondition(IBoundaryCondition&& rhs) noexcept = default;
 
-    virtual ~IBoundaryCondition() noexcept;
+    virtual ~IBoundaryCondition() noexcept = default;
 
-    IBoundaryCondition& operator=(IBoundaryCondition const& rhs);
+    IBoundaryCondition& operator=(IBoundaryCondition const& rhs) = default;
 
-    IBoundaryCondition& operator=(IBoundaryCondition&& rhs) noexcept;
+    IBoundaryCondition& operator=(IBoundaryCondition&& rhs) noexcept = default;
 
-    virtual void execute(KV_double_3d const& rho,
+    virtual void execute(Grid const& grid,
+                         Gravity const& gravity,
+                         KV_double_3d const& rho,
                          KV_double_4d const& rhou,
                          KV_double_3d const& E,
                          KV_double_4d const& fx) const = 0;
 };
 
-class NullGradient : public IBoundaryCondition
+template <class Gravity>
+class NullGradient : public IBoundaryCondition<Gravity>
 {
 private:
     std::string m_label;
-    Grid m_grid;
 
 public:
-    NullGradient(int idim, int iface, Grid const& grid);
+    NullGradient(int idim, int iface)
+        : IBoundaryCondition<Gravity>(idim, iface)
+        , m_label("NullGradient" + bc_dir[idim] + bc_face[iface])
+    {
+    }
 
-    void execute(KV_double_3d const& rho,
+    void execute(Grid const& grid,
+                 [[maybe_unused]] Gravity const& gravity,
+                 KV_double_3d const& rho,
                  KV_double_4d const& rhou,
                  KV_double_3d const& E,
-                 KV_double_4d const& fx) const final;
+                 KV_double_4d const& fx) const final
+    {
+        null_gradient_condition(this->m_bc_idim, this->m_bc_iface, m_label, grid, rho, rhou, E, fx);
+    }
 };
 
-class PeriodicCondition : public IBoundaryCondition
+template <class Gravity>
+class PeriodicCondition : public IBoundaryCondition<Gravity>
 {
 public:
-    PeriodicCondition(int idim, int iface);
+    PeriodicCondition(int idim, int iface) : IBoundaryCondition<Gravity>(idim, iface) {}
 
-    void execute(KV_double_3d const& rho,
-                 KV_double_4d const& rhou,
-                 KV_double_3d const& E,
-                 KV_double_4d const& fx) const final;
+    void execute(
+            [[maybe_unused]] Grid const& grid,
+            [[maybe_unused]] Gravity const& gravity,
+            [[maybe_unused]] KV_double_3d const& rho,
+            [[maybe_unused]] KV_double_4d const& rhou,
+            [[maybe_unused]] KV_double_3d const& E,
+            [[maybe_unused]] KV_double_4d const& fx) const final
+    {
+        // do nothing
+    }
 };
 
-class ReflexiveCondition : public IBoundaryCondition
+template <class Gravity>
+class ReflexiveCondition : public IBoundaryCondition<Gravity>
 {
 private:
     std::string m_label;
-    Grid m_grid;
 
 public:
-    ReflexiveCondition(int idim, int iface, Grid const& grid);
+    ReflexiveCondition(int idim, int iface)
+        : IBoundaryCondition<Gravity>(idim, iface)
+        , m_label("Reflexive" + bc_dir[idim] + bc_face[iface])
+    {
+    }
 
-    void execute(KV_double_3d const& rho,
+    void execute(Grid const& grid,
+                 [[maybe_unused]] Gravity const& gravity,
+                 KV_double_3d const& rho,
                  KV_double_4d const& rhou,
                  KV_double_3d const& E,
-                 KV_double_4d const& fx) const final;
+                 KV_double_4d const& fx) const final
+    {
+        reflexive_condition(this->m_bc_idim, this->m_bc_iface, m_label, grid, rho, rhou, E, fx);
+    }
 };
 
 } // namespace novapp

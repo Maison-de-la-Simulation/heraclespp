@@ -28,14 +28,15 @@ void print_simulation_status(
 void write_pdi_init(Grid const& grid, Param const& param);
 
 void write_pdi(
-    std::string directory,
-    std::string prefix,
+    std::string const& directory,
+    std::string const& prefix,
     int output_id,
     int iter_output_id,
     int time_output_id,
     int iter,
     double t,
     double gamma,
+    Grid const& grid,
     KDV_double_3d& rho,
     KDV_double_4d& u,
     KDV_double_3d& P,
@@ -47,7 +48,7 @@ void write_pdi(
     KDV_double_3d& T);
 
 void read_pdi(
-    std::string restart_file,
+    std::string const& restart_file,
     int& output_id,
     int& iter_output_id,
     int& time_output_id,

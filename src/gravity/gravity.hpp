@@ -16,10 +16,10 @@ namespace novapp
 class UniformGravity
 {
 private :
-    KV_double_1d m_g;
+    KV_cdouble_1d m_g;
 
 public :
-    explicit UniformGravity(KV_double_1d g)
+    explicit UniformGravity(KV_cdouble_1d g)
         : m_g(std::move(g))
     {
     }
@@ -50,10 +50,10 @@ inline UniformGravity make_uniform_gravity(
 class PointMassGravity
 {
 private :
-    KV_double_1d m_g;
+    KV_cdouble_1d m_g;
 
 public :
-    explicit PointMassGravity(KV_double_1d g)
+    explicit PointMassGravity(KV_cdouble_1d g)
         : m_g(std::move(g))
     {
     }
@@ -77,18 +77,19 @@ inline PointMassGravity make_point_mass_gravity(
     Param const& param,
     Grid const& grid)
 {
-    KV_double_1d g_array_dv("g_array", grid.Nx_local_wg[0]);
+    KV_double_1d const g_array("g_array", grid.Nx_local_wg[0]);
     double const M = param.M;
+
+    KV_cdouble_1d const xc = grid.x_center;
 
     Kokkos::parallel_for(
         "point_mass_gravity",
         Kokkos::RangePolicy<int>(0, grid.Nx_local_wg[0]),
         KOKKOS_LAMBDA(int i)
         {
-            auto const xc = grid.x_center(i);
-            g_array_dv(i) = - units::G * M / (xc * xc);
+            g_array(i) = - units::G * M / (xc(i) * xc(i));
         });
-    return PointMassGravity(g_array_dv);
+    return PointMassGravity(g_array);
 }
 
 } // namespace novapp

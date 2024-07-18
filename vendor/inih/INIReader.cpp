@@ -128,7 +128,7 @@ std::string INIReader::MakeKey(const std::string& section, const std::string& na
 int INIReader::ValueHandler(void* user, const char* section, const char* name,
                             const char* value)
 {
-    INIReader* reader = (INIReader*)user;
+    INIReader* reader = static_cast<INIReader*>(user);
     std::string key = MakeKey(section, name);
     if (reader->_values[key].size() > 0)
         reader->_values[key] += "\n";

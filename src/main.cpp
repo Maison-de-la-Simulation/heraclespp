@@ -7,10 +7,13 @@
 
 #include <array>
 #include <chrono>
+#include <cstdlib>
 #include <filesystem>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <memory>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -28,6 +31,7 @@
 #include <extrapolation_time.hpp>
 #include <face_reconstruction.hpp>
 #include <geom.hpp>
+#include <git_version.hpp>
 #include <godunov_scheme.hpp>
 #include <gravity.hpp>
 #include <grid.hpp>
@@ -43,6 +47,7 @@
 #include <paraconf.h>
 #include <pdi.h>
 #include <pressure_fix.hpp>
+#include <print_info.hpp>
 #include <range.hpp>
 #include <temperature.hpp>
 #include <time_step.hpp>
@@ -60,34 +65,55 @@ using namespace novapp;
 namespace
 {
 
-void display_help_message(std::filesystem::path const& executable)
+#if defined(NOVAPP_GRAVITY_Uniform)
+using Gravity = UniformGravity;
+std::string_view gravity_label("Uniform");
+#elif defined(NOVAPP_GRAVITY_Point_mass)
+using Gravity = PointMassGravity;
+std::string_view gravity_label("Point_mass");
+#else
+static_assert(false, "Gravity not defined");
+#endif
+
+Gravity make_gravity(Param const& param, [[maybe_unused]] Grid const& grid)
 {
-    std::cout << "usage: " << executable.filename().native() << " <path to the ini file> [options]\n";
+#if defined(NOVAPP_GRAVITY_Uniform)
+    return make_uniform_gravity(param);
+#elif defined(NOVAPP_GRAVITY_Point_mass)
+    return make_point_mass_gravity(param, grid);
+#endif
 }
 
-int nova_main(int argc, char** argv)
+std::string display_help_message(std::filesystem::path const& executable)
+{
+    std::stringstream ss;
+    ss << "usage: " << executable.filename() << " <path to the ini file> [options]";
+    return ss.str();
+}
+
+void novapp_main(int argc, char** argv)
 {
     if (argc < 2)
     {
-        display_help_message(argv[0]);
-        return EXIT_FAILURE;
+        throw std::runtime_error(display_help_message(argv[0]));
     }
 
     MpiScopeGuard const mpi_guard(argc, argv);
 
-    Kokkos::ScopeGuard const guard(argc, argv);
+    Kokkos::ScopeGuard const kokkos_guard(argc, argv);
 
     INIReader const reader(argv[1]);
 
     std::filesystem::path io_config_path;
     for(int iarg = 2; iarg < argc; ++iarg)
     {
-        std::string_view const option(argv[iarg]);
-        std::string_view const prefix("--io-config=");
-        if (std::string_view::size_type const pos = option.find_first_of(prefix);
-            pos != std::string_view::npos)
+        std::string_view const arg(argv[iarg]);
+        std::string_view const option_name("--io-config=");
+        if (arg.find(option_name) == 0)
         {
-            io_config_path = option.substr(pos);
+            std::string_view option_value = arg;
+            option_value.remove_prefix(option_name.size());
+            io_config_path = option_value;
         }
     }
 
@@ -109,9 +135,23 @@ int nova_main(int argc, char** argv)
     if (grid.mpi_rank == 0)
     {
         Kokkos::print_configuration(std::cout);
+
+        grid.print_grid(std::cout);
+
+        print_info(std::cout, "setup", MY_SETUP);
+        print_info(std::cout, "eos", eos_choice);
+        print_info(std::cout, "geometry", geom_choice);
+        print_info(std::cout, "gravity", gravity_label);
+        print_info(std::cout, "pressure_fix", param.pressure_fix);
+        print_info(std::cout, "riemann_solver", param.riemann_solver);
+        print_info(std::cout, "user_step", param.user_step);
+        print_info(std::cout, "git_branch", git_branch);
+        print_info(std::cout, "git_build_string", git_build_string);
+        print_info(std::cout, "compile_date", compile_date);
+        print_info(std::cout, "compile_time", compile_time);
+        std::cout << std::flush;
     }
 
-    grid.print_grid();
 
     EOS const eos(param.gamma, param.mu);
 
@@ -119,10 +159,10 @@ int nova_main(int argc, char** argv)
 
     std::string bc_choice_dir;
     std::array<std::string, ndim*2> bc_choice_faces;
-    for(int idim = 0; idim < ndim; idim++)
+    for(int idim = 0; idim < ndim; ++idim)
     {
         bc_choice_dir = reader.Get("Boundary Condition", "BC" + bc_dir[idim], param.bc_choice);
-        for (int iface = 0; iface < 2; iface++)
+        for (int iface = 0; iface < 2; ++iface)
         {
             bc_choice_faces[idim * 2 + iface] = reader.Get("Boundary Condition",
                                                        "BC" + bc_dir[idim]+bc_face[iface],
@@ -136,25 +176,24 @@ int nova_main(int argc, char** argv)
     }
 
     KDV_double_3d rho("rho",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Density
-    KDV_double_4d u("u",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim); // Velocity
-    KDV_double_3d P("P",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Pressure
     KDV_double_4d rhou("rhou", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim); // Momentum
     KDV_double_3d E("E",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Energy
+    KDV_double_4d fx("fx",     grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], param.nfx);
+    KDV_double_4d u("u",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim); // Velocity
+    KDV_double_3d P("P",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Pressure
     KDV_double_3d T("T",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]); // Temperature
 
-    KV_double_5d rho_rec("rho_rec",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim);
-    KV_double_6d rhou_rec("rhou_rec", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim, ndim);
-    KV_double_5d E_rec("E_rec",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim);
-    KV_double_6d u_rec("u_rec",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim, ndim);
-    KV_double_5d P_rec("P_rec",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim);
+    KV_double_5d const rho_rec("rho_rec",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim);
+    KV_double_6d const rhou_rec("rhou_rec", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim, ndim);
+    KV_double_5d const E_rec("E_rec",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim);
+    KV_double_6d const fx_rec("fx_rec",     grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim, param.nfx);
+    KV_double_6d const u_rec("u_rec",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim, ndim);
+    KV_double_5d const P_rec("P_rec",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim);
 
-    KV_double_3d rho_new("rhonew",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
-    KV_double_4d rhou_new("rhounew", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim);
-    KV_double_3d E_new("Enew",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
-
-    KDV_double_4d fx("fx",        grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], param.nfx);
-    KV_double_4d fx_new("fx_new", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], param.nfx);
-    KV_double_6d fx_rec("fx_rec", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, ndim, param.nfx);
+    KV_double_3d const rho_new("rhonew",   grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
+    KV_double_4d const rhou_new("rhounew", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], ndim);
+    KV_double_3d const E_new("Enew",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
+    KV_double_4d const fx_new("fx_new",    grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], param.nfx);
 
     int output_id = -1;
     int time_output_id = -1;
@@ -164,73 +203,29 @@ int nova_main(int argc, char** argv)
     double t = param.t_ini;
     int iter = iter_ini;
     bool should_exit = false;
+    std::chrono::hours const time_save(param.time_job);
 
     KDV_double_1d x_glob("x_glob", grid.Nx_glob_ng[0]+2*grid.Nghost[0]+1);
     KDV_double_1d y_glob("y_glob", grid.Nx_glob_ng[1]+2*grid.Nghost[1]+1);
     KDV_double_1d z_glob("z_glob", grid.Nx_glob_ng[2]+2*grid.Nghost[2]+1);
 
-     if(grid.mpi_rank==0)
-    {
-        print_info("SETUP", MY_SETUP);
-        print_info("EOS", eos_choice);
-        print_info("GEOMETRIE", geom_choice);
-    }
-
-#if defined(NOVAPP_GRAVITY_Uniform)
-    using Gravity = UniformGravity;
-    if(grid.mpi_rank==0)
-    {
-        print_info("GRAVITY", "Uniform");
-    }
-#elif defined(NOVAPP_GRAVITY_Point_mass)
-    using Gravity = PointMassGravity;
-    if(grid.mpi_rank==0)
-    {
-        print_info("GRAVITY", "Point_mass");
-    }
-#else
-    static_assert(false, "Gravity not defined");
-#endif
     std::unique_ptr<Gravity> g;
-
-    std::unique_ptr<IUserStep> user_step;
-    if (param.user_step == "UserDefined")
-    {
-        user_step = std::make_unique<UserStep>();
-    }
-    else
-    {
-        user_step = factory_user_step(param.user_step);
-    }
-    if(grid.mpi_rank==0)
-    {
-        if (param.pressure_fix == "On")
-        {
-            print_info("PRESSURE_FIX", param.pressure_fix);
-        }
-        print_info("RIEMANN_SOLVER", param.riemann_solver);
-        print_info("USER_STEP", param.user_step);
-    }
 
     if(param.restart) // complete restart with a file fom the code
     {
         read_pdi(param.restart_file, output_id, iter_output_id, time_output_id, iter, t, rho, u, P, fx, x_glob, y_glob, z_glob); // read data into host view
         sync_device(x_glob, y_glob, z_glob);
         grid.set_grid(x_glob.d_view, y_glob.d_view, z_glob.d_view);
-#if defined(NOVAPP_GRAVITY_Uniform)
-        g = std::make_unique<Gravity>(make_uniform_gravity(param));
-#elif defined(NOVAPP_GRAVITY_Point_mass)
-        g = std::make_unique<Gravity>(make_point_mass_gravity(param, grid));
-#endif
 
         sync_device(rho, u, P, fx);
+        g = std::make_unique<Gravity>(make_gravity(param, grid));
 
         if(grid.mpi_rank==0)
         {
-            std::cout << std::endl << std::left << std::setw(80) << std::setfill('*') << "*" << std::endl;
-            std::cout << "read from file " << param.restart_file << std::endl;
+            std::cout << '\n' << std::left << std::setw(81) << std::setfill('*') << '\n';
+            std::cout << "read from file " << param.restart_file << '\n';
             std::cout << "starting at time " << t << " ( ~ "<<100*t/param.t_end<<"%)"
-                    << ", with iteration  "<< iter << std::endl << std::endl;
+                    << ", with iteration  "<< iter << "\n\n";
         }
     }
     else
@@ -248,52 +243,59 @@ int nova_main(int argc, char** argv)
         modify_host(x_glob, y_glob, z_glob);
         sync_device(x_glob, y_glob, z_glob);
         grid.set_grid(x_glob.d_view, y_glob.d_view, z_glob.d_view);
-#if defined(NOVAPP_GRAVITY_Uniform)
-        g = std::make_unique<Gravity>(make_uniform_gravity(param));
-#elif defined(NOVAPP_GRAVITY_Point_mass)
-        g = std::make_unique<Gravity>(make_point_mass_gravity(param, grid));
-#endif
+        g = std::make_unique<Gravity>(make_gravity(param, grid));
         std::unique_ptr<IInitializationProblem> initialization
-            = std::make_unique<InitializationSetup<Gravity>>(eos, grid, param_setup, *g);
-        initialization->execute(grid.range.no_ghosts(), rho.d_view, u.d_view, P.d_view, fx.d_view);
+            = std::make_unique<InitializationSetup<Gravity>>(eos, param_setup, *g);
+        initialization->execute(grid.range.no_ghosts(), grid, rho.d_view, u.d_view, P.d_view, fx.d_view);
     }
 
-    std::array<std::unique_ptr<IBoundaryCondition>, ndim * 2> bcs_array;
-    for(int idim = 0; idim < ndim; idim++)
+    // Create the operators of the main time loop
+    std::array<std::unique_ptr<IBoundaryCondition<Gravity>>, ndim * 2> bcs_array;
+    for(int idim = 0; idim < ndim; ++idim)
     {
-        for(int iface = 0; iface < 2; iface++)
+        for(int iface = 0; iface < 2; ++iface)
         {
             if (bc_choice_faces[idim * 2 + iface] == "UserDefined")
             {
-                bcs_array[idim * 2 + iface] = std::make_unique<BoundarySetup<Gravity>>(idim, iface, eos, grid, param_setup, *g);
+                bcs_array[idim * 2 + iface] = std::make_unique<BoundarySetup<Gravity>>(idim, iface, eos, param_setup);
             }
             else
             {
-                bcs_array[idim * 2 + iface] = factory_boundary_construction(
-                    bc_choice_faces[idim * 2 + iface], idim, iface, grid);
+                bcs_array[idim * 2 + iface] = factory_boundary_construction<Gravity>(
+                    bc_choice_faces[idim * 2 + iface], idim, iface);
             }
         }
     }
 
-    DistributedBoundaryCondition const bcs(grid, param, std::move(bcs_array));
+    DistributedBoundaryCondition const bcs(grid, param);
 
     std::unique_ptr<IFaceReconstruction> face_reconstruction
-            = factory_face_reconstruction(param.reconstruction_type, grid);
+            = factory_face_reconstruction(param.reconstruction_type);
 
-    std::unique_ptr<IExtrapolationReconstruction> time_reconstruction
-            = std::make_unique<ExtrapolationTimeReconstruction<EOS, Gravity>>(eos, grid, *g);
+    std::unique_ptr<IExtrapolationReconstruction<Gravity>> time_reconstruction
+            = std::make_unique<ExtrapolationTimeReconstruction<EOS, Gravity>>(eos);
 
-    std::unique_ptr<IHydroReconstruction> reconstruction
-        = std::make_unique<MUSCLHancockHydroReconstruction<EOS>>(std::move(face_reconstruction),
+    std::unique_ptr<IHydroReconstruction<Gravity>> reconstruction
+        = std::make_unique<MUSCLHancockHydroReconstruction<EOS, Gravity>>(std::move(face_reconstruction),
                                                             std::move(time_reconstruction),
                                                             eos, P_rec, u_rec);
 
-    std::unique_ptr<IGodunovScheme> godunov_scheme
-            = factory_godunov_scheme(param.riemann_solver, eos, grid, *g);
+    std::unique_ptr<IGodunovScheme<Gravity>> godunov_scheme
+            = factory_godunov_scheme<EOS, Gravity>(param.riemann_solver, eos);
+
+    std::unique_ptr<IUserStep> user_step;
+    if (param.user_step == "UserDefined")
+    {
+        user_step = std::make_unique<UserStep>();
+    }
+    else
+    {
+        user_step = factory_user_step(param.user_step);
+    }
 
     conv_prim_to_cons(grid.range.no_ghosts(), eos, rho.d_view, u.d_view, P.d_view, rhou.d_view, E.d_view);
 
-    bcs(rho.d_view, rhou.d_view, E.d_view, fx.d_view);
+    bcs(bcs_array, grid, *g, rho.d_view, rhou.d_view, E.d_view, fx.d_view);
 
     conv_cons_to_prim(grid.range.all_ghosts(), eos, rho.d_view, rhou.d_view, E.d_view, u.d_view, P.d_view);
 
@@ -312,17 +314,17 @@ int nova_main(int argc, char** argv)
         outputs_record.emplace_back(iter, t);
         ++output_id;
         xml_writer(grid, output_id, outputs_record, x_glob, y_glob, z_glob);
-        write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
+        write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), grid, rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
         print_simulation_status(std::cout, iter, t, param.t_end, output_id);
+        std::cout << std::flush;
     }
 
-    double initial_mass = integrate(grid.range.no_ghosts(), grid, rho.d_view);
+    double const initial_mass = integrate(grid.range.no_ghosts(), grid, rho.d_view);
 
-    Kokkos::fence();
+    Kokkos::fence("Nova++: before main time loop");
     MPI_Barrier(grid.comm_cart);
     std::chrono::steady_clock::time_point const start = std::chrono::steady_clock::now();
-
-    std::chrono::hours time_save(param.time_job);
+    Kokkos::Profiling::pushRegion("Nova++: main time loop");
 
     while (!should_exit)
     {
@@ -360,25 +362,32 @@ int nova_main(int argc, char** argv)
             should_exit = true;
         }
 
-        // if time save > duration simulation
-        if ((std::chrono::steady_clock::now() - start) >= time_save)
         {
-            make_output = true;
-            should_exit = true;
+            // if time save > duration simulation
+            bool save_and_exit = (std::chrono::steady_clock::now() - start) >= time_save;
+            MPI_Bcast(&save_and_exit, 1, MPI_CXX_BOOL, 0, grid.comm_cart);
+            if (save_and_exit)
+            {
+                make_output = true;
+                should_exit = true;
+            }
         }
-        MPI_Bcast(&should_exit, 1, MPI_CXX_BOOL, 0, grid.comm_cart);
 
-        double min_internal_energy = internal_energy(grid.range.no_ghosts(), grid, rho.d_view, rhou.d_view, E.d_view);
+        double const min_internal_energy = minimum_internal_energy(grid.range.no_ghosts(), grid, rho.d_view, rhou.d_view, E.d_view);
         if (Kokkos::isnan(min_internal_energy) || min_internal_energy < 0)
         {
-            std::cout << "Time  = " << t << " and number of iterations = " << iter << std::endl;
-            throw std::runtime_error("Volumic internal energy < 0");
+            std::stringstream ss;
+            ss << "Time = " << t << ", iteration = " << iter;
+            ss << ": detected invalid volumic internal energy";
+            throw std::runtime_error(ss.str());
         }
 
-        reconstruction->execute(grid.range.with_ghosts(1), dt/2, rho.d_view, u.d_view, P.d_view, fx.d_view,
+        reconstruction->execute(grid.range.with_ghosts(1), grid, *g, dt/2,
+                                rho.d_view, u.d_view, P.d_view, fx.d_view,
                                 rho_rec, rhou_rec, E_rec, fx_rec);
 
-        godunov_scheme->execute(grid.range.no_ghosts(), dt, rho.d_view, rhou.d_view, E.d_view, fx.d_view,
+        godunov_scheme->execute(grid.range.no_ghosts(), grid, *g, dt,
+                                rho.d_view, rhou.d_view, E.d_view, fx.d_view,
                                 rho_rec, rhou_rec, E_rec, fx_rec,
                                 rho_new, rhou_new, E_new, fx_new);
 
@@ -392,7 +401,7 @@ int nova_main(int argc, char** argv)
 
         user_step->execute(grid.range.no_ghosts(), t, dt, rho_new, E_new, fx_new);
 
-        bcs(rho_new, rhou_new, E_new, fx_new);
+        bcs(bcs_array, grid, *g, rho_new, rhou_new, E_new, fx_new);
 
         conv_cons_to_prim(grid.range.all_ghosts(), eos, rho_new, rhou_new, E_new, u.d_view, P.d_view);
 
@@ -404,7 +413,7 @@ int nova_main(int argc, char** argv)
         modify_device(rho, u, P, E, rhou, fx);
 
         t += dt;
-        iter++;
+        ++iter;
 
         if(make_output)
         {
@@ -414,16 +423,18 @@ int nova_main(int argc, char** argv)
             outputs_record.emplace_back(iter, t);
             ++output_id;
             xml_writer(grid, output_id, outputs_record, x_glob, y_glob, z_glob);
-            write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
+            write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), grid, rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
             print_simulation_status(std::cout, iter, t, param.t_end, output_id);
+            std::cout << std::flush;
         }
     }
 
-    double final_mass = integrate(grid.range.no_ghosts(), grid, rho.d_view);
-
-    Kokkos::fence();
+    Kokkos::fence("Nova++: after main time loop");
     MPI_Barrier(grid.comm_cart);
+    Kokkos::Profiling::popRegion();
     std::chrono::steady_clock::time_point const end = std::chrono::steady_clock::now();
+
+    double const final_mass = integrate(grid.range.no_ghosts(), grid, rho.d_view);
 
     if (grid.mpi_rank == 0)
     {
@@ -435,17 +446,15 @@ int nova_main(int argc, char** argv)
         double const duration = std::chrono::duration<double>(end - start).count();
         double const nb_cell_updates_per_sec = nb_iter * nb_cells / duration;
         double const mega = 1E-6;
-        double mass_change = std::abs(initial_mass - final_mass);
-        std::cout << "Final time = " << t << " and number of iterations = " << iter << std::endl;
-        std::cout << "Mean performance: " << mega * nb_cell_updates_per_sec << " Mcell-updates/s" << std::endl;
-        std::cout << "Initial mass = " << initial_mass << " and change in mass = " << mass_change << std::endl;
-        std::cout << "--- End ---" << std::endl;
+        double const mass_change = std::abs(initial_mass - final_mass);
+        std::cout << "Final time = " << t << " and number of iterations = " << iter << '\n';
+        std::cout << "Mean performance: " << mega * nb_cell_updates_per_sec << " Mcell-updates/s\n";
+        std::cout << "Initial mass = " << initial_mass << " and change in mass = " << mass_change << '\n';
+        std::cout << "--- End ---\n";
     }
-    MPI_Comm_free(&(const_cast<Grid&>(grid).comm_cart));
+
     PDI_finalize();
     PC_tree_destroy(&conf);
-
-    return EXIT_SUCCESS;
 }
 
 }
@@ -454,12 +463,13 @@ int main(int argc, char** argv)
 {
     try
     {
-        return nova_main(argc, argv);
+        novapp_main(argc, argv);
     }
     catch(std::exception const& e)
     {
-        std::cerr << e.what() << std::endl;
+        std::cerr << e.what() << '\n';
+        return EXIT_FAILURE;
     }
 
-    return EXIT_FAILURE;
+    return EXIT_SUCCESS;
 }

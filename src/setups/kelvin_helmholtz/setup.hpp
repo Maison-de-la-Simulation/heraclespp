@@ -36,37 +36,31 @@ class InitializationSetup : public IInitializationProblem
 {
 private:
     thermodynamics::PerfectGas m_eos;
-    Grid m_grid;
     ParamSetup m_param_setup;
 
 public:
     InitializationSetup(
         thermodynamics::PerfectGas const& eos,
-        Grid const& grid,
         ParamSetup const& param_set_up,
         [[maybe_unused]] Gravity const& gravity)
         : m_eos(eos)
-        , m_grid(grid)
         , m_param_setup(param_set_up)
     {
     }
 
     void execute(
         Range const& range,
+        Grid const& grid,
         KV_double_3d const& rho,
         KV_double_4d const& u,
         KV_double_3d const& P,
         [[maybe_unused]] KV_double_4d const& fx) const final
     {
-        assert(rho.extent(0) == u.extent(0));
-        assert(u.extent(0) == P.extent(0));
-        assert(rho.extent(1) == u.extent(1));
-        assert(u.extent(1) == P.extent(1));
-        assert(rho.extent(2) == u.extent(2));
-        assert(u.extent(2) == P.extent(2));
+        assert(equal_extents({0, 1, 2}, rho, u, P, fx));
+        assert(u.extent_int(3) == ndim);
 
-        auto const x_d = m_grid.x;
-        auto const y_d = m_grid.y;
+        auto const x_d = grid.x;
+        auto const y_d = grid.y;
         auto const& param_setup = m_param_setup;
 
         double drho_rho = 1;

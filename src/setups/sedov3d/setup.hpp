@@ -45,37 +45,30 @@ class InitializationSetup : public IInitializationProblem
 {
 private:
     EOS m_eos;
-    Grid m_grid;
     ParamSetup m_param_setup;
 
 public:
     InitializationSetup(
         EOS const& eos,
-        Grid const& grid,
         ParamSetup const& param_set_up,
         [[maybe_unused]] Gravity const& gravity)
         : m_eos(eos)
-        , m_grid(grid)
         , m_param_setup(param_set_up)
     {
     }
 
     void execute(
         Range const& range,
+        Grid const& grid,
         KV_double_3d const& rho,
         KV_double_4d const& u,
         KV_double_3d const& P,
         [[maybe_unused]] KV_double_4d const& fx) const final
     {
-        assert(rho.extent(0) == u.extent(0));
-        assert(u.extent(0) == P.extent(0));
-        assert(rho.extent(1) == u.extent(1));
-        assert(u.extent(1) == P.extent(1));
-        assert(rho.extent(2) == u.extent(2));
-        assert(u.extent(2) == P.extent(2));
+        assert(equal_extents({0, 1, 2}, rho, u, P, fx));
+        assert(u.extent_int(3) == ndim);
 
         auto const& eos = m_eos;
-        auto const& grid = m_grid;
         auto const& param_setup = m_param_setup;
         auto const r = grid.x;
         auto const theta = grid.y;

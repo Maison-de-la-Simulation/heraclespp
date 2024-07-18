@@ -44,11 +44,11 @@ public :
           std::array<int, 2> const& rng_z,
           int Nghost);
 
-    Range no_ghosts() const;
+    [[nodiscard]] Range no_ghosts() const;
 
-    Range all_ghosts() const;
+    [[nodiscard]] Range all_ghosts() const;
 
-    Range with_ghosts(int NgEff) const;
+    [[nodiscard]] Range with_ghosts(int NgEff) const;
 };
 
 std::ostream& operator<<(std::ostream& os, Range const& rng);

@@ -21,6 +21,7 @@ std::unique_ptr<IGridType> factory_grid_type(
     {
         return std::make_unique<Regular>(param);
     }
+
     throw std::runtime_error("Unknown grid type : " + grid + ".");
 }
 

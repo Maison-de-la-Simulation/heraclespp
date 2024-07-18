@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <cassert>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -23,6 +24,7 @@
 namespace novapp
 {
 
+template <class Gravity>
 class IGodunovScheme
 {
 public:
@@ -40,6 +42,8 @@ public:
 
     virtual void execute(
         Range const &range,
+        Grid const& grid,
+        Gravity const& gravity,
         double dt,
         KV_cdouble_3d const& rho,
         KV_cdouble_4d const& rhou,
@@ -56,7 +60,7 @@ public:
 };
 
 template <class RiemannSolver, class Gravity, class EoS>
-class RiemannBasedGodunovScheme : public IGodunovScheme
+class RiemannBasedGodunovScheme : public IGodunovScheme<Gravity>
 {
     static_assert(
             std::is_invocable_r_v<
@@ -70,25 +74,21 @@ class RiemannBasedGodunovScheme : public IGodunovScheme
 
 private:
     RiemannSolver m_riemann_solver;
-    Gravity m_gravity;
     EoS m_eos;
-    Grid m_grid;
 
 public:
     RiemannBasedGodunovScheme(
         RiemannSolver const &riemann_solver,
-        Gravity const& gravity,
-        EoS const& eos,
-        Grid const& grid)
+        EoS const& eos)
         : m_riemann_solver(riemann_solver)
-        , m_gravity(gravity)
         , m_eos(eos)
-        , m_grid(grid)
     {
     }
 
     void execute(
         Range const& range,
+        Grid const& grid,
+        Gravity const& gravity,
         double const dt,
         KV_cdouble_3d const& rho,
         KV_cdouble_4d const& rhou,
@@ -103,13 +103,19 @@ public:
         KV_double_3d const& E_new,
         KV_double_4d const& fx_new) const final
     {
+        assert(equal_extents({0, 1, 2}, rho, rhou, E, fx, rho_new, rhou_new, E_new, fx_new));
+        assert(equal_extents({0, 1, 2, 3, 4}, rho_rec, rhou_rec, E_rec, fx_rec));
+        assert(equal_extents({0, 1, 2}, rho, rho_rec));
+        assert(equal_extents(3, rhou, rhou_new));
+        assert(rhou_rec.extent(5) == ndim);
+        assert(rhou.extent(3) == ndim);
+
         int const nfx = fx.extent_int(3);
-        auto const x = m_grid.x;
-        auto const y = m_grid.y;
-        auto const ds = m_grid.ds;
-        auto const dv = m_grid.dv;
+        auto const x = grid.x;
+        auto const y = grid.y;
+        auto const ds = grid.ds;
+        auto const dv = grid.dv;
         auto const& eos = m_eos;
-        auto const& gravity = m_gravity;
         auto const& riemann_solver = m_riemann_solver;
 
         Kokkos::parallel_for(
@@ -288,27 +294,28 @@ public:
 };
 
 template <class EoS, class Gravity>
-inline std::unique_ptr<IGodunovScheme> factory_godunov_scheme(
+inline std::unique_ptr<IGodunovScheme<Gravity>> factory_godunov_scheme(
     std::string const& riemann_solver,
-    EoS const& eos,
-    Grid const& grid,
-    Gravity const& gravity)
+    EoS const& eos)
 {
     if (riemann_solver == "HLL")
     {
         return std::make_unique<RiemannBasedGodunovScheme<HLL, Gravity, EoS>>
-                (HLL(), gravity, eos, grid);
+                (HLL(), eos);
     }
+
     if (riemann_solver == "HLLC")
     {
         return std::make_unique<RiemannBasedGodunovScheme<HLLC, Gravity, EoS>>
-                (HLLC(), gravity, eos, grid);
+                (HLLC(), eos);
     }
+
     if (riemann_solver == "Low Mach")
     {
         return std::make_unique<RiemannBasedGodunovScheme<Splitting, Gravity, EoS>>
-                (Splitting(), gravity, eos, grid);
+                (Splitting(), eos);
     }
+
     throw std::runtime_error("Invalid riemann solver: " + riemann_solver + ".");
 }
 

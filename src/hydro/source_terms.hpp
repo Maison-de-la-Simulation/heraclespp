@@ -91,8 +91,8 @@ double source_grad_u_phi(
     double dS,
     double dS_p)
 {
-    double sm = Kokkos::sin(y);
-    double sp = Kokkos::sin(y_p);
+    double const sm = Kokkos::sin(y);
+    double const sp = Kokkos::sin(y_p);
     return dtodv * (sp - sm) / (sp + sm) * (rhoR * uR_phi * uR_th * dS
         + rhoL * uL_phi * uL_th * dS_p);
 }

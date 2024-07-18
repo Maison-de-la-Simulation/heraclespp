@@ -14,10 +14,10 @@
 #include <ndim.hpp>
 #include <nova_params.hpp>
 
+#include "boundary.hpp"
+
 namespace novapp
 {
-
-class IBoundaryCondition;
 
 class DistributedBoundaryCondition
 {
@@ -25,23 +25,56 @@ class DistributedBoundaryCondition
 
 private:
     std::array<mpi_buffer_type, ndim> m_mpi_buffer;
-    std::array<std::unique_ptr<IBoundaryCondition>, ndim * 2> m_bcs;
     std::array<int, ndim*2> m_bc_order;
-    Grid m_grid;
     Param m_param;
 
-    void ghost_sync(std::vector<KV_double_3d> const& views, int bc_idim, int bc_iface) const;
+    void ghost_sync(Grid const& grid, std::vector<KV_double_3d> const& views, int bc_idim, int bc_iface) const;
 
 public:
     DistributedBoundaryCondition(
             Grid const& grid,
-            Param const& param,
-            std::array<std::unique_ptr<IBoundaryCondition>, ndim * 2> bcs);
+            Param const& param);
 
-    void operator()(KV_double_3d const& rho,
+    template <class Gravity>
+    void operator()(std::array<std::unique_ptr<IBoundaryCondition<Gravity>>, ndim * 2> const& bcs,
+                    Grid const& grid,
+                    Gravity const& gravity,
+                    KV_double_3d const& rho,
                     KV_double_4d const& rhou,
                     KV_double_3d const& E,
-                    KV_double_4d const& fx) const;
+                    KV_double_4d const& fx) const
+    {
+        std::vector<KV_double_3d> views;
+        views.reserve(2 + rhou.extent_int(3) + fx.extent_int(3));
+        views.emplace_back(rho);
+        for (int i3 = 0; i3 < rhou.extent_int(3); ++i3)
+        {
+            views.emplace_back(Kokkos::subview(rhou, ALL, ALL, ALL, i3));
+        }
+        views.emplace_back(E);
+        for (int i3 = 0; i3 < fx.extent_int(3); ++i3)
+        {
+            views.emplace_back(Kokkos::subview(fx, ALL, ALL, ALL, i3));
+        }
+
+        for (int idim = 0; idim < ndim; ++idim)
+        {
+            for (int iface = 0; iface < 2; ++iface)
+            {
+                ghost_sync(grid, views, idim, iface);
+            }
+        }
+
+        for ( int const bc_id : m_bc_order )
+        {
+            int const idim = bc_id / 2;
+            int const iface = bc_id % 2;
+            if (grid.is_border[idim][iface])
+            {
+                bcs[bc_id]->execute(grid, gravity, rho, rhou, E, fx);
+            }
+        }
+    }
 };
 
 } // namespace novapp

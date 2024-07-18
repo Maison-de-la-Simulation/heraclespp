@@ -8,9 +8,7 @@
 #include <mpi.h>
 
 #include <array>
-#include <iomanip>
-#include <iostream>
-#include <string_view>
+#include <iosfwd>
 
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
@@ -21,14 +19,6 @@ namespace novapp
 {
 
 class Param;
-
-template <class T>
-void print_info(std::string_view const var_name, T const var_value)
-{
-    using namespace std;
-    cout << left  << setw(40) << setfill('.') << var_name;
-    cout << right << setw(40) << setfill('.') << var_value << endl;
-}
 
 class Grid
 {
@@ -73,7 +63,17 @@ public:
 
     explicit Grid(Param const& param);
 
-    void print_grid() const;
+    Grid(Grid const& rhs) = delete;
+
+    Grid(Grid&& rhs) noexcept = delete;
+
+    ~Grid() noexcept;
+
+    Grid& operator=(Grid const& rhs) = delete;
+
+    Grid& operator=(Grid&& rhs) noexcept = delete;
+
+    void print_grid(std::ostream& os) const;
 
     void set_grid(KV_double_1d const& x_glob, KV_double_1d const& y_glob, KV_double_1d const& z_glob);
 

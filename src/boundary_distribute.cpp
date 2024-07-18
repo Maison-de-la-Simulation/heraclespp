@@ -37,30 +37,30 @@ void generate_order(std::array<int, ndim * 2>& bc_order, std::string const& bc_p
     }
     std::array<std::string, ndim * 2> tmp_arr;
     std::stringstream ssin(bc_priority);
-    for (int i = 0; i < ndim * 2 && ssin.good(); i++) {
+    for (int i = 0; i < ndim * 2 && ssin.good(); ++i) {
         ssin >> tmp_arr[i];
     }
 
     int counter = 0;
-    for (int i = 0; i < ndim * 2; i++) {
+    for (int i = 0; i < ndim * 2; ++i) {
         if (tmp_arr[i] == "X_left") {
             bc_order[0] = i;
-            counter++;
+            ++counter;
         } else if (tmp_arr[i] == "X_right") {
             bc_order[1] = i;
-            counter++;
+            ++counter;
         } else if (tmp_arr[i] == "Y_left" && ndim >= 2) {
             bc_order[2] = i;
-            counter++;
+            ++counter;
         } else if (tmp_arr[i] == "Y_right" && ndim >= 2) {
             bc_order[3] = i;
-            counter++;
+            ++counter;
         } else if (tmp_arr[i] == "Z_left" && ndim == 3) {
             bc_order[4] = i;
-            counter++;
+            ++counter;
         } else if (tmp_arr[i] == "Z_right" && ndim == 3) {
             bc_order[5] = i;
-            counter++;
+            ++counter;
         }
     }
     std::reverse(bc_order.begin(), bc_order.end());
@@ -72,11 +72,12 @@ void generate_order(std::array<int, ndim * 2>& bc_order, std::string const& bc_p
 } // namespace
 
 void DistributedBoundaryCondition::ghost_sync(
+    Grid const& grid,
     std::vector<KV_double_3d> const& views,
     int bc_idim,
     int bc_iface) const
 {
-    int ng = m_grid.Nghost[bc_idim];
+    int const ng = grid.Nghost[bc_idim];
 
     mpi_buffer_type buf = m_mpi_buffer[bc_idim];
 
@@ -108,8 +109,9 @@ void DistributedBoundaryCondition::ghost_sync(
         ptr = buf.d_view.data();
     }
 
-    int src, dst;
-    MPI_Cart_shift(m_grid.comm_cart, bc_idim, bc_iface == 0 ? -1 : 1, &src, &dst);
+    int src;
+    int dst;
+    MPI_Cart_shift(grid.comm_cart, bc_idim, bc_iface == 0 ? -1 : 1, &src, &dst);
 
     MPI_Sendrecv_replace(
             ptr,
@@ -119,7 +121,7 @@ void DistributedBoundaryCondition::ghost_sync(
             bc_idim,
             src,
             bc_idim,
-            m_grid.comm_cart,
+            grid.comm_cart,
             MPI_STATUS_IGNORE);
 
     if (!m_param.mpi_device_aware)
@@ -141,25 +143,11 @@ void DistributedBoundaryCondition::ghost_sync(
 
 DistributedBoundaryCondition::DistributedBoundaryCondition(
     Grid const& grid,
-    Param const& param,
-    std::array<std::unique_ptr<IBoundaryCondition>, ndim * 2> bcs)
-    : m_bcs(std::move(bcs))
-    , m_grid(grid)
-    , m_param(param)
+    Param const& param)
+    : m_param(param)
 {
-    for(int idim=0; idim<ndim; idim++)
-    {
-        for(int iface=0; iface<2; iface++)
-        {
-            if (!m_grid.is_border[idim][iface])
-            {
-                m_bcs[idim * 2 + iface] = std::make_unique<PeriodicCondition>(idim, iface);
-            }
-        }
-    }
-
     std::array<int, 3> buf_size = grid.Nx_local_wg;
-    for (int idim = 0; idim < ndim; idim++)
+    for (int idim = 0; idim < ndim; ++idim)
     {
         buf_size[idim] = grid.Nghost[idim];
         m_mpi_buffer[idim] = mpi_buffer_type("", buf_size[0], buf_size[1], buf_size[2], ndim + 2 + param.nfx);
@@ -167,38 +155,6 @@ DistributedBoundaryCondition::DistributedBoundaryCondition(
     }
 
     generate_order(m_bc_order, m_param.bc_priority);
-}
-
-void DistributedBoundaryCondition::operator()(KV_double_3d const& rho,
-                                              KV_double_4d const& rhou,
-                                              KV_double_3d const& E,
-                                              KV_double_4d const& fx) const
-{
-    std::vector<KV_double_3d> views;
-    views.reserve(2 + rhou.extent_int(3) + fx.extent_int(3));
-    views.emplace_back(rho);
-    for (int i3 = 0; i3 < rhou.extent_int(3); ++i3)
-    {
-        views.emplace_back(Kokkos::subview(rhou, ALL, ALL, ALL, i3));
-    }
-    views.emplace_back(E);
-    for (int i3 = 0; i3 < fx.extent_int(3); ++i3)
-    {
-        views.emplace_back(Kokkos::subview(fx, ALL, ALL, ALL, i3));
-    }
-
-    for (int idim = 0; idim < ndim; idim++)
-    {
-        for (int iface = 0; iface < 2; iface++)
-        {
-            ghost_sync(views, idim, iface);
-        }
-    }
-
-    for ( int const bc_id : m_bc_order )
-    {
-        m_bcs[bc_id]->execute(rho, rhou, E, fx);
-    }
 }
 
 } // namespace novapp

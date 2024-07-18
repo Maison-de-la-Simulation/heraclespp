@@ -101,7 +101,7 @@ public:
         double const rcL = primL.rho * (wsL - primL.u[locdim]);
         double const rcR = primR.rho * (wsR - primR.u[locdim]);
 
-        double const ustar = (primR.P - primL.P + rcL * primL.u[locdim] - rcR * primR.u[locdim]) 
+        double const ustar = (primR.P - primL.P + rcL * primL.u[locdim] - rcR * primR.u[locdim])
                             / (rcL - rcR);
         double const pstar = 1. / 2 * (primL.P + primR.P + rcL * (ustar - primL.u[locdim])
                             + rcR * (ustar - primR.u[locdim]));
@@ -126,7 +126,7 @@ public:
             flux_state = fluxR;
         }
 
-        double un = prim_state.u[locdim];
+        double const un = prim_state.u[locdim];
         EulerFlux flux;
 
         if (wsL * wsR > 0)
@@ -140,7 +140,7 @@ public:
         }
         else
         {
-            double rho_star = cons_state.rho * (S - un) / (S - ustar);
+            double const rho_star = cons_state.rho * (S - un) / (S - ustar);
             flux.rho = FluxHLLC(flux_state.rho, cons_state.rho, rho_star, S);
 
             for (int idim = 0; idim < ndim; ++idim)
@@ -149,7 +149,7 @@ public:
             }
             flux.rhou[locdim] = rho_star * ustar * ustar + pstar;
 
-            double E_star = (S - un) / (S - ustar) * cons_state.E
+            double const E_star = (S - un) / (S - ustar) * cons_state.E
                             + (ustar - un) / (S - ustar)
                             * (ustar * cons_state.rho * (S - un) + prim_state.P);
             flux.E = FluxHLLC(flux_state.E, cons_state.E, E_star, S);
@@ -188,11 +188,11 @@ public:
         double const cR = eos.compute_speed_of_sound(primR.rho, primR.P);
 
         // Low Mach correction
-        double a = 1.1 * Kokkos::fmax(primL.rho * cL, primR.rho * cR);
-        double ustar = (primL.u[locdim] + primR.u[locdim]) / 2 - 1 / (2 * a) * (primR.P - primL.P);
-        double Ma = Kokkos::fabs(ustar) / Kokkos::fmin(cL, cR);
-        double theta = Kokkos::fmin(1, Ma);
-        double Pstar = (primL.P + primR.P) / 2 - (theta * a) / 2 * (primR.u[locdim] - primL.u[locdim]);
+        double const a = 1.1 * Kokkos::fmax(primL.rho * cL, primR.rho * cR);
+        double const ustar = (primL.u[locdim] + primR.u[locdim]) / 2 - 1 / (2 * a) * (primR.P - primL.P);
+        double const Ma = Kokkos::fabs(ustar) / Kokkos::fmin(cL, cR);
+        double const theta = Kokkos::fmin(1, Ma);
+        double const Pstar = (primL.P + primR.P) / 2 - (theta * a) / 2 * (primR.u[locdim] - primL.u[locdim]);
 
         EulerCons cons_state;
         if (ustar > 0)

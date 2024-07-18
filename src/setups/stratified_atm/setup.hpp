@@ -39,18 +39,15 @@ class InitializationSetup : public IInitializationProblem
 {
 private:
     EOS m_eos;
-    Grid m_grid;
     ParamSetup m_param_setup;
     Gravity m_gravity;
 
 public:
     InitializationSetup(
         EOS const& eos,
-        Grid const& grid,
         ParamSetup const& param_setup,
         Gravity const& gravity)
         : m_eos(eos)
-        , m_grid(grid)
         , m_param_setup(param_setup)
         , m_gravity(gravity)
     {
@@ -58,19 +55,16 @@ public:
 
     void execute(
         Range const& range,
+        Grid const& grid,
         KV_double_3d const& rho,
         KV_double_4d const& u,
         KV_double_3d const& P,
         [[maybe_unused]] KV_double_4d const& fx) const final
     {
-        assert(rho.extent(0) == u.extent(0));
-        assert(u.extent(0) == P.extent(0));
-        assert(rho.extent(1) == u.extent(1));
-        assert(u.extent(1) == P.extent(1));
-        assert(rho.extent(2) == u.extent(2));
-        assert(u.extent(2) == P.extent(2));
+        assert(equal_extents({0, 1, 2}, rho, u, P, fx));
+        assert(u.extent_int(3) == ndim);
 
-        auto const xc = m_grid.x_center;
+        auto const xc = grid.x_center;
         auto const& eos = m_eos;
         auto const& gravity = m_gravity;
         auto const& param_setup = m_param_setup;
@@ -99,32 +93,28 @@ public:
 };
 
 template <class Gravity>
-class BoundarySetup : public IBoundaryCondition
+class BoundarySetup : public IBoundaryCondition<Gravity>
 {
     std::string m_label;
 
 private:
     EOS m_eos;
-    Grid m_grid;
     ParamSetup m_param_setup;
-    Gravity m_gravity;
 
 public:
     BoundarySetup(int idim, int iface,
         [[maybe_unused]] EOS const& eos,
-        [[maybe_unused]] Grid const& grid,
-        [[maybe_unused]] ParamSetup const& param_setup,
-        [[maybe_unused]] Gravity const& gravity)
-        : IBoundaryCondition(idim, iface)
+        [[maybe_unused]] ParamSetup const& param_setup)
+        : IBoundaryCondition<Gravity>(idim, iface)
         , m_label("UserDefined" + bc_dir[idim] + bc_face[iface])
         , m_eos(eos)
-        , m_grid(grid)
         , m_param_setup(param_setup)
-        , m_gravity(gravity)
     {
     }
 
-    void execute(KV_double_3d const& rho,
+    void execute(Grid const& grid,
+                 [[maybe_unused]] Gravity const& gravity,
+                 KV_double_3d const& rho,
                  KV_double_4d const& rhou,
                  KV_double_3d const& E,
                  [[maybe_unused]] KV_double_4d const& fx) const final
@@ -139,18 +129,17 @@ public:
         Kokkos::Array<int, 3> begin {0, 0, 0};
         Kokkos::Array<int, 3> end {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)};
 
-        auto const xc = m_grid.x_center;
+        auto const xc = grid.x_center;
         auto const& eos = m_eos;
-        auto const& gravity = m_gravity;
         auto const& param_setup = m_param_setup;
         double mu = m_eos.mean_molecular_weight();
 
-        int const ng = m_grid.Nghost[m_bc_idim];
-        if (m_bc_iface == 1)
+        int const ng = grid.Nghost[this->m_bc_idim];
+        if (this->m_bc_iface == 1)
         {
-            begin[m_bc_idim] = rho.extent_int(m_bc_idim) - ng;
+            begin[this->m_bc_idim] = rho.extent_int(this->m_bc_idim) - ng;
         }
-        end[m_bc_idim] = begin[m_bc_idim] + ng;
+        end[this->m_bc_idim] = begin[this->m_bc_idim] + ng;
 
         Kokkos::parallel_for(
             m_label,
@@ -164,7 +153,7 @@ public:
 
                 rho(i, j, k) = param_setup.rho0 * units::density * Kokkos::exp(- xc(i) / x0);
 
-                for (int n = 0; n < rhou.extent_int(3); n++)
+                for (int n = 0; n < rhou.extent_int(3); ++n)
                 {
                     rhou(i, j, k, n) = param_setup.rho0 * units::density * param_setup.u0 * units::velocity;
                 }

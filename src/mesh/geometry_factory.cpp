@@ -17,10 +17,12 @@ std::unique_ptr<IComputeGeom> factory_grid_geometry()
     {
         return std::make_unique<Cartesian>();
     }
+
     if (geom == Geometry::Geom_spherical)
     {
         return std::make_unique<Spherical>();
     }
+
     throw std::runtime_error("Invalid grid geometry: .");
 }
 

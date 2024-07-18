@@ -11,11 +11,11 @@
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
 #include <nova_params.hpp>
+#include <print_info.hpp>
 
 #include "geometry.hpp"
 #include "geometry_factory.hpp"
 #include "grid.hpp"
-#include "grid_type.hpp"
 #include "range.hpp"
 
 namespace novapp
@@ -58,12 +58,19 @@ Grid::Grid(Param const& param)
     , Ncpu_x(param.Ncpu_x)
     , mpi_rank_cart {0, 0, 0}
 {
-    for (int idim = 0; idim < ndim; idim++)
+    for (int idim = 0; idim < ndim; ++idim)
     {
         Nghost[idim] = Ng;
     }
 
     MPI_Decomp();
+}
+
+Grid::~Grid() noexcept
+{
+    if (comm_cart != MPI_COMM_NULL) {
+        MPI_Comm_free(&comm_cart);
+    }
 }
 
 /* ****************************************************************
@@ -76,7 +83,7 @@ void Grid::MPI_Decomp()
     MPI_Comm_size(MPI_COMM_WORLD, &Ncpu);
 
     MPI_Dims_create(Ncpu, ndim, Ncpu_x.data());
-    for(int n=ndim; n<3; n++)
+    for(int n=ndim; n<3; ++n)
     {
         Ncpu_x[n] = 1;
     }
@@ -87,7 +94,7 @@ void Grid::MPI_Decomp()
     MPI_Comm_rank(comm_cart, &mpi_rank);
     MPI_Cart_coords(comm_cart, mpi_rank, 3, mpi_rank_cart.data());
 
-    for(int i=0; i<3; i++)
+    for(int i=0; i<3; ++i)
     {
         Nx_local_ng[i] = Nx_glob_ng[i]/Ncpu_x[i];
         start_cell_wg[i] = Nx_local_ng[i] * mpi_rank_cart[i];
@@ -107,26 +114,26 @@ void Grid::MPI_Decomp()
     std::array<int, 3> remain_dims {0, 0, 0};
     std::array<int, 3> cmin {0, 0, 0};
     std::array<int, 3> cmax {0, 0, 0};
-    for(int i=0; i<3; i++)
+    for(int i=0; i<3; ++i)
     {
-        remain_dims[i]=true;
+        remain_dims[i] = 1;
         MPI_Comm comm_cart_1d;
         MPI_Cart_sub(comm_cart, remain_dims.data(), &comm_cart_1d);
         MPI_Exscan(&Nx_local_ng[i], &cmin[i], 1, MPI_INT, MPI_SUM, comm_cart_1d);
         MPI_Comm_free(&comm_cart_1d);
         cmax[i] = cmin[i] + Nx_local_ng[i];
 
-        remain_dims[i]=false;
+        remain_dims[i] = 0;
     }
 
     range = Range(cmin, cmax, Ng);
 
     std::array<int, 3> tmp_coord;
-    for(int i=-1; i<2; i++)
+    for(int i=-1; i<2; ++i)
     {
-        for(int j=-1; j<2; j++)
+        for(int j=-1; j<2; ++j)
         {
-            for(int k=-1; k<2; k++)
+            for(int k=-1; k<2; ++k)
             {
                 tmp_coord[0] = mpi_rank_cart[0]+i;
                 tmp_coord[1] = mpi_rank_cart[1]+j;
@@ -135,11 +142,11 @@ void Grid::MPI_Decomp()
             }
         }
     }
-    for(int idim=0; idim<ndim; idim++)
+    for(int idim=0; idim<ndim; ++idim)
     {
-        for(int iface=0; iface<2; iface++)
+        for(int iface=0; iface<2; ++iface)
         {
-            int displ = iface==0? -1 : 1;
+            int const displ = iface==0? -1 : 1;
             MPI_Cart_shift(comm_cart, idim, displ, &neighbor_src[idim*2+iface], &neighbor_dest[idim*2+iface]);
         }
     }
@@ -148,7 +155,7 @@ void Grid::MPI_Decomp()
 
     Nx_block = Nx_local_wg;
 
-    for(int i=0; i<3; i++)
+    for(int i=0; i<3; ++i)
     {
         is_border[i][0] = (mpi_rank_cart[i] == 0);
         is_border[i][1] = (mpi_rank_cart[i] == Ncpu_x[i]-1);
@@ -199,49 +206,46 @@ void Grid::set_grid(KV_double_1d const& x_glob, KV_double_1d const& y_glob, KV_d
     grid_geometry->execute(range.all_ghosts(), x, y, z, dx, dy, dz, ds, dv);
 }
 
-void Grid::print_grid() const
+void Grid::print_grid(std::ostream& os) const
 {
-    if(mpi_rank==0)
-    {
-        print_info("Ndim", ndim);
-        print_info("Nghost[0]", Nghost[0]);
-        print_info("Nghost[1]", Nghost[1]);
-        print_info("Nghost[2]", Nghost[2]);
+    print_info(os, "Ndim", ndim);
+    print_info(os, "Nghost[0]", Nghost[0]);
+    print_info(os, "Nghost[1]", Nghost[1]);
+    print_info(os, "Nghost[2]", Nghost[2]);
 
-        print_info("Ncpu", Ncpu);
+    print_info(os, "Ncpu", Ncpu);
 
-        print_info("Ncpu_x[0]", Ncpu_x[0]);
-        print_info("Ncpu_x[1]", Ncpu_x[1]);
-        print_info("Ncpu_x[2]", Ncpu_x[2]);
+    print_info(os, "Ncpu_x[0]", Ncpu_x[0]);
+    print_info(os, "Ncpu_x[1]", Ncpu_x[1]);
+    print_info(os, "Ncpu_x[2]", Ncpu_x[2]);
 
-        print_info("Nx_glob_ng[0]", Nx_glob_ng[0]);
-        print_info("Nx_glob_ng[1]", Nx_glob_ng[1]);
-        print_info("Nx_glob_ng[2]", Nx_glob_ng[2]);
+    print_info(os, "Nx_glob_ng[0]", Nx_glob_ng[0]);
+    print_info(os, "Nx_glob_ng[1]", Nx_glob_ng[1]);
+    print_info(os, "Nx_glob_ng[2]", Nx_glob_ng[2]);
 
-        print_info("Nx[0]", Nx_local_ng[0]);
-        print_info("Nx[1]", Nx_local_ng[1]);
-        print_info("Nx[2]", Nx_local_ng[2]);
+    print_info(os, "Nx[0]", Nx_local_ng[0]);
+    print_info(os, "Nx[1]", Nx_local_ng[1]);
+    print_info(os, "Nx[2]", Nx_local_ng[2]);
 
-        print_info("Nx_local_wg[0]", Nx_local_wg[0]);
-        print_info("Nx_local_wg[1]", Nx_local_wg[1]);
-        print_info("Nx_local_wg[2]", Nx_local_wg[2]);
+    print_info(os, "Nx_local_wg[0]", Nx_local_wg[0]);
+    print_info(os, "Nx_local_wg[1]", Nx_local_wg[1]);
+    print_info(os, "Nx_local_wg[2]", Nx_local_wg[2]);
 
-        print_info("NBlock[0]", NBlock[0]);
-        print_info("NBlock[1]", NBlock[1]);
-        print_info("NBlock[2]", NBlock[2]);
+    print_info(os, "NBlock[0]", NBlock[0]);
+    print_info(os, "NBlock[1]", NBlock[1]);
+    print_info(os, "NBlock[2]", NBlock[2]);
 
-        print_info("Nx_block[0]", Nx_block[0]);
-        print_info("Nx_block[1]", Nx_block[1]);
-        print_info("Nx_block[2]", Nx_block[2]);
+    print_info(os, "Nx_block[0]", Nx_block[0]);
+    print_info(os, "Nx_block[1]", Nx_block[1]);
+    print_info(os, "Nx_block[2]", Nx_block[2]);
 
-        print_info("Corner_min[0]", range.Corner_min[0]);
-        print_info("Corner_min[1]", range.Corner_min[1]);
-        print_info("Corner_min[2]", range.Corner_min[2]);
+    print_info(os, "Corner_min[0]", range.Corner_min[0]);
+    print_info(os, "Corner_min[1]", range.Corner_min[1]);
+    print_info(os, "Corner_min[2]", range.Corner_min[2]);
 
-        print_info("Corner_max[0]", range.Corner_max[0]);
-        print_info("Corner_max[1]", range.Corner_max[1]);
-        print_info("Corner_max[2]", range.Corner_max[2]);
-    }
+    print_info(os, "Corner_max[0]", range.Corner_max[0]);
+    print_info(os, "Corner_max[1]", range.Corner_max[1]);
+    print_info(os, "Corner_max[2]", range.Corner_max[2]);
 }
 
 } // namespace novapp

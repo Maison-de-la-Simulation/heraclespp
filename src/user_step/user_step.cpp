@@ -43,14 +43,14 @@ void HeatNickelStep::execute(
     KV_double_3d const& E,
     KV_double_4d const& fx) const
 {
-    double tau_ni56 = 8.8 * units::day; // s
-    double tau_co56 = 111.3 * units::day;
-    double m_ni56 = 55.9421278 * units::atomic_mass_unit; // kg
+    double const tau_ni56 = 8.8 * units::day; // s
+    double const tau_co56 = 111.3 * units::day;
+    double const m_ni56 = 55.9421278 * units::atomic_mass_unit; // kg
 
-    double Q_ni56_tot = 1.75 * units::MeV; // J
-    double Q_co56_tot = 3.73 * units::MeV;
+    double const Q_ni56_tot = 1.75 * units::MeV; // J
+    double const Q_co56_tot = 3.73 * units::MeV;
 
-    double fac_decay = 1. / (m_ni56 * (tau_co56 - tau_ni56)); // Decay factor
+    double const fac_decay = 1. / (m_ni56 * (tau_co56 - tau_ni56)); // Decay factor
 
     double epsilon = (Q_ni56_tot * (tau_co56 / tau_ni56 - 1) - Q_co56_tot)
                     * Kokkos::exp(- t / tau_ni56)
@@ -62,7 +62,7 @@ void HeatNickelStep::execute(
         cell_mdrange(range),
         KOKKOS_LAMBDA(int i, int j, int k)
         {
-            double edep = fx(i, j, k, 0) * rho(i, j, k) * epsilon;
+            double const edep = fx(i, j, k, 0) * rho(i, j, k) * epsilon;
             E(i, j, k) += edep * dt;
         });
 }
