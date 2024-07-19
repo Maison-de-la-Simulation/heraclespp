@@ -82,7 +82,10 @@ public:
 
         broadcast(range, rho_1d.d_view, rho);
         broadcast(range, u_1d.d_view, Kokkos::subview(u, ALL, ALL, ALL, 0));
-        broadcast(range, 0, Kokkos::subview(u, ALL, ALL, ALL, Kokkos::make_pair(1, 1 + u.extent_int(3))));
+        for (int idim = 1; idim < u.extent_int(3); ++idim)
+        {
+            broadcast(range, 0, Kokkos::subview(u, ALL, ALL, ALL, idim));
+        }
         broadcast(range, P_1d.d_view, P);
         for(int ifx = 0; ifx < fx.extent_int(3); ++ifx)
         {
