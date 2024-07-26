@@ -134,8 +134,6 @@ inline InternalMassGravity make_internal_mass_gravity(
     auto const xc = grid.x_center;
     auto const dv = grid.dv;
 
-    //Kokkos::deep_copy(rho, grid.mpi_rank_cart[0]);
-
     Kokkos::Array<int, 3> nghost;
     std::copy(grid.Nghost.begin(), grid.Nghost.end(), nghost.data());
 
@@ -247,6 +245,7 @@ inline InternalMassGravity make_internal_mass_gravity(
         {
             g_array_dv(i) = - units::G * M_r(i) / (xc(i) * xc(i));
         });
+
     return InternalMassGravity(g_array_dv);
 }
 
