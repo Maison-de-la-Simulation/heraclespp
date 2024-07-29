@@ -49,6 +49,7 @@ public :
     std::string pressure_fix;
     double eps_pf;
     int time_job;
+    std::string shift_grid;
 
     explicit Param(INIReader const& reader);
 

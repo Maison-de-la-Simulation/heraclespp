@@ -18,6 +18,7 @@
 #include <range.hpp>
 #include <pdi.h>
 #include <string>
+#include <shift_criterion_interface.hpp>
 
 namespace novapp
 {
@@ -26,11 +27,15 @@ class ParamSetup
 {
 public:
     std::string init_filename;
+    double vmax_shift;
+    int cell_shift;
 
     explicit ParamSetup(INIReader const& reader)
     {
         init_filename = reader.Get("problem", "init_file", "");
-    }
+        vmax_shift = reader.GetReal("problem", "vmax_shift", 0.) * units::velocity;
+        cell_shift = reader.GetInteger("problem", "cell_shift", 0);
+   }
 };
 
 template <class Gravity>
@@ -124,6 +129,59 @@ public:
 
         compute_regular_mesh_1d(y_glob, Nghost[1], m_param.ymin, (m_param.ymax - m_param.ymin) / Nx_glob_ng[1]);
         compute_regular_mesh_1d(z_glob, Nghost[2], m_param.zmin, (m_param.zmax - m_param.zmin) / Nx_glob_ng[2]);
+    }
+};
+
+class UserShiftCriterion : public IShiftCriterion
+{
+private:
+    ParamSetup m_param_setup;
+
+public:
+    explicit UserShiftCriterion(ParamSetup const& param_setup)
+        : m_param_setup(param_setup)
+    {
+    }
+
+    [[nodiscard]] bool execute(
+        [[maybe_unused]] Range const& range,
+        Grid const& grid,
+        KV_double_3d const& rho,
+        KV_double_4d const& rhou,
+        [[maybe_unused]] KV_double_3d const& E,
+        [[maybe_unused]] KV_double_4d const& fx) const override
+    {
+        bool exit_bool = grid.Nx_local_ng[0] < m_param_setup.cell_shift;
+        std::array const root_coords {grid.Ncpu_x[0] - 1, 0, 0};
+        int root = -1;
+        MPI_Cart_rank(grid.comm_cart, root_coords.data(), &root);
+        MPI_Bcast(&exit_bool, 1, MPI_CXX_BOOL, root, grid.comm_cart);
+
+        if (exit_bool)
+        {
+            throw std::runtime_error("The shift criterion is greater than the size of the last MPI process");
+        }
+
+        double vmax = 0;
+
+        if (grid.mpi_rank_cart[0] == grid.Ncpu_x[0] - 1)
+        {
+            int const ishift_min = grid.Nx_local_ng[0] - m_param_setup.cell_shift;
+            Kokkos::parallel_reduce(
+                "shift criterion",
+                Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
+                {ishift_min, grid.Nghost[1], grid.Nghost[2]},
+                {grid.Nghost[0] + grid.Nx_local_ng[0],
+                grid.Nghost[1] + grid.Nx_local_ng[1],
+                grid.Nghost[2] + grid.Nx_local_ng[2]}),
+                KOKKOS_LAMBDA(int i, int j, int k, double& vloc)
+                {
+                    vloc = Kokkos::max(rhou(i, j, k, 0) / rho(i, j, k), vloc);
+                },
+                Kokkos::Max<double>(vmax));
+        }
+        MPI_Allreduce(MPI_IN_PLACE, &vmax, 1, MPI_DOUBLE, MPI_MAX, grid.comm_cart);
+        return vmax >= m_param_setup.vmax_shift;
     }
 };
 

@@ -64,6 +64,26 @@ Grid::Grid(Param const& param)
     }
 
     MPI_Decomp();
+
+    x = KV_double_1d("x", Nx_local_wg[0]+1);
+    y = KV_double_1d("y", Nx_local_wg[1]+1);
+    z = KV_double_1d("z", Nx_local_wg[2]+1);
+
+    x_center = KV_double_1d("x_center", Nx_local_wg[0]);
+    y_center = KV_double_1d("y_center", Nx_local_wg[1]);
+    z_center = KV_double_1d("z_center", Nx_local_wg[2]);
+
+    dx = KV_double_1d("dx", Nx_local_wg[0]);
+    dy = KV_double_1d("dy", Nx_local_wg[1]);
+    dz = KV_double_1d("dz", Nx_local_wg[2]);
+
+    ds = KV_double_4d("ds", Nx_local_wg[0],
+                            Nx_local_wg[1],
+                            Nx_local_wg[2],
+                            3);
+    dv = KV_double_3d("dv", Nx_local_wg[0],
+                            Nx_local_wg[1],
+                            Nx_local_wg[2]);
 }
 
 Grid::~Grid() noexcept
@@ -164,26 +184,6 @@ void Grid::MPI_Decomp()
 
 void Grid::set_grid(KV_double_1d const& x_glob, KV_double_1d const& y_glob, KV_double_1d const& z_glob)
 {
-    x = KV_double_1d("x", Nx_local_wg[0]+1);
-    y = KV_double_1d("y", Nx_local_wg[1]+1);
-    z = KV_double_1d("z", Nx_local_wg[2]+1);
-
-    x_center = KV_double_1d("x_center", Nx_local_wg[0]);
-    y_center = KV_double_1d("y_center", Nx_local_wg[1]);
-    z_center = KV_double_1d("z_center", Nx_local_wg[2]);
-
-    dx = KV_double_1d("dx", Nx_local_wg[0]);
-    dy = KV_double_1d("dy", Nx_local_wg[1]);
-    dz = KV_double_1d("dz", Nx_local_wg[2]);
-
-    ds = KV_double_4d("ds", Nx_local_wg[0],
-                            Nx_local_wg[1],
-                            Nx_local_wg[2],
-                            3);
-    dv = KV_double_3d("dv", Nx_local_wg[0],
-                            Nx_local_wg[1],
-                            Nx_local_wg[2]);
-
     // Filling x, y, z
     Kokkos::deep_copy(x, Kokkos::subview(x_glob, Kokkos::pair<int, int>(start_cell_wg[0], start_cell_wg[0]+Nx_local_wg[0]+1)));
     Kokkos::deep_copy(y, Kokkos::subview(y_glob, Kokkos::pair<int, int>(start_cell_wg[1], start_cell_wg[1]+Nx_local_wg[1]+1)));
