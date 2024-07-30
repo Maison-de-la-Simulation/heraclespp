@@ -137,33 +137,6 @@ void Grid::MPI_Decomp()
 
     range = Range(cmin, cmax, Ng);
 
-    std::array<int, 3> tmp_coord;
-    for(int i=-1; i<2; ++i)
-    {
-        for(int j=-1; j<2; ++j)
-        {
-            for(int k=-1; k<2; ++k)
-            {
-                tmp_coord[0] = mpi_rank_cart[0]+i;
-                tmp_coord[1] = mpi_rank_cart[1]+j;
-                tmp_coord[2] = mpi_rank_cart[2]+k;
-                MPI_Cart_rank(comm_cart, tmp_coord.data(), &(NeighborRank[i+1][j+1][k+1]));
-            }
-        }
-    }
-    for(int idim=0; idim<ndim; ++idim)
-    {
-        for(int iface=0; iface<2; ++iface)
-        {
-            int const displ = iface==0? -1 : 1;
-            MPI_Cart_shift(comm_cart, idim, displ, &neighbor_src[idim*2+iface], &neighbor_dest[idim*2+iface]);
-        }
-    }
-
-    std::fill(NBlock.begin(), NBlock.end(), 1); // Default is no sub-block
-
-    Nx_block = Nx_local_wg;
-
     for(int i=0; i<3; ++i)
     {
         is_border[i][0] = (mpi_rank_cart[i] == 0);
@@ -219,14 +192,6 @@ void Grid::print_grid(std::ostream& os) const
     print_info(os, "Nx_local_wg[0]", Nx_local_wg[0]);
     print_info(os, "Nx_local_wg[1]", Nx_local_wg[1]);
     print_info(os, "Nx_local_wg[2]", Nx_local_wg[2]);
-
-    print_info(os, "NBlock[0]", NBlock[0]);
-    print_info(os, "NBlock[1]", NBlock[1]);
-    print_info(os, "NBlock[2]", NBlock[2]);
-
-    print_info(os, "Nx_block[0]", Nx_block[0]);
-    print_info(os, "Nx_block[1]", Nx_block[1]);
-    print_info(os, "Nx_block[2]", Nx_block[2]);
 
     print_info(os, "Corner_min[0]", range.Corner_min[0]);
     print_info(os, "Corner_min[1]", range.Corner_min[1]);
