@@ -186,7 +186,7 @@ inline InternalMassGravity make_internal_mass_gravity(
             double x3 = x(i) * x(i) * x(i);
             if (i == nghost[0])
             {
-                partial_sum += 4. / 3 * units::pi * (xc(i) * xc(i) * xc(i) - x3) * rho_mean(offset);
+                partial_sum += M_star + 4. / 3 * units::pi * (xc(i) * xc(i) * xc(i) - x3) * rho_mean(offset);
             }
             else
             {

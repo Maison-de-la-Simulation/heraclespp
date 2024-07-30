@@ -21,7 +21,7 @@ void TestGravityInternalGravity()
     double const ymax = 2.356194490192345;
     double const zmin = 0.7853981633974483;
     double const zmax = 2.356194490192345;
-    double const M_star = 1000;
+    double const M_star = 2E30;
 
     INIReader const reader;
     novapp::Param param(reader);
