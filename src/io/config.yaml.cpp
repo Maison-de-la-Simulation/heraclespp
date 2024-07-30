@@ -25,6 +25,7 @@ pdi:
     init_filename_size: int
     init_filename: { type: array, subtype: char, size: $init_filename_size }
     grid_communicator: MPI_Comm
+    mpi_rank: int
 
   data: # this describes the data that is local to each process
     u:   { type: array, subtype: double, size: ['$ndim', '$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]'] }
@@ -45,18 +46,10 @@ pdi:
     mpi:
     decl_hdf5:
       - file: ${directory}//${output_filename}
+        on_event: write_replicated_data
         collision_policy: replace
-        communicator: '$grid_communicator'
-        on_event: write_file
-        datasets: # this describes the global data (data in the final h5 file)
-          ux:  {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
-          uy:  {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
-          uz:  {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
-          rho: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
-          P:   {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
-          E:   {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
-          fx:  {type: array, subtype: double, size: ['$nfx', '$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
-          T:   {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
+        when: '${mpi_rank}=0'
+        datasets:
           x_ng: {type: array, subtype: double, size: '$nx_glob_ng[0]+1' }
           y_ng: {type: array, subtype: double, size: '$nx_glob_ng[1]+1' }
           z_ng: {type: array, subtype: double, size: '$nx_glob_ng[2]+1' }
@@ -67,6 +60,38 @@ pdi:
           iter:
           current_time:
           gamma:
+          x:
+            dataset: x_ng
+            memory_selection:
+              size: '$nx_glob_ng[0] + 1'
+              start: '$n_ghost[0]'
+          y:
+            dataset: y_ng
+            memory_selection:
+              size: '$nx_glob_ng[1] + 1'
+              start: '$n_ghost[1]'
+          z:
+            dataset: z_ng
+            memory_selection:
+              size: '$nx_glob_ng[2] + 1'
+              start: '$n_ghost[2]'
+          x:
+          y:
+          z:
+      - file: ${directory}//${output_filename}
+        on_event: write_distributed_data
+        collision_policy: write_into
+        communicator: '$grid_communicator'
+        datasets: # this describes the global data (data in the final h5 file)
+          ux:  {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
+          uy:  {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
+          uz:  {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
+          rho: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
+          P:   {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
+          E:   {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
+          fx:  {type: array, subtype: double, size: ['$nfx', '$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
+          T:   {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
+        write:
           u:
             dataset: ux
             memory_selection:
@@ -114,24 +139,6 @@ pdi:
             dataset_selection:
               size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
               start: [ '$start[2]', '$start[1]', '$start[0]']
-          x:
-            dataset: x_ng
-            memory_selection:
-              size: '$nx_glob_ng[0] + 1'
-              start: '$n_ghost[0]'
-          y:
-            dataset: y_ng
-            memory_selection:
-              size: '$nx_glob_ng[1] + 1'
-              start: '$n_ghost[1]'
-          z:
-            dataset: z_ng
-            memory_selection:
-              size: '$nx_glob_ng[2] + 1'
-              start: '$n_ghost[2]'
-          x:
-          y:
-          z:
           fx:
             when: '$nfx>0'
             memory_selection:

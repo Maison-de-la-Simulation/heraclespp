@@ -149,6 +149,7 @@ void write_pdi_init(
         "nx_local_wg", grid.Nx_local_wg.data(), PDI_OUT,
         "start", grid.range.Corner_min.data(), PDI_OUT,
         "grid_communicator", &grid.comm_cart, PDI_OUT,
+        "mpi_rank", &grid.mpi_rank, PDI_OUT,
         nullptr);
 }
 
@@ -178,7 +179,7 @@ void write_pdi(
     int const output_filename_size = output_filename.size();
     sync_host(rho, u, P, E, fx, T, x, y, z);
     PDI_multi_expose(
-        "write_file",
+        "write_replicated_data",
         "nullptr", nullptr, PDI_OUT,
         "directory_size", &directory_size, PDI_OUT,
         "directory", directory.data(), PDI_OUT,
@@ -190,13 +191,21 @@ void write_pdi(
         "iter", &iter, PDI_OUT,
         "current_time", &t, PDI_OUT,
         "gamma", &gamma, PDI_OUT,
+        "x", x.h_view.data(), PDI_OUT,
+        "y", y.h_view.data(), PDI_OUT,
+        "z", z.h_view.data(), PDI_OUT,
+        nullptr);
+    PDI_multi_expose(
+        "write_distributed_data",
+        "nullptr", nullptr, PDI_OUT,
+        "directory_size", &directory_size, PDI_OUT,
+        "directory", directory.data(), PDI_OUT,
+        "output_filename_size", &output_filename_size, PDI_OUT,
+        "output_filename", output_filename.data(), PDI_OUT,
         "rho", rho.h_view.data(), PDI_OUT,
         "u", u.h_view.data(), PDI_OUT,
         "P", P.h_view.data(), PDI_OUT,
         "E", E.h_view.data(), PDI_OUT,
-        "x", x.h_view.data(), PDI_OUT,
-        "y", y.h_view.data(), PDI_OUT,
-        "z", z.h_view.data(), PDI_OUT,
         "fx", fx.h_view.data(), PDI_OUT,
         "T", T.h_view.data(), PDI_OUT,
         nullptr);
