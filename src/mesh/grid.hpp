@@ -30,7 +30,6 @@ public:
     std::array<int, 3> Nx_local_wg;    // Number of cells on the local MPI process (including ghost)
     std::array<int, 3> NBlock;     // number of sub-blocks (default (1,1,1))
     std::array<int, 3> Nx_block;   // Maximum size of sub-block, including ghos
-    std::array<int, 3> start_cell_wg; // for local MPI process, index of starting cell wrt the global index with ghost
 
     std::array<std::array<std::array<int, 3>, 3>, 3> NeighborRank;
     std::array<int, ndim*2> neighbor_src;

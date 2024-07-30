@@ -114,36 +114,25 @@ void Grid::MPI_Decomp()
     MPI_Comm_rank(comm_cart, &mpi_rank);
     MPI_Cart_coords(comm_cart, mpi_rank, 3, mpi_rank_cart.data());
 
-    for(int i=0; i<3; ++i)
-    {
-        Nx_local_ng[i] = Nx_glob_ng[i]/Ncpu_x[i];
-        start_cell_wg[i] = Nx_local_ng[i] * mpi_rank_cart[i];
-
-        if(mpi_rank_cart[i]<Nx_glob_ng[i]%Ncpu_x[i])
-        {
-            Nx_local_ng[i]+=1;
-            start_cell_wg[i] += mpi_rank_cart[i];
-        }
-        else
-        {
-            start_cell_wg[i] += Nx_glob_ng[i]%Ncpu_x[i];
-        }
-        Nx_local_wg[i] = Nx_local_ng[i] + 2*Nghost[i];
-    }
-
-    std::array<int, 3> remain_dims {0, 0, 0};
     std::array<int, 3> cmin {0, 0, 0};
     std::array<int, 3> cmax {0, 0, 0};
     for(int i=0; i<3; ++i)
     {
-        remain_dims[i] = 1;
-        MPI_Comm comm_cart_1d;
-        MPI_Cart_sub(comm_cart, remain_dims.data(), &comm_cart_1d);
-        MPI_Exscan(&Nx_local_ng[i], &cmin[i], 1, MPI_INT, MPI_SUM, comm_cart_1d);
-        MPI_Comm_free(&comm_cart_1d);
-        cmax[i] = cmin[i] + Nx_local_ng[i];
+        Nx_local_ng[i] = Nx_glob_ng[i]/Ncpu_x[i];
+        cmin[i] = Nx_local_ng[i] * mpi_rank_cart[i];
 
-        remain_dims[i] = 0;
+        if(mpi_rank_cart[i]<Nx_glob_ng[i]%Ncpu_x[i])
+        {
+            Nx_local_ng[i]+=1;
+            cmin[i] += mpi_rank_cart[i];
+        }
+        else
+        {
+            cmin[i] += Nx_glob_ng[i]%Ncpu_x[i];
+        }
+
+        Nx_local_wg[i] = Nx_local_ng[i] + 2*Nghost[i];
+        cmax[i] = cmin[i] + Nx_local_ng[i];
     }
 
     range = Range(cmin, cmax, Ng);
@@ -185,9 +174,9 @@ void Grid::MPI_Decomp()
 void Grid::set_grid(KV_double_1d const& x_glob, KV_double_1d const& y_glob, KV_double_1d const& z_glob)
 {
     // Filling x, y, z
-    Kokkos::deep_copy(x, Kokkos::subview(x_glob, Kokkos::pair<int, int>(start_cell_wg[0], start_cell_wg[0]+Nx_local_wg[0]+1)));
-    Kokkos::deep_copy(y, Kokkos::subview(y_glob, Kokkos::pair<int, int>(start_cell_wg[1], start_cell_wg[1]+Nx_local_wg[1]+1)));
-    Kokkos::deep_copy(z, Kokkos::subview(z_glob, Kokkos::pair<int, int>(start_cell_wg[2], start_cell_wg[2]+Nx_local_wg[2]+1)));
+    Kokkos::deep_copy(x, Kokkos::subview(x_glob, Kokkos::pair<int, int>(range.Corner_min[0], range.Corner_min[0]+Nx_local_wg[0]+1)));
+    Kokkos::deep_copy(y, Kokkos::subview(y_glob, Kokkos::pair<int, int>(range.Corner_min[1], range.Corner_min[1]+Nx_local_wg[1]+1)));
+    Kokkos::deep_copy(z, Kokkos::subview(z_glob, Kokkos::pair<int, int>(range.Corner_min[2], range.Corner_min[2]+Nx_local_wg[2]+1)));
 
     // Filling dx, dy, dz
     compute_cell_size(x, dx);
