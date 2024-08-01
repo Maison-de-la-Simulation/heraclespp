@@ -125,7 +125,7 @@ inline InternalMassGravity make_internal_mass_gravity(
     Grid const& grid,
     KV_cdouble_3d const& rho)
 {
-    if (grid.Ncpu != 1)
+    if (grid.mpi_size != 1)
     {
         throw std::runtime_error("The function make_internal_mass_gravity does not handle more than 1 MPI process");
     }

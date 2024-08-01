@@ -100,9 +100,10 @@ Ncpu_x  : Number of cpu along each direction, output
 */
 void Grid::MPI_Decomp()
 {
-    MPI_Comm_size(MPI_COMM_WORLD, &Ncpu);
+    int world_size = -1;
+    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
-    MPI_Dims_create(Ncpu, ndim, Ncpu_x.data());
+    MPI_Dims_create(world_size, ndim, Ncpu_x.data());
     for(int n=ndim; n<3; ++n)
     {
         Ncpu_x[n] = 1;
@@ -175,7 +176,7 @@ void Grid::print_grid(std::ostream& os) const
     print_info(os, "Nghost[1]", Nghost[1]);
     print_info(os, "Nghost[2]", Nghost[2]);
 
-    print_info(os, "Ncpu", Ncpu);
+    print_info(os, "mpi_size", mpi_size);
 
     print_info(os, "Ncpu_x[0]", Ncpu_x[0]);
     print_info(os, "Ncpu_x[1]", Ncpu_x[1]);
