@@ -42,6 +42,7 @@
 #include <io.hpp>
 #include <kokkos_shortcut.hpp>
 #include <kronecker.hpp>
+#include <moving_grid.hpp>
 #include <ndim.hpp>
 #include <nova_params.hpp>
 #include <paraconf.h>
@@ -59,6 +60,7 @@
 #include "initialization_interface.hpp"
 #include "mpi_scope_guard.hpp"
 #include "setup.hpp"
+#include "shift_criterion_interface.hpp"
 
 using namespace novapp;
 
@@ -71,16 +73,24 @@ std::string_view gravity_label("Uniform");
 #elif defined(NOVAPP_GRAVITY_Point_mass)
 using Gravity = PointMassGravity;
 std::string_view gravity_label("Point_mass");
+#elif defined(NOVAPP_GRAVITY_Internal_mass)
+using Gravity = InternalMassGravity;
+std::string_view gravity_label("Internal_mass");
 #else
 static_assert(false, "Gravity not defined");
 #endif
 
-Gravity make_gravity(Param const& param, [[maybe_unused]] Grid const& grid)
+Gravity make_gravity(
+        Param const& param,
+        [[maybe_unused]] Grid const& grid,
+        [[maybe_unused]] KV_cdouble_3d const& rho)
 {
 #if defined(NOVAPP_GRAVITY_Uniform)
     return make_uniform_gravity(param);
 #elif defined(NOVAPP_GRAVITY_Point_mass)
     return make_point_mass_gravity(param, grid);
+#elif defined(NOVAPP_GRAVITY_Internal_mass)
+    return make_internal_mass_gravity(param, grid, rho);
 #endif
 }
 
@@ -218,7 +228,7 @@ void novapp_main(int argc, char** argv)
         grid.set_grid(x_glob.d_view, y_glob.d_view, z_glob.d_view);
 
         sync_device(rho, u, P, fx);
-        g = std::make_unique<Gravity>(make_gravity(param, grid));
+        g = std::make_unique<Gravity>(make_gravity(param, grid, rho.d_view));
 
         if(grid.mpi_rank==0)
         {
@@ -243,7 +253,11 @@ void novapp_main(int argc, char** argv)
         modify_host(x_glob, y_glob, z_glob);
         sync_device(x_glob, y_glob, z_glob);
         grid.set_grid(x_glob.d_view, y_glob.d_view, z_glob.d_view);
-        g = std::make_unique<Gravity>(make_gravity(param, grid));
+        g = std::make_unique<Gravity>(make_gravity(param, grid, rho.d_view));
+        if(std::is_same_v<Gravity, InternalMassGravity> && grid.mpi_rank == 0)
+        {
+            std::cout << "\nInternal gravity not usable for initialization\n";
+        }
         std::unique_ptr<IInitializationProblem> initialization
             = std::make_unique<InitializationSetup<Gravity>>(eos, param_setup, *g);
         initialization->execute(grid.range.no_ghosts(), grid, rho.d_view, u.d_view, P.d_view, fx.d_view);
@@ -293,9 +307,21 @@ void novapp_main(int argc, char** argv)
         user_step = factory_user_step(param.user_step);
     }
 
+    std::unique_ptr<IShiftCriterion> shift_criterion;
+    if (param.shift_grid == "UserDefined")
+    {
+        shift_criterion = std::make_unique<UserShiftCriterion>(param_setup);
+    }
+    else
+    {
+        shift_criterion = std::make_unique<NoShiftGrid>();
+    }
+
     conv_prim_to_cons(grid.range.no_ghosts(), eos, rho.d_view, u.d_view, P.d_view, rhou.d_view, E.d_view);
 
     bcs(bcs_array, grid, *g, rho.d_view, rhou.d_view, E.d_view, fx.d_view);
+
+    g = std::make_unique<Gravity>(make_gravity(param, grid, rho.d_view));
 
     conv_cons_to_prim(grid.range.all_ghosts(), eos, rho.d_view, rhou.d_view, E.d_view, u.d_view, P.d_view);
 
@@ -326,6 +352,7 @@ void novapp_main(int argc, char** argv)
     std::chrono::steady_clock::time_point const start = std::chrono::steady_clock::now();
     Kokkos::Profiling::pushRegion("Nova++: main time loop");
 
+    // Main timestep loop
     while (!should_exit)
     {
         double dt = param.cfl * time_step(grid.range.all_ghosts(), eos, grid, rho.d_view, u.d_view, P.d_view);
@@ -403,14 +430,37 @@ void novapp_main(int argc, char** argv)
 
         bcs(bcs_array, grid, *g, rho_new, rhou_new, E_new, fx_new);
 
-        conv_cons_to_prim(grid.range.all_ghosts(), eos, rho_new, rhou_new, E_new, u.d_view, P.d_view);
-
         Kokkos::deep_copy(rho.d_view, rho_new);
         Kokkos::deep_copy(rhou.d_view, rhou_new);
         Kokkos::deep_copy(E.d_view, E_new);
         Kokkos::deep_copy(fx.d_view, fx_new);
 
+        // Shift the grid if necessary
+        if (shift_criterion->execute(grid.range.no_ghosts(), grid, rho_new, rhou_new, E_new, fx_new))
+        {
+            if (grid.mpi_rank == 0)
+            {
+                std::cout << "Shifting grid at time = " << t << ", iteration = " << iter << std::endl;
+            }
+            shift_grid(rho.d_view, rhou.d_view, E.d_view, fx.d_view,
+                       rho_new, rhou_new, E_new, fx_new,
+                       x_glob, y_glob, z_glob,
+                       grid);
+            // useful only for the process near the outer boundary (no MPI is needed indeed !!)
+            bcs(bcs_array, grid, *g, rho_new, rhou_new, E_new, fx_new);
+
+            Kokkos::deep_copy(rho.d_view, rho_new);
+            Kokkos::deep_copy(rhou.d_view, rhou_new);
+            Kokkos::deep_copy(E.d_view, E_new);
+            Kokkos::deep_copy(fx.d_view, fx_new);
+
+            g = std::make_unique<Gravity>(make_gravity(param, grid, rho.d_view));
+        }
+
+        conv_cons_to_prim(grid.range.all_ghosts(), eos, rho_new, rhou_new, E_new, u.d_view, P.d_view);
         modify_device(rho, u, P, E, rhou, fx);
+
+        g = std::make_unique<Gravity>(make_gravity(param, grid, rho.d_view));
 
         t += dt;
         ++iter;

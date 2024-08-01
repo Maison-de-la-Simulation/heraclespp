@@ -26,6 +26,7 @@ Param::Param(INIReader const& reader)
     ymax = reader.GetReal("Grid", "ymax", 1.0);
     zmin = reader.GetReal("Grid", "zmin", 0.0);
     zmax = reader.GetReal("Grid", "zmax", 1.0);
+    shift_grid = reader.Get("Grid", "shift_grid", "Off");
 
     mpi_device_aware = reader.GetBoolean("Parallelization", "mpi_device_aware", false);
     Ncpu_x[0] = reader.GetInteger("Parallelization", "Ncpu_x", 0); // number of procs, default 0=>defined by MPI

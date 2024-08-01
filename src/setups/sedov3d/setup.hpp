@@ -8,6 +8,7 @@
 
 #include "default_boundary_setup.hpp"
 #include "default_grid_setup.hpp"
+#include "default_shift_criterion.hpp"
 #include "default_user_step.hpp"
 #include "eos.hpp"
 #include <grid.hpp>

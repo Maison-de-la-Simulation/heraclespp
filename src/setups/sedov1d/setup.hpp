@@ -8,6 +8,7 @@
 
 #include "default_boundary_setup.hpp"
 #include "default_grid_setup.hpp"
+#include "default_shift_criterion.hpp"
 #include "default_user_step.hpp"
 #include "eos.hpp"
 #include <grid.hpp>
@@ -68,7 +69,6 @@ public:
 
         int const mpi_rank = grid.mpi_rank;
 
-        double dv = grid.dv(2, 0, 0);
         double alpha;
 
         if (geom == Geometry::Geom_cartesian)
@@ -83,12 +83,14 @@ public:
 
         auto const& eos = m_eos;
         auto const& param_setup = m_param_setup;
+        auto const dv = grid.dv;
 
         Kokkos::parallel_for(
             "Sedov_1D_init",
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
+                double const dv_beg = dv(2, 0, 0);
                 rho(i, j, k) = param_setup.rho0 * units::density;
 
                 for (int idim = 0; idim < ndim; ++idim)
@@ -96,12 +98,12 @@ public:
                     u(i, j, k, idim) = param_setup.u0 * units::velocity;
                 }
 
-                double T = eos.compute_T_from_evol(rho(i, j, k), param_setup.E0 / dv * units::evol);
+                double T = eos.compute_T_from_evol(rho(i, j, k), param_setup.E0 / dv_beg * units::evol);
                 P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), T) * units::pressure;
 
                 if(mpi_rank == 0 && i == 2)
                 {
-                    double T_perturb = eos.compute_T_from_evol(rho(i, j, k), alpha * param_setup.E1 / dv * units::evol);
+                    double T_perturb = eos.compute_T_from_evol(rho(i, j, k), alpha * param_setup.E1 / dv_beg * units::evol);
                     P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), T_perturb) * units::pressure;
                 }
             });
