@@ -113,7 +113,6 @@ public:
         auto const x = grid.x;
         auto const y = grid.y;
         auto const z = grid.z;
-        double const xmin = x(grid.Nghost[0]);
 
         int const ny = rho.extent_int(1) - 2 * grid.Nghost[1];
         int const nz = rho.extent_int(2) - 2 * grid.Nghost[2];
@@ -163,6 +162,7 @@ public:
                     }
 
                     // r perturbation
+                    double xmin = x(grid.Nghost[0]);
                     double x0 = param_setup.xchoc - xmin;
                     double sigma = 0.1 * x0 * x0;
                     petrurb_r = Kokkos::exp(-(xc(i) - x0) * (xc(i) - x0) / sigma) * Kokkos::cos(kx1 * xc(i) + kx2 * xc(i));
