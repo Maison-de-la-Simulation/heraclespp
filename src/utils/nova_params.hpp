@@ -24,7 +24,7 @@ public :
     double zmax;
     std::string grid_type;
     int Ng;
-    std::array<int,3> Ncpu_x;
+    std::array<int,3> mpi_dims_cart;
     double t_ini;
     double t_end;
     double cfl;

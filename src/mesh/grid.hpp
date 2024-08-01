@@ -29,12 +29,11 @@ public:
     std::array<int, 3> Nx_local_ng;    // Number of cells on the local MPI process (excluding ghost)
     std::array<int, 3> Nx_local_wg;    // Number of cells on the local MPI process (including ghost)
 
-    std::array<int,3> Ncpu_x;
-
     MPI_Comm comm_cart;
     int mpi_rank;
     int mpi_size;
     std::array<int, 3> mpi_rank_cart;
+    std::array<int, 3> mpi_dims_cart;
 
     Range range;
     std::array<std::array<bool, 2>,3> is_border;

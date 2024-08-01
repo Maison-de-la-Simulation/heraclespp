@@ -152,7 +152,7 @@ public:
         [[maybe_unused]] KV_double_4d const& fx) const override
     {
         bool exit_bool = grid.Nx_local_ng[0] < m_param_setup.cell_shift;
-        std::array const root_coords {grid.Ncpu_x[0] - 1, 0, 0};
+        std::array const root_coords {grid.mpi_dims_cart[0] - 1, 0, 0};
         int root = -1;
         MPI_Cart_rank(grid.comm_cart, root_coords.data(), &root);
         MPI_Bcast(&exit_bool, 1, MPI_CXX_BOOL, root, grid.comm_cart);
@@ -164,7 +164,7 @@ public:
 
         double vmax = 0;
 
-        if (grid.mpi_rank_cart[0] == grid.Ncpu_x[0] - 1)
+        if (grid.mpi_rank_cart[0] == grid.mpi_dims_cart[0] - 1)
         {
             int const ishift_min = grid.Nx_local_ng[0] - m_param_setup.cell_shift;
             Kokkos::parallel_reduce(
