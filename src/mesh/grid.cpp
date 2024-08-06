@@ -55,8 +55,8 @@ Grid::Grid(Param const& param)
     , Nghost {0, 0, 0}
     , Nx_glob_ng(param.Nx_glob_ng)
     , Nx_local_ng(param.Nx_glob_ng)
-    , Ncpu_x(param.Ncpu_x)
     , mpi_rank_cart {0, 0, 0}
+    , mpi_dims_cart(param.mpi_dims_cart)
 {
     for (int idim = 0; idim < ndim; ++idim)
     {
@@ -95,21 +95,22 @@ Grid::~Grid() noexcept
 
 /* ****************************************************************
 This routine distribute the cpu over the various direction in an optimum way
-Ncpu_x  : Number of cpu along each direction, output
-          Ncpu = Ncpu_x[0] * Ncpu_x[1] * Ncpu_x[2]
+mpi_dims_cart  : Number of cpu along each direction, output
+          mpi_size = mpi_dims_cart[0] * mpi_dims_cart[1] * mpi_dims_cart[2]
 */
 void Grid::MPI_Decomp()
 {
-    MPI_Comm_size(MPI_COMM_WORLD, &Ncpu);
+    int world_size = -1;
+    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
-    MPI_Dims_create(Ncpu, ndim, Ncpu_x.data());
+    MPI_Dims_create(world_size, ndim, mpi_dims_cart.data());
     for(int n=ndim; n<3; ++n)
     {
-        Ncpu_x[n] = 1;
+        mpi_dims_cart[n] = 1;
     }
     std::array<int, 3> periodic = {1,1,1};
 
-    MPI_Cart_create(MPI_COMM_WORLD, 3, Ncpu_x.data(), periodic.data(), 1, &comm_cart);
+    MPI_Cart_create(MPI_COMM_WORLD, 3, mpi_dims_cart.data(), periodic.data(), 1, &comm_cart);
     MPI_Comm_size(comm_cart, &mpi_size);
     MPI_Comm_rank(comm_cart, &mpi_rank);
     MPI_Cart_coords(comm_cart, mpi_rank, 3, mpi_rank_cart.data());
@@ -118,17 +119,17 @@ void Grid::MPI_Decomp()
     std::array<int, 3> cmax {0, 0, 0};
     for(int i=0; i<3; ++i)
     {
-        Nx_local_ng[i] = Nx_glob_ng[i]/Ncpu_x[i];
+        Nx_local_ng[i] = Nx_glob_ng[i]/mpi_dims_cart[i];
         cmin[i] = Nx_local_ng[i] * mpi_rank_cart[i];
 
-        if(mpi_rank_cart[i]<Nx_glob_ng[i]%Ncpu_x[i])
+        if(mpi_rank_cart[i]<Nx_glob_ng[i]%mpi_dims_cart[i])
         {
             Nx_local_ng[i]+=1;
             cmin[i] += mpi_rank_cart[i];
         }
         else
         {
-            cmin[i] += Nx_glob_ng[i]%Ncpu_x[i];
+            cmin[i] += Nx_glob_ng[i]%mpi_dims_cart[i];
         }
 
         Nx_local_wg[i] = Nx_local_ng[i] + 2*Nghost[i];
@@ -140,7 +141,7 @@ void Grid::MPI_Decomp()
     for(int i=0; i<3; ++i)
     {
         is_border[i][0] = (mpi_rank_cart[i] == 0);
-        is_border[i][1] = (mpi_rank_cart[i] == Ncpu_x[i]-1);
+        is_border[i][1] = (mpi_rank_cart[i] == mpi_dims_cart[i]-1);
     }
 }
 
@@ -175,11 +176,11 @@ void Grid::print_grid(std::ostream& os) const
     print_info(os, "Nghost[1]", Nghost[1]);
     print_info(os, "Nghost[2]", Nghost[2]);
 
-    print_info(os, "Ncpu", Ncpu);
+    print_info(os, "mpi_size", mpi_size);
 
-    print_info(os, "Ncpu_x[0]", Ncpu_x[0]);
-    print_info(os, "Ncpu_x[1]", Ncpu_x[1]);
-    print_info(os, "Ncpu_x[2]", Ncpu_x[2]);
+    print_info(os, "mpi_dims_cart[0]", mpi_dims_cart[0]);
+    print_info(os, "mpi_dims_cart[1]", mpi_dims_cart[1]);
+    print_info(os, "mpi_dims_cart[2]", mpi_dims_cart[2]);
 
     print_info(os, "Nx_glob_ng[0]", Nx_glob_ng[0]);
     print_info(os, "Nx_glob_ng[1]", Nx_glob_ng[1]);

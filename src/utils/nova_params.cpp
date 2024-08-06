@@ -29,9 +29,9 @@ Param::Param(INIReader const& reader)
     shift_grid = reader.Get("Grid", "shift_grid", "Off");
 
     mpi_device_aware = reader.GetBoolean("Parallelization", "mpi_device_aware", false);
-    Ncpu_x[0] = reader.GetInteger("Parallelization", "Ncpu_x", 0); // number of procs, default 0=>defined by MPI
-    Ncpu_x[1] = reader.GetInteger("Parallelization", "Ncpu_y", 0); // number of procs
-    Ncpu_x[2] = reader.GetInteger("Parallelization", "Ncpu_z", 0); // number of procs
+    mpi_dims_cart[0] = reader.GetInteger("Parallelization", "mpi_dims_cart_x", 0); // number of procs, default 0=>defined by MPI
+    mpi_dims_cart[1] = reader.GetInteger("Parallelization", "mpi_dims_cart_y", 0); // number of procs
+    mpi_dims_cart[2] = reader.GetInteger("Parallelization", "mpi_dims_cart_z", 0); // number of procs
 
     t_ini = reader.GetReal("Run", "t_ini", 0.);
     t_end = reader.GetReal("Run", "t_end", 0.2);
@@ -40,7 +40,7 @@ Param::Param(INIReader const& reader)
     max_iter = reader.GetInteger("Output", "max_iter", 10000);
     iter_output_frequency = reader.GetInteger("Output", "iter_frequency", 0);
     time_output_frequency = reader.GetReal("Output", "time_frequency", 0.0);
-    directory = reader.Get("Output", "directory", "../build");
+    directory = reader.Get("Output", "directory", ".");
     prefix = reader.Get("Output", "prefix", "result");
     time_job = reader.GetInteger("Output", "time_job", 20);
 

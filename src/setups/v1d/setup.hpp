@@ -106,7 +106,6 @@ public:
 
         // perturbation
         auto const& param_setup = m_param_setup;
-        //auto const& grid = m_grid;
         auto const xc = grid.x_center;
         auto const yc = grid.y_center;
         auto const zc = grid.z_center;
@@ -116,7 +115,7 @@ public:
 
         int const ny = rho.extent_int(1) - 2 * grid.Nghost[1];
         int const nz = rho.extent_int(2) - 2 * grid.Nghost[2];
-
+        int const ng_x = grid.Nghost[0];
         Kokkos::Random_XorShift64_Pool<> random_pool(54321);
         int kx1 = 60;
         int kx2 = 80;
@@ -162,7 +161,7 @@ public:
                     }
 
                     // r perturbation
-                    double xmin = x(grid.Nghost[0]);
+                    double xmin = x(ng_x);
                     double x0 = param_setup.xchoc - xmin;
                     double sigma = 0.1 * x0 * x0;
                     petrurb_r = Kokkos::exp(-(xc(i) - x0) * (xc(i) - x0) / sigma) * Kokkos::cos(kx1 * xc(i) + kx2 * xc(i));
