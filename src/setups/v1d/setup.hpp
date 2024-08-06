@@ -19,6 +19,8 @@
 #include <pdi.h>
 #include <string>
 #include <shift_criterion_interface.hpp>
+#include <hdf5.h>
+#include <io_hdf5.hpp>
 
 namespace novapp
 {
@@ -71,6 +73,12 @@ public:
         KDV_double_1d P_1d("P_1d", grid.Nx_local_ng[0]);
         KDV_double_2d fx_1d("fx_1d", grid.Nx_local_ng[0], fx.extent_int(3));
 
+        raii_h5_hid const file_id(::H5Fopen(m_param_setup.init_filename.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT), ::H5Fclose);
+        check_extent_dset(file_id, "/rho_1d", std::array {rho_1d.extent(0)});
+        check_extent_dset(file_id, "/u_1d", std::array {u_1d.extent(0)});
+        check_extent_dset(file_id, "/P_1d", std::array {P_1d.extent(0)});
+        check_extent_dset(file_id, "/fx_1d", std::array {fx_1d.extent(1), fx_1d.extent(0)});
+
         int const filename_size = m_param_setup.init_filename.size();
         PDI_multi_expose(
             "read_hydro_1d",
@@ -118,6 +126,10 @@ public:
         KVH_double_1d const& z_glob) const final
     {
         std::string const init_file = m_param.reader.Get("problem", "init_file", "");
+
+        raii_h5_hid const file_id(::H5Fopen(init_file.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT), ::H5Fclose);
+        check_extent_dset(file_id, "/x", std::array {x_glob.extent(0)});
+
         int const filename_size = init_file.size();
         PDI_multi_expose(
             "read_mesh_1d",
