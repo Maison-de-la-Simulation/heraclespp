@@ -58,10 +58,13 @@ elseif("${Novapp_GTest_DEPENDENCY_POLICY}" STREQUAL "INSTALLED")
 endif()
 
 # inih dependency
-set(Novapp_inih_DEPENDENCY_POLICY "EMBEDDED" CACHE STRING "Policy to find the `inih` package. Options: EMBEDDED")
+set(Novapp_inih_DEPENDENCY_POLICY "EMBEDDED" CACHE STRING "Policy to find the `inih` package. Options: ${Novapp_DEPENDENCY_POLICIES}")
 set_property(CACHE Novapp_inih_DEPENDENCY_POLICY PROPERTY STRINGS "EMBEDDED")
 if("${Novapp_inih_DEPENDENCY_POLICY}" STREQUAL "EMBEDDED")
   add_subdirectory(vendor/inih)
+elseif("${Novapp_inih_DEPENDENCY_POLICY}" STREQUAL "INSTALLED")
+  find_package(inih REQUIRED CONFIG)
+  enable_language(C) # required for cmake < 3.26.1 because of FindHDF5.cmake
 endif()
 
 # Kokkos dependency
