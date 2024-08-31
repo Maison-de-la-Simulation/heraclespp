@@ -130,11 +130,11 @@ inline InternalMassGravity make_internal_mass_gravity(
         throw std::runtime_error("The function make_internal_mass_gravity does not handle more than 1 MPI process");
     }
 
-    KV_double_1d g_array_dv("g_array", grid.Nx_local_wg[0]);
-    KV_double_1d dv_total("dv_mean_array", grid.Nx_local_ng[0] + grid.Nghost[0]); // sum dv
-    KV_double_1d rho_mean("rho_mean_array", grid.Nx_local_ng[0] + grid.Nghost[0]); // sum (rho * dv) / (sum dv)
+    KV_double_1d const g_array_dv("g_array", grid.Nx_local_wg[0]);
+    KV_double_1d const dv_total("dv_mean_array", grid.Nx_local_ng[0] + grid.Nghost[0]); // sum dv
+    KV_double_1d const rho_mean("rho_mean_array", grid.Nx_local_ng[0] + grid.Nghost[0]); // sum (rho * dv) / (sum dv)
 
-    KV_double_1d M_r("M_r_array", grid.Nx_local_wg[0]); // total mass at r
+    KV_double_1d const M_r("M_r_array", grid.Nx_local_wg[0]); // total mass at r
     double const M_star = param.M;
     auto const x = grid.x;
     auto const xc = grid.x_center;
@@ -152,9 +152,9 @@ inline InternalMassGravity make_internal_mass_gravity(
             {grid.Nx_local_ng[1], grid.Nx_local_ng[2]}),
             KOKKOS_LAMBDA(int j, int k, double& local_sum_mass, double& local_sum_dv)
             {
-                int offset_i = i + nghost[0];
-                int offset_j = j + nghost[1];
-                int offset_k = k + nghost[2];
+                int const offset_i = i + nghost[0];
+                int const offset_j = j + nghost[1];
+                int const offset_k = k + nghost[2];
                 local_sum_mass += rho(offset_i, offset_j, offset_k) * dv(offset_i, offset_j, offset_k);
                 local_sum_dv += dv(offset_i, offset_j, offset_k);
             },
@@ -182,8 +182,8 @@ inline InternalMassGravity make_internal_mass_gravity(
         Kokkos::RangePolicy<int>(grid.Nghost[0], grid.Nx_local_ng[0] + 2 * grid.Nghost[0]),
         KOKKOS_LAMBDA(int i, double& partial_sum, bool is_final)
         {
-            int offset  = i - nghost[0];
-            double x3 = x(i) * x(i) * x(i);
+            int const offset  = i - nghost[0];
+            double const x3 = x(i) * x(i) * x(i);
             if (i == nghost[0])
             {
                 partial_sum += M_star + 4. / 3 * units::pi * (xc(i) * xc(i) * xc(i) - x3) * rho_mean(offset);

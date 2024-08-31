@@ -56,10 +56,10 @@ public:
     InitializationSetup(
         EOS const& eos,
         ParamSetup const& param_set_up,
-        Gravity const& gravity)
+        Gravity gravity)
         : m_eos(eos)
         , m_param_setup(param_set_up)
-        , m_gravity(gravity)
+        , m_gravity(std::move(gravity))
     {
     }
 
@@ -74,7 +74,7 @@ public:
         assert(equal_extents({0, 1, 2}, rho, u, P, fx));
         assert(u.extent_int(3) == ndim);
 
-        double P0 = (10. / 7 + 1. / 4) * units::pressure;
+        double const P0 = (10. / 7 + 1. / 4) * units::pressure;
 
         auto const x_d = grid.x;
         auto const y_d = grid.y;
@@ -86,9 +86,9 @@ public:
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                double x = x_d(i) * units::m;
-                double y = y_d(j) * units::m;
-                double h = 0.01 * Kokkos::cos(4 * Kokkos::numbers::pi * x);
+                double const x = x_d(i) * units::m;
+                double const y = y_d(j) * units::m;
+                double const h = 0.01 * Kokkos::cos(4 * Kokkos::numbers::pi * x);
 
                 if (y >= h)
                 {

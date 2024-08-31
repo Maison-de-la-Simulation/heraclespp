@@ -69,13 +69,13 @@ namespace
 
 #if defined(NOVAPP_GRAVITY_Uniform)
 using Gravity = UniformGravity;
-std::string_view gravity_label("Uniform");
+std::string_view const gravity_label("Uniform");
 #elif defined(NOVAPP_GRAVITY_Point_mass)
 using Gravity = PointMassGravity;
-std::string_view gravity_label("Point_mass");
+std::string_view const gravity_label("Point_mass");
 #elif defined(NOVAPP_GRAVITY_Internal_mass)
 using Gravity = InternalMassGravity;
-std::string_view gravity_label("Internal_mass");
+std::string_view const gravity_label("Internal_mass");
 #else
 static_assert(false, "Gravity not defined");
 #endif
@@ -440,7 +440,7 @@ void novapp_main(int argc, char** argv)
         {
             if (grid.mpi_rank == 0)
             {
-                std::cout << "Shifting grid at time = " << t << ", iteration = " << iter << std::endl;
+                std::cout << "Shifting grid at time = " << t << ", iteration = " << iter << "\n" << std::flush;
             }
             shift_grid(rho.d_view, rhou.d_view, E.d_view, fx.d_view,
                        rho_new, rhou_new, E_new, fx_new,

@@ -114,26 +114,25 @@ private :
     Param m_param;
 
 public:
-    GridSetup(
-        Param const& param)
-        : IGridType()
-        , m_param(param)
+    explicit GridSetup(
+        Param param)
+        : m_param(std::move(param))
     {
     }
 
     void execute(
-        std::array<int, 3> Nghost,
-        std::array<int, 3> Nx_glob_ng,
+        std::array<int, 3> const Nghost,
+        std::array<int, 3> const Nx_glob_ng,
         KVH_double_1d const& x_glob,
         KVH_double_1d const& y_glob,
         KVH_double_1d const& z_glob) const final
     {
-        double Lx = m_param.xmax - m_param.xmin;
-        double dx = Lx / Nx_glob_ng[0];
+        double const Lx = m_param.xmax - m_param.xmin;
+        double const dx = Lx / Nx_glob_ng[0];
         x_glob(Nghost[0]) = m_param.xmin;
 
-        int quater_x = Nx_glob_ng[0] / 4;
-        int three_quaters_x = 3 * quater_x;
+        int const quater_x = Nx_glob_ng[0] / 4;
+        int const three_quaters_x = 3 * quater_x;
 
         for (int i = Nghost[0]+1; i < x_glob.extent_int(0) ; ++i)
         {
@@ -149,7 +148,7 @@ public:
             x_glob(i) = x_glob(i-1) + dxloc;
         }
 
-        double val_xmax = x_glob(x_glob.extent_int(0)-1 - Nghost[0]);
+        double const val_xmax = x_glob(x_glob.extent_int(0)-1 - Nghost[0]);
         for (int i = Nghost[0]; i < x_glob.extent_int(0); ++i)
         {
             x_glob(i) = m_param.xmax * x_glob(i) / val_xmax;
@@ -162,11 +161,11 @@ public:
         }
 
         // Y and Z
-        double Ly = m_param.ymax - m_param.ymin;
-        double dy = Ly / Nx_glob_ng[1];
+        double const Ly = m_param.ymax - m_param.ymin;
+        double const dy = Ly / Nx_glob_ng[1];
 
-        double Lz = m_param.zmax - m_param.zmin;
-        double dz = Lz / Nx_glob_ng[2];
+        double const Lz = m_param.zmax - m_param.zmin;
+        double const dz = Lz / Nx_glob_ng[2];
 
         for (int i = 0; i < y_glob.extent_int(0) ; ++i)
         {

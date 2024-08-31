@@ -50,10 +50,10 @@ private:
 public:
     InitializationSetup(
         EOS const& eos,
-        ParamSetup const& param_set_up,
+        ParamSetup param_set_up,
         [[maybe_unused]] Gravity const& gravity)
         : m_eos(eos)
-        , m_param_setup(param_set_up)
+        , m_param_setup(std::move(param_set_up))
     {
     }
 
@@ -113,14 +113,14 @@ private :
     Param m_param;
 
 public:
-    explicit GridSetup(Param const& param)
-        : m_param(param)
+    explicit GridSetup(Param param)
+        : m_param(std::move(param))
     {
     }
 
     void execute(
-        std::array<int, 3> Nghost,
-        std::array<int, 3> Nx_glob_ng,
+        std::array<int, 3> const Nghost,
+        std::array<int, 3> const Nx_glob_ng,
         KVH_double_1d const& x_glob,
         KVH_double_1d const& y_glob,
         KVH_double_1d const& z_glob) const final
@@ -150,8 +150,8 @@ private:
     ParamSetup m_param_setup;
 
 public:
-    explicit UserShiftCriterion(ParamSetup const& param_setup)
-        : m_param_setup(param_setup)
+    explicit UserShiftCriterion(ParamSetup param_setup)
+        : m_param_setup(std::move(param_setup))
     {
     }
 

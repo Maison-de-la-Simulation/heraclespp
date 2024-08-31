@@ -74,18 +74,17 @@ public:
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                double x = x_d(i) * units::m;
-                double y = y_d(j) * units::m;
-                double r = Kokkos::sqrt(x * x + y * y);
-                double theta = Kokkos::atan2(y, x);
-                double u_theta;
-                double P0 = 1. / (eos.adiabatic_index() * param_setup.Ma * param_setup.Ma);
+                double const x = x_d(i) * units::m;
+                double const y = y_d(j) * units::m;
+                double const r = Kokkos::sqrt(x * x + y * y);
+                double const theta = Kokkos::atan2(y, x);
+                double const P0 = 1. / (eos.adiabatic_index() * param_setup.Ma * param_setup.Ma);
 
                 rho(i, j, k) = param_setup.rho0 * units::density;
 
                 if (r < 0.2)
                 {
-                    u_theta = 5 * r;
+                    double const u_theta = 5 * r;
                     u(i, j, k, 0) = - u_theta * Kokkos::sin(theta);
                     u(i, j, k, 1) = u_theta * Kokkos::cos(theta);
 
@@ -94,7 +93,7 @@ public:
 
                 else if ((r >= 0.2) && (r < 0.4))
                 {
-                    u_theta = 2 - 5 * r;
+                    double const u_theta = 2 - 5 * r;
                     u(i, j, k, 0) = - u_theta * Kokkos::sin(theta);
                     u(i, j, k, 1) = u_theta * Kokkos::cos(theta);
 

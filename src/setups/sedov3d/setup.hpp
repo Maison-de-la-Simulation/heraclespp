@@ -75,8 +75,8 @@ public:
         auto const theta = grid.y;
         auto const phi = grid.z;
         auto const& dv = grid.dv;
-        int ny_2 = param_setup.ny / 2;
-        int nz_2 = param_setup.nz / 2;
+        int const ny_2 = param_setup.ny / 2;
+        int const nz_2 = param_setup.nz / 2;
 
 
         if (geom == Geometry::Geom_cartesian)
@@ -97,7 +97,7 @@ public:
 
                 if (r(i) == 1 && j == ny_2  && k == nz_2)
                 {
-                    double evol = param_setup.E1 / dv(i, j, k);
+                    double const evol = param_setup.E1 / dv(i, j, k);
                     P(i, j, k) = eos.compute_P_from_evol(rho(i, j, k), evol);
                 }
                 else
