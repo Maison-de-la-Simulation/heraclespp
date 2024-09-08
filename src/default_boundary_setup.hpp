@@ -3,13 +3,14 @@
 #include <stdexcept>
 
 #include <eos.hpp>
-#include <grid.hpp>
+#include <kokkos_shortcut.hpp>
 
 #include "boundary.hpp"
 
 namespace novapp
 {
 
+class Grid;
 class ParamSetup;
 
 template <class Gravity>

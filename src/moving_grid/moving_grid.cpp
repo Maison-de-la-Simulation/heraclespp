@@ -1,5 +1,6 @@
 #include <cassert>
 
+#include <Kokkos_Core.hpp>
 #include <grid.hpp>
 #include <kokkos_shortcut.hpp>
 

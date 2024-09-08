@@ -1,12 +1,15 @@
 #pragma once
 
+#include <array>
 #include <stdexcept>
 
 #include <grid_type.hpp>
-#include <nova_params.hpp>
+#include <kokkos_shortcut.hpp>
 
 namespace novapp
 {
+
+class Param;
 
 class GridSetup : public IGridType
 {

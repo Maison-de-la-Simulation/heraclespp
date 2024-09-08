@@ -1,7 +1,9 @@
-#include <utility>
+#include <string>
 
 #include <gtest/gtest.h>
 
+#include <Kokkos_Core.hpp>
+#include <Kokkos_DualView.hpp>
 #include <kokkos_shortcut.hpp>
 
 TEST(EqualExtents, SingleDimension)

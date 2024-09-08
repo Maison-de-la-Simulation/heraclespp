@@ -10,7 +10,6 @@
 #include <Kokkos_Core.hpp>
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
-#include <range.hpp>
 
 #include "array_conversion.hpp"
 #include "extrapolation_time.hpp"
@@ -18,6 +17,9 @@
 
 namespace novapp
 {
+
+class Grid;
+class Range;
 
 template <class Gravity>
 class IHydroReconstruction

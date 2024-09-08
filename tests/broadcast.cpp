@@ -1,6 +1,10 @@
+#include <string>
+
 #include <gtest/gtest.h>
 
+#include <Kokkos_Core.hpp>
 #include <broadcast.hpp>
+#include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
 #include <range.hpp>
 

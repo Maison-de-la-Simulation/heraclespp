@@ -1,11 +1,11 @@
+#include <algorithm>
 #include <array>
-#include <cstddef>
 #include <iterator>
-#include <utility>
+#include <set>
+#include <type_traits>
 
 #include <gtest/gtest.h>
 
-#include <Kokkos_Core.hpp>
 #include <range.hpp>
 
 class Partitioner

@@ -10,6 +10,7 @@
 #include <string>
 #include <type_traits>
 
+#include <Kokkos_Core.hpp>
 #include <geom.hpp>
 #include <grid.hpp>
 #include <kokkos_shortcut.hpp>

@@ -6,8 +6,11 @@
 #include <mpi.h>
 
 #include <array>
+#include <cassert>
 #include <memory>
+#include <string>
 
+#include <Kokkos_Core.hpp>
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
 #include <nova_params.hpp>

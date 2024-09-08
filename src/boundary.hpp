@@ -8,7 +8,6 @@
 #include <string>
 
 #include <kokkos_shortcut.hpp>
-#include <ndim.hpp>
 
 namespace novapp
 {

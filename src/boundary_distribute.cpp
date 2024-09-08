@@ -14,14 +14,11 @@
 #include <string>
 #include <vector>
 
-#include <inih/INIReader.hpp>
-
 #include <grid.hpp>
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
 #include <nova_params.hpp>
 
-#include "boundary.hpp"
 #include "boundary_distribute.hpp"
 
 namespace novapp

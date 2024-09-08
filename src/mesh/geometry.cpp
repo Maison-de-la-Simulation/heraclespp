@@ -2,10 +2,9 @@
 //! @file geometry.cpp
 //!
 
-#include <stdexcept>
+#include <string>
 
 #include <Kokkos_Core.hpp>
-#include <geom.hpp>
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
 

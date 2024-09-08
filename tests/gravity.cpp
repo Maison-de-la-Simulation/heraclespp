@@ -1,8 +1,18 @@
-#include <gtest/gtest.h>
+#include <array>
+#include <memory>
+#include <string>
 
+#include <gtest/gtest.h>
+#include <inih/INIReader.hpp>
+
+#include <Kokkos_Core.hpp>
 #include <gravity.hpp>
+#include <grid.hpp>
 #include <grid_type.hpp>
 #include <kokkos_shortcut.hpp>
+#include <ndim.hpp>
+#include <nova_params.hpp>
+#include <range.hpp>
 #include <units.hpp>
 
 namespace {

@@ -5,7 +5,11 @@
 
 #pragma once
 
+#include <cassert>
+
+#include <Kokkos_Core.hpp>
 #include <kokkos_shortcut.hpp>
+#include <ndim.hpp>
 #include <range.hpp>
 
 #include "euler_equations.hpp"

@@ -11,7 +11,6 @@
 #include <iosfwd>
 
 #include <kokkos_shortcut.hpp>
-#include <ndim.hpp>
 
 #include "range.hpp"
 

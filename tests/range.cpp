@@ -1,3 +1,6 @@
+#include <array>
+#include <stdexcept>
+
 #include <gtest/gtest.h>
 
 #include <ndim.hpp>

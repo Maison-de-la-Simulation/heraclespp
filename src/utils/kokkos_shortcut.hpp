@@ -4,9 +4,9 @@
 
 #pragma once
 
+#include <cstddef>
 #include <initializer_list>
-#include <numeric>
-#include <utility>
+
 #include <Kokkos_Core.hpp>
 #include <Kokkos_DualView.hpp>
 
@@ -85,8 +85,9 @@ bool equal_extents(
         View0 const& view0,
         Views const&... views) noexcept
 {
-    auto pred = [&](std::size_t const i) -> bool { return equal_extents(i, view0, views...); };
-    return std::all_of(idx.begin(), idx.end(), std::move(pred));
+    return std::all_of(idx.begin(), idx.end(), [&](std::size_t const i) -> bool {
+        return equal_extents(i, view0, views...);
+    });
 }
 
 } // namespace novapp

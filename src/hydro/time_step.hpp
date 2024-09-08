@@ -7,11 +7,12 @@
 
 #include <mpi.h>
 
+#include <cassert>
+
 #include <Kokkos_Core.hpp>
-#include <eos.hpp>
 #include <geom.hpp>
 #include <grid.hpp>
-#include <kronecker.hpp>
+#include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
 #include <range.hpp>
 

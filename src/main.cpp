@@ -8,26 +8,25 @@
 #include <array>
 #include <chrono>
 #include <cstdlib>
+#include <exception>
 #include <filesystem>
 #include <iomanip>
 #include <iostream>
-#include <limits>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
 #include <inih/INIReader.hpp>
 
-#include <PerfectGas.hpp>
-#include <RadGas.hpp>
+#include <Kokkos_Core.hpp>
 #include <array_conversion.hpp>
 #include <config.yaml.hpp>
 #include <eos.hpp>
-#include <euler_equations.hpp>
 #include <extrapolation_time.hpp>
 #include <face_reconstruction.hpp>
 #include <geom.hpp>
@@ -36,12 +35,12 @@
 #include <gravity.hpp>
 #include <grid.hpp>
 #include <grid_factory.hpp>
+#include <grid_type.hpp>
 #include <hydro_reconstruction.hpp>
 #include <integration.hpp>
 #include <internal_energy.hpp>
 #include <io.hpp>
 #include <kokkos_shortcut.hpp>
-#include <kronecker.hpp>
 #include <moving_grid.hpp>
 #include <ndim.hpp>
 #include <nova_params.hpp>
@@ -52,6 +51,7 @@
 #include <range.hpp>
 #include <temperature.hpp>
 #include <time_step.hpp>
+#include <user_step.hpp>
 #include <user_step_factory.hpp>
 
 #include "boundary.hpp"

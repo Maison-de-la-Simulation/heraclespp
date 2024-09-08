@@ -2,6 +2,11 @@
 //! @file integration.hpp
 //!
 
+#include <mpi.h>
+
+#include <string>
+
+#include <Kokkos_Core.hpp>
 #include <grid.hpp>
 #include <kokkos_shortcut.hpp>
 #include <range.hpp>

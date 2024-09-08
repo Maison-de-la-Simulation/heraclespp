@@ -2,6 +2,8 @@
 //! @file shift_criterion_interface.cpp
 //!
 
+#include <kokkos_shortcut.hpp>
+
 #include "shift_criterion_interface.hpp"
 
 namespace novapp

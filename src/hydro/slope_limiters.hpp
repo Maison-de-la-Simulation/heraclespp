@@ -5,7 +5,8 @@
 
 #pragma once
 
-#include <Kokkos_Core.hpp>
+#include <Kokkos_Macros.hpp>
+#include <Kokkos_MathematicalFunctions.hpp>
 
 namespace novapp
 {

@@ -1,6 +1,8 @@
 #include <mpi.h>
 
 #include <array>
+#include <cassert>
+#include <cstddef>
 #include <fstream>
 #include <iomanip>
 #include <ostream>
@@ -14,6 +16,7 @@
 #include <git_version.hpp>
 #include <grid.hpp>
 #include <hdf5.h>
+#include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
 #include <nova_params.hpp>
 #include <pdi.h>

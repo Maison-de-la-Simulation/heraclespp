@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <Kokkos_Core.hpp>
 #include <kokkos_shortcut.hpp>
 #include <range.hpp>
 

@@ -6,9 +6,10 @@
 
 #include <array>
 #include <memory>
+#include <vector>
 
-#include <inih/INIReader.hpp>
-
+#include <Kokkos_Core.hpp>
+#include <Kokkos_DualView.hpp>
 #include <grid.hpp>
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>

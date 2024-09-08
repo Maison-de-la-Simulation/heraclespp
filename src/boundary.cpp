@@ -3,11 +3,12 @@
 //!
 
 #include <array>
+#include <cassert>
 #include <string>
 
+#include <Kokkos_Core.hpp>
 #include <grid.hpp>
 #include <kokkos_shortcut.hpp>
-#include <ndim.hpp>
 
 #include "boundary.hpp"
 

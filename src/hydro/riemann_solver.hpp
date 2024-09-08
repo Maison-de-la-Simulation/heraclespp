@@ -4,7 +4,10 @@
 
 #pragma once
 
-#include <Kokkos_Core.hpp>
+#include <Kokkos_Assert.hpp>
+#include <Kokkos_Macros.hpp>
+#include <Kokkos_MathematicalFunctions.hpp>
+#include <ndim.hpp>
 
 #include "euler_equations.hpp"
 

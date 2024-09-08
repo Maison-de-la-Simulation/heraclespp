@@ -1,11 +1,13 @@
+#include <string>
+
 #include <gtest/gtest.h>
 
 #include <Kokkos_Core.hpp>
-#include <Kokkos_DualView.hpp>
 #include <PerfectGas.hpp>
 #include <array_conversion.hpp>
 #include <euler_equations.hpp>
 #include <kokkos_shortcut.hpp>
+#include <ndim.hpp>
 #include <range.hpp>
 
 TEST(Conversions, PrimToCons)
