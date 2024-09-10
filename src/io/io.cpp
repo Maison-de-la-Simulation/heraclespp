@@ -87,7 +87,7 @@ void print_simulation_status(
         double const time_out,
         int const output_id)
 {
-    int mpi_rank;
+    int mpi_rank = 0;
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
     if (mpi_rank == 0) {
         std::stringstream ss;
