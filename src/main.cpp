@@ -507,7 +507,7 @@ void novapp_main(int argc, char** argv)
     PC_tree_destroy(&conf);
 }
 
-}
+} // namespace
 
 int main(int argc, char** argv)
 {

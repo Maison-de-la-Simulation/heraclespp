@@ -88,7 +88,7 @@ void TestGravityInternalGravity()
     EXPECT_NEAR(error / norm, 0., 1e-14);
 }
 
-}
+} // namespace
 
 TEST(Gravity, InternalGravity)
 {

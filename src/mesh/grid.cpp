@@ -51,7 +51,7 @@ void compute_cell_center(KV_cdouble_1d const& x, KV_double_1d const& x_center)
         });
 }
 
-}
+} // namespace
 
 Grid::Grid(Param const& param)
     : Ng(param.Ng)

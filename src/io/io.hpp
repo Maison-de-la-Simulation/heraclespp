@@ -82,4 +82,4 @@ public:
             KDV_double_1d& z) const;
 };
 
-}
+} // namespace novapp
