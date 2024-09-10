@@ -7,7 +7,11 @@
 
 #include <algorithm>
 #include <array>
+#include <cassert>
 #include <cstddef>
+#ifndef NDEBUG
+#include <limits>
+#endif
 #include <numeric>
 #include <sstream>
 #include <stdexcept>
@@ -110,9 +114,11 @@ void DistributedBoundaryCondition::ghost_sync(
     int dst = 0;
     MPI_Cart_shift(grid.comm_cart, bc_idim, bc_iface == 0 ? -1 : 1, &src, &dst);
 
+    // check that it is not bigger than the capacity of an `int` (because of MPI API)
+    assert(buf.h_view.size() <= std::numeric_limits<int>::max());
     MPI_Sendrecv_replace(
             ptr,
-            buf.h_view.size(),
+            static_cast<int>(buf.h_view.size()),
             MPI_DOUBLE,
             dst,
             bc_idim,

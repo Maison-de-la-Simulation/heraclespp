@@ -56,7 +56,7 @@ bool span_is_contiguous(Views const&... views)
     return (views.span_is_contiguous() && ...);
 }
 
-std::string get_output_filename(std::string const& prefix, int const num) {
+std::string get_output_filename(std::string const& prefix, std::size_t const num) {
     std::ostringstream output_filename;
     output_filename << prefix;
     output_filename << '_';
@@ -142,9 +142,9 @@ void write_pdi(
     KDV_double_3d& T)
 {
     assert(span_is_contiguous(rho, u, P, E, fx, T));
-    int const directory_size = directory.size();
+    int const directory_size = static_cast<int>(directory.size());
     std::string const output_filename = get_output_filename(prefix, output_id);
-    int const output_filename_size = output_filename.size();
+    int const output_filename_size = static_cast<int>(output_filename.size());
     sync_host(rho, u, P, E, fx, T, x, y, z);
     PDI_multi_expose(
         "write_replicated_data",
@@ -224,7 +224,7 @@ void read_pdi(
     check_extent_dset(file_id, "/y", std::array {y_glob.extent(0)});
     check_extent_dset(file_id, "/z", std::array {z_glob.extent(0)});
 
-    int const filename_size = restart_file.size();
+    int const filename_size = static_cast<int>(restart_file.size());
     PDI_multi_expose(
         "read_file",
         "nullptr", nullptr, PDI_OUT,
@@ -290,7 +290,7 @@ void XmlWriter::operator()(
 
     int const precision = sizeof(double);
 
-    int const first_output_id = output_id + 1 - outputs_record.size();
+    std::size_t const first_output_id = output_id + 1 - outputs_record.size();
     for (std::size_t i = 0; i < outputs_record.size(); ++i)
     {
         xdmfFile << indent(6) << "<Grid";

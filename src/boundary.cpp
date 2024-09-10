@@ -87,7 +87,7 @@ void reflexive_condition(int m_bc_idim, int m_bc_iface,
     }
     end[m_bc_idim] = begin[m_bc_idim] + ng;
 
-    int const mirror = m_bc_iface == 0 ? (2 * ng - 1) : (2 * (rho.extent(m_bc_idim) - ng) - 1);
+    int const mirror = m_bc_iface == 0 ? (2 * ng - 1) : (2 * (rho.extent_int(m_bc_idim) - ng) - 1);
     int const& bc_idim = m_bc_idim;
     Kokkos::parallel_for(
         m_label,

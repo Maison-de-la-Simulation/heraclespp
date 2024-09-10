@@ -4,6 +4,7 @@
 #include <Kokkos_Core.hpp>
 #include <mpi.h>
 #include <units.hpp>
+#include <numeric>
 #include <random>
 
 #include <inih/INIReader.hpp>
@@ -100,12 +101,9 @@ public:
         std::cout << "[MPI process "<< mpi_rank <<"] dk = " << dk << std::endl; */
 
         Kokkos::Array<int, 5> kx;
+        std::iota(kx.data(), kx.data() + 5, 0);
         Kokkos::Array<int, 5> ky;
-        for (std::size_t i = 0; i < Kokkos::Array<int, 5>::size(); ++i)
-        {
-            kx[i] = i;
-            ky[i] = i;
-        }
+        std::iota(ky.data(), ky.data() + 5, 0);
         //------
 
         double const L = 10;
