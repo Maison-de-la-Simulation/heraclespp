@@ -135,12 +135,12 @@ public:
         auto const& param_setup = m_param_setup;
         double const mu = m_eos.mean_molecular_weight();
 
-        int const ng = grid.Nghost[this->m_bc_idim];
-        if (this->m_bc_iface == 1)
+        int const ng = grid.Nghost[this->bc_idim()];
+        if (this->bc_iface() == 1)
         {
-            begin[this->m_bc_idim] = rho.extent_int(this->m_bc_idim) - ng;
+            begin[this->bc_idim()] = rho.extent_int(this->bc_idim()) - ng;
         }
-        end[this->m_bc_idim] = begin[this->m_bc_idim] + ng;
+        end[this->bc_idim()] = begin[this->bc_idim()] + ng;
 
         Kokkos::parallel_for(
             m_label,

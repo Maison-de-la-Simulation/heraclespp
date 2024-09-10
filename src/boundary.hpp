@@ -36,9 +36,21 @@ void reflexive_condition(int m_bc_idim, int m_bc_iface,
 template <class Gravity>
 class IBoundaryCondition
 {
-protected:
+private:
     int m_bc_idim;
+
     int m_bc_iface;
+
+protected:
+    [[nodiscard]] int bc_idim() const noexcept
+    {
+        return m_bc_idim;
+    }
+
+    [[nodiscard]] int bc_iface() const noexcept
+    {
+        return m_bc_iface;
+    }
 
 public:
     IBoundaryCondition(int idim, int iface) : m_bc_idim(idim), m_bc_iface(iface) {}
@@ -81,7 +93,7 @@ public:
                  KV_double_3d const& E,
                  KV_double_4d const& fx) const final
     {
-        null_gradient_condition(this->m_bc_idim, this->m_bc_iface, m_label, grid, rho, rhou, E, fx);
+        null_gradient_condition(this->bc_idim(), this->bc_iface(), m_label, grid, rho, rhou, E, fx);
     }
 };
 
@@ -123,7 +135,7 @@ public:
                  KV_double_3d const& E,
                  KV_double_4d const& fx) const final
     {
-        reflexive_condition(this->m_bc_idim, this->m_bc_iface, m_label, grid, rho, rhou, E, fx);
+        reflexive_condition(this->bc_idim(), this->bc_iface(), m_label, grid, rho, rhou, E, fx);
     }
 };
 
