@@ -62,9 +62,7 @@
 #include "setup.hpp"
 #include "shift_criterion_interface.hpp"
 
-using namespace novapp;
-
-namespace
+namespace novapp
 {
 
 #if defined(NOVAPP_GRAVITY_Uniform)
@@ -101,7 +99,7 @@ std::string display_help_message(std::filesystem::path const& executable)
     return ss.str();
 }
 
-void novapp_main(int argc, char** argv)
+void main(int argc, char** argv)
 {
     if (argc < 2)
     {
@@ -507,13 +505,13 @@ void novapp_main(int argc, char** argv)
     PC_tree_destroy(&conf);
 }
 
-} // namespace
+} // namespace novapp
 
 int main(int argc, char** argv)
 {
     try
     {
-        novapp_main(argc, argv);
+        novapp::main(argc, argv);
     }
     catch(std::exception const& e)
     {
