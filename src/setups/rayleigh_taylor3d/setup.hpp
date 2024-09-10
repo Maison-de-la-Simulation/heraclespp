@@ -81,9 +81,9 @@ public:
             std::mt19937 const gen(rd());
             std::uniform_real_distribution<double> dist(-1.0, 1.0);
 
-            for(std::size_t i = 0; i < data_to_broadcast.size() ; ++i)
+            for(double& data : data_to_broadcast)
             {
-                data_to_broadcast[i] = dist(rd);
+                data = dist(rd);
             }
         }
 
