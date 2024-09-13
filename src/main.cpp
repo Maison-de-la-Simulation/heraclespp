@@ -147,7 +147,8 @@ void main(int argc, char** argv)
         grid.print_grid(std::cout);
 
         print_info(std::cout, "setup", MY_SETUP);
-        print_info(std::cout, "eos", eos_choice);
+        print_info(std::cout, "nfx", param.nfx);
+	print_info(std::cout, "eos", eos_choice);
         print_info(std::cout, "geometry", geom_choice);
         print_info(std::cout, "gravity", gravity_label);
         print_info(std::cout, "pressure_fix", param.pressure_fix);
@@ -498,7 +499,8 @@ void main(int argc, char** argv)
         std::cout << "Final time = " << t << " and number of iterations = " << iter << '\n';
         std::cout << "Mean performance: " << mega * nb_cell_updates_per_sec << " Mcell-updates/s\n";
         std::cout << "Initial mass = " << initial_mass << " and change in mass = " << mass_change << '\n';
-        std::cout << "--- End ---\n";
+	std::cout << "bench_nova:" << nx_glob_ng << ";" << ny_glob_ng << ";" << nz_glob_ng << ";" << param.nfx << ";" << geom_choice << ";" << nb_cell_updates_per_sec << ";" << grid.mpi_size << '\n';
+	std::cout << "--- End ---\n";
     }
 
     PDI_finalize();

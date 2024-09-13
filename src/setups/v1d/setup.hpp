@@ -77,7 +77,7 @@ public:
         check_extent_dset(file_id, "/rho_1d", std::array {rho_1d.extent(0)});
         check_extent_dset(file_id, "/u_1d", std::array {u_1d.extent(0)});
         check_extent_dset(file_id, "/P_1d", std::array {P_1d.extent(0)});
-        check_extent_dset(file_id, "/fx_1d", std::array {fx_1d.extent(1), fx_1d.extent(0)});
+//        check_extent_dset(file_id, "/fx_1d", std::array {fx_1d.extent(1), fx_1d.extent(0)});
 
         int const filename_size = m_param_setup.init_filename.size();
         PDI_multi_expose(
