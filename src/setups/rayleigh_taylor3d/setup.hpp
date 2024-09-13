@@ -155,7 +155,7 @@ public:
 
                     P(i, j, k) = P0 * Kokkos::pow(rho(i, j, k) / param_setup.rho0, gamma) * units::pressure;
 
-                    fx(i, j, k, 0) = 1;
+//                    fx(i, j, k, 0) = 1;
                 }
 
                 if(z < h)
@@ -165,7 +165,7 @@ public:
 
                     P(i, j, k) = P0 * Kokkos::pow(rho(i, j, k) / param_setup.rho1, gamma) * units::pressure;
 
-                    fx(i, j, k, 0) = 0;
+//                    fx(i, j, k, 0) = 0;
                 }
 
                 for (int idim = 0; idim < ndim; ++idim)

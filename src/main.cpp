@@ -399,14 +399,14 @@ void main(int argc, char** argv)
             }
         }
 
-        double const min_internal_energy = minimum_internal_energy(grid.range.no_ghosts(), grid, rho.d_view, rhou.d_view, E.d_view);
+        /* double const min_internal_energy = minimum_internal_energy(grid.range.no_ghosts(), grid, rho.d_view, rhou.d_view, E.d_view);
         if (Kokkos::isnan(min_internal_energy) || min_internal_energy < 0)
         {
             std::stringstream ss;
             ss << "Time = " << t << ", iteration = " << iter;
             ss << ": detected invalid volumic internal energy";
             throw std::runtime_error(ss.str());
-        }
+        }*/
 
         reconstruction->execute(grid.range.with_ghosts(1), grid, *g, dt/2,
                                 rho.d_view, u.d_view, P.d_view, fx.d_view,
