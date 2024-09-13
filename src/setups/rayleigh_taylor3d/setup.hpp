@@ -137,7 +137,7 @@ public:
                 {
                     for (std::size_t jk = 0; jk < Kokkos::Array<int, 5>::size(); ++jk)
                     {
-                        double const K = kx[ik] * kx[ik] + ky[jk] + ky[jk];
+                        double const K = kx[ik] * kx[ik] + ky[jk] * ky[jk];
                         if (K >= 8 && K <= 16)
                         {
                             h += (ak * Kokkos::cos(kx[ik] * X) * Kokkos::cos(ky[jk] * Y)
