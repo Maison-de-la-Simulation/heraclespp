@@ -166,7 +166,7 @@ void main(int argc, char** argv)
     write_pdi_init(grid, param);
 
     std::string bc_choice_dir;
-    std::array<std::string, ndim*2> bc_choice_faces;
+    std::array<std::string, nfaces> bc_choice_faces;
     for(int idim = 0; idim < ndim; ++idim)
     {
         bc_choice_dir = reader.Get("Boundary Condition", std::string("BC").append(bc_dir[idim]), param.bc_choice);
@@ -261,7 +261,7 @@ void main(int argc, char** argv)
     }
 
     // Create the operators of the main time loop
-    std::array<std::unique_ptr<IBoundaryCondition<Gravity>>, ndim * 2> bcs_array;
+    std::array<std::unique_ptr<IBoundaryCondition<Gravity>>, nfaces> bcs_array;
     for(int idim = 0; idim < ndim; ++idim)
     {
         for(int iface = 0; iface < 2; ++iface)

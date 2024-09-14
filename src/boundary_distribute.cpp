@@ -30,20 +30,20 @@ namespace novapp
 
 namespace {
 
-void generate_order(std::array<int, ndim * 2>& bc_order, std::string const& bc_priority)
+void generate_order(std::array<int, nfaces>& bc_order, std::string const& bc_priority)
 {
     if (bc_priority.empty()) {
         std::iota(bc_order.begin(), bc_order.end(), 0); // bc_order = {0,1,2,3,4,5};
         return;
     }
-    std::array<std::string, ndim * 2> tmp_arr;
+    std::array<std::string, nfaces> tmp_arr;
     std::stringstream ssin(bc_priority);
-    for (int i = 0; i < ndim * 2 && ssin.good(); ++i) {
+    for (int i = 0; i < nfaces && ssin.good(); ++i) {
         ssin >> tmp_arr[i];
     }
 
     int counter = 0;
-    for (int i = 0; i < ndim * 2; ++i) {
+    for (int i = 0; i < nfaces; ++i) {
         if (tmp_arr[i] == "X_left") {
             bc_order[0] = i;
             ++counter;
@@ -65,7 +65,7 @@ void generate_order(std::array<int, ndim * 2>& bc_order, std::string const& bc_p
         }
     }
     std::reverse(bc_order.begin(), bc_order.end());
-    if (counter != ndim * 2) {
+    if (counter != nfaces) {
         throw std::runtime_error("boundary priority not fully defined !");
     }
 }

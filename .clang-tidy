@@ -2,7 +2,6 @@ Checks:
 "
 bugprone-*,
 -bugprone-easily-swappable-parameters,
--bugprone-implicit-widening-of-multiplication-result,
 cert-*,
 clang-analyzer-*,
 -clang-analyzer-optin.cplusplus.UninitializedObject,

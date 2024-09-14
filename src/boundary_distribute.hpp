@@ -26,7 +26,7 @@ class DistributedBoundaryCondition
 
 private:
     std::array<mpi_buffer_type, ndim> m_mpi_buffer;
-    std::array<int, ndim*2> m_bc_order;
+    std::array<int, nfaces> m_bc_order;
     Param m_param;
 
     void ghost_sync(Grid const& grid, std::vector<KV_double_3d> const& views, int bc_idim, int bc_iface) const;
@@ -37,7 +37,7 @@ public:
             Param const& param);
 
     template <class Gravity>
-    void operator()(std::array<std::unique_ptr<IBoundaryCondition<Gravity>>, ndim * 2> const& bcs,
+    void operator()(std::array<std::unique_ptr<IBoundaryCondition<Gravity>>, nfaces> const& bcs,
                     Grid const& grid,
                     Gravity const& gravity,
                     KV_double_3d const& rho,
