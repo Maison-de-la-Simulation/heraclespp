@@ -15,8 +15,8 @@
 namespace novapp
 {
 
-std::array<std::string, 3> const bc_dir {"_X", "_Y", "_Z"};
-std::array<std::string, 2> const bc_face {"_left", "_right"};
+std::array<std::string_view, 3> const bc_dir {"_X", "_Y", "_Z"};
+std::array<std::string_view, 2> const bc_face {"_left", "_right"};
 
 
 void null_gradient_condition(int m_bc_idim, int m_bc_iface,
