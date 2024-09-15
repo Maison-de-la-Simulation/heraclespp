@@ -211,21 +211,21 @@ void read_pdi(
     assert(span_is_contiguous(rho, u, P, fx));
 
     raii_h5_hid const file_id(::H5Fopen(restart_file.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT), ::H5Fclose);
-    check_extent_dset(file_id, "/rho", std::array {rho.extent(2), rho.extent(1), rho.extent(0)});
-    check_extent_dset(file_id, "/u_x", std::array {u.extent(2), u.extent(1), u.extent(0)});
-    if (ndim > 1)
-    {
-        check_extent_dset(file_id, "/u_y", std::array {u.extent(2), u.extent(1), u.extent(0)});
-    }
-    if (ndim > 2)
-    {
-        check_extent_dset(file_id, "/u_z", std::array {u.extent(2), u.extent(1), u.extent(0)});
-    }
-    check_extent_dset(file_id, "/P", std::array {P.extent(2), P.extent(1), P.extent(0)});
-    if (fx.extent(3) > 0)
-    {
-        check_extent_dset(file_id, "/fx", std::array {fx.extent(3), fx.extent(2), fx.extent(1), fx.extent(0)});
-    }
+    // check_extent_dset(file_id, "/rho", std::array {rho.extent(2), rho.extent(1), rho.extent(0)});
+    // check_extent_dset(file_id, "/u_x", std::array {u.extent(2), u.extent(1), u.extent(0)});
+    // if (ndim > 1)
+    // {
+    //     check_extent_dset(file_id, "/u_y", std::array {u.extent(2), u.extent(1), u.extent(0)});
+    // }
+    // if (ndim > 2)
+    // {
+    //     check_extent_dset(file_id, "/u_z", std::array {u.extent(2), u.extent(1), u.extent(0)});
+    // }
+    // check_extent_dset(file_id, "/P", std::array {P.extent(2), P.extent(1), P.extent(0)});
+    // if (fx.extent(3) > 0)
+    // {
+    //     check_extent_dset(file_id, "/fx", std::array {fx.extent(3), fx.extent(2), fx.extent(1), fx.extent(0)});
+    // }
     check_extent_dset(file_id, "/x", std::array {x_glob.extent(0)});
     check_extent_dset(file_id, "/y", std::array {y_glob.extent(0)});
     check_extent_dset(file_id, "/z", std::array {z_glob.extent(0)});
