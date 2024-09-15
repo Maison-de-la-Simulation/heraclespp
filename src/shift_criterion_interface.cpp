@@ -17,9 +17,9 @@ IShiftCriterion::IShiftCriterion(IShiftCriterion&& rhs) noexcept = default;
 
 IShiftCriterion::~IShiftCriterion() noexcept = default;
 
-IShiftCriterion& IShiftCriterion::operator=(IShiftCriterion const& rhs) = default;
+IShiftCriterion& IShiftCriterion::operator=(IShiftCriterion const& /*rhs*/) = default;
 
-IShiftCriterion& IShiftCriterion::operator=(IShiftCriterion&& rhs) noexcept = default;
+IShiftCriterion& IShiftCriterion::operator=(IShiftCriterion&& /*rhs*/) noexcept = default;
 
 bool NoShiftGrid::execute(
     [[maybe_unused]] Range const& range,

@@ -22,9 +22,9 @@ IUserStep::IUserStep(IUserStep&& rhs) noexcept = default;
 
 IUserStep::~IUserStep() noexcept = default;
 
-IUserStep& IUserStep::operator=(IUserStep const& rhs) = default;
+IUserStep& IUserStep::operator=(IUserStep const& /*rhs*/) = default;
 
-IUserStep& IUserStep::operator=(IUserStep&& rhs) noexcept = default;
+IUserStep& IUserStep::operator=(IUserStep&& /*rhs*/) noexcept = default;
 
 
 void NoUserStep::execute(
