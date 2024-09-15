@@ -106,6 +106,7 @@ void write_pdi_init(
     int const simu_ndim = ndim;
     int const simu_nfx = param.nfx;
 
+    // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     PDI_multi_expose(
         "init_PDI",
         "nullptr", nullptr, PDI_OUT,
@@ -119,6 +120,7 @@ void write_pdi_init(
         "grid_communicator", &grid.comm_cart, PDI_OUT,
         "mpi_rank", &grid.mpi_rank, PDI_OUT,
         nullptr);
+    // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
 }
 
 void write_pdi(
@@ -146,6 +148,7 @@ void write_pdi(
     std::string const output_filename = get_output_filename(prefix, output_id);
     int const output_filename_size = static_cast<int>(output_filename.size());
     sync_host(rho, u, P, E, fx, T, x, y, z);
+    // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     PDI_multi_expose(
         "write_replicated_data",
         "nullptr", nullptr, PDI_OUT,
@@ -163,6 +166,8 @@ void write_pdi(
         "y", y.h_view.data(), PDI_OUT,
         "z", z.h_view.data(), PDI_OUT,
         nullptr);
+    // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
+    // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     PDI_multi_expose(
         "write_distributed_data",
         "nullptr", nullptr, PDI_OUT,
@@ -177,6 +182,7 @@ void write_pdi(
         "fx", fx.h_view.data(), PDI_OUT,
         "T", T.h_view.data(), PDI_OUT,
         nullptr);
+    // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     if (grid.mpi_rank == 0)
     {
         raii_h5_hid const file_id(::H5Fopen((directory + '/' + output_filename).c_str(), H5F_ACC_RDWR, H5P_DEFAULT), H5Fclose);
@@ -225,6 +231,7 @@ void read_pdi(
     check_extent_dset(file_id, "/z", std::array {z_glob.extent(0)});
 
     int const filename_size = static_cast<int>(restart_file.size());
+    // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     PDI_multi_expose(
         "read_file",
         "nullptr", nullptr, PDI_OUT,
@@ -243,6 +250,7 @@ void read_pdi(
         "y", y_glob.h_view.data(), PDI_INOUT,
         "z", z_glob.h_view.data(), PDI_INOUT,
         nullptr);
+    // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     modify_host(rho, u, P, fx, x_glob, y_glob, z_glob);
 }
 

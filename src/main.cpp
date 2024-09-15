@@ -112,29 +112,29 @@ void main(int argc, char** argv)
 
     INIReader const reader(argv[1]);
 
-    std::filesystem::path io_config_path;
+    std::filesystem::path pdi_config_path;
     for(int iarg = 2; iarg < argc; ++iarg)
     {
         std::string_view const arg(argv[iarg]);
-        std::string_view const option_name("--io-config=");
+        std::string_view const option_name("--pdi-config=");
         if (arg.find(option_name) == 0)
         {
             std::string_view option_value = arg;
             option_value.remove_prefix(option_name.size());
-            io_config_path = option_value;
+            pdi_config_path = option_value;
         }
     }
 
     PC_tree_t conf;
-    if (!io_config_path.empty())
+    if (!pdi_config_path.empty())
     {
-        conf = PC_parse_path(io_config_path.c_str());
+        conf = PC_parse_path(pdi_config_path.c_str());
     }
     else
     {
         conf = PC_parse_string(io_config);
     }
-    PDI_init(PC_get(conf, ".pdi"));
+    PDI_init(conf);
 
     Param const param(reader);
     ParamSetup const param_setup(reader);

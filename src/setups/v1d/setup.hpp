@@ -80,6 +80,7 @@ public:
         check_extent_dset(file_id, "/fx_1d", std::array {fx_1d.extent(1), fx_1d.extent(0)});
 
         int const filename_size = m_param_setup.init_filename.size();
+        // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
         PDI_multi_expose(
             "read_hydro_1d",
             "nullptr", nullptr, PDI_OUT,
@@ -90,6 +91,7 @@ public:
             "P_1d", P_1d.h_view.data(), PDI_INOUT,
             "fx_1d", fx_1d.h_view.data(), PDI_INOUT,
             nullptr);
+        // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
         modify_host(rho_1d, u_1d, P_1d, fx_1d);
         sync_device(rho_1d, u_1d, P_1d, fx_1d);
 
@@ -131,6 +133,7 @@ public:
         check_extent_dset(file_id, "/x", std::array {x_glob.extent(0)});
 
         int const filename_size = init_file.size();
+        // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
         PDI_multi_expose(
             "read_mesh_1d",
             "nullptr", nullptr, PDI_OUT,
@@ -138,6 +141,7 @@ public:
             "init_filename", init_file.data(), PDI_OUT,
             "x", x_glob.data(), PDI_INOUT,
             nullptr);
+        // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
 
         compute_regular_mesh_1d(y_glob, Nghost[1], m_param.ymin, (m_param.ymax - m_param.ymin) / Nx_glob_ng[1]);
         compute_regular_mesh_1d(z_glob, Nghost[2], m_param.zmin, (m_param.zmax - m_param.zmin) / Nx_glob_ng[2]);
