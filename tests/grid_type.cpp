@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <Kokkos_Core.hpp>
 #include <grid_type.hpp>
 
 TEST(GridType, ComputeRegularMesh1d)

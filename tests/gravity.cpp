@@ -1,8 +1,18 @@
-#include <gtest/gtest.h>
+#include <array>
+#include <memory>
+#include <string>
 
+#include <gtest/gtest.h>
+#include <inih/INIReader.hpp>
+
+#include <Kokkos_Core.hpp>
 #include <gravity.hpp>
+#include <grid.hpp>
 #include <grid_type.hpp>
 #include <kokkos_shortcut.hpp>
+#include <ndim.hpp>
+#include <nova_params.hpp>
+#include <range.hpp>
 #include <units.hpp>
 
 namespace {
@@ -50,7 +60,7 @@ void TestGravityInternalGravity()
     grid.set_grid(x_glob.d_view, y_glob.d_view, z_glob.d_view);
 
     double const rho_value = 1E10;
-    novapp::KV_double_3d rho("rho", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
+    novapp::KV_double_3d const rho("rho", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
     Kokkos::deep_copy(rho, rho_value);
 
     // Numerical gravitational field
@@ -58,11 +68,11 @@ void TestGravityInternalGravity()
 
     // Theoritical gravitational field
     auto xc = grid.x_center;
-    novapp::KV_double_1d g_th("g_th", grid.Nx_local_wg[0]);
+    novapp::KV_double_1d const g_th("g_th", grid.Nx_local_wg[0]);
     Kokkos::deep_copy(g_th, 0.);
     Kokkos::parallel_for("", novapp::cell_mdrange(grid.range.no_ghosts()), KOKKOS_LAMBDA(int i, int, int)
     {
-        double M_i = 4. / 3 * novapp::units::pi * rho_value * (xc(i) * xc(i) * xc(i) - xmin * xmin * xmin);
+        double const M_i = 4. / 3 * novapp::units::pi * rho_value * (xc(i) * xc(i) * xc(i) - xmin * xmin * xmin);
         g_th(i) = - novapp::units::G * (M_star + M_i) / (xc(i) * xc(i));
     });
 
@@ -78,7 +88,7 @@ void TestGravityInternalGravity()
     EXPECT_NEAR(error / norm, 0., 1e-14);
 }
 
-}
+} // namespace
 
 TEST(Gravity, InternalGravity)
 {

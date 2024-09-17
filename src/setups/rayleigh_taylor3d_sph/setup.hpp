@@ -48,10 +48,10 @@ public:
     InitializationSetup(
         thermodynamics::PerfectGas const& eos,
         ParamSetup const& param_set_up,
-        Gravity const& gravity)
+        Gravity gravity)
         : m_eos(eos)
         , m_param_setup(param_set_up)
-        , m_gravity(gravity)
+        , m_gravity(std::move(gravity))
     {
     }
 
@@ -72,8 +72,8 @@ public:
         auto const& param_setup = m_param_setup;
         auto const& eos = m_eos;
 
-        double R = 0.1;
-        Kokkos::Random_XorShift64_Pool<> random_pool(12345 + grid.mpi_rank);
+        double const R = 0.1;
+        Kokkos::Random_XorShift64_Pool<> const random_pool(12345 + grid.mpi_rank);
 
         Kokkos::parallel_for(
             "Rayleigh_Taylor_3D_sph_init",
@@ -81,8 +81,8 @@ public:
             KOKKOS_LAMBDA(int i, int j, int k)
             {
                 auto generator = random_pool.get_state();
-                double random_number = generator.drand(-1.0, 1.0);
-                double perturb = (1 + 0.01 * random_number);
+                double const random_number = generator.drand(-1.0, 1.0);
+                double const perturb = (1 + 0.01 * random_number);
                 random_pool.free_state(generator);
 
                 double eint;

@@ -2,6 +2,9 @@
 //! @file user_step.cpp
 //!
 
+#include <string>
+
+#include <Kokkos_Core.hpp>
 #include <kokkos_shortcut.hpp>
 #include <range.hpp>
 #include <units.hpp>
@@ -19,9 +22,9 @@ IUserStep::IUserStep(IUserStep&& rhs) noexcept = default;
 
 IUserStep::~IUserStep() noexcept = default;
 
-IUserStep& IUserStep::operator=(IUserStep const& rhs) = default;
+IUserStep& IUserStep::operator=(IUserStep const& /*rhs*/) = default;
 
-IUserStep& IUserStep::operator=(IUserStep&& rhs) noexcept = default;
+IUserStep& IUserStep::operator=(IUserStep&& /*rhs*/) noexcept = default;
 
 
 void NoUserStep::execute(

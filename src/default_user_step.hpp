@@ -2,10 +2,13 @@
 
 #include <stdexcept>
 
+#include <kokkos_shortcut.hpp>
 #include <user_step.hpp>
 
 namespace novapp
 {
+
+class Range;
 
 class UserStep : public IUserStep
 {

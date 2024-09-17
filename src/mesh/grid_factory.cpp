@@ -6,12 +6,12 @@
 #include <stdexcept>
 #include <string>
 
-#include <nova_params.hpp>
-
 #include "grid_type.hpp"
 
 namespace novapp
 {
+
+class Param;
 
 std::unique_ptr<IGridType> factory_grid_type(
     std::string const& grid,

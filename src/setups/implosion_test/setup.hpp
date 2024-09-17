@@ -77,8 +77,8 @@ public:
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                double x = x_d(i) * units::m;
-                double y = y_d(j) * units::m;
+                double const x = x_d(i) * units::m;
+                double const y = y_d(j) * units::m;
 
                 if (x + y >  0.15)
                 {

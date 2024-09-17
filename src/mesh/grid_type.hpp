@@ -7,10 +7,11 @@
 #include <array>
 
 #include <kokkos_shortcut.hpp>
-#include <nova_params.hpp>
 
 namespace novapp
 {
+
+class Param;
 
 void compute_regular_mesh_1d(KVH_double_1d const& x, int ng, double xmin, double dx) noexcept;
 

@@ -64,20 +64,20 @@ public:
         auto const y_d = grid.y;
         auto const& param_setup = m_param_setup;
 
-        double drho_rho = 1;
-        double a = 0.05;
-        double amp = 0.01;
-        double sigma = 0.2;
-        double y1 = 0.5;
-        double y2 = 1.5;
+        double const drho_rho = 1;
+        double const a = 0.05;
+        double const amp = 0.01;
+        double const sigma = 0.2;
+        double const y1 = 0.5;
+        double const y2 = 1.5;
 
         Kokkos::parallel_for(
             "Kelvin_Helmholtz_init",
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                double x = x_d(i) * units::m;
-                double y = y_d(j) * units::m;
+                double const x = x_d(i) * units::m;
+                double const y = y_d(j) * units::m;
 
                 rho(i, j, k)  = 1 + drho_rho * (Kokkos::tanh((y - y1) / a) - Kokkos::tanh((y - y2) / a));
 

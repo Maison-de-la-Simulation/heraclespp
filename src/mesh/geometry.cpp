@@ -2,10 +2,9 @@
 //! @file geometry.cpp
 //!
 
-#include <stdexcept>
+#include <string>
 
 #include <Kokkos_Core.hpp>
-#include <geom.hpp>
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
 
@@ -23,9 +22,9 @@ IComputeGeom::IComputeGeom(IComputeGeom&& rhs) noexcept = default;
 
 IComputeGeom::~IComputeGeom() noexcept = default;
 
-IComputeGeom& IComputeGeom::operator=(IComputeGeom const& rhs) = default;
+IComputeGeom& IComputeGeom::operator=(IComputeGeom const& /*rhs*/) = default;
 
-IComputeGeom& IComputeGeom::operator=(IComputeGeom&& rhs) noexcept = default;
+IComputeGeom& IComputeGeom::operator=(IComputeGeom&& /*rhs*/) noexcept = default;
 
 void Cartesian::execute(
     Range const& range,

@@ -95,10 +95,9 @@ private :
     Param m_param;
 
 public:
-    GridSetup(
-        Param const& param)
-        : IGridType()
-        , m_param(param)
+    explicit GridSetup(
+        Param param)
+        : m_param(std::move(param))
     {
         // regular grid
     }
@@ -118,7 +117,7 @@ public:
             dx *= 1.005;
         }
 
-        double val_xmax = x_glob(x_glob.extent_int(0)-1 - Nghost[0]);
+        double const val_xmax = x_glob(x_glob.extent_int(0)-1 - Nghost[0]);
         for (int i = Nghost[0]; i < x_glob.extent_int(0); ++i)
         {
             x_glob(i) = m_param.xmax * x_glob(i) / val_xmax;
@@ -127,16 +126,16 @@ public:
         // Reflexive X-left ghost cells
         for(int i = Nghost[0]-1; i >= 0; i--)
         {
-            int mirror = Nghost[0] -  2 * i + 1;
+            int const mirror = Nghost[0] -  2 * i + 1;
             x_glob(i) = x_glob(i+1) - (x_glob(i+mirror+1) - x_glob(i+mirror));
         }
 
         // Y and Z
-        double Ly = m_param.ymax - m_param.ymin;
-        double dy = Ly / Nx_glob_ng[1];
+        double const Ly = m_param.ymax - m_param.ymin;
+        double const dy = Ly / Nx_glob_ng[1];
 
-        double Lz = m_param.zmax - m_param.zmin;
-        double dz = Lz / Nx_glob_ng[2];
+        double const Lz = m_param.zmax - m_param.zmin;
+        double const dz = Lz / Nx_glob_ng[2];
 
         for (int i = 0; i < y_glob.extent_int(0) ; ++i)
         {

@@ -1,12 +1,15 @@
 #pragma once
 
-#include <grid.hpp>
-#include "range.hpp"
+#include <stdexcept>
+
+#include <kokkos_shortcut.hpp>
 #include <shift_criterion_interface.hpp>
 
 namespace novapp {
 
+class Grid;
 class ParamSetup;
+class Range;
 
 class UserShiftCriterion : public IShiftCriterion
 {

@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <string>
+
 #include <Kokkos_Core.hpp>
 #include <units.hpp>
 
@@ -47,10 +49,10 @@ public:
     InitializationSetup(
         EOS const& eos,
         ParamSetup const& param_setup,
-        Gravity const& gravity)
+        Gravity gravity)
         : m_eos(eos)
         , m_param_setup(param_setup)
-        , m_gravity(gravity)
+        , m_gravity(std::move(gravity))
     {
     }
 
@@ -69,7 +71,7 @@ public:
         auto const& eos = m_eos;
         auto const& gravity = m_gravity;
         auto const& param_setup = m_param_setup;
-        double mu = m_eos.mean_molecular_weight();
+        double const mu = m_eos.mean_molecular_weight();
         /* std::cout <<"Scale = " << units::kb * m_param_setup.T
             / (mu * units::mp * Kokkos::fabs(g(0))) << std::endl; */
 
@@ -78,7 +80,7 @@ public:
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                double x0 = units::kb * param_setup.T * units::Kelvin
+                double const x0 = units::kb * param_setup.T * units::Kelvin
                         / (mu * units::mp * Kokkos::fabs(gravity(i, j, k, 0)) * units::acc);
 
                 rho(i, j, k) = param_setup.rho0 * units::density * Kokkos::exp(- xc(i) / x0);
@@ -107,7 +109,7 @@ public:
         [[maybe_unused]] EOS const& eos,
         [[maybe_unused]] ParamSetup const& param_setup)
         : IBoundaryCondition<Gravity>(idim, iface)
-        , m_label("UserDefined" + bc_dir[idim] + bc_face[iface])
+        , m_label(std::string("UserDefined").append(bc_dir[idim]).append(bc_face[iface]))
         , m_eos(eos)
         , m_param_setup(param_setup)
     {
@@ -133,23 +135,23 @@ public:
         auto const xc = grid.x_center;
         auto const& eos = m_eos;
         auto const& param_setup = m_param_setup;
-        double mu = m_eos.mean_molecular_weight();
+        double const mu = m_eos.mean_molecular_weight();
 
-        int const ng = grid.Nghost[this->m_bc_idim];
-        if (this->m_bc_iface == 1)
+        int const ng = grid.Nghost[this->bc_idim()];
+        if (this->bc_iface() == 1)
         {
-            begin[this->m_bc_idim] = rho.extent_int(this->m_bc_idim) - ng;
+            begin[this->bc_idim()] = rho.extent_int(this->bc_idim()) - ng;
         }
-        end[this->m_bc_idim] = begin[this->m_bc_idim] + ng;
+        end[this->bc_idim()] = begin[this->bc_idim()] + ng;
 
         Kokkos::parallel_for(
             m_label,
             Kokkos::MDRangePolicy<int, Kokkos::Rank<3>>(begin, end),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                double gravity_x = gravity(i, j, k, 0) * units::acc;
+                double const gravity_x = gravity(i, j, k, 0) * units::acc;
 
-                double x0 = units::kb * param_setup.T * units::Kelvin
+                double const x0 = units::kb * param_setup.T * units::Kelvin
                         / (mu * units::mp * Kokkos::fabs(gravity_x));
 
                 rho(i, j, k) = param_setup.rho0 * units::density * Kokkos::exp(- xc(i) / x0);

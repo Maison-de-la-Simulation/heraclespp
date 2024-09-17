@@ -56,7 +56,7 @@ cmake \
     -D CMAKE_BUILD_TYPE=Release \
     -D CMAKE_CXX_COMPILER=hipcc \
     -D CMAKE_CXX_FLAGS="-isystem${CRAY_HDF5_PARALLEL_PREFIX}/include" \
-    -D CMAKE_EXE_LINKER_FLAGS="-L${CRAY_HDF5_PARALLEL_PREFIX}/lib -lhdf5_parallel" \
+    -D CMAKE_EXE_LINKER_FLAGS="-L${CRAY_HDF5_PARALLEL_PREFIX}/lib -lhdf5_hl_parallel -lhdf5_parallel" \
     -D Kokkos_ARCH_AMD_GFX90A=ON \
     -D Kokkos_ARCH_ZEN3=ON \
     -D Kokkos_ENABLE_DEPRECATED_CODE_4=OFF \

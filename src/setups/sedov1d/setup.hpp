@@ -98,12 +98,12 @@ public:
                     u(i, j, k, idim) = param_setup.u0 * units::velocity;
                 }
 
-                double T = eos.compute_T_from_evol(rho(i, j, k), param_setup.E0 / dv_beg * units::evol);
+                double const T = eos.compute_T_from_evol(rho(i, j, k), param_setup.E0 / dv_beg * units::evol);
                 P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), T) * units::pressure;
 
                 if(mpi_rank == 0 && i == 2)
                 {
-                    double T_perturb = eos.compute_T_from_evol(rho(i, j, k), alpha * param_setup.E1 / dv_beg * units::evol);
+                    double const T_perturb = eos.compute_T_from_evol(rho(i, j, k), alpha * param_setup.E1 / dv_beg * units::evol);
                     P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), T_perturb) * units::pressure;
                 }
             });

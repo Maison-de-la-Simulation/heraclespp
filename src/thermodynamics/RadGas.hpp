@@ -77,7 +77,6 @@ public:
     [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
     double compute_T_from_P(double const rho, double const P) const noexcept
     {
-        double T;
         double const C1 = rho * units::kb / (m_mmw * units::mp);
         double const Tg = P / C1;
         double const Tr = Kokkos::pow(3 * P / units::ar, 1. / 4);
@@ -86,7 +85,7 @@ public:
         {
             T0 = Tr;
         }
-        T = T0;
+        double T = T0;
         int static constexpr max_itr = 100;
         int itr = 0;
         double delta_T = 0;
@@ -114,7 +113,6 @@ public:
     double compute_T_from_evol(double const rho, double const evol) const noexcept
     {
         // evol = rho * eint
-        double T;
         double const C1 = rho * units::kb / (m_mmw * units::mp * m_gamma_m1);
         double const Tg = evol / C1;
         double const Tr = Kokkos::pow(evol / units::ar, 1. / 4);
@@ -123,7 +121,7 @@ public:
         {
             T0 = Tr;
         }
-        T = T0;
+        double T = T0;
         int static constexpr max_itr = 100;
         int itr = 0;
         double delta_T = 0;
@@ -158,7 +156,7 @@ public:
         double const num = m_gamma / (m_gamma - 1) + 20 * alpha + 16 * alpha * alpha;
         double const den = 1. / (m_gamma - 1) + 12 * alpha;
         double const gamma_eff = num / den;
-        return Kokkos::sqrt(gamma_eff * P / rho);
+        return Kokkos::sqrt(gamma_eff * Pg / rho);
     }
 
     KOKKOS_FORCEINLINE_FUNCTION

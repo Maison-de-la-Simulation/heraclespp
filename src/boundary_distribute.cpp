@@ -7,21 +7,22 @@
 
 #include <algorithm>
 #include <array>
+#include <cassert>
 #include <cstddef>
+#ifndef NDEBUG
+#include <limits>
+#endif
 #include <numeric>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
-#include <inih/INIReader.hpp>
-
 #include <grid.hpp>
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
 #include <nova_params.hpp>
 
-#include "boundary.hpp"
 #include "boundary_distribute.hpp"
 
 namespace novapp
@@ -29,20 +30,20 @@ namespace novapp
 
 namespace {
 
-void generate_order(std::array<int, ndim * 2>& bc_order, std::string const& bc_priority)
+void generate_order(std::array<int, nfaces>& bc_order, std::string const& bc_priority)
 {
     if (bc_priority.empty()) {
         std::iota(bc_order.begin(), bc_order.end(), 0); // bc_order = {0,1,2,3,4,5};
         return;
     }
-    std::array<std::string, ndim * 2> tmp_arr;
+    std::array<std::string, nfaces> tmp_arr;
     std::stringstream ssin(bc_priority);
-    for (int i = 0; i < ndim * 2 && ssin.good(); ++i) {
+    for (int i = 0; i < nfaces && ssin.good(); ++i) {
         ssin >> tmp_arr[i];
     }
 
     int counter = 0;
-    for (int i = 0; i < ndim * 2; ++i) {
+    for (int i = 0; i < nfaces; ++i) {
         if (tmp_arr[i] == "X_left") {
             bc_order[0] = i;
             ++counter;
@@ -64,7 +65,7 @@ void generate_order(std::array<int, ndim * 2>& bc_order, std::string const& bc_p
         }
     }
     std::reverse(bc_order.begin(), bc_order.end());
-    if (counter != ndim * 2) {
+    if (counter != nfaces) {
         throw std::runtime_error("boundary priority not fully defined !");
     }
 }
@@ -109,13 +110,15 @@ void DistributedBoundaryCondition::ghost_sync(
         ptr = buf.d_view.data();
     }
 
-    int src;
-    int dst;
+    int src = 0;
+    int dst = 0;
     MPI_Cart_shift(grid.comm_cart, bc_idim, bc_iface == 0 ? -1 : 1, &src, &dst);
 
+    // check that it is not bigger than the capacity of an `int` (because of MPI API)
+    assert(buf.h_view.size() <= std::numeric_limits<int>::max());
     MPI_Sendrecv_replace(
             ptr,
-            buf.h_view.size(),
+            static_cast<int>(buf.h_view.size()),
             MPI_DOUBLE,
             dst,
             bc_idim,

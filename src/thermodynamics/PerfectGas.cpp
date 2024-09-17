@@ -1,6 +1,5 @@
 #include <stdexcept>
 
-#include <Kokkos_Macros.hpp>
 #include <Kokkos_MathematicalFunctions.hpp>
 
 #include "PerfectGas.hpp"

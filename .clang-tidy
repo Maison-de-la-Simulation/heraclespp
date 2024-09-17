@@ -1,0 +1,32 @@
+Checks:
+"
+bugprone-*,
+-bugprone-easily-swappable-parameters,
+cert-*,
+clang-analyzer-*,
+clang-diagnostic-*,
+concurrency-*,
+cppcoreguidelines-*,
+-cppcoreguidelines-avoid-magic-numbers,
+-cppcoreguidelines-pro-bounds-constant-array-index,
+-cppcoreguidelines-pro-bounds-pointer-arithmetic,
+-cppcoreguidelines-pro-type-member-init,
+google-*,
+hicpp-*,
+-hicpp-member-init,
+misc-*,
+-misc-include-cleaner,
+modernize-*,
+-modernize-use-trailing-return-type,
+mpi-*,
+openmp-*,
+performance-*,
+portability-*,
+readability-*,
+-readability-identifier-length,
+-readability-magic-numbers,
+-readability-function-cognitive-complexity
+"
+CheckOptions:
+  - key: misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
+    value: 'true'

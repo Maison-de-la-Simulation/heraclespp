@@ -6,8 +6,11 @@
 #include <mpi.h>
 
 #include <array>
+#include <cassert>
 #include <memory>
+#include <string>
 
+#include <Kokkos_Core.hpp>
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
 #include <nova_params.hpp>
@@ -48,7 +51,7 @@ void compute_cell_center(KV_cdouble_1d const& x, KV_double_1d const& x_center)
         });
 }
 
-}
+} // namespace
 
 Grid::Grid(Param const& param)
     : Ng(param.Ng)

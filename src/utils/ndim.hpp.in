@@ -12,4 +12,6 @@ inline constexpr int ndim = @Novapp_NDIM@;
 static_assert(ndim > 0, "ndim > 0");
 static_assert(ndim < 4, "ndim < 4");
 
+inline constexpr int nfaces = 2 * ndim;
+
 } // namespace novapp

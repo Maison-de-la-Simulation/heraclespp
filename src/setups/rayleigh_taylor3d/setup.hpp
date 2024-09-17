@@ -4,6 +4,7 @@
 #include <Kokkos_Core.hpp>
 #include <mpi.h>
 #include <units.hpp>
+#include <numeric>
 #include <random>
 
 #include <inih/INIReader.hpp>
@@ -52,10 +53,10 @@ public:
     InitializationSetup(
         thermodynamics::PerfectGas const& eos,
         ParamSetup const& param_set_up,
-        Gravity const& gravity)
+        Gravity gravity)
         : m_eos(eos)
         , m_param_setup(param_set_up)
-        , m_gravity(gravity)
+        , m_gravity(std::move(gravity))
     {
     }
 
@@ -70,29 +71,29 @@ public:
         assert(equal_extents({0, 1, 2}, rho, u, P, fx));
         assert(u.extent_int(3) == ndim);
 
-        int mpi_rank = grid.mpi_rank;
-        MPI_Comm comm_cart = grid.comm_cart;
+        int const mpi_rank = grid.mpi_rank;
+        MPI_Comm const comm_cart = grid.comm_cart;
 
         std::array<double, 4> data_to_broadcast;
 
         if (mpi_rank == 0)
         {
             std::random_device rd;
-            std::mt19937 gen(rd());
+            std::mt19937 const gen(rd());
             std::uniform_real_distribution<double> dist(-1.0, 1.0);
 
-            for(std::size_t i = 0; i < data_to_broadcast.size() ; ++i)
+            for(double& data : data_to_broadcast)
             {
-                data_to_broadcast[i] = dist(rd);
+                data = dist(rd);
             }
         }
 
         MPI_Bcast(data_to_broadcast.data(), 4, MPI_DOUBLE, 0, comm_cart);
 
-        double ak = data_to_broadcast[0];
-        double bk = data_to_broadcast[1];
-        double ck = data_to_broadcast[2];
-        double dk = data_to_broadcast[3];
+        double const ak = data_to_broadcast[0];
+        double const bk = data_to_broadcast[1];
+        double const ck = data_to_broadcast[2];
+        double const dk = data_to_broadcast[3];
 
         /* std::cout << "[MPI process "<< mpi_rank <<"] ak = " << ak << std::endl;
         std::cout << "[MPI process "<< mpi_rank <<"] bk = " << bk << std::endl;
@@ -100,16 +101,13 @@ public:
         std::cout << "[MPI process "<< mpi_rank <<"] dk = " << dk << std::endl; */
 
         Kokkos::Array<int, 5> kx;
+        std::iota(kx.data(), kx.data() + 5, 0);
         Kokkos::Array<int, 5> ky;
-        for (std::size_t i = 0; i < kx.size(); ++i)
-        {
-            kx[i] = i;
-            ky[i] = i;
-        }
+        std::iota(ky.data(), ky.data() + 5, 0);
         //------
 
-        double L = 10;
-        double gamma = 5. / 3;
+        double const L = 10;
+        double const gamma = 5. / 3;
         // double hrms = 3E-4 * L;
         // double H = Kokkos::sqrt((1. / 4) * (ak * ak + bk * bk + ck * ck + dk * dk)) / hrms;
 
@@ -124,22 +122,22 @@ public:
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                double P0 = (2 * units::pi * (param_setup.rho0 + param_setup.rho1)
+                double const P0 = (2 * units::pi * (param_setup.rho0 + param_setup.rho1)
                     * Kokkos::fabs(gravity(i, j, k, 2)) * L) * units::pressure;
 
-                double x = x_d(i) * units::m;
-                double y = y_d(j) * units::m;
-                double z = z_d(k) * units::m;
+                double const x = x_d(i) * units::m;
+                double const y = y_d(j) * units::m;
+                double const z = z_d(k) * units::m;
 
-                double X = 2 * units::pi * x / L;
-                double Y = 2 * units::pi * y / L;
+                double const X = 2 * units::pi * x / L;
+                double const Y = 2 * units::pi * y / L;
                 double h = 0;
 
-                for (std::size_t ik = 0; ik < kx.size(); ++ik)
+                for (std::size_t ik = 0; ik < Kokkos::Array<int, 5>::size(); ++ik)
                 {
-                    for (std::size_t jk = 0; jk < ky.size(); ++jk)
+                    for (std::size_t jk = 0; jk < Kokkos::Array<int, 5>::size(); ++jk)
                     {
-                        double K = kx[ik] * kx[ik] + ky[jk] + ky[jk];
+                        double const K = kx[ik] * kx[ik] + ky[jk] * ky[jk];
                         if (K >= 8 && K <= 16)
                         {
                             h += (ak * Kokkos::cos(kx[ik] * X) * Kokkos::cos(ky[jk] * Y)

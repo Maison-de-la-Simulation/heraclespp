@@ -15,8 +15,8 @@ IInitializationProblem::IInitializationProblem(IInitializationProblem&& rhs) noe
 
 IInitializationProblem::~IInitializationProblem() noexcept = default;
 
-IInitializationProblem& IInitializationProblem::operator=(IInitializationProblem const& rhs) = default;
+IInitializationProblem& IInitializationProblem::operator=(IInitializationProblem const& /*rhs*/) = default;
 
-IInitializationProblem& IInitializationProblem::operator=(IInitializationProblem&& rhs) noexcept = default;
+IInitializationProblem& IInitializationProblem::operator=(IInitializationProblem&& /*rhs*/) noexcept = default;
 
 } // namespace novapp

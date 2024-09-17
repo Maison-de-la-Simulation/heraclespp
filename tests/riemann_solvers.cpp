@@ -1,7 +1,10 @@
+#include <utility>
+
 #include <gtest/gtest.h>
 
 #include <PerfectGas.hpp>
-#include <godunov_scheme.hpp>
+#include <euler_equations.hpp>
+#include <riemann_solver.hpp>
 
 template <class RiemannSolver>
 class RiemannSolverFixture : public ::testing::Test

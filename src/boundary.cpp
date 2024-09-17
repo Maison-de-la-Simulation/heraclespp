@@ -3,19 +3,20 @@
 //!
 
 #include <array>
+#include <cassert>
 #include <string>
 
+#include <Kokkos_Core.hpp>
 #include <grid.hpp>
 #include <kokkos_shortcut.hpp>
-#include <ndim.hpp>
 
 #include "boundary.hpp"
 
 namespace novapp
 {
 
-std::array<std::string, 3> const bc_dir {"_X", "_Y", "_Z"};
-std::array<std::string, 2> const bc_face {"_left", "_right"};
+std::array<std::string_view, 3> const bc_dir {"_X", "_Y", "_Z"};
+std::array<std::string_view, 2> const bc_face {"_left", "_right"};
 
 
 void null_gradient_condition(int m_bc_idim, int m_bc_iface,
@@ -86,7 +87,7 @@ void reflexive_condition(int m_bc_idim, int m_bc_iface,
     }
     end[m_bc_idim] = begin[m_bc_idim] + ng;
 
-    int const mirror = m_bc_iface == 0 ? (2 * ng - 1) : (2 * (rho.extent(m_bc_idim) - ng) - 1);
+    int const mirror = m_bc_iface == 0 ? (2 * ng - 1) : (2 * (rho.extent_int(m_bc_idim) - ng) - 1);
     int const& bc_idim = m_bc_idim;
     Kokkos::parallel_for(
         m_label,

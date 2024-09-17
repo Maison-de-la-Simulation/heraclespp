@@ -120,7 +120,7 @@ build-job:cuda:3d:
   needs: ["env-job:common:gtest"]
   variables:
     GTest_ROOT: $CI_PROJECT_DIR/opt/gtest
-    NVCC_WRAPPER_DEFAULT_COMPILER: g++-11
+    NVCC_WRAPPER_DEFAULT_COMPILER: g++-13
   script:
     - cmake -B build-kokkos -S vendor/kokkos -DCMAKE_CXX_COMPILER=$CI_PROJECT_DIR/vendor/kokkos/bin/nvcc_wrapper -DCMAKE_CXX_EXTENSIONS=OFF -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_CUDA=ON -DKokkos_ARCH_AMPERE80=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_COMPILER_WARNINGS=ON
     - cmake --build build-kokkos
@@ -208,10 +208,13 @@ clang-tidy-job:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: lint
-  needs: []
+  needs: ["env-job:common:gtest", "env-job:serial:kokkos"]
+  variables:
+    GTest_ROOT: $CI_PROJECT_DIR/opt/gtest
+    Kokkos_ROOT: $CI_PROJECT_DIR/opt/kokkos
   script:
-    - cmake -B build -S . -DCMAKE_CXX_COMPILER=clang++-14 -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBUILD_TESTING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF
-    - find src tests -path src/deprecated -prune -o -name '*.cpp' -exec clang-tidy -p build -header-filter=$CI_PROJECT_DIR/src/.* --checks="-*,bugprone-*,-bugprone-easily-swappable-parameters,-bugprone-exception-escape,-bugprone-implicit-widening-of-multiplication-result,-bugprone-narrowing-conversions,hicpp-*,-hicpp-member-init,-hicpp-vararg,misc-*,-misc-non-private-member-variables-in-classes,-misc-unused-parameters,mpi-*,modernize-use-nodiscard,openmp-*,performance-*,readability-*,-readability-identifier-length,-readability-magic-numbers,-readability-function-cognitive-complexity" --warnings-as-errors="*" '{}' '+'
+    - cmake -B build -S . -DCMAKE_CXX_COMPILER=clang++-18 -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBUILD_TESTING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED
+    - find src tests -name '*.cpp' -exec clang-tidy-18 -p build -header-filter=$CI_PROJECT_DIR/src/.* --warnings-as-errors="*" '{}' '+'
 
 trailing-whitespaces-job:
   rules:

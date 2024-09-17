@@ -4,7 +4,9 @@
 
 #pragma once
 
-#include <Kokkos_Core.hpp>
+#include <Kokkos_Array.hpp>
+#include <Kokkos_Assert.hpp>
+#include <Kokkos_Macros.hpp>
 #include <ndim.hpp>
 
 namespace novapp

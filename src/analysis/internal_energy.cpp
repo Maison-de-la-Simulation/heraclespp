@@ -1,3 +1,8 @@
+#include <mpi.h>
+
+#include <string>
+
+#include <Kokkos_Core.hpp>
 #include <euler_equations.hpp>
 #include <grid.hpp>
 #include <kokkos_shortcut.hpp>

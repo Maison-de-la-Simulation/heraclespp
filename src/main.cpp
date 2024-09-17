@@ -8,26 +8,25 @@
 #include <array>
 #include <chrono>
 #include <cstdlib>
+#include <exception>
 #include <filesystem>
 #include <iomanip>
 #include <iostream>
-#include <limits>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
 #include <inih/INIReader.hpp>
 
-#include <PerfectGas.hpp>
-#include <RadGas.hpp>
+#include <Kokkos_Core.hpp>
 #include <array_conversion.hpp>
 #include <config.yaml.hpp>
 #include <eos.hpp>
-#include <euler_equations.hpp>
 #include <extrapolation_time.hpp>
 #include <face_reconstruction.hpp>
 #include <geom.hpp>
@@ -36,12 +35,12 @@
 #include <gravity.hpp>
 #include <grid.hpp>
 #include <grid_factory.hpp>
+#include <grid_type.hpp>
 #include <hydro_reconstruction.hpp>
 #include <integration.hpp>
 #include <internal_energy.hpp>
 #include <io.hpp>
 #include <kokkos_shortcut.hpp>
-#include <kronecker.hpp>
 #include <moving_grid.hpp>
 #include <ndim.hpp>
 #include <nova_params.hpp>
@@ -52,6 +51,7 @@
 #include <range.hpp>
 #include <temperature.hpp>
 #include <time_step.hpp>
+#include <user_step.hpp>
 #include <user_step_factory.hpp>
 
 #include "boundary.hpp"
@@ -62,20 +62,18 @@
 #include "setup.hpp"
 #include "shift_criterion_interface.hpp"
 
-using namespace novapp;
-
-namespace
+namespace novapp
 {
 
 #if defined(NOVAPP_GRAVITY_Uniform)
 using Gravity = UniformGravity;
-std::string_view gravity_label("Uniform");
+std::string_view const gravity_label("Uniform");
 #elif defined(NOVAPP_GRAVITY_Point_mass)
 using Gravity = PointMassGravity;
-std::string_view gravity_label("Point_mass");
+std::string_view const gravity_label("Point_mass");
 #elif defined(NOVAPP_GRAVITY_Internal_mass)
 using Gravity = InternalMassGravity;
-std::string_view gravity_label("Internal_mass");
+std::string_view const gravity_label("Internal_mass");
 #else
 static_assert(false, "Gravity not defined");
 #endif
@@ -101,7 +99,7 @@ std::string display_help_message(std::filesystem::path const& executable)
     return ss.str();
 }
 
-void novapp_main(int argc, char** argv)
+void main(int argc, char** argv)
 {
     if (argc < 2)
     {
@@ -114,29 +112,29 @@ void novapp_main(int argc, char** argv)
 
     INIReader const reader(argv[1]);
 
-    std::filesystem::path io_config_path;
+    std::filesystem::path pdi_config_path;
     for(int iarg = 2; iarg < argc; ++iarg)
     {
         std::string_view const arg(argv[iarg]);
-        std::string_view const option_name("--io-config=");
+        std::string_view const option_name("--pdi-config=");
         if (arg.find(option_name) == 0)
         {
             std::string_view option_value = arg;
             option_value.remove_prefix(option_name.size());
-            io_config_path = option_value;
+            pdi_config_path = option_value;
         }
     }
 
     PC_tree_t conf;
-    if (!io_config_path.empty())
+    if (!pdi_config_path.empty())
     {
-        conf = PC_parse_path(io_config_path.c_str());
+        conf = PC_parse_path(pdi_config_path.c_str());
     }
     else
     {
         conf = PC_parse_string(io_config);
     }
-    PDI_init(PC_get(conf, ".pdi"));
+    PDI_init(conf);
 
     Param const param(reader);
     ParamSetup const param_setup(reader);
@@ -168,19 +166,18 @@ void novapp_main(int argc, char** argv)
     write_pdi_init(grid, param);
 
     std::string bc_choice_dir;
-    std::array<std::string, ndim*2> bc_choice_faces;
+    std::array<std::string, nfaces> bc_choice_faces;
     for(int idim = 0; idim < ndim; ++idim)
     {
-        bc_choice_dir = reader.Get("Boundary Condition", "BC" + bc_dir[idim], param.bc_choice);
+        bc_choice_dir = reader.Get("Boundary Condition", std::string("BC").append(bc_dir[idim]), param.bc_choice);
         for (int iface = 0; iface < 2; ++iface)
         {
             bc_choice_faces[idim * 2 + iface] = reader.Get("Boundary Condition",
-                                                       "BC" + bc_dir[idim]+bc_face[iface],
+                                                       std::string("BC").append(bc_dir[idim]).append(bc_face[iface]),
                                                        bc_choice_dir);
             if(bc_choice_faces[idim * 2 + iface].empty() )
             {
-                throw std::runtime_error("boundary condition not fully defined for dimension "
-                                         + bc_dir[idim]);
+                throw std::runtime_error(std::string("boundary condition not fully defined for dimension ").append(bc_dir[idim]));
             }
         }
     }
@@ -264,7 +261,7 @@ void novapp_main(int argc, char** argv)
     }
 
     // Create the operators of the main time loop
-    std::array<std::unique_ptr<IBoundaryCondition<Gravity>>, ndim * 2> bcs_array;
+    std::array<std::unique_ptr<IBoundaryCondition<Gravity>>, nfaces> bcs_array;
     for(int idim = 0; idim < ndim; ++idim)
     {
         for(int iface = 0; iface < 2; ++iface)
@@ -440,7 +437,7 @@ void novapp_main(int argc, char** argv)
         {
             if (grid.mpi_rank == 0)
             {
-                std::cout << "Shifting grid at time = " << t << ", iteration = " << iter << std::endl;
+                std::cout << "Shifting grid at time = " << t << ", iteration = " << iter << "\n" << std::flush;
             }
             shift_grid(rho.d_view, rhou.d_view, E.d_view, fx.d_view,
                        rho_new, rhou_new, E_new, fx_new,
@@ -507,13 +504,13 @@ void novapp_main(int argc, char** argv)
     PC_tree_destroy(&conf);
 }
 
-}
+} // namespace novapp
 
 int main(int argc, char** argv)
 {
     try
     {
-        novapp_main(argc, argv);
+        novapp::main(argc, argv);
     }
     catch(std::exception const& e)
     {

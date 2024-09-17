@@ -8,15 +8,14 @@
 #include <string>
 
 #include <kokkos_shortcut.hpp>
-#include <ndim.hpp>
 
 namespace novapp
 {
 
 class Grid;
 
-extern std::array<std::string, 3> const bc_dir;
-extern std::array<std::string, 2> const bc_face;
+extern std::array<std::string_view, 3> const bc_dir;
+extern std::array<std::string_view, 2> const bc_face;
 
 void null_gradient_condition(int m_bc_idim, int m_bc_iface,
                              std::string const& m_label,
@@ -37,9 +36,21 @@ void reflexive_condition(int m_bc_idim, int m_bc_iface,
 template <class Gravity>
 class IBoundaryCondition
 {
-protected:
+private:
     int m_bc_idim;
+
     int m_bc_iface;
+
+protected:
+    [[nodiscard]] int bc_idim() const noexcept
+    {
+        return m_bc_idim;
+    }
+
+    [[nodiscard]] int bc_iface() const noexcept
+    {
+        return m_bc_iface;
+    }
 
 public:
     IBoundaryCondition(int idim, int iface) : m_bc_idim(idim), m_bc_iface(iface) {}
@@ -71,7 +82,7 @@ private:
 public:
     NullGradient(int idim, int iface)
         : IBoundaryCondition<Gravity>(idim, iface)
-        , m_label("NullGradient" + bc_dir[idim] + bc_face[iface])
+        , m_label(std::string("NullGradient").append(bc_dir[idim]).append(bc_face[iface]))
     {
     }
 
@@ -82,7 +93,7 @@ public:
                  KV_double_3d const& E,
                  KV_double_4d const& fx) const final
     {
-        null_gradient_condition(this->m_bc_idim, this->m_bc_iface, m_label, grid, rho, rhou, E, fx);
+        null_gradient_condition(this->bc_idim(), this->bc_iface(), m_label, grid, rho, rhou, E, fx);
     }
 };
 
@@ -113,7 +124,7 @@ private:
 public:
     ReflexiveCondition(int idim, int iface)
         : IBoundaryCondition<Gravity>(idim, iface)
-        , m_label("Reflexive" + bc_dir[idim] + bc_face[iface])
+        , m_label(std::string("Reflexive").append(bc_dir[idim]).append(bc_face[iface]))
     {
     }
 
@@ -124,7 +135,7 @@ public:
                  KV_double_3d const& E,
                  KV_double_4d const& fx) const final
     {
-        reflexive_condition(this->m_bc_idim, this->m_bc_iface, m_label, grid, rho, rhou, E, fx);
+        reflexive_condition(this->bc_idim(), this->bc_iface(), m_label, grid, rho, rhou, E, fx);
     }
 };
 

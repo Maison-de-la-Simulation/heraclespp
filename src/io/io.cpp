@@ -1,6 +1,8 @@
 #include <mpi.h>
 
 #include <array>
+#include <cassert>
+#include <cstddef>
 #include <fstream>
 #include <iomanip>
 #include <ostream>
@@ -14,58 +16,24 @@
 #include <git_version.hpp>
 #include <grid.hpp>
 #include <hdf5.h>
+#include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
 #include <nova_params.hpp>
 #include <pdi.h>
 
 #include "io.hpp"
+#include "io_hdf5.hpp"
 
 namespace {
 
-class raii_h5_hid
-{
-private:
-    hid_t m_id;
-
-    std::function<herr_t(hid_t)> m_close;
-
-public:
-    raii_h5_hid(hid_t id, herr_t (*f)(hid_t)) : m_id(id), m_close(f)
-    {
-        if (m_id < 0 || !m_close) {
-            throw std::runtime_error("Nova++ error: creating h5 id failed");
-        }
-    }
-
-    raii_h5_hid(const raii_h5_hid&) = delete;
-
-    raii_h5_hid(raii_h5_hid&&) = delete;
-
-    ~raii_h5_hid() noexcept
-    {
-        if (m_id >= 0 && m_close) {
-            m_close(m_id);
-        }
-    }
-
-    raii_h5_hid& operator=(const raii_h5_hid&) = delete;
-
-    raii_h5_hid& operator=(raii_h5_hid&&) = delete;
-
-    hid_t operator*() const noexcept
-    {
-        return m_id;
-    }
-};
-
 void write_string_attribute(
-        raii_h5_hid const& file_id,
+        novapp::raii_h5_hid const& file_id,
         char const* const attribute_name,
         std::string_view const attribute_value)
 {
-    raii_h5_hid const space_id(::H5Screate(H5S_SCALAR), ::H5Sclose);
+    novapp::raii_h5_hid const space_id(::H5Screate(H5S_SCALAR), ::H5Sclose);
 
-    raii_h5_hid const type_id(::H5Tcopy(H5T_C_S1), ::H5Tclose);
+    novapp::raii_h5_hid const type_id(::H5Tcopy(H5T_C_S1), ::H5Tclose);
     if (::H5Tset_size(*type_id, attribute_value.size()) < 0) {
         throw std::runtime_error("Nova++ error: defining the size of the datatype failed");
     }
@@ -73,7 +41,7 @@ void write_string_attribute(
         throw std::runtime_error("Nova++ error: defining utf-8 character set failed");
     }
 
-    raii_h5_hid const attr_id(
+    novapp::raii_h5_hid const attr_id(
             ::H5Acreate2(*file_id, attribute_name, *type_id, *space_id, H5P_DEFAULT, H5P_DEFAULT),
             ::H5Aclose);
 
@@ -88,7 +56,7 @@ bool span_is_contiguous(Views const&... views)
     return (views.span_is_contiguous() && ...);
 }
 
-std::string get_output_filename(std::string const& prefix, int const num) {
+std::string get_output_filename(std::string const& prefix, std::size_t const num) {
     std::ostringstream output_filename;
     output_filename << prefix;
     output_filename << '_';
@@ -119,7 +87,7 @@ void print_simulation_status(
         double const time_out,
         int const output_id)
 {
-    int mpi_rank;
+    int mpi_rank = 0;
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
     if (mpi_rank == 0) {
         std::stringstream ss;
@@ -138,6 +106,7 @@ void write_pdi_init(
     int const simu_ndim = ndim;
     int const simu_nfx = param.nfx;
 
+    // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     PDI_multi_expose(
         "init_PDI",
         "nullptr", nullptr, PDI_OUT,
@@ -151,6 +120,7 @@ void write_pdi_init(
         "grid_communicator", &grid.comm_cart, PDI_OUT,
         "mpi_rank", &grid.mpi_rank, PDI_OUT,
         nullptr);
+    // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
 }
 
 void write_pdi(
@@ -174,10 +144,11 @@ void write_pdi(
     KDV_double_3d& T)
 {
     assert(span_is_contiguous(rho, u, P, E, fx, T));
-    int const directory_size = directory.size();
+    int const directory_size = static_cast<int>(directory.size());
     std::string const output_filename = get_output_filename(prefix, output_id);
-    int const output_filename_size = output_filename.size();
+    int const output_filename_size = static_cast<int>(output_filename.size());
     sync_host(rho, u, P, E, fx, T, x, y, z);
+    // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     PDI_multi_expose(
         "write_replicated_data",
         "nullptr", nullptr, PDI_OUT,
@@ -195,6 +166,8 @@ void write_pdi(
         "y", y.h_view.data(), PDI_OUT,
         "z", z.h_view.data(), PDI_OUT,
         nullptr);
+    // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
+    // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     PDI_multi_expose(
         "write_distributed_data",
         "nullptr", nullptr, PDI_OUT,
@@ -209,6 +182,7 @@ void write_pdi(
         "fx", fx.h_view.data(), PDI_OUT,
         "T", T.h_view.data(), PDI_OUT,
         nullptr);
+    // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     if (grid.mpi_rank == 0)
     {
         raii_h5_hid const file_id(::H5Fopen((directory + '/' + output_filename).c_str(), H5F_ACC_RDWR, H5P_DEFAULT), H5Fclose);
@@ -235,7 +209,29 @@ void read_pdi(
     KDV_double_1d& z_glob)
 {
     assert(span_is_contiguous(rho, u, P, fx));
-    int const filename_size = restart_file.size();
+
+    raii_h5_hid const file_id(::H5Fopen(restart_file.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT), ::H5Fclose);
+    // check_extent_dset(file_id, "/rho", std::array {rho.extent(2), rho.extent(1), rho.extent(0)});
+    // check_extent_dset(file_id, "/u_x", std::array {u.extent(2), u.extent(1), u.extent(0)});
+    // if (ndim > 1)
+    // {
+    //     check_extent_dset(file_id, "/u_y", std::array {u.extent(2), u.extent(1), u.extent(0)});
+    // }
+    // if (ndim > 2)
+    // {
+    //     check_extent_dset(file_id, "/u_z", std::array {u.extent(2), u.extent(1), u.extent(0)});
+    // }
+    // check_extent_dset(file_id, "/P", std::array {P.extent(2), P.extent(1), P.extent(0)});
+    // if (fx.extent(3) > 0)
+    // {
+    //     check_extent_dset(file_id, "/fx", std::array {fx.extent(3), fx.extent(2), fx.extent(1), fx.extent(0)});
+    // }
+    check_extent_dset(file_id, "/x", std::array {x_glob.extent(0)});
+    check_extent_dset(file_id, "/y", std::array {y_glob.extent(0)});
+    check_extent_dset(file_id, "/z", std::array {z_glob.extent(0)});
+
+    int const filename_size = static_cast<int>(restart_file.size());
+    // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     PDI_multi_expose(
         "read_file",
         "nullptr", nullptr, PDI_OUT,
@@ -254,6 +250,7 @@ void read_pdi(
         "y", y_glob.h_view.data(), PDI_INOUT,
         "z", z_glob.h_view.data(), PDI_INOUT,
         nullptr);
+    // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     modify_host(rho, u, P, fx, x_glob, y_glob, z_glob);
 }
 
@@ -301,7 +298,7 @@ void XmlWriter::operator()(
 
     int const precision = sizeof(double);
 
-    int const first_output_id = output_id + 1 - outputs_record.size();
+    std::size_t const first_output_id = output_id + 1 - outputs_record.size();
     for (std::size_t i = 0; i < outputs_record.size(); ++i)
     {
         xdmfFile << indent(6) << "<Grid";

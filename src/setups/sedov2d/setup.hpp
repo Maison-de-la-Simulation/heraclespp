@@ -86,9 +86,9 @@ public:
             {
                 if (geom == Geometry::Geom_cartesian)
                 {
-                    double x = x_d(i) * units::m;
-                    double y = y_d(j) * units::m;
-                    double r = Kokkos::sqrt(x * x + y * y);
+                    double const x = x_d(i) * units::m;
+                    double const y = y_d(j) * units::m;
+                    double const r = Kokkos::sqrt(x * x + y * y);
 
                     rho(i, j, k) = param_setup.rho0 * units::density;
                     for (int idim = 0; idim < ndim; ++idim)
@@ -98,14 +98,14 @@ public:
 
                     if (r < 0.025)
                     {
-                        double evol = param_setup.E1 / dv(i, j, k) * units::evol;
-                        double T = eos.compute_T_from_evol(rho(i, j, k), evol) * units::Kelvin;
+                        double const evol = param_setup.E1 / dv(i, j, k) * units::evol;
+                        double const T = eos.compute_T_from_evol(rho(i, j, k), evol) * units::Kelvin;
                         P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), T) * units::pressure;
                     }
                     else
                     {
-                        double evol = param_setup.E0 / dv(i, j, k)  * units::evol;
-                        double T = eos.compute_T_from_evol(rho(i, j, k), evol) * units::Kelvin;
+                        double const evol = param_setup.E0 / dv(i, j, k)  * units::evol;
+                        double const T = eos.compute_T_from_evol(rho(i, j, k), evol) * units::Kelvin;
                         P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), T) * units::pressure;
                     }
                 }

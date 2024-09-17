@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <string>
+
 #include <Kokkos_Core.hpp>
 #include <units.hpp>
 
@@ -71,14 +73,14 @@ public:
         double const mu = m_eos.mean_molecular_weight();
 
         std::cout <<"Scale = " << units::kb * m_param_setup.T
-                / (mu * units::mp * units::G * m_param_setup.M)<< std::endl;
+                / (mu * units::mp * units::G * m_param_setup.M)<< "\n";
 
         Kokkos::parallel_for(
         "eq_hydro_init",
         cell_mdrange(range),
         KOKKOS_LAMBDA(int i, int j, int k)
         {
-            double x0 = units::kb * param_setup.T / (mu * units::mp * units::G * param_setup.M);
+            double const x0 = units::kb * param_setup.T / (mu * units::mp * units::G * param_setup.M);
 
             rho(i, j, k) = param_setup.rho0 * Kokkos::exp(1. / (xc(i) * x0));
 
@@ -106,7 +108,7 @@ public:
         EOS const& eos,
         ParamSetup const& param_setup)
         : IBoundaryCondition<Gravity>(idim, iface)
-        , m_label("UserDefined" + bc_dir[idim] + bc_face[iface])
+        , m_label(std::string("UserDefined").append(bc_dir[idim]).append(bc_face[iface]))
         , m_eos(eos)
         , m_param_setup(param_setup)
     {
@@ -134,19 +136,19 @@ public:
         auto const& param_setup = m_param_setup;
         double const mu = m_eos.mean_molecular_weight();
 
-        int const ng = grid.Nghost[this->m_bc_idim];
-        if (this->m_bc_iface == 1)
+        int const ng = grid.Nghost[this->bc_idim()];
+        if (this->bc_iface() == 1)
         {
-            begin[this->m_bc_idim] = rho.extent_int(this->m_bc_idim) - ng;
+            begin[this->bc_idim()] = rho.extent_int(this->bc_idim()) - ng;
         }
-        end[this->m_bc_idim] = begin[this->m_bc_idim] + ng;
+        end[this->bc_idim()] = begin[this->bc_idim()] + ng;
 
         Kokkos::parallel_for(
         m_label,
         Kokkos::MDRangePolicy<int, Kokkos::Rank<3>>(begin, end),
         KOKKOS_LAMBDA(int i, int j, int k)
         {
-            double x0 = units::kb * param_setup.T / (mu * units::mp * units::G * param_setup.M);
+            double const x0 = units::kb * param_setup.T / (mu * units::mp * units::G * param_setup.M);
             rho(i, j, k) = param_setup.rho0 * Kokkos::exp(1. / (xc(i) * x0));
             for (int n = 0; n < rhou.extent_int(3); ++n)
             {
