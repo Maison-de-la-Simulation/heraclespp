@@ -156,7 +156,7 @@ public:
         double const num = m_gamma / (m_gamma - 1) + 20 * alpha + 16 * alpha * alpha;
         double const den = 1. / (m_gamma - 1) + 12 * alpha;
         double const gamma_eff = num / den;
-        return Kokkos::sqrt(gamma_eff * P / rho);
+        return Kokkos::sqrt(gamma_eff * Pg / rho);
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
