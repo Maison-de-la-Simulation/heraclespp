@@ -3,6 +3,7 @@ Checks:
 bugprone-*,
 -bugprone-easily-swappable-parameters,
 cert-*,
+-cert-dcl21-cpp,
 clang-analyzer-*,
 clang-diagnostic-*,
 concurrency-*,
