@@ -150,7 +150,15 @@ void main(int argc, char** argv)
         print_info(std::cout, "eos", eos_choice);
         print_info(std::cout, "geometry", geom_choice);
         print_info(std::cout, "gravity", gravity_label);
+        print_info(std::cout, "restart", param.restart);
+        print_info(std::cout, "restart_file", param.restart_file);
+        print_info(std::cout, "mpi_device_aware", param.mpi_device_aware);
+        print_info(std::cout, "mpi_dims_cart_x", param.mpi_dims_cart[0]);
+        print_info(std::cout, "mpi_dims_cart_y", param.mpi_dims_cart[1]);
+        print_info(std::cout, "mpi_dims_cart_z", param.mpi_dims_cart[2]);
+        print_info(std::cout, "nfx", param.nfx);
         print_info(std::cout, "pressure_fix", param.pressure_fix);
+        print_info(std::cout, "eps_pf", param.eps_pf);
         print_info(std::cout, "riemann_solver", param.riemann_solver);
         print_info(std::cout, "user_step", param.user_step);
         print_info(std::cout, "git_branch", git_branch);
