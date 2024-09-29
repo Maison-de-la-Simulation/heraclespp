@@ -64,7 +64,6 @@ if("${Novapp_inih_DEPENDENCY_POLICY}" STREQUAL "EMBEDDED")
   add_subdirectory(vendor/inih)
 elseif("${Novapp_inih_DEPENDENCY_POLICY}" STREQUAL "INSTALLED")
   find_package(inih REQUIRED CONFIG)
-  enable_language(C) # required for cmake < 3.26.1 because of FindHDF5.cmake
 endif()
 
 # Kokkos dependency

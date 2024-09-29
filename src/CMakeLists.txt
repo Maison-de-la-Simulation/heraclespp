@@ -1,3 +1,7 @@
+# Workaround a defect from FindHDF5.cmake
+if(("${Novapp_inih_DEPENDENCY_POLICY}" STREQUAL "INSTALLED") AND (CMAKE_VERSION VERSION_LESS "3.26.1"))
+    enable_language(C)
+endif()
 find_package(HDF5 REQUIRED COMPONENTS C)
 find_package(MPI REQUIRED COMPONENTS CXX)
 find_package(paraconf REQUIRED COMPONENTS C)
