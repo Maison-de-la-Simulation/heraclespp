@@ -24,8 +24,9 @@ execute_process(COMMAND date "+%H:%M:%S"
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 add_library(utils nova_params.cpp ${CMAKE_CURRENT_BINARY_DIR}/git_version.cpp)
-target_link_libraries(utils PUBLIC inih)
-target_link_libraries(utils INTERFACE Kokkos::kokkos thermodynamics)
+target_link_libraries(utils
+  INTERFACE Kokkos::kokkos thermodynamics
+  PUBLIC inih)
 target_compile_features(utils PUBLIC cxx_std_17)
 target_include_directories(utils PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(utils INTERFACE ${CMAKE_CURRENT_BINARY_DIR})
