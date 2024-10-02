@@ -223,6 +223,24 @@ convergence-advection-sinusoide-test-job:serial:1d:
 #     - find src tests -name '*.[h|c]pp' -exec clang-format --dry-run --ferror-limit=10 --Werror '{}' '+'
 #   allow_failure: true
 
+cmake-format-job:
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  variables:
+    DEBIAN_FRONTEND: noninteractive
+  stage: lint
+  needs: []
+  image: ubuntu:latest
+  before_script: []
+  script:
+    - apt-get --yes update && apt-get --yes install python3-pip python3-venv
+    - python3 -m venv ./gersemi
+    - . ./gersemi/bin/activate
+    - python3 -m pip install gersemi
+    - find CMakeLists.txt src tests -name 'CMakeLists.txt' -exec gersemi --check '{}' '+'
+  allow_failure: true
+
 clang-tidy-job:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
