@@ -31,12 +31,16 @@ public:
     double rho1;
     double u0;
     double P0;
+    int nx;
+    int ny;
 
     explicit ParamSetup(INIReader const& reader)
         : rho0(reader.GetReal("Initialisation", "rho0", 1.0))
         , rho1(reader.GetReal("Initialisation", "rho1", 1.0))
         , u0(reader.GetReal("Initialisation", "u0", 1.0))
         , P0(reader.GetReal("Initialisation", "P0", 1.0))
+        , nx(reader.GetInteger("Grid", "Nx_glob", 0))
+        , ny(reader.GetInteger("Grid", "Ny_glob", 0))
     {
     }
 };
@@ -79,12 +83,14 @@ public:
         if (mpi_rank == 0)
         {
             std::random_device rd;
-            std::mt19937 const gen(rd());
+            //std::mt19937 const gen(rd());
+            std::mt19937 gen(42);
             std::uniform_real_distribution<double> dist(-1.0, 1.0);
 
             for(double& data : data_to_broadcast)
             {
-                data = dist(rd);
+                //data = dist(rd);
+                data = dist(gen);
             }
         }
 
@@ -95,29 +101,94 @@ public:
         double const ck = data_to_broadcast[2];
         double const dk = data_to_broadcast[3];
 
-        /* std::cout << "[MPI process "<< mpi_rank <<"] ak = " << ak << std::endl;
+        std::cout << "[MPI process "<< mpi_rank <<"] ak = " << ak << std::endl;
         std::cout << "[MPI process "<< mpi_rank <<"] bk = " << bk << std::endl;
         std::cout << "[MPI process "<< mpi_rank <<"] ck = " << ck << std::endl;
-        std::cout << "[MPI process "<< mpi_rank <<"] dk = " << dk << std::endl; */
+        std::cout << "[MPI process "<< mpi_rank <<"] dk = " << dk << std::endl;
 
         Kokkos::Array<int, 5> kx;
         std::iota(kx.data(), kx.data() + 5, 0);
         Kokkos::Array<int, 5> ky;
         std::iota(ky.data(), ky.data() + 5, 0);
-        //------
 
         double const L = 10;
         double const gamma = 5. / 3;
-        // double hrms = 3E-4 * L;
-        // double H = Kokkos::sqrt((1. / 4) * (ak * ak + bk * bk + ck * ck + dk * dk)) / hrms;
+        double hrms = 3E-4 * L;
+        double H_norm = Kokkos::sqrt((1. / 4) * (ak * ak + bk * bk + ck * ck + dk * dk)) / hrms;
 
-        auto const x_d = grid.x;
-        auto const y_d = grid.y;
-        auto const z_d = grid.z;
+        auto const x = grid.x;
+        auto const y = grid.y;
+        auto const z = grid.z;
         auto const& gravity = m_gravity;
         auto const& param_setup = m_param_setup;
+        int const nghost_x = grid.Nghost[0];
+        int const nghost_y = grid.Nghost[1];
+
+        Kokkos::View<double**> interface("interface_RT", m_param_setup.nx, m_param_setup.ny);
 
         Kokkos::parallel_for(
+            "interface",
+            Kokkos::MDRangePolicy<Kokkos::Rank<2>>({0, 0}, {param_setup.nx, param_setup.ny}),
+            KOKKOS_LAMBDA(int i, int j)
+            {
+                int i_offset = i + nghost_x;
+                int j_offset = j + nghost_y;
+
+                double X = 2 * units::pi * x(i_offset) / L;
+                double Y = 2 * units::pi * y(j_offset) / L;
+                double h = 0;
+
+                for (std::size_t ik = 0; ik < Kokkos::Array<int, 5>::size(); ++ik) // loop kx
+                {
+                    for (std::size_t jk = 0; jk < Kokkos::Array<int, 5>::size(); ++jk) // loop ky
+                    {
+                        double K_test = kx[ik] * kx[ik] + ky[jk] * ky[jk];
+                        if (K_test >= 8 && K_test <= 16)
+                        {
+                            h += (ak * Kokkos::cos(kx[ik] * X) * Kokkos::cos(ky[jk] * Y)
+                                + bk * Kokkos::cos(kx[ik] * X) * Kokkos::sin(ky[jk] * Y)
+                                + ck * Kokkos::sin(kx[ik] * X) * Kokkos::cos(ky[jk] * Y)
+                                + dk * Kokkos::sin(kx[ik] * X) * Kokkos::sin(ky[jk] * Y));
+                        }
+                    }
+                }
+
+                interface(i, j) = h / H_norm;
+                //std::cout << "h = " << interface(i, j) << std::endl;
+            });
+
+        Kokkos::parallel_for(
+            "Rayleigh_Taylor_3D_init",
+            cell_mdrange(range),
+            KOKKOS_LAMBDA(int i, int j, int k)
+            {
+                double P0 = (2 * units::pi * (param_setup.rho0 + param_setup.rho1)
+                            * Kokkos::fabs(gravity(i, j, k, 2)) * L);
+
+                for (int idim = 0; idim < ndim; ++idim)
+                {
+                    u(i, j, k, idim) = param_setup.u0;
+                }
+
+                if(z(k) >= interface(i, j))
+                {
+                    rho(i, j, k) = param_setup.rho0 * Kokkos::pow(1 - (gamma - 1) / gamma
+                                * (param_setup.rho0 * Kokkos::fabs(gravity(i, j, k, 2)) * z(k)) / P0, 1. / (gamma - 1));
+                    P(i, j, k) = P0 * Kokkos::pow(rho(i, j, k) / param_setup.rho0, gamma);
+                    fx(i, j, k, 0) = 1;
+                }
+                else
+                {
+                    rho(i, j, k) = param_setup.rho1 * Kokkos::pow(1 - (gamma - 1) / gamma
+                                * (param_setup.rho1 * Kokkos::fabs(gravity(i, j, k, 2)) * z(k)) / P0, 1. / (gamma - 1));
+                    P(i, j, k) = P0 * Kokkos::pow(rho(i, j, k) / param_setup.rho1, gamma);
+                    fx(i, j, k, 0) = 0;
+                }
+
+                 std:: cout << i << " " << j << " " << k <<" " << z(k) << " " << interface(i, j) << " " << fx(i, j, k, 0) << std::endl;
+            });
+
+        /* Kokkos::parallel_for(
             "Rayleigh_Taylor_3D_init",
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
@@ -148,7 +219,7 @@ public:
                     }
                 }
 
-                if(z >= h)
+                if(z >= (1 / H) * h)
                 {
                     rho(i, j, k) = param_setup.rho0 * Kokkos::pow(1 - (gamma - 1) / gamma
                                 * (param_setup.rho0 * Kokkos::fabs(gravity(i, j, k, 2)) * z) / P0, 1. / (gamma - 1)) * units::density;
@@ -158,7 +229,7 @@ public:
                     fx(i, j, k, 0) = 1;
                 }
 
-                if(z < h)
+                if(z < (1 / H) * h)
                 {
                     rho(i, j, k) = param_setup.rho1 * Kokkos::pow(1 - (gamma - 1) / gamma
                                 * (param_setup.rho1 * Kokkos::fabs(gravity(i, j, k, 2)) * z) / P0, 1. / (gamma - 1)) * units::density;
@@ -172,7 +243,7 @@ public:
                 {
                     u(i, j, k, idim) = param_setup.u0 * units::velocity;
                 }
-            });
+            }); */
     }
 };
 
