@@ -237,9 +237,9 @@ void main(int argc, char** argv)
 
         if(grid.mpi_rank==0)
         {
-            std::cout << '\n' << std::left << std::setw(81) << std::setfill('*') << '\n';
-            std::cout << "read from file " << param.restart_file << '\n';
-            std::cout << "starting at time " << t << " ( ~ "<<100*t/param.t_end<<"%)"
+            std::cout << std::setw(81) << std::setfill('*') << '\n';
+            std::cout << "restarting from file " << param.restart_file << '\n';
+            std::cout << "at time " << t << " ( ~ "<<100*t/param.t_end<<"%)"
                     << ", with iteration  "<< iter << "\n\n";
         }
     }

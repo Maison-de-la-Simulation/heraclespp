@@ -79,6 +79,9 @@ public:
         // check_extent_dset(file_id, "/P_1d", std::array {P_1d.extent(0)});
         // check_extent_dset(file_id, "/fx_1d", std::array {fx_1d.extent(1), fx_1d.extent(0)});
 
+        std::cout << std::setw(81) << std::setfill('*') << '\n';
+        std::cout << "reading from file " << m_param_setup.init_filename << '\n';
+
         int const filename_size = m_param_setup.init_filename.size();
         // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
         PDI_multi_expose(
