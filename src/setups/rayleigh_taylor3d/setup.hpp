@@ -185,7 +185,7 @@ public:
                     fx(i, j, k, 0) = 0;
                 }
 
-                 std:: cout << i << " " << j << " " << k <<" " << z(k) << " " << interface(i, j) << " " << fx(i, j, k, 0) << std::endl;
+        //         std:: cout << i << " " << j << " " << k <<" " << z(k) << " " << interface(i, j) << " " << fx(i, j, k, 0) << std::endl;
             });
 
         /* Kokkos::parallel_for(
