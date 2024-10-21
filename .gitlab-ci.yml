@@ -69,7 +69,11 @@ build-job:serial:all:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: build
-  needs: []
+  needs: ["env-job:common:gtest", "env-job:common:inih", "env-job:serial:kokkos"]
+  variables:
+    GTest_ROOT: $CI_PROJECT_DIR/opt/gtest
+    inih_ROOT: $CI_PROJECT_DIR/opt/inih
+    Kokkos_ROOT: $CI_PROJECT_DIR/opt/kokkos
   script:
     - bash ./test/build_suite_full.sh
 

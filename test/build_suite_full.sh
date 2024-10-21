@@ -12,23 +12,11 @@ fi
 trap 'rm -rf -- "$DIRECTORY"' EXIT
 set -xe
 
-# Install Kokkos
-cmake -DBUILD_TESTING=OFF -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -B "$DIRECTORY/build-kokkos" -S vendor/kokkos
-cmake --build "$DIRECTORY/build-kokkos"
-cmake --install "$DIRECTORY/build-kokkos" --prefix "$DIRECTORY/install-kokkos"
-export Kokkos_ROOT="$DIRECTORY/install-kokkos"
-
-# Install GTest
-cmake -B "$DIRECTORY/build-gtest" -S vendor/googletest
-cmake --build "$DIRECTORY/build-gtest"
-cmake --install "$DIRECTORY/build-gtest" --prefix "$DIRECTORY/install-gtest"
-export GTest_ROOT="$DIRECTORY/install-gtest"
-
 export CXXFLAGS="-Werror=all -Werror=extra -Werror=pedantic -pedantic-errors"
-export BUILD_DIRECTORY="$DIRECTORY/build-novapp"
+export BUILD_DIRECTORY="$DIRECTORY/build"
 
 # Warm up, first configuration with shared options
-cmake -DBUILD_TESTING=OFF -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -DNovapp_SETUP=advection_gap -DNovapp_NDIM=1 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian -B "$BUILD_DIRECTORY"
+cmake -DBUILD_TESTING=OFF -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -DNovapp_SETUP=advection_gap -DNovapp_NDIM=1 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian -B "$BUILD_DIRECTORY"
 
 # Configure and build all setups (alphabetical order)
 cmake -DNovapp_SETUP=advection_gap -DNovapp_NDIM=1 -DNovapp_EOS=PerfectGas -DNovapp_GRAVITY=Uniform -DNovapp_GEOM=Cartesian "$BUILD_DIRECTORY"
