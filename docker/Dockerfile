@@ -62,6 +62,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     matplotlib \
     numpy \
     pip \
+    pyyaml \
     scipy \
  && deactivate \
  && apt-get --yes purge \

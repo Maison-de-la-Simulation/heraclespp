@@ -75,7 +75,7 @@ build-job:serial:all:
     inih_ROOT: $CI_PROJECT_DIR/opt/inih
     Kokkos_ROOT: $CI_PROJECT_DIR/opt/kokkos
   script:
-    - bash ./test/build_suite_full.sh
+    - ./test/build_suite_full.py
 
 build-job:serial:1d:
   rules:
