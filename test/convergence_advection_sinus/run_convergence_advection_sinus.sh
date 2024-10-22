@@ -16,8 +16,8 @@ set -ex
 
 cp ./inputs/$INI_FILENAME $TEST_DIR_NAME
 cp ./bin/$BINARY_NAME $TEST_DIR_NAME
-cp ./test/$PDI_YML_FILENAME $TEST_DIR_NAME
-cp ./test/check_convergence_advection_sinus.py $TEST_DIR_NAME
+cp ./test/convergence_advection_sinus/$PDI_YML_FILENAME $TEST_DIR_NAME
+cp ./test/convergence_advection_sinus/check_convergence_advection_sinus.py $TEST_DIR_NAME
 
 cd $TEST_DIR_NAME
 sed -i.bak 's/directory = .*/directory = ./g' ./$INI_FILENAME
