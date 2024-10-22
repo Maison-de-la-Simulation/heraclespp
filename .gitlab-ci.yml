@@ -215,7 +215,7 @@ convergence-advection-sinusoide-test-job:serial:1d:
   stage: test
   needs: ["build-job:serial:1d"]
   script:
-    - ./test/convergence_advection_sinus/run_convergence_advection_sinus.sh
+    - ./test/convergence_advection_sinus/run_convergence_advection_sinus.py
 
 # clang-format-job:
 #   rules:
