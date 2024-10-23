@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import configparser
 import os
 import shutil
 import subprocess
@@ -21,12 +22,17 @@ def main():
         shutil.copy(f"./test/convergence_advection_sinus/check_convergence_advection_sinus.py", TEST_DIR_NAME)
 
         os.chdir(TEST_DIR_NAME)
-        subprocess.run(["sed", "-i.bak", "s/directory = .*/directory = ./g", INI_FILENAME], check=True)
 
         # Update the INI file and run commands
         def update_and_run(nx_glob, prefix):
-            subprocess.run(["sed", "-i.bak", f"s/Nx_glob = .*/Nx_glob = {nx_glob}/g", INI_FILENAME], check=True)
-            subprocess.run(["sed", "-i.bak", f"s/prefix = .*/prefix = {prefix}/g", INI_FILENAME], check=True)
+            config = configparser.ConfigParser(inline_comment_prefixes='#')
+            config.read(INI_FILENAME)
+            config["Grid"]["Nx_glob"] = str(nx_glob)
+            config["Output"]["directory"] = "."
+            config["Output"]["prefix"] = prefix
+            with open(INI_FILENAME, 'w') as configfile:
+                config.write(configfile)
+
             subprocess.run(["mpiexec", "-n", "2", BINARY_NAME, INI_FILENAME, f"--pdi-config=./{PDI_YAML_FILENAME}"], check=True)
 
         for i in range(5):
