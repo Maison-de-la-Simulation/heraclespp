@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import glob
 import h5py
 import numpy as np
@@ -26,7 +28,7 @@ def Error(x, rho_simu):
     rho_exact = ExactSolution((x[1:] + x[:-1]) / 2)
     return np.sum(np.abs(rho_exact - rho_simu) * np.diff(x))
 
-if __name__ == "__main__":
+def main():
     print("********************************")
     print(" Convergence advection sinusoide")
     print("********************************")
@@ -54,3 +56,6 @@ if __name__ == "__main__":
     else:
         print("SUCCESS")
         print(result)
+
+if __name__ == "__main__":
+    main()

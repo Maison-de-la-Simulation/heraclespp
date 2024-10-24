@@ -6,6 +6,8 @@ import shutil
 import subprocess
 import tempfile
 
+import check_convergence_advection_sinus
+
 def main():
     PDI_YAML_FILENAME = "convergence_advection_sinus.yaml"
     BINARY_NAME = "nova++"
@@ -40,7 +42,7 @@ def main():
             update_and_run(nx_glob, f"convergence_test_advection_sinus_{i}")
 
         # Run the Python script to check convergence
-        subprocess.run(["python3", "./check_convergence_advection_sinus.py"], check=True)
+        check_convergence_advection_sinus.main()
 
     finally:
         print(f"Cleaning temporary directory: {TEST_DIR_NAME}")
