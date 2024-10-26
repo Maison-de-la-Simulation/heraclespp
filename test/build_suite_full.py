@@ -1,26 +1,19 @@
 #!/usr/bin/env python3
 
-import os
+import argparse
+import pathlib
 import shutil
 import subprocess
 import sys
 import tempfile
 import yaml
 
-def main():
-    with open('test/setups.yaml', 'r') as file:
-        setups = yaml.safe_load(file)
-
+def build_suite(setups):
     try:
-        # Set environment variables
-        os.environ["CMAKE_BUILD_PARALLEL_LEVEL"] = "4"
-        os.environ["CMAKE_BUILD_TYPE"] = "Release"
-        os.environ["CXXFLAGS"] = "-Werror=all -Werror=extra -Werror=pedantic -pedantic-errors"
-
         # Create a temporary directory
-        directory = tempfile.mkdtemp()
+        directory = pathlib.Path(tempfile.mkdtemp())
         print(f"Creating temporary directory: {directory}")
-        build_directory = os.path.join(directory, "build")
+        build_directory = directory.joinpath("build")
 
         for setup in setups:
             cmake_options = setup["cmake_options"]
@@ -44,4 +37,13 @@ def main():
         shutil.rmtree(directory)
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Build suite")
+    parser.add_argument("filename",
+                        type=pathlib.Path,
+                        help="Input YAML filename")
+    args = parser.parse_args()
+
+    with open(args.filename, "r") as yaml_file:
+        setups = yaml.safe_load(yaml_file)
+
+    build_suite(setups)

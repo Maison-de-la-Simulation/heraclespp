@@ -2,11 +2,12 @@ image:
   name: ghcr.io/maison-de-la-simulation/nova:latest
 
 variables:
+  CMAKE_BUILD_PARALLEL_LEVEL: 2
+  CMAKE_BUILD_TYPE: Release
+  CMAKE_GENERATOR: Ninja
   GIT_SUBMODULE_STRATEGY: recursive
   GIT_SUBMODULE_DEPTH: 1
   GIT_SUBMODULE_UPDATE_FLAGS: --jobs 2
-  CMAKE_BUILD_PARALLEL_LEVEL: 2
-  CMAKE_GENERATOR: Ninja
 
 before_script:
   - git config --global --add safe.directory $CI_PROJECT_DIR
@@ -49,6 +50,41 @@ env-job:common:inih:
     paths:
       - opt/inih
 
+env-job:cuda:kokkos:
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  stage: env
+  needs: []
+  variables:
+    CXX: $CI_PROJECT_DIR/vendor/kokkos/bin/nvcc_wrapper
+    NVCC_WRAPPER_DEFAULT_COMPILER: g++-13
+  script:
+    - cmake -DCMAKE_CXX_EXTENSIONS=OFF -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_CUDA=ON -DKokkos_ARCH_AMPERE80=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_COMPILER_WARNINGS=ON -B build -S vendor/kokkos
+    - cmake --build build
+    - cmake --install build --prefix $CI_PROJECT_DIR/opt/kokkos
+  artifacts:
+    expire_in: 1h
+    paths:
+      - opt/kokkos
+
+env-job:hip:kokkos:
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  stage: env
+  needs: []
+  variables:
+    CXX: hipcc
+  script:
+    - cmake -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_HIP=ON -DKokkos_ENABLE_ROCTHRUST=OFF -DKokkos_ARCH_AMD_GFX90A=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_COMPILER_WARNINGS=ON -B build -S vendor/kokkos
+    - cmake --build build
+    - cmake --install build --prefix $CI_PROJECT_DIR/opt/kokkos
+  artifacts:
+    expire_in: 1h
+    paths:
+      - opt/kokkos
+
 env-job:serial:kokkos:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
@@ -71,11 +107,12 @@ build-job:serial:all:
   stage: build
   needs: ["env-job:common:gtest", "env-job:common:inih", "env-job:serial:kokkos"]
   variables:
+    CXXFLAGS: -Werror=all -Werror=extra -Werror=pedantic -pedantic-errors
     GTest_ROOT: $CI_PROJECT_DIR/opt/gtest
     inih_ROOT: $CI_PROJECT_DIR/opt/inih
     Kokkos_ROOT: $CI_PROJECT_DIR/opt/kokkos
   script:
-    - ./test/build_suite_full.py
+    - ./test/build_suite_full.py ./test/setups.yaml
 
 build-job:serial:1d:
   rules:
@@ -84,11 +121,13 @@ build-job:serial:1d:
   stage: build
   needs: ["env-job:common:gtest", "env-job:common:inih", "env-job:serial:kokkos"]
   variables:
+    CMAKE_BUILD_TYPE: Debug
+    CXXFLAGS: -Werror=all -Werror=extra -Werror=pedantic -pedantic-errors -Werror=old-style-cast -Werror=extra-semi
     GTest_ROOT: $CI_PROJECT_DIR/opt/gtest
     inih_ROOT: $CI_PROJECT_DIR/opt/inih
     Kokkos_ROOT: $CI_PROJECT_DIR/opt/kokkos
   script:
-    - cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-Werror=all -Werror=extra -Werror=pedantic -pedantic-errors -Werror=old-style-cast -Werror=extra-semi" -DNovapp_NDIM=1 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+    - cmake -DBUILD_TESTING=ON -DNovapp_NDIM=1 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
     - cmake --build build
   artifacts:
     expire_in: 1h
@@ -103,11 +142,13 @@ build-job:serial:2d:
   stage: build
   needs: ["env-job:common:gtest", "env-job:common:inih", "env-job:serial:kokkos"]
   variables:
+    CMAKE_BUILD_TYPE: Debug
+    CXXFLAGS: -Werror=all -Werror=extra -Werror=pedantic -pedantic-errors -Werror=old-style-cast -Werror=extra-semi
     GTest_ROOT: $CI_PROJECT_DIR/opt/gtest
     inih_ROOT: $CI_PROJECT_DIR/opt/inih
     Kokkos_ROOT: $CI_PROJECT_DIR/opt/kokkos
   script:
-    - cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-Werror=all -Werror=extra -Werror=pedantic -pedantic-errors -Werror=old-style-cast -Werror=extra-semi" -DNovapp_NDIM=2 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+    - cmake -DBUILD_TESTING=ON -DNovapp_NDIM=2 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
     - cmake --build build
   artifacts:
     expire_in: 1h
@@ -122,11 +163,13 @@ build-job:serial:3d:
   stage: build
   needs: ["env-job:common:gtest", "env-job:common:inih", "env-job:serial:kokkos"]
   variables:
+    CMAKE_BUILD_TYPE: Debug
+    CXXFLAGS: -Werror=all -Werror=extra -Werror=pedantic -pedantic-errors -Werror=old-style-cast -Werror=extra-semi
     GTest_ROOT: $CI_PROJECT_DIR/opt/gtest
     inih_ROOT: $CI_PROJECT_DIR/opt/inih
     Kokkos_ROOT: $CI_PROJECT_DIR/opt/kokkos
   script:
-    - cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-Werror=all -Werror=extra -Werror=pedantic -pedantic-errors -Werror=old-style-cast -Werror=extra-semi" -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+    - cmake -DBUILD_TESTING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
     - cmake --build build
   artifacts:
     expire_in: 1h
@@ -139,17 +182,17 @@ build-job:cuda:3d:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: build
-  needs: ["env-job:common:gtest", "env-job:common:inih"]
+  needs: ["env-job:common:gtest", "env-job:common:inih", "env-job:cuda:kokkos"]
   variables:
+    CMAKE_BUILD_TYPE: None
+    CXX: $CI_PROJECT_DIR/vendor/kokkos/bin/nvcc_wrapper
+    CXXFLAGS: -Werror=all -Werror=extra -Werror=all-warnings
     GTest_ROOT: $CI_PROJECT_DIR/opt/gtest
     inih_ROOT: $CI_PROJECT_DIR/opt/inih
+    Kokkos_ROOT: $CI_PROJECT_DIR/opt/kokkos
     NVCC_WRAPPER_DEFAULT_COMPILER: g++-13
   script:
-    - cmake -DCMAKE_CXX_COMPILER=$CI_PROJECT_DIR/vendor/kokkos/bin/nvcc_wrapper -DCMAKE_CXX_EXTENSIONS=OFF -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_CUDA=ON -DKokkos_ARCH_AMPERE80=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_COMPILER_WARNINGS=ON -B build-kokkos -S vendor/kokkos
-    - cmake --build build-kokkos
-    - cmake --install build-kokkos --prefix $CI_PROJECT_DIR/opt/kokkos
-    - export Kokkos_ROOT=$CI_PROJECT_DIR/opt/kokkos
-    - cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=None -DCMAKE_CXX_COMPILER=$CI_PROJECT_DIR/vendor/kokkos/bin/nvcc_wrapper -DCMAKE_CXX_EXTENSIONS=OFF -DCMAKE_CXX_FLAGS="-Werror=all -Werror=extra -Werror=all-warnings" -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+    - cmake -DBUILD_TESTING=ON -DCMAKE_CXX_EXTENSIONS=OFF -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
     - cmake --build build
 
 build-job:hip:3d:
@@ -157,16 +200,16 @@ build-job:hip:3d:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: build
-  needs: ["env-job:common:gtest", "env-job:common:inih"]
+  needs: ["env-job:common:gtest", "env-job:common:inih", "env-job:hip:kokkos"]
   variables:
+    CMAKE_BUILD_TYPE: None
+    CXX: hipcc
+    CXXFLAGS: -Werror=all -Werror=extra -Werror=pedantic -pedantic-errors -Werror=old-style-cast -Werror=extra-semi
     GTest_ROOT: $CI_PROJECT_DIR/opt/gtest
     inih_ROOT: $CI_PROJECT_DIR/opt/inih
+    Kokkos_ROOT: $CI_PROJECT_DIR/opt/kokkos
   script:
-    - cmake -DCMAKE_CXX_COMPILER=hipcc -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_HIP=ON -DKokkos_ENABLE_ROCTHRUST=OFF -DKokkos_ARCH_VEGA90A=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_COMPILER_WARNINGS=ON -B build-kokkos -S vendor/kokkos
-    - cmake --build build-kokkos
-    - cmake --install build-kokkos --prefix $CI_PROJECT_DIR/opt/kokkos
-    - export Kokkos_ROOT=$CI_PROJECT_DIR/opt/kokkos
-    - cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=None -DCMAKE_CXX_COMPILER=hipcc -DCMAKE_CXX_FLAGS="-Werror=all -Werror=extra -Werror=pedantic -pedantic-errors -Werror=old-style-cast -Werror=extra-semi" -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+    - cmake -DBUILD_TESTING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
     - cmake --build build
 
 unit-test-job:serial:1d:
