@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 
-import glob
+import argparse
+import sys
+import typing
+
 import h5py
 import numpy as np
 from scipy import stats
-import sys
 
-def ExactSolution(x):
+def exact_solution(x: np.ndarray) -> np.ndarray:
     """Exact solution sinusoide density
     input  :
     x      : array : position
@@ -16,7 +18,7 @@ def ExactSolution(x):
     """
     return 1 + 0.1 * np.sin(2 * np.pi * x)
 
-def Error(x, rho_simu):
+def error(x: np.ndarray, rho_simu: np.ndarray):
     """Compute L1 error between exact solution and solver simulation
     input    :
     x        : array : position
@@ -25,23 +27,24 @@ def Error(x, rho_simu):
     output   :
     error    : float : error value
     """
-    rho_exact = ExactSolution((x[1:] + x[:-1]) / 2)
+    rho_exact = exact_solution((x[1:] + x[:-1]) / 2)
     return np.sum(np.abs(rho_exact - rho_simu) * np.diff(x))
 
-def main():
-    print("********************************")
-    print(" Convergence advection sinusoide")
-    print("********************************")
+def check_convergence_order(filenames: typing.List[str]):
+    """Check convergence order from the list of the given h5 files"""
 
-    filenames = glob.glob('convergence_test_advection_sinus_[0-9]*_00000001.h5')
-    filenames.sort()
+    def key(filename: str):
+        with h5py.File(filename, mode="r") as f:
+            return f["nx_glob_ng"][0]
+
+    filenames.sort(key=key)
 
     errors = np.empty(len(filenames))
     points = np.empty(len(filenames))
     for i, filename in enumerate(filenames):
-        with h5py.File(filename, 'r') as f:
-            errors[i] = Error(f['x_ng'], f['rho'][0, 0, :])
-            points[i] = f['nx_glob_ng'][0]
+        with h5py.File(filename, mode="r") as f:
+            errors[i] = error(f["x_ng"], f["rho"][0, 0, :])
+            points[i] = f["nx_glob_ng"][0]
 
     dx = points[0] / points
 
@@ -49,7 +52,7 @@ def main():
     theoretical_slope = 2
     tol = 0.05
     order_error = np.fabs(result.slope - theoretical_slope) / theoretical_slope
-    if(order_error > tol):
+    if order_error > tol:
         print("FAILURE")
         print(result)
         sys.exit(1)
@@ -58,4 +61,19 @@ def main():
         print(result)
 
 if __name__ == "__main__":
+    def main():
+        """main function"""
+        parser = argparse.ArgumentParser(description="")
+        parser.add_argument("filenames",
+                            nargs="+",
+                            type=str,
+                            help="")
+        args = parser.parse_args()
+
+        print("********************************")
+        print(" Convergence advection sinusoide")
+        print("********************************")
+
+        check_convergence_order(args.filenames)
+
     main()

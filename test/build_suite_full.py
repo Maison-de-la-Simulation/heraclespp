@@ -6,9 +6,15 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import typing
+
 import yaml
 
-def build_suite(setups):
+def build_suite(sources: pathlib.Path, setups: typing.List[typing.Dict]):
+    """
+    Function that builds the different configurations found in setups.
+    It assumes the dependencies are already installed.
+    """
     try:
         # Create a temporary directory
         directory = pathlib.Path(tempfile.mkdtemp())
@@ -18,16 +24,17 @@ def build_suite(setups):
         for setup in setups:
             cmake_options = setup["cmake_options"]
             subprocess.run(["cmake",
-                        f"-DBUILD_TESTING=OFF",
+                        "-DBUILD_TESTING=OFF",
                         f"-DNovapp_EOS={cmake_options['eos']}",
                         f"-DNovapp_GEOM={cmake_options['geom']}",
                         f"-DNovapp_GRAVITY={cmake_options['gravity']}",
-                        f"-DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED",
-                        f"-DNovapp_inih_DEPENDENCY_POLICY=INSTALLED",
-                        f"-DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED",
+                        "-DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED",
+                        "-DNovapp_inih_DEPENDENCY_POLICY=INSTALLED",
+                        "-DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED",
                         f"-DNovapp_NDIM={cmake_options['ndim']}",
                         f"-DNovapp_SETUP={setup['name']}",
-                        "-B", build_directory])
+                        "-B", build_directory,
+                        "-S", sources], check=True)
             subprocess.run(["cmake", "--build", build_directory], check=True)
     except subprocess.CalledProcessError as e:
         print(f"Command '{e.cmd}' returned non-zero exit status {e.returncode}")
@@ -37,13 +44,21 @@ def build_suite(setups):
         shutil.rmtree(directory)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Build suite")
-    parser.add_argument("filename",
-                        type=pathlib.Path,
-                        help="Input YAML filename")
-    args = parser.parse_args()
+    def main():
+        """main function"""
+        parser = argparse.ArgumentParser(description="Build suite")
+        parser.add_argument("filename",
+                            type=pathlib.Path,
+                            help="Path to input YAML configuration filename")
+        parser.add_argument("-S",
+                            default=pathlib.Path.cwd(),
+                            type=pathlib.Path,
+                            help="Path to the nova++ sources")
+        args = parser.parse_args()
 
-    with open(args.filename, "r") as yaml_file:
-        setups = yaml.safe_load(yaml_file)
+        with open(args.filename, mode="r", encoding="utf-8") as yaml_file:
+            setups = yaml.safe_load(yaml_file)
 
-    build_suite(setups)
+        build_suite(args.S, setups)
+
+    main()
