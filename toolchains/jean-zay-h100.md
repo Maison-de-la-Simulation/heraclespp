@@ -5,7 +5,12 @@
 ```bash
 # nova-env.sh
 module purge
-TBA
+module load arch/h100
+module load gcc/12.2.0
+module load cuda/12.4.1
+module load openmpi/4.1.5-cuda
+module load hdf5/1.12.0-mpi-cuda
+module load cmake/3.30.1
 
 . pdi-installation-prefix-path/share/pdi/env.bash
 ```
