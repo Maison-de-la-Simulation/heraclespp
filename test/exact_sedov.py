@@ -84,11 +84,11 @@ def SolutionSedov(n, gamma):
     vol[0] = r[0]**n
     const = 1
 
-    if(n==1):
+    if n == 1:
         const = 2
-    elif(n==2):
+    elif n == 2:
         const = np.pi
-    elif(n==3):
+    elif n == 3:
         const = 4 * np.pi / 3
 
     u = unew

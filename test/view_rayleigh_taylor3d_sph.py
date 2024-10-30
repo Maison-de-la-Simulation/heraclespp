@@ -1,10 +1,10 @@
 # View Rayleigh Taylor instability
 
-import numpy as np
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-import h5py
 import sys
+
+import h5py
+import matplotlib.pyplot as plt
+import numpy as np
 
 print("********************************")
 print("   Rayleigh Taylor spherical 3d")
@@ -13,13 +13,13 @@ print("********************************")
 s_theta = 100
 s_phi = 100
 
-with h5py.File("test_00000000.h5", 'r') as f :
+with h5py.File("test_00000000.h5", 'r') as f:
     rho0_1d = f['rho'][int(s_phi/2), int(s_theta/2), :] # rho(r)
     v0_1d = f['ux'][int(s_phi/2), int(s_theta/2), :] # vr(r)
 
 filename = sys.argv[1]
 
-with h5py.File(str(filename), 'r') as f :
+with h5py.File(str(filename), 'r') as f:
     #print(f.keys())
     rho_1d = f['rho'][int(s_phi/2), int(s_theta/2), :] # rho(r)
     v_1d = f['ux'][int(s_phi/2), int(s_theta/2), :] # vr(r)
@@ -53,21 +53,24 @@ plt.figure(figsize=(10,8))
 plt.suptitle('Rayleigh Taylor spherical 3D')
 plt.title(f'Density t = {t:.5f} s')
 plt.imshow(rho2, cmap='seismic', origin='lower', extent=[rmin, rmax, phi_min, phi_max])
-plt.xlabel("Radius (m)"); plt.ylabel(r"$\phi$ angle (rad)")
+plt.xlabel("Radius (m)")
+plt.ylabel(r"$\phi$ angle (rad)")
 plt.colorbar()
 
 plt.figure(figsize=(10,8))
 plt.subplot(121)
 plt.plot(rc, rho0_1d, "--", label="t = 0")
 plt.plot(rc, rho_1d, label=f"t = {t:.3f}")
-plt.xlabel("Radius (m)"); plt.ylabel(r"Density")
+plt.xlabel("Radius (m)")
+plt.ylabel(r"Density")
 plt.xlim(rmin, rmax)
 plt.legend()
 
 plt.subplot(122)
 plt.plot(rc, v0_1d, "--", label="t = 0")
 plt.plot(rc, v_1d, label=f"t = {t:.3f}")
-plt.xlabel("Radius (m)"); plt.ylabel(r"Velocity")
+plt.xlabel("Radius (m)")
+plt.ylabel(r"Velocity")
 plt.xlim(rmin, rmax)
 plt.xlim(x[0], x[len(x)-1])
 plt.legend()

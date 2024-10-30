@@ -1,9 +1,10 @@
 # Heat nickel
 
-import numpy as np
-import matplotlib.pyplot as plt
-import h5py
 import sys
+
+import h5py
+import matplotlib.pyplot as plt
+import numpy as np
 
 print("********************************")
 print("         Heat nickel 56")
@@ -11,7 +12,7 @@ print("********************************")
 
 filename = sys.argv[1]
 
-with h5py.File(str(filename), 'r') as f : 
+with h5py.File(str(filename), 'r') as f:
     #print(f.keys())
     rho = f['rho'][0, 0, :]
     u = f['ux'][0, 0, :]
@@ -40,7 +41,7 @@ for i in range(len(rho)):
 # Initialisation ---------------------------
 
 kb = 1.380649e-23 # kg.m^{2}.s^{-2}.K^{-1}
-mu = 55.9421278 # 
+mu = 55.9421278 #
 mp = 1.672649e-27 # kg
 atomic_unit_mass = 1.66053906660e-27 # kg
 
@@ -111,7 +112,8 @@ plt.suptitle(f'Heat nickel t = {t:.1e} s ({tday} jours)')
 plt.subplot(221)
 plt.plot(xc, rho0, '--', label='t = 0')
 plt.plot(xc, rho,  label = f't = {t:.1e}')
-plt.ylabel('Density ($kg.m^{-3}$)'); plt.xlabel('x')
+plt.xlabel('x')
+plt.ylabel('Density ($kg.m^{-3}$)')
 plt.yscale('log')
 plt.grid()
 plt.legend()
@@ -119,14 +121,16 @@ plt.legend()
 plt.subplot(222)
 plt.plot(xc, u0, '--', label='t = 0')
 plt.plot(xc, u,  label = f't = {t:.1e}')
-plt.ylabel('Velocity ($m.s^{-1}$)'); plt.xlabel('x')
+plt.xlabel('x')
+plt.ylabel('Velocity ($m.s^{-1}$)')
 plt.grid()
 plt.legend()
 
 plt.subplot(223)
 plt.plot(xc, P0, '--', label='t = 0')
 plt.plot(xc, P, label = f't = {t:.1e}')
-plt.ylabel('Pressure ($kg.m^{-1}.s^{-2}$)'); plt.xlabel('x')
+plt.xlabel('x')
+plt.ylabel('Pressure ($kg.m^{-1}.s^{-2}$)')
 plt.yscale('log')
 plt.grid()
 plt.legend()
@@ -135,7 +139,8 @@ plt.subplot(224)
 plt.plot(xc, fx0, '--', label='t = 0')
 plt.plot(xc, fx, label = f't = {t:.1e}')
 plt.plot(xc, fx_ni56, label = 'analytical Ni56 heat')
-plt.ylabel('Passiv scalar'); plt.xlabel('x')
+plt.xlabel('x')
+plt.ylabel('Passiv scalar')
 plt.yscale('log')
 plt.grid()
 plt.legend()
@@ -145,7 +150,8 @@ plt.suptitle(f'Temperature for test heat nickel t = {t:.1e} s ({tday} jours)')
 plt.plot(xc, T0, '--', label='t = 0')
 plt.plot(xc, T, label = f't = {t:.1e}')
 plt.plot(xc, T_ni56, '--', label = 'analytical Ni56 heat')
-plt.ylabel('Temperature ($K$)'); plt.xlabel('x')
+plt.xlabel('x')
+plt.ylabel('Temperature ($K$)')
 plt.yscale('log')
 plt.grid()
 plt.legend()

@@ -27,7 +27,7 @@ def CI(x, inter, tabl, tabr) :
     P0 = np.zeros(len(x))
 
     for i in range(len(x)):
-        if (x[i] <= inter): 
+        if x[i] <= inter: 
             rho0[i] = rhol
             u0[i] = ul
             P0[i] = Pl
@@ -66,10 +66,10 @@ def StarPU(tabl, tabr, gamma):
         P_star = P_old - (fl + fr + u_diff) / (fld + frd)
         change =  2 * (P_star - P_old) / (P_star + P_old)
 
-        if (change < tolpre):
+        if change < tolpre:
             i = i + 1
 
-        if (P_star < tolpre):
+        if P_star < tolpre:
             P_old = P_star
             break
 
@@ -107,16 +107,14 @@ def GuessP(tabl, tabr, gamma):
 
     if (qmax < quser) and ((Pmin <= P_pvrs) and (P_pvrs <= Pmax)):
         P_star = P_pvrs
-
-    else :
-        if (P_pvrs < Pmin) :
+    else:
+        if P_pvrs < Pmin:
             P_lr = (Pl / Pr)**z
             u_star = (P_lr * ul / cl + ur / cr + g4 * (P_lr - 1)) / (P_lr / cl + 1 / cr) # Vitesse moyenne
             Ptl = 1 + g7 * (ul - u_star) / cl
             Ptr =  1 + g7 * (u_star - ur) / cr
             P_star = (1 / 2) * (Pl * Ptr**(1 / z) + Pr * Ptr**(1 / z))
-
-        else :
+        else:
             gl = np.sqrt((g5 / rhol) / (P_pvrs + g6 * Pl))
             gr = np.sqrt((g5 / rhor) / (P_pvrs + g6 * Pr))
             P_star = (gl * Pl + gr * Pr - (ur - ul)) / (gl + gr)
@@ -143,12 +141,11 @@ def Prefun(P, Pk, rhok, ck, gamma):
     g5 = 2 / (gamma + 1)
     g6 = (gamma - 1) / (gamma + 1)
 
-    if (P < Pk) : # Rarefaction wave
+    if P < Pk: # Rarefaction wave
         P_rat = P / Pk
         fk = g4 * ck * (P_rat**z -1)
         fd = (1 / (rhok * ck)) * P_rat**(- g2)
-
-    else : # Shock wave
+    else: # Shock wave
         Ak = g5 / rhok
         Bk = g6 * Pk
         qrt = (np.sqrt(Ak / (P + Bk)))
@@ -183,62 +180,62 @@ def Sample(P_star, u_star, S, tabl, tabr, gamma):
 
     rhol, ul, Pl, cl = tabl
     rhor, ur, Pr, cr = tabr
-    if (S < u_star) : # Left of the discontinuity
-        if (P_star <= Pl) : # Rearefaction wave
+    if S < u_star: # Left of the discontinuity
+        if P_star <= Pl: # Rearefaction wave
             Shl = ul - cl
-            if (S <= Shl) :
+            if S <= Shl:
                 rho = rhol
                 u = ul
                 P = Pl
-            else :
+            else:
                 cl_star = cl * (P_star / Pl)**(z)
                 Stl = u_star - cl_star
-                if (S > Stl):
+                if S > Stl:
                     rho = rhol * (P_star / Pl)**(1 / gamma)
                     u = u_star
                     P = P_star
-                else :
+                else:
                     aide = g5 * (cl + g7 * (ul - S))
                     rho = rhol * (aide / cl)**g4
                     u = g5 * (cl + g7 * ul + S)
                     P = Pl * (aide / cl)**g3
-        else : # Shock wave
+        else: # Shock wave
             rapl = P_star / Pl
             Sl = ul - cl * np.sqrt(g2 * rapl + z)
-            if (S < Sl):
+            if S < Sl:
                 rho = rhol
                 u = ul
                 P = Pl
-            else :
+            else:
                 rho = rhol * (rapl + g6) / (rapl * g6 + 1)
                 u = u_star
                 P = P_star
-    else : # Right of the discontinuity
-        if (P_star > Pr) : # Shock wave
+    else: # Right of the discontinuity
+        if P_star > Pr: # Shock wave
             rapr = P_star / Pr
             Sr = ur + cr * np.sqrt(g2 * rapr + z)
-            if (S > Sr) :
+            if S > Sr:
                 rho = rhor
                 u = ur
                 P = Pr
-            else :
+            else:
                 rho = rhor * (rapr + g6) / (rapr * g6 + 1)
                 u = u_star
                 P = P_star
-        else : # Rarefaction wave
+        else: # Rarefaction wave
             Shr = ur + cr
-            if (S >= Shr):
+            if S >= Shr:
                 rho = rhor
                 u = ur
                 P = Pr
-            else :
+            else:
                 cr_star = cr * (P_star / Pr)**(z)
                 Str = u_star + cr_star
-                if (S <= Str) :
+                if S <= Str:
                     rho = rhor * (P_star / Pr)**(1 / gamma)
                     u = u_star
                     P = P_star
-                else :
+                else:
                     aide2 = g5 * (cr - g7 * (ur - S))
                     rho = rhor * (aide2 / cr)**g4
                     u = g5 *(- cr + g7 * ur + S)

@@ -1,9 +1,10 @@
 # View Gresho Vortex problem
 
-import numpy as np
-import matplotlib.pyplot as plt
-import h5py
 import sys
+
+import h5py
+import matplotlib.pyplot as plt
+import numpy as np
 
 print("********************************")
 print("        Gresho Vortex")
@@ -11,7 +12,7 @@ print("********************************")
 
 filename = sys.argv[1]
 
-with h5py.File(str(filename), 'r') as f :
+with h5py.File(str(filename), 'r') as f:
     #print(f.keys())
     u_x = f['ux'][0, :, :]
     u_y = f['uy'][0, :, :]
@@ -31,5 +32,6 @@ plt.title(f'Speed t = {t:.1e} s')
 plt.imshow(u2d, origin='lower', extent=[-1, 1, -1, 1])
 plt.colorbar()
 plt.plasma()
-plt.xlabel('x'); plt.ylabel('y')
-plt.show() 
+plt.xlabel('x')
+plt.ylabel('y')
+plt.show()

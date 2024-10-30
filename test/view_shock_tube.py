@@ -1,10 +1,11 @@
 # Test the shock tube problem and compare
 
-import numpy as np
-import matplotlib.pyplot as plt
-import h5py
 from argparse import ArgumentParser
 from pathlib import Path
+
+import h5py
+import matplotlib.pyplot as plt
+import numpy as np
 
 from exact_shock_tube import CI, ExactShockTube
 
@@ -23,7 +24,7 @@ print("********************************")
 print("         Shock tube")
 print("********************************")
 
-with h5py.File(args.filename, 'r') as f :
+with h5py.File(args.filename, 'r') as f:
     #print(f.keys())
     rho = f['rho'][0, 0, :]
     u = f['ux'][0, 0, :]
@@ -74,7 +75,7 @@ P0r = 0.1
 c0r = np.sqrt(gamma * P0r / rho0r)
 var0r = np.array([rho0r, u0r, P0r, c0r])
 
-Ncell = 1_000 
+Ncell = 1_000
 dx_exact = L / Ncell
 x_exact = np.zeros(Ncell)
 
@@ -95,7 +96,8 @@ plt.plot(x_exact, rho0, '--', label='t=0')
 plt.plot(x_exact,rho_exact, label='Exact')
 plt.plot(xc, rho, label = 'Solver')#f't = {t:1f}')
 plt.plot(xc, fx, label='Scalar')
-plt.ylabel('Density ($kg.m^{-3}$)'); plt.xlabel('Position')
+plt.xlabel('Position')
+plt.ylabel('Density ($kg.m^{-3}$)')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
 plt.legend()
@@ -104,7 +106,8 @@ plt.subplot(222)
 plt.plot(x_exact, u0, '--', label='t=0')
 plt.plot(x_exact, u_exact, label='Exact')
 plt.plot(xc, u, 'x-', label = 'Solver')#f't = {t:1f}')
-plt.ylabel('Velocity ($m.s^{-1}$)'); plt.xlabel('Position')
+plt.xlabel('Position')
+plt.ylabel('Velocity ($m.s^{-1}$)')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
 plt.legend()
@@ -113,7 +116,8 @@ plt.subplot(223)
 plt.plot(x_exact, P0,'--', label='t=0')
 plt.plot(x_exact, P_exact, label='Exact')
 plt.plot(xc, P, 'x-', label = 'Solver')#f't = {t:1f}')
-plt.ylabel('Pressure ($kg.m^{-1}.s^{-2}$)'); plt.xlabel('Position')
+plt.xlabel('Position')
+plt.ylabel('Pressure ($kg.m^{-1}.s^{-2}$)')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
 plt.legend()
@@ -122,7 +126,8 @@ plt.subplot(224)
 plt.plot(x_exact, e0,'--', label='t=0')
 plt.plot(x_exact, e_exact, label='Exact')
 plt.plot(xc, e, 'x-', label = 'Solver')#f't = {t:1f}')
-plt.ylabel('Internal energy ($m^{2}.s^{-2}$)'); plt.xlabel('Position')
+plt.xlabel('Position')
+plt.ylabel('Internal energy ($m^{2}.s^{-2}$)')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
 plt.legend()

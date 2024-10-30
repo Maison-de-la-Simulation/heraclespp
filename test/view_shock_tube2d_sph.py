@@ -1,15 +1,14 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import h5py
 import sys
 
-from exact_shock_tube import CI, ExactShockTube
+import h5py
+import matplotlib.pyplot as plt
+import numpy as np
 
 print("********************************")
 print("   Shock tube spherical 2d")
 print("********************************")
 
-with h5py.File("result_00000000.h5", 'r') as f :
+with h5py.File("result_00000000.h5", 'r') as f:
     #print(f.keys())
     rho0 = f['rho'][0 , 0, :] # rho(r)
     u0 = f['ux'][0, 0, :]
@@ -17,7 +16,7 @@ with h5py.File("result_00000000.h5", 'r') as f :
 
 filename = sys.argv[1]
 ind_th = int(len(rho0) / 2)
-with h5py.File(str(filename), 'r') as f :
+with h5py.File(str(filename), 'r') as f:
     #print(f.keys())
     rho_2d = f['rho'][0, ind_th, :] # rho(r)
     u_2d = f['ux'][0, ind_th, :]
@@ -53,7 +52,8 @@ plt.figure(figsize=(10,8))
 plt.suptitle('Shock tube spherical 2D')
 plt.title(f'Density t = {t:.1f} s')
 plt.imshow(rho_2d_r_th, cmap='seismic', origin='lower', extent=[rmin, rmax, th_min, th_max])
-plt.xlabel("Radius (m)"); plt.ylabel(r"$\phi$ angle (rad)")
+plt.xlabel("Radius (m)")
+plt.ylabel(r"$\phi$ angle (rad)")
 plt.colorbar()
 
 plt.figure(figsize=(10,8))
@@ -62,28 +62,32 @@ plt.subplot(221)
 plt.plot(rc, rho0, "--", label="t=0")
 plt.plot(rc, rho_2d, label="2D sphérique")
 plt.grid()
-plt.xlabel('Radius (m)');plt.ylabel(r'Density ($kg.m^{-3}$)')
+plt.xlabel('Radius (m)')
+plt.ylabel(r'Density ($kg.m^{-3}$)')
 plt.legend()
 
 plt.subplot(222)
 plt.plot(rc, u0, "--", label="t=0")
 plt.plot(rc, u_2d, label="2D sphérique")
 plt.grid()
-plt.xlabel('Radius (m)');plt.ylabel(r'Velocity ($m.s^{-1}$)')
+plt.xlabel('Radius (m)')
+plt.ylabel(r'Velocity ($m.s^{-1}$)')
 plt.legend()
 
 plt.subplot(223)
 plt.plot(rc, P0, "--", label="t=0")
 plt.plot(rc, P_2d, label="2D sphérique")
 plt.grid()
-plt.xlabel('Radius (m)');plt.ylabel(r'Pressure ($kg.m^{-1}.s^{-2}$)')
+plt.xlabel('Radius (m)')
+plt.ylabel(r'Pressure ($kg.m^{-1}.s^{-2}$)')
 plt.legend()
 
 plt.subplot(224)
 plt.plot(rc, e0, "--", label="t=0")
 plt.plot(rc, e_2d, label="2D sphérique")
 plt.grid()
-plt.xlabel('Radius (m)');plt.ylabel(r'Internal energy ($m^{2}.s^{-2}$)')
+plt.xlabel('Radius (m)')
+plt.ylabel(r'Internal energy ($m^{2}.s^{-2}$)')
 plt.legend()
 
 plt.show()
