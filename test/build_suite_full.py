@@ -56,7 +56,7 @@ if __name__ == "__main__":
                             help="Path to the nova++ sources")
         args = parser.parse_args()
 
-        with open(args.filename, mode="r", encoding="utf-8") as yaml_file:
+        with open(args.filename, encoding="utf-8") as yaml_file:
             setups = yaml.safe_load(yaml_file)
 
         build_suite(args.S, setups)

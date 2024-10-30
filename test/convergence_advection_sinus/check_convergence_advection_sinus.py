@@ -34,7 +34,7 @@ def check_convergence_order(filenames: typing.List[str]):
     """Check convergence order from the list of the given h5 files"""
 
     def key(filename: str):
-        with h5py.File(filename, mode="r") as f:
+        with h5py.File(filename) as f:
             return f["nx_glob_ng"][0]
 
     filenames.sort(key=key)
@@ -42,7 +42,7 @@ def check_convergence_order(filenames: typing.List[str]):
     errors = np.empty(len(filenames))
     points = np.empty(len(filenames))
     for i, filename in enumerate(filenames):
-        with h5py.File(filename, mode="r") as f:
+        with h5py.File(filename) as f:
             errors[i] = error(f["x_ng"], f["rho"][0, 0, :])
             points[i] = f["nx_glob_ng"][0]
 
