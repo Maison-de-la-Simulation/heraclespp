@@ -54,10 +54,10 @@ void TestGravityInternalGravity()
     novapp::KDV_double_1d x_glob("x_glob", grid.Nx_glob_ng[0]+2*grid.Nghost[0]+1);
     novapp::KDV_double_1d y_glob("y_glob", grid.Nx_glob_ng[1]+2*grid.Nghost[1]+1);
     novapp::KDV_double_1d z_glob("z_glob", grid.Nx_glob_ng[2]+2*grid.Nghost[2]+1);
-    grid_type->execute(grid.Nghost, grid.Nx_glob_ng, x_glob.h_view, y_glob.h_view, z_glob.h_view);
+    grid_type->execute(grid.Nghost, grid.Nx_glob_ng, x_glob.view_host(), y_glob.view_host(), z_glob.view_host());
     novapp::modify_host(x_glob, y_glob, z_glob);
     novapp::sync_device(x_glob, y_glob, z_glob);
-    grid.set_grid(x_glob.d_view, y_glob.d_view, z_glob.d_view);
+    grid.set_grid(x_glob.view_device(), y_glob.view_device(), z_glob.view_device());
 
     double const rho_value = 1E10;
     novapp::KV_double_3d const rho("rho", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
@@ -103,31 +103,40 @@ void TestGravityUniformGravity()
     double const gy = 1.9;
     double const gz = 3.7;
     novapp::KDV_double_1d g("g", 3);
-    g.h_view(0) = gx;
-    g.h_view(1) = gy;
-    g.h_view(2) = gz;
+    {
+        auto const g_h = g.view_host();
+        g_h(0) = gx;
+        g_h(1) = gy;
+        g_h(2) = gz;
+    }
     g.modify_host();
     g.sync_device();
-    novapp::UniformGravity const gravity(g.d_view);
+    novapp::UniformGravity const gravity(g.view_device());
     int const nx = 5;
     int const ny = 4;
     int const nz = 3;
     novapp::KDV_double_4d result("result", nx, ny, nz, 3);
-    Kokkos::parallel_for(
-            Kokkos::MDRangePolicy<Kokkos::Rank<3>, int>({0, 0, 0}, {nx, ny, nz}),
-            KOKKOS_LAMBDA(int i, int j, int k) {
-                result.d_view(i, j, k, 0) = gravity(i, j, k, 0);
-                result.d_view(i, j, k, 1) = gravity(i, j, k, 1);
-                result.d_view(i, j, k, 2) = gravity(i, j, k, 2);
-            });
+    {
+        auto const result_d = result.view_device();
+        Kokkos::parallel_for(
+                Kokkos::MDRangePolicy<Kokkos::Rank<3>, int>({0, 0, 0}, {nx, ny, nz}),
+                KOKKOS_LAMBDA(int i, int j, int k) {
+                    result_d(i, j, k, 0) = gravity(i, j, k, 0);
+                    result_d(i, j, k, 1) = gravity(i, j, k, 1);
+                    result_d(i, j, k, 2) = gravity(i, j, k, 2);
+                });
+    }
     result.modify_device();
     result.sync_host();
-    for (int k = 0; k < nz; ++k) {
-        for (int j = 0; j < ny; ++j) {
-            for (int i = 0; i < nx; ++i) {
-                EXPECT_EQ(result.h_view(i, j, k, 0), gx);
-                EXPECT_EQ(result.h_view(i, j, k, 1), gy);
-                EXPECT_EQ(result.h_view(i, j, k, 2), gz);
+    {
+        auto const result_h = result.view_host();
+        for (int k = 0; k < nz; ++k) {
+            for (int j = 0; j < ny; ++j) {
+                for (int i = 0; i < nx; ++i) {
+                    EXPECT_EQ(result_h(i, j, k, 0), gx);
+                    EXPECT_EQ(result_h(i, j, k, 1), gy);
+                    EXPECT_EQ(result_h(i, j, k, 2), gz);
+                }
             }
         }
     }

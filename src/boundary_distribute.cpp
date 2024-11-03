@@ -93,7 +93,7 @@ void DistributedBoundaryCondition::ghost_sync(
     for (std::size_t i = 0; i < views.size(); ++i)
     {
         Kokkos::deep_copy(
-                Kokkos::subview(buf.d_view, ALL, ALL, ALL, i),
+                Kokkos::subview(buf.view_device(), ALL, ALL, ALL, i),
                 Kokkos::subview(views[i], KRange[0], KRange[1], KRange[2]));
     }
 
@@ -103,11 +103,11 @@ void DistributedBoundaryCondition::ghost_sync(
     if (!m_param.mpi_device_aware)
     {
         buf.sync_host();
-        ptr = buf.h_view.data();
+        ptr = buf.view_host().data();
     }
     else
     {
-        ptr = buf.d_view.data();
+        ptr = buf.view_device().data();
     }
 
     int src = 0;
@@ -115,10 +115,10 @@ void DistributedBoundaryCondition::ghost_sync(
     MPI_Cart_shift(grid.comm_cart, bc_idim, bc_iface == 0 ? -1 : 1, &src, &dst);
 
     // check that it is not bigger than the capacity of an `int` (because of MPI API)
-    assert(buf.h_view.size() <= std::numeric_limits<int>::max());
+    assert(buf.view_host().size() <= std::numeric_limits<int>::max());
     MPI_Sendrecv_replace(
             ptr,
-            static_cast<int>(buf.h_view.size()),
+            static_cast<int>(buf.view_host().size()),
             MPI_DOUBLE,
             dst,
             bc_idim,
@@ -140,7 +140,7 @@ void DistributedBoundaryCondition::ghost_sync(
     {
         Kokkos::deep_copy(
                 Kokkos::subview(views[i], KRange[0], KRange[1], KRange[2]),
-                Kokkos::subview(buf.d_view, ALL, ALL, ALL, i));
+                Kokkos::subview(buf.view_device(), ALL, ALL, ALL, i));
     }
 }
 
