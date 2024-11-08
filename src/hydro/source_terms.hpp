@@ -58,6 +58,20 @@ double source_grad_u_idir_r(
         * (rhoR * uR_other * uR_r * dS_p + rhoL * uL_other * uL_r * dS);
 }
 
+KOKKOS_FORCEINLINE_FUNCTION
+double source_grad_u_idir_r_flux(
+    double dtodv,
+    double x,
+    double x_p,
+    double FL,
+    double FR,
+    double dS,
+    double dS_p)
+{
+    return dtodv * (x_p - x) / (x_p + x)
+        * (FR * dS_p + FL * dS);
+}
+
 // Velocity term (e_{th}): cot(th) * rho * u_{phi} * u_{phi} / r
 KOKKOS_FORCEINLINE_FUNCTION
 double source_grad_u_th(
