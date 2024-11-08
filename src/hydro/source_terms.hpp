@@ -45,17 +45,12 @@ double source_grad_u_idir_r(
     double dtodv,
     double x,
     double x_p,
-    double rhoL,
-    double rhoR,
-    double uL_r,
-    double uR_r,
-    double uL_other,
-    double uR_other,
+    double FL,
+    double FR,
     double dS,
     double dS_p)
 {
-    return dtodv * (x_p - x) / (x_p + x)
-        * (rhoR * uR_other * uR_r * dS_p + rhoL * uL_other * uL_r * dS);
+    return dtodv * (x_p - x) / (x_p + x) * (FR * dS_p + FL * dS);
 }
 
 // Velocity term (e_{th}): cot(th) * rho * u_{phi} * u_{phi} / r
@@ -64,14 +59,12 @@ double source_grad_u_th(
     double dtodv,
     double y,
     double y_p,
-    double rhoL,
-    double rhoR,
-    double uL_phi,
-    double uR_phi,
+    double FL,
+    double FR,
     double dS,
     double dS_p)
 {
-    return dtodv * (rhoL * uL_phi * uL_phi + rhoR * uR_phi * uR_phi) / 2
+    return dtodv * (FL + FR) / 2
         * (Kokkos::cos((y + y_p) / 2) / Kokkos::sin((y + y_p) / 2))
         * (dS - dS_p) / 2;
 }
@@ -82,19 +75,14 @@ double source_grad_u_phi(
     double dtodv,
     double y,
     double y_p,
-    double rhoL,
-    double rhoR,
-    double uL_th,
-    double uR_th,
-    double uL_phi,
-    double uR_phi,
+    double FL,
+    double FR,
     double dS,
     double dS_p)
 {
     double const sm = Kokkos::sin(y);
     double const sp = Kokkos::sin(y_p);
-    return dtodv * (sp - sm) / (sp + sm) * (rhoR * uR_phi * uR_th * dS
-        + rhoL * uL_phi * uL_th * dS_p);
+    return dtodv * (sp - sm) / (sp + sm) * (FR * dS + FL * dS_p);
 }
 
 } // namespace novapp
