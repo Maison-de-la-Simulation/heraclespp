@@ -73,7 +73,7 @@ double source_grad_u_th(
 {
     return dtodv * (rhoL * uL_phi * uL_phi + rhoR * uR_phi * uR_phi) / 2
         * (Kokkos::cos((y + y_p) / 2) / Kokkos::sin((y + y_p) / 2))
-        * (dS - dS_p) / 2;
+        * (dS_p - dS) / 2;
 }
 
 // Velocity term (e_{phi}): cot(th) * rho * u_{phi} * u_{th} / r
@@ -93,8 +93,8 @@ double source_grad_u_phi(
 {
     double const sm = Kokkos::sin(y);
     double const sp = Kokkos::sin(y_p);
-    return dtodv * (sp - sm) / (sp + sm) * (rhoR * uR_phi * uR_th * dS
-        + rhoL * uL_phi * uL_th * dS_p);
+    return dtodv * (sp - sm) / (sp + sm) * (rhoR * uR_phi * uR_th * dS_p
+        + rhoL * uL_phi * uL_th * dS);
 }
 
 } // namespace novapp
