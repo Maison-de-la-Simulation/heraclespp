@@ -204,12 +204,9 @@ public:
                                             primL.u[1], primR.u[1], ds(i, j, k, idim), ds(i_p, j_p, k_p, idim));
 
                                 // Velocity term (e_{th}): rho * u_{th} * u_{r} / r
-                                double source_val1 = source_grad_u_idir_r(dtodv, x(i), x(i+1), primL.rho, primR.rho,
+                                rhou_new(i, j, k, 1) -= source_grad_u_idir_r(dtodv, x(i), x(i+1), primL.rho, primR.rho,
                                                         primL.u[0], primR.u[0], primL.u[1], primR.u[1],
                                                         ds(i, j, k, idim), ds(i_p, j_p, k_p, idim));
-                                double source_flux1 = source_grad_u_idir_r_flux(dtodv, x(i), x(i+1), FluxL.rhou[1], FluxR.rhou[1],
-                                                        ds(i, j, k, idim), ds(i_p, j_p, k_p, idim));
-                                rhou_new(i, j, k, 1) -= source_flux1;
                             }
                             if (ndim == 3)
                             {
