@@ -179,9 +179,20 @@ void write_pdi(
         "u", u.view_host().data(), PDI_OUT,
         "P", P.view_host().data(), PDI_OUT,
         "E", E.view_host().data(), PDI_OUT,
-        "fx", fx.view_host().data(), PDI_OUT,
         "T", T.view_host().data(), PDI_OUT,
         nullptr);
+    for(int ifx=0; ifx<fx.extent_int(3); ++ifx)
+    {
+        PDI_multi_expose("write_fx",
+            "nullptr", nullptr, PDI_OUT,
+            "directory_size", &directory_size, PDI_OUT,
+            "directory", directory.data(), PDI_OUT,
+            "output_filename_size", &output_filename_size, PDI_OUT,
+            "output_filename", output_filename.data(), PDI_OUT,
+            "ifx", &ifx, PDI_OUT,
+            "fx", fx.view_host().data(), PDI_OUT,
+            nullptr);
+    }
     // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     if (grid.mpi_rank == 0)
     {
@@ -245,11 +256,20 @@ void read_pdi(
         "rho", rho.view_host().data(), PDI_INOUT,
         "u", u.view_host().data(), PDI_INOUT,
         "P", P.view_host().data(), PDI_INOUT,
-        "fx", fx.view_host().data(), PDI_INOUT,
         "x", x_glob.view_host().data(), PDI_INOUT,
         "y", y_glob.view_host().data(), PDI_INOUT,
         "z", z_glob.view_host().data(), PDI_INOUT,
         nullptr);
+    for(int ifx=0; ifx<fx.extent_int(3); ++ifx)
+    {
+        PDI_multi_expose("read_fx",
+            "nullptr", nullptr, PDI_OUT,
+            "restart_filename_size", &filename_size, PDI_OUT,
+            "restart_filename", restart_file.data(), PDI_OUT,
+            "ifx", &ifx, PDI_OUT,
+            "fx", fx.view_host().data(), PDI_INOUT,
+            nullptr);
+    }
     // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     modify_host(rho, u, P, fx, x_glob, y_glob, z_glob);
 }
@@ -259,8 +279,8 @@ XmlWriter::XmlWriter(std::string directory, std::string prefix, int const nfx)
     , m_prefix(std::move(prefix))
     , m_var_names({"rho", "P", "E", "T"})
 {
-    if (nfx > 0) {
-        m_var_names.emplace_back("fx");
+    for (int ifx = 0; ifx < nfx; ++ifx) {
+        m_var_names.emplace_back("fx" + std::to_string(ifx));
     }
     std::array<std::string_view, 3> const velocity {"ux", "uy", "uz"};
     for (int idim = 0; idim < ndim; ++idim) {
