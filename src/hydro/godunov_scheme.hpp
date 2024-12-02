@@ -196,6 +196,7 @@ public:
                             // Pressure term (e_{r}): 2 * P_{rr} / r
                             rhou_new(i, j, k, idim) += source_grad_P(dtodv, primL.P, primR.P,
                                                     ds(i, j, k, idim), ds(i_p, j_p, k_p, idim));
+
                             if (ndim == 2 || ndim == 3)
                             {
                                 // Velocity term (e_{r}): rho * u_{th} * u_{th} / r
