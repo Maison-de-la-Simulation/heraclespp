@@ -1,18 +1,16 @@
 # View Rayleigh Taylor instability
 
-import numpy as np
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-import h5py
 import sys
 
-from exact_shock_tube import CI, ExactShockTube
+import h5py
+import matplotlib.pyplot as plt
+import numpy as np
 
 print("********************************")
 print("   Shock tube spherical 3d")
 print("********************************")
 
-with h5py.File("result_00000000.h5", 'r') as f :
+with h5py.File("result_00000000.h5", 'r') as f:
     #print(f.keys())
     rho0 = f['rho'][0 , 0, :] # rho(r)
     u0 = f['ux'][0, 0, :]
@@ -20,7 +18,7 @@ with h5py.File("result_00000000.h5", 'r') as f :
 
 filename = sys.argv[1]
 
-with h5py.File(str(filename), 'r') as f :
+with h5py.File(str(filename), 'r') as f:
     #print(f.keys())
     rho_1d = f['rho'][5 , 5, :] # rho(r)
     rho2 = f['rho'][:, 0, :] # rho(r, phi)
@@ -68,7 +66,8 @@ plt.figure(figsize=(10,8))
 plt.suptitle('Shock tube spherical 3D')
 plt.title(f'Density t = {t:.1f} s')
 plt.imshow(rho2, cmap='seismic', origin='lower', extent=[rmin, rmax, phi_min, phi_max])
-plt.xlabel("Radius (m)"); plt.ylabel(r"$\phi$ angle (rad)")
+plt.xlabel("Radius (m)")
+plt.ylabel(r"$\phi$ angle (rad)")
 plt.colorbar()
 
 plt.figure(figsize=(10,8))
@@ -78,28 +77,32 @@ plt.plot(rc, rho0, "--", label="t=0")
 plt.plot(rc, rho_1d, label="3D sphérique")
 plt.plot(rc, fx_1d, label="passiv scalar")
 plt.grid()
-plt.xlabel('Radius (m)');plt.ylabel(r'Density ($kg.m^{-3}$)')
+plt.xlabel('Radius (m)')
+plt.ylabel(r'Density ($kg.m^{-3}$)')
 plt.legend()
 
 plt.subplot(222)
 plt.plot(rc, u0, "--", label="t=0")
 plt.plot(rc, u_1d, label="3D sphérique")
 plt.grid()
-plt.xlabel('Radius (m)');plt.ylabel(r'Velocity ($m.s^{-1}$)')
+plt.xlabel('Radius (m)')
+plt.ylabel(r'Velocity ($m.s^{-1}$)')
 plt.legend()
 
 plt.subplot(223)
 plt.plot(rc, P0, "--", label="t=0")
 plt.plot(rc, P_1d, label="3D sphérique")
 plt.grid()
-plt.xlabel('Radius (m)');plt.ylabel(r'Pressure ($kg.m^{-1}.s^{-2}$)')
+plt.xlabel('Radius (m)')
+plt.ylabel(r'Pressure ($kg.m^{-1}.s^{-2}$)')
 plt.legend()
 
 plt.subplot(224)
 plt.plot(rc, e0, "--", label="t=0")
 plt.plot(rc, e_1d, label="3D sphérique")
 plt.grid()
-plt.xlabel('Radius (m)');plt.ylabel(r'Internal energy ($m^{2}.s^{-2}$)')
+plt.xlabel('Radius (m)')
+plt.ylabel(r'Internal energy ($m^{2}.s^{-2}$)')
 plt.legend()
 
 plt.show()

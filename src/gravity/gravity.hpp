@@ -43,12 +43,15 @@ inline UniformGravity make_uniform_gravity(
     Param const& param)
 {
     KDV_double_1d g_array_dv("g_array", 3);
-    g_array_dv.h_view(0) = param.gx;
-    g_array_dv.h_view(1) = param.gy;
-    g_array_dv.h_view(2) = param.gz;
+    {
+        auto const g_array_h = g_array_dv.view_host();
+        g_array_h(0) = param.gx;
+        g_array_h(1) = param.gy;
+        g_array_h(2) = param.gz;
+    }
     g_array_dv.modify_host();
     g_array_dv.sync_device();
-    return UniformGravity(g_array_dv.d_view);
+    return UniformGravity(g_array_dv.view_device());
 }
 
 class PointMassGravity

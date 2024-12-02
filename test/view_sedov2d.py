@@ -1,9 +1,10 @@
 # View Sedov blast wave 2d
 
-import numpy as np
-import matplotlib.pyplot as plt
-import h5py
 import sys
+
+import h5py
+import matplotlib.pyplot as plt
+import numpy as np
 
 print("********************************")
 print("      Sedov blast wave 2d")
@@ -11,7 +12,7 @@ print("********************************")
 
 filename = sys.argv[1]
 
-with h5py.File(str(filename), 'r') as f :
+with h5py.File(str(filename), 'r') as f:
     #print(f.keys())
     rho = f['rho'][0, :, :]
     x = f['x'][()]
@@ -48,5 +49,6 @@ plt.plot(x_choc, y_choc, label='Theorical radius')
 plt.imshow(rho, origin='lower', extent=[xmin, xmax, ymin, ymax])
 plt.colorbar()
 plt.plasma()
-plt.xlabel('x'); plt.ylabel('y')
+plt.xlabel('x')
+plt.ylabel('y')
 plt.show()

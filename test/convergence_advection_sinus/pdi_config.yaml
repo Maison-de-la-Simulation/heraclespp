@@ -26,12 +26,18 @@ plugins:
     - file: ${directory}//${output_filename}
       on_event: write_replicated_data
       collision_policy: replace
+      datasets:
+        x_ng: {type: array, subtype: double, size: '$nx_glob_ng[0]+1' }
       when: '${mpi_rank}=0'
       write:
         nx_glob_ng:
         iter:
         current_time:
         x:
+          dataset: x_ng
+          memory_selection:
+            size: '$nx_glob_ng[0] + 1'
+            start: '$n_ghost[0]'
     - file: ${directory}//${output_filename}
       on_event: write_distributed_data
       collision_policy: write_into

@@ -86,6 +86,9 @@ public:
         // check_extent_dset(file_id, "/P_1d", std::array {P_1d.extent(0)});
         // check_extent_dset(file_id, "/fx_1d", std::array {fx_1d.extent(1), fx_1d.extent(0)});
 
+        std::cout << std::setw(81) << std::setfill('*') << '\n';
+        std::cout << "reading from file " << m_param_setup.init_filename << '\n';
+
         int const filename_size = m_param_setup.init_filename.size();
         // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
         PDI_multi_expose(
@@ -93,25 +96,25 @@ public:
             "nullptr", nullptr, PDI_OUT,
             "init_filename_size", &filename_size, PDI_OUT,
             "init_filename", m_param_setup.init_filename.data(), PDI_OUT,
-            "rho_1d", rho_1d.h_view.data(), PDI_INOUT,
-            "u_1d", u_1d.h_view.data(), PDI_INOUT,
-            "P_1d", P_1d.h_view.data(), PDI_INOUT,
-            "fx_1d", fx_1d.h_view.data(), PDI_INOUT,
+            "rho_1d", rho_1d.view_host().data(), PDI_INOUT,
+            "u_1d", u_1d.view_host().data(), PDI_INOUT,
+            "P_1d", P_1d.view_host().data(), PDI_INOUT,
+            "fx_1d", fx_1d.view_host().data(), PDI_INOUT,
             nullptr);
         // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
         modify_host(rho_1d, u_1d, P_1d, fx_1d);
         sync_device(rho_1d, u_1d, P_1d, fx_1d);
 
-        broadcast(range, rho_1d.d_view, rho);
-        broadcast(range, u_1d.d_view, Kokkos::subview(u, ALL, ALL, ALL, 0));
+        broadcast(range, rho_1d.view_device(), rho);
+        broadcast(range, u_1d.view_device(), Kokkos::subview(u, ALL, ALL, ALL, 0));
         for (int idim = 1; idim < u.extent_int(3); ++idim)
         {
             broadcast(range, 0, Kokkos::subview(u, ALL, ALL, ALL, idim));
         }
-        broadcast(range, P_1d.d_view, P);
+        broadcast(range, P_1d.view_device(), P);
         for(int ifx = 0; ifx < fx.extent_int(3); ++ifx)
         {
-            broadcast(range, Kokkos::subview(fx_1d.d_view, ALL, ifx), Kokkos::subview(fx, ALL, ALL, ALL, ifx));
+            broadcast(range, Kokkos::subview(fx_1d.view_device(), ALL, ifx), Kokkos::subview(fx, ALL, ALL, ALL, ifx));
         }
 
         // perturbation

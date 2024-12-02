@@ -1,9 +1,10 @@
 # V1d 1e5
 
-import numpy as np
-import matplotlib.pyplot as plt
-import h5py
 import sys
+
+import h5py
+import matplotlib.pyplot as plt
+import numpy as np
 
 print("********************************")
 print("             V1D")
@@ -15,7 +16,7 @@ ndim = input("Dimension of the simulation (1 or 3): ")
 # ------------------------------------------
 
 def read_start_file(filename):
-    with h5py.File(str(filename), 'r') as f :
+    with h5py.File(str(filename), 'r') as f:
         rho = f['rho_1d'][()]
         u = f['u_1d'][()]
         P = f['P_1d'][()]
@@ -24,7 +25,7 @@ def read_start_file(filename):
     return rho, u, P, x, t
 
 def read_file_1d_r(filename):
-    with h5py.File(str(filename), 'r') as f :
+    with h5py.File(str(filename), 'r') as f:
         rho = f['rho'][0, 0, :]
         u = f['ux'][0, 0, :]
         P = f['P'][0, 0, :]
@@ -34,7 +35,7 @@ def read_file_1d_r(filename):
     return rho, u, P, T, x, t
 
 def read_file_1d_r_element(filename):
-    with h5py.File(str(filename), 'r') as f :
+    with h5py.File(str(filename), 'r') as f:
         Ni = f['fx'][0, 0, 0, :]
         H = f['fx'][1, 0, 0, :]
         He = f['fx'][2, 0, 0, :]
@@ -43,7 +44,7 @@ def read_file_1d_r_element(filename):
     return Ni, H, He, O, Si
 
 def read_3d_file_in_1d_angular_mean(filename):
-    with h5py.File(str(filename), 'r') as f :
+    with h5py.File(str(filename), 'r') as f:
         rho_file = f['rho'][:, :, :]
         u_file = f['ux'][:, :, :]
         P_file = f['P'][:, :, :]
@@ -73,7 +74,7 @@ def read_3d_file_in_1d_angular_mean(filename):
     return rho, u, P, T
 
 def read_3d_file_element_in_1d_angular_mean(filename):
-    with h5py.File(str(filename), 'r') as f :
+    with h5py.File(str(filename), 'r') as f:
         Ni_file = f['fx'][0, 0, 0, :]
         H_file = f['fx'][1, 0, 0, :]
         He_file = f['fx'][2, 0, 0, :]
@@ -124,12 +125,12 @@ def rho_2D_r_th(filename):
     return rho
 
 def fgamma(filename):
-    with h5py.File(str(filename), 'r') as f :
+    with h5py.File(str(filename), 'r') as f:
         gamma = f['gamma'][()]
     return gamma
 
 def fiter(filename):
-    with h5py.File(str(filename), 'r') as f :
+    with h5py.File(str(filename), 'r') as f:
         iter = f['iter'][()]
     return iter
 
@@ -160,7 +161,7 @@ iter = fiter(filename)
 rho, u, P, T, x, t = read_file_1d_r(filename)
 Ni, H, He, O, Si = read_file_1d_r_element(filename)
 
-if (ndim ==3):
+if ndim == 3:
     rho, u, P, T = read_3d_file_in_1d_angular_mean(filename)
     Ni, H, He, O, Si = read_3d_file_element_in_1d_angular_mean(filename)
 
@@ -189,8 +190,10 @@ plt.subplot(221)
 plt.plot(xc0_cm, rho0_cgs, "--", label=f"$t_0$= {t0:.1e} s")
 plt.plot(xcf_cm, rhof_cgs, "--", color="red", label=f'$t_f$ = {tf:.1e} s')
 plt.plot(xc_cm, rho_cgs, color='green', label=f'$t$ = {t:.1e} s')
-plt.xlabel('rc (cm)'); plt.ylabel('Density ($g.cm^{-3}$)')
-plt.xscale('log'); plt.yscale('log')
+plt.xlabel('rc (cm)')
+plt.ylabel('Density ($g.cm^{-3}$)')
+plt.xscale('log')
+plt.yscale('log')
 plt.grid()
 plt.legend()
 
@@ -198,7 +201,8 @@ plt.subplot(222)
 plt.plot(xc0_cm, u0_cgs, "--", label=f"$t_i$= {t0:.1e} s")
 plt.plot(xcf_cm, uf_cgs, "--", color="red", label=f'$t_f$ = {tf:.1e} s')
 plt.plot(xc_cm, u_cgs, color='green', label=f'$t$ = {t:.1e} s')
-plt.xlabel('rc (cm)'); plt.ylabel('Velocity ($cm.s^{-1}$)')
+plt.xlabel('rc (cm)')
+plt.ylabel('Velocity ($cm.s^{-1}$)')
 plt.xscale('log')#; plt.yscale('log')
 plt.grid()
 plt.legend()
@@ -207,8 +211,10 @@ plt.subplot(223)
 plt.plot(xc0_cm, P0_cgs, "--", label=f"$t_i$= {t0:.1e} s")
 plt.plot(xcf_cm, Pf_cgs, "--", color="red", label=f'$t_f$ = {tf:.1e} s')
 plt.plot(xc_cm, P_cgs, color='green', label=f'$t$ = {t:.1e} s')
-plt.xlabel('rc (cm)'); plt.ylabel('Pressure ($g.cm^{-1}.s^{-2}$)')
-plt.xscale('log'); plt.yscale('log')
+plt.xlabel('rc (cm)')
+plt.ylabel('Pressure ($g.cm^{-1}.s^{-2}$)')
+plt.xscale('log')
+plt.yscale('log')
 plt.grid()
 plt.legend()
 
@@ -216,8 +222,10 @@ plt.subplot(224)
 #plt.plot(xc0_cm, T0, "--", label=f"$t_i$= {t0:.1e} s")
 plt.plot(xcf_cm, Tf, "--", color="red", label=f'$t_f$ = {tf:.1e} s')
 plt.plot(xc_cm, T, color='green', label=f'$t$ = {t:.1e} s')
-plt.xlabel('rc (cm)'); plt.ylabel('Temperature ($K$)')
-plt.xscale('log'); plt.yscale('log')
+plt.xlabel('rc (cm)')
+plt.ylabel('Temperature ($K$)')
+plt.xscale('log')
+plt.yscale('log')
 plt.grid()
 plt.legend()
 
@@ -233,8 +241,10 @@ plt.plot(xc_cm, O, c='darkorange', label="O")
 plt.plot(xcf_cm, Of, "--", color='darkorange', label="O V1D")
 plt.plot(xc_cm, Si, color="violet",label="Si")
 plt.plot(xcf_cm, Sif, "--", color="violet",label="Si V1D")
-plt.xscale('log'); plt.yscale('log')
-plt.xlabel('rc (cm)'); plt.ylabel('Concentration')
+plt.xscale('log')
+plt.yscale('log')
+plt.xlabel('rc (cm)')
+plt.ylabel('Concentration')
 plt.grid()
 plt.legend()
 plt.ylim(10**(-27), 10)

@@ -1,10 +1,10 @@
 # View Rayleigh Taylor instability
 
-import numpy as np
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-import h5py
 import sys
+
+import h5py
+import matplotlib.pyplot as plt
+import numpy as np
 
 from exact_sedov import ExactSedov
 
@@ -14,7 +14,7 @@ print("********************************")
 
 filename = sys.argv[1]
 
-with h5py.File(filename, 'r') as f :
+with h5py.File(filename, 'r') as f:
     P_3d = f['P'][:, :, :] # P(phi, theta, r)
 
 nr = P_3d.shape[2]
@@ -25,7 +25,7 @@ print("Size = ", nr, nth, nph)
 ind_th = int(nth / 2)
 ind_ph = int(nph / 2)
 
-with h5py.File(str(filename), 'r') as f :
+with h5py.File(str(filename), 'r') as f:
     #print(f.keys())
     rho_1d = f['rho'][ind_ph, ind_th, :] # rho(r)
     u_1d = f['ux'][ind_ph, ind_th, :] # u(r)
@@ -111,7 +111,8 @@ plt.plot(x_choc, z_choc, '--', c='black')
 plt.axvline(x=0, color='black', linestyle='--')
 plt.contourf(Z, X, rho_r_th, cmap='gnuplot')
 plt.gca().set_aspect('equal')
-plt.xlabel('x'); plt.ylabel('z')
+plt.xlabel('x')
+plt.ylabel('z')
 plt.colorbar(shrink=0.55)
 plt.show()
 
@@ -155,24 +156,27 @@ plt.show() """
 plt.figure(figsize=(8,8))
 plt.subplot(221)
 plt.plot(rc, rho_1d, label="Solver")
-plt.plot(rc_exact, rho_exact, label=f"Exact")
-plt.xlabel("Radius (m)"); plt.ylabel(r"Density")
+plt.plot(rc_exact, rho_exact, label="Exact")
+plt.xlabel("Radius (m)")
+plt.ylabel(r"Density")
 plt.xlim(x[0], x[len(x)-1])
 plt.grid()
 plt.legend()
 
 plt.subplot(222)
 plt.plot(rc, E, label="Solver")
-plt.plot(rc_exact, E_exact, label=f"Exact")
-plt.ylabel('Volumic energy ($kg.m^{-1}.s^{-2}$)'); plt.xlabel("Radius (m)")
+plt.plot(rc_exact, E_exact, label="Exact")
+plt.xlabel("Radius (m)")
+plt.ylabel('Volumic energy ($kg.m^{-1}.s^{-2}$)')
 plt.xlim(x[0], x[len(x)-1])
 plt.grid()
 plt.legend()
 
 plt.subplot(223)
 plt.plot(rc, P_1d, label="Solver")
-plt.plot(rc_exact, P_exact, label=f"Exact")
-plt.ylabel('Pressure ($kg.m^{-1}.s^{-2}$)'); plt.xlabel("Radius (m)")
+plt.plot(rc_exact, P_exact, label="Exact")
+plt.xlabel("Radius (m)")
+plt.ylabel('Pressure ($kg.m^{-1}.s^{-2}$)')
 plt.xlim(x[0], x[len(x)-1])
 plt.grid()
 plt.legend()

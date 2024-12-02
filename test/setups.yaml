@@ -1,0 +1,138 @@
+- name: advection_gap
+  cmake_options:
+    ndim: 1
+    eos: PerfectGas
+    gravity: Uniform
+    geom: Cartesian
+- name: advection_sinus
+  cmake_options:
+    ndim: 1
+    eos: PerfectGas
+    gravity: Uniform
+    geom: Cartesian
+- name: eq_hydro_sphe
+  cmake_options:
+    ndim: 1
+    eos: PerfectGas
+    gravity: Point_mass
+    geom: Spherical
+- name: gresho_vortex
+  cmake_options:
+    ndim: 2
+    eos: PerfectGas
+    gravity: Uniform
+    geom: Cartesian
+- name: heat_nickel
+  cmake_options:
+    ndim: 2
+    eos: PerfectGas
+    gravity: Uniform
+    geom: Cartesian
+- name: implosion_test
+  cmake_options:
+    ndim: 2
+    eos: PerfectGas
+    gravity: Uniform
+    geom: Cartesian
+- name: kelvin_helmholtz
+  cmake_options:
+    ndim: 2
+    eos: PerfectGas
+    gravity: Uniform
+    geom: Cartesian
+- name: rayleigh_taylor
+  cmake_options:
+    ndim: 2
+    eos: PerfectGas
+    gravity: Uniform
+    geom: Cartesian
+- name: rayleigh_taylor3d
+  cmake_options:
+    ndim: 3
+    eos: PerfectGas
+    gravity: Uniform
+    geom: Cartesian
+- name: rayleigh_taylor3d_sph
+  cmake_options:
+    ndim: 3
+    eos: PerfectGas
+    gravity: Uniform
+    geom: Spherical
+- name: sedov1d
+  cmake_options:
+    ndim: 1
+    eos: PerfectGas
+    gravity: Uniform
+    geom: Cartesian
+- name: sedov2d
+  cmake_options:
+    ndim: 2
+    eos: PerfectGas
+    gravity: Uniform
+    geom: Cartesian
+- name: sedov2d
+  cmake_options:
+    ndim: 2
+    eos: PerfectGas
+    gravity: Uniform
+    geom: Spherical
+- name: sedov3d
+  cmake_options:
+    ndim: 3
+    eos: PerfectGas
+    gravity: Uniform
+    geom: Spherical
+- name: shock_tube
+  cmake_options:
+    ndim: 1
+    eos: PerfectGas
+    gravity: Uniform
+    geom: Cartesian
+- name: shock_tube
+  cmake_options:
+    ndim: 1
+    eos: PerfectGas
+    gravity: Uniform
+    geom: Spherical
+- name: shock_tube
+  cmake_options:
+    ndim: 2
+    eos: PerfectGas
+    gravity: Uniform
+    geom: Spherical
+- name: shock_tube
+  cmake_options:
+    ndim: 3
+    eos: PerfectGas
+    gravity: Uniform
+    geom: Spherical
+- name: shock_wall
+  cmake_options:
+    ndim: 1
+    eos: PerfectGas
+    gravity: Uniform
+    geom: Cartesian
+- name: stratified_atm
+  cmake_options:
+    ndim: 1
+    eos: PerfectGas
+    gravity: Uniform
+    geom: Cartesian
+- name: v1d
+  cmake_options:
+    ndim: 1
+    eos: Gas+Radiation
+    gravity: Point_mass
+    geom: Spherical
+- name: v1d
+  cmake_options:
+    ndim: 2
+    eos: Gas+Radiation
+    gravity: Point_mass
+    geom: Spherical
+- name: v1d
+  cmake_options:
+    ndim: 3
+    eos: Gas+Radiation
+    gravity: Point_mass
+    geom: Spherical

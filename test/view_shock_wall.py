@@ -1,11 +1,12 @@
 # View shock on wall 1d
 
-import numpy as np
-import matplotlib.pyplot as plt
-import h5py
-import sys
 from argparse import ArgumentParser
 from pathlib import Path
+import sys
+
+import h5py
+import matplotlib.pyplot as plt
+import numpy as np
 
 parser = ArgumentParser(description="Plot shock wall.")
 parser.add_argument('filename',
@@ -24,7 +25,7 @@ print("********************************")
 
 filename = sys.argv[1]
 
-with h5py.File(args.filename, 'r') as f :
+with h5py.File(args.filename, 'r') as f:
     #print(f.keys())
     rho = f['rho'][0, 0, :]
     u = f['ux'][0, 0, :]
@@ -36,7 +37,7 @@ with h5py.File(args.filename, 'r') as f :
 
 print("Final time =", t, "s")
 print("Iteration number =", iter)
- 
+
 xmin = x[2]
 xmax = x[len(rho)+2]
 L = xmax - xmin
@@ -55,7 +56,8 @@ e = P / rho / (gamma - 1)
 plt.figure(figsize=(14,9))
 plt.suptitle(f'Shock wall 1d t = {t:.1f} s')
 plt.plot(xc, rho, 'x', label='Solver')
-plt.ylabel('Density ($kg.m^{-3}$)'); plt.xlabel('x')
+plt.xlabel('x')
+plt.ylabel('Density ($kg.m^{-3}$)')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
 
@@ -63,28 +65,32 @@ plt.figure(figsize=(14,9))
 plt.suptitle(f'Shock wall 1d t = {t:1f} s')
 plt.subplot(221)
 plt.plot(xc, rho,label='Solver')
-plt.ylabel('Density ($kg.m^{-3}$)'); plt.xlabel('x')
+plt.xlabel('x')
+plt.ylabel('Density ($kg.m^{-3}$)')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
 plt.legend()
 
 plt.subplot(222)
 plt.plot(xc, u, label='Solver')
-plt.ylabel('Velocity ($m.s^{-1}$)'); plt.xlabel('x')
+plt.xlabel('x')
+plt.ylabel('Velocity ($m.s^{-1}$)')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
 plt.legend()
 
 plt.subplot(223)
 plt.plot(xc, P, label='Solver')
-plt.ylabel('Pressure ($kg.m^{-1}.s^{-2}$)'); plt.xlabel('x')
+plt.xlabel('x')
+plt.ylabel('Pressure ($kg.m^{-1}.s^{-2}$)')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
 plt.legend()
 
 plt.subplot(224)
 plt.plot(xc, e, label='Solver')
-plt.ylabel('Internal energy ($m^{2}.s^{-2}$)'); plt.xlabel('x')
+plt.xlabel('x')
+plt.ylabel('Internal energy ($m^{2}.s^{-2}$)')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 plt.grid()
 plt.legend()

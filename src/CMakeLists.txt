@@ -1,5 +1,14 @@
-find_package(PDI REQUIRED)
-find_package(MPI REQUIRED)
+# Workaround a defect from FindHDF5.cmake
+if(
+    ("${Novapp_inih_DEPENDENCY_POLICY}" STREQUAL "INSTALLED")
+    AND (CMAKE_VERSION VERSION_LESS "3.26.1")
+)
+    enable_language(C)
+endif()
+find_package(HDF5 REQUIRED COMPONENTS C)
+find_package(MPI REQUIRED COMPONENTS CXX)
+find_package(paraconf REQUIRED COMPONENTS C)
+find_package(PDI REQUIRED COMPONENTS C)
 
 add_subdirectory(analysis)
 add_subdirectory(gravity)
@@ -12,23 +21,48 @@ add_subdirectory(user_step)
 add_subdirectory(utils)
 add_subdirectory(moving_grid)
 
-add_library(libnova++ boundary.cpp boundary_distribute.cpp broadcast.cpp initialization_interface.cpp mpi_scope_guard.cpp shift_criterion_interface.cpp)
-target_include_directories(libnova++ PUBLIC setups/${Novapp_SETUP}/)
-target_include_directories(libnova++ PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-
+add_library(
+    libnova++
+    boundary.cpp
+    boundary_distribute.cpp
+    broadcast.cpp
+    initialization_interface.cpp
+    mpi_scope_guard.cpp
+    shift_criterion_interface.cpp
+)
 target_compile_features(libnova++ PUBLIC cxx_std_17)
-
-target_link_libraries(libnova++ PUBLIC MPI::MPI_CXX)
-target_link_libraries(libnova++ PUBLIC Kokkos::kokkos)
-target_link_libraries(libnova++ PUBLIC PDI::PDI_C)
-target_link_libraries(libnova++ PUBLIC inih)
-target_link_libraries(libnova++ PUBLIC thermodynamics)
-target_link_libraries(libnova++ PUBLIC analysis gravity hydro io mesh moving_grid units user_step utils)
+target_include_directories(libnova++ PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(
+    libnova++
+    PRIVATE MPI::MPI_CXX
+    PUBLIC
+        analysis
+        gravity
+        hydro
+        Kokkos::kokkos
+        mesh
+        moving_grid
+        thermodynamics
+        units
+        user_step
+        utils
+)
 
 add_executable(nova++ main.cpp)
-target_link_libraries(nova++ PUBLIC libnova++)
-target_compile_definitions(nova++ PUBLIC NOVAPP_GRAVITY_${Novapp_GRAVITY})
-target_compile_definitions(nova++ PUBLIC MY_SETUP="${Novapp_SETUP}")
+target_compile_definitions(
+    nova++
+    PUBLIC MY_SETUP="${Novapp_SETUP}" NOVAPP_GRAVITY_${Novapp_GRAVITY}
+)
+target_include_directories(nova++ PUBLIC setups/${Novapp_SETUP}/)
+target_link_libraries(
+    nova++
+    PUBLIC inih io libnova++ MPI::MPI_CXX paraconf::paraconf PDI::PDI_C
+)
 
-add_custom_command(TARGET nova++ POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:nova++> ${PROJECT_SOURCE_DIR}/bin/nova++)
+add_custom_command(
+    TARGET nova++
+    POST_BUILD
+    COMMAND
+        ${CMAKE_COMMAND} -E copy $<TARGET_FILE:nova++>
+        ${PROJECT_SOURCE_DIR}/bin/nova++
+)

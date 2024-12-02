@@ -150,7 +150,15 @@ void main(int argc, char** argv)
         print_info(std::cout, "eos", eos_choice);
         print_info(std::cout, "geometry", geom_choice);
         print_info(std::cout, "gravity", gravity_label);
+        print_info(std::cout, "restart", param.restart);
+        print_info(std::cout, "restart_file", param.restart_file);
+        print_info(std::cout, "mpi_device_aware", param.mpi_device_aware);
+        print_info(std::cout, "mpi_dims_cart_x", param.mpi_dims_cart[0]);
+        print_info(std::cout, "mpi_dims_cart_y", param.mpi_dims_cart[1]);
+        print_info(std::cout, "mpi_dims_cart_z", param.mpi_dims_cart[2]);
+        print_info(std::cout, "nfx", param.nfx);
         print_info(std::cout, "pressure_fix", param.pressure_fix);
+        print_info(std::cout, "eps_pf", param.eps_pf);
         print_info(std::cout, "riemann_solver", param.riemann_solver);
         print_info(std::cout, "user_step", param.user_step);
         print_info(std::cout, "git_branch", git_branch);
@@ -222,16 +230,16 @@ void main(int argc, char** argv)
     {
         read_pdi(param.restart_file, output_id, iter_output_id, time_output_id, iter, t, rho, u, P, fx, x_glob, y_glob, z_glob); // read data into host view
         sync_device(x_glob, y_glob, z_glob);
-        grid.set_grid(x_glob.d_view, y_glob.d_view, z_glob.d_view);
+        grid.set_grid(x_glob.view_device(), y_glob.view_device(), z_glob.view_device());
 
         sync_device(rho, u, P, fx);
-        g = std::make_unique<Gravity>(make_gravity(param, grid, rho.d_view));
+        g = std::make_unique<Gravity>(make_gravity(param, grid, rho.view_device()));
 
         if(grid.mpi_rank==0)
         {
-            std::cout << '\n' << std::left << std::setw(81) << std::setfill('*') << '\n';
-            std::cout << "read from file " << param.restart_file << '\n';
-            std::cout << "starting at time " << t << " ( ~ "<<100*t/param.t_end<<"%)"
+            std::cout << std::setw(81) << std::setfill('*') << '\n';
+            std::cout << "restarting from file " << param.restart_file << '\n';
+            std::cout << "at time " << t << " ( ~ "<<100*t/param.t_end<<"%)"
                     << ", with iteration  "<< iter << "\n\n";
         }
     }
@@ -246,18 +254,18 @@ void main(int argc, char** argv)
         {
             grid_type = factory_grid_type(param.grid_type, param);
         }
-        grid_type->execute(grid.Nghost, grid.Nx_glob_ng, x_glob.h_view, y_glob.h_view, z_glob.h_view);
+        grid_type->execute(grid.Nghost, grid.Nx_glob_ng, x_glob.view_host(), y_glob.view_host(), z_glob.view_host());
         modify_host(x_glob, y_glob, z_glob);
         sync_device(x_glob, y_glob, z_glob);
-        grid.set_grid(x_glob.d_view, y_glob.d_view, z_glob.d_view);
-        g = std::make_unique<Gravity>(make_gravity(param, grid, rho.d_view));
+        grid.set_grid(x_glob.view_device(), y_glob.view_device(), z_glob.view_device());
+        g = std::make_unique<Gravity>(make_gravity(param, grid, rho.view_device()));
         if(std::is_same_v<Gravity, InternalMassGravity> && grid.mpi_rank == 0)
         {
             std::cout << "\nInternal gravity not usable for initialization\n";
         }
         std::unique_ptr<IInitializationProblem> initialization
             = std::make_unique<InitializationSetup<Gravity>>(eos, param_setup, *g);
-        initialization->execute(grid.range.no_ghosts(), grid, rho.d_view, u.d_view, P.d_view, fx.d_view);
+        initialization->execute(grid.range.no_ghosts(), grid, rho.view_device(), u.view_device(), P.view_device(), fx.view_device());
     }
 
     // Create the operators of the main time loop
@@ -314,13 +322,13 @@ void main(int argc, char** argv)
         shift_criterion = std::make_unique<NoShiftGrid>();
     }
 
-    conv_prim_to_cons(grid.range.no_ghosts(), eos, rho.d_view, u.d_view, P.d_view, rhou.d_view, E.d_view);
+    conv_prim_to_cons(grid.range.no_ghosts(), eos, rho.view_device(), u.view_device(), P.view_device(), rhou.view_device(), E.view_device());
 
-    bcs(bcs_array, grid, *g, rho.d_view, rhou.d_view, E.d_view, fx.d_view);
+    bcs(bcs_array, grid, *g, rho.view_device(), rhou.view_device(), E.view_device(), fx.view_device());
 
-    g = std::make_unique<Gravity>(make_gravity(param, grid, rho.d_view));
+    g = std::make_unique<Gravity>(make_gravity(param, grid, rho.view_device()));
 
-    conv_cons_to_prim(grid.range.all_ghosts(), eos, rho.d_view, rhou.d_view, E.d_view, u.d_view, P.d_view);
+    conv_cons_to_prim(grid.range.all_ghosts(), eos, rho.view_device(), rhou.view_device(), E.view_device(), u.view_device(), P.view_device());
 
     modify_device(rho, u, P, fx, rhou, E);
 
@@ -331,7 +339,7 @@ void main(int argc, char** argv)
         ++iter_output_id;
         ++time_output_id;
 
-        temperature(grid.range.all_ghosts(), eos, rho.d_view, P.d_view, T.d_view);
+        temperature(grid.range.all_ghosts(), eos, rho.view_device(), P.view_device(), T.view_device());
         modify_device(T);
 
         outputs_record.emplace_back(iter, t);
@@ -342,7 +350,7 @@ void main(int argc, char** argv)
         std::cout << std::flush;
     }
 
-    double const initial_mass = integrate(grid.range.no_ghosts(), grid, rho.d_view);
+    double const initial_mass = integrate(grid.range.no_ghosts(), grid, rho.view_device());
 
     Kokkos::fence("Nova++: before main time loop");
     MPI_Barrier(grid.comm_cart);
@@ -352,7 +360,7 @@ void main(int argc, char** argv)
     // Main timestep loop
     while (!should_exit)
     {
-        double dt = param.cfl * time_step(grid.range.all_ghosts(), eos, grid, rho.d_view, u.d_view, P.d_view);
+        double dt = param.cfl * time_step(grid.range.all_ghosts(), eos, grid, rho.view_device(), u.view_device(), P.view_device());
 
         bool make_output = false;
         if (param.iter_output_frequency > 0)
@@ -397,7 +405,7 @@ void main(int argc, char** argv)
             }
         }
 
-        double const min_internal_energy = minimum_internal_energy(grid.range.no_ghosts(), grid, rho.d_view, rhou.d_view, E.d_view);
+        double const min_internal_energy = minimum_internal_energy(grid.range.no_ghosts(), grid, rho.view_device(), rhou.view_device(), E.view_device());
         if (Kokkos::isnan(min_internal_energy) || min_internal_energy < 0)
         {
             std::stringstream ss;
@@ -407,18 +415,18 @@ void main(int argc, char** argv)
         }
 
         reconstruction->execute(grid.range.with_ghosts(1), grid, *g, dt/2,
-                                rho.d_view, u.d_view, P.d_view, fx.d_view,
+                                rho.view_device(), u.view_device(), P.view_device(), fx.view_device(),
                                 rho_rec, rhou_rec, E_rec, fx_rec);
 
         godunov_scheme->execute(grid.range.no_ghosts(), grid, *g, dt,
-                                rho.d_view, rhou.d_view, E.d_view, fx.d_view,
+                                rho.view_device(), rhou.view_device(), E.view_device(), fx.view_device(),
                                 rho_rec, rhou_rec, E_rec, fx_rec,
                                 rho_new, rhou_new, E_new, fx_new);
 
         if (param.pressure_fix == "On")
         {
             pressure_fix(grid.range.no_ghosts(), eos, grid, dt, param.eps_pf,
-                        rho.d_view, rhou.d_view, E.d_view,
+                        rho.view_device(), rhou.view_device(), E.view_device(),
                         rho_rec, rhou_rec, E_rec,
                         rho_new, rhou_new, E_new);
         }
@@ -427,10 +435,10 @@ void main(int argc, char** argv)
 
         bcs(bcs_array, grid, *g, rho_new, rhou_new, E_new, fx_new);
 
-        Kokkos::deep_copy(rho.d_view, rho_new);
-        Kokkos::deep_copy(rhou.d_view, rhou_new);
-        Kokkos::deep_copy(E.d_view, E_new);
-        Kokkos::deep_copy(fx.d_view, fx_new);
+        Kokkos::deep_copy(rho.view_device(), rho_new);
+        Kokkos::deep_copy(rhou.view_device(), rhou_new);
+        Kokkos::deep_copy(E.view_device(), E_new);
+        Kokkos::deep_copy(fx.view_device(), fx_new);
 
         // Shift the grid if necessary
         if (shift_criterion->execute(grid.range.no_ghosts(), grid, rho_new, rhou_new, E_new, fx_new))
@@ -439,32 +447,32 @@ void main(int argc, char** argv)
             {
                 std::cout << "Shifting grid at time = " << t << ", iteration = " << iter << "\n" << std::flush;
             }
-            shift_grid(rho.d_view, rhou.d_view, E.d_view, fx.d_view,
+            shift_grid(rho.view_device(), rhou.view_device(), E.view_device(), fx.view_device(),
                        rho_new, rhou_new, E_new, fx_new,
                        x_glob, y_glob, z_glob,
                        grid);
             // useful only for the process near the outer boundary (no MPI is needed indeed !!)
             bcs(bcs_array, grid, *g, rho_new, rhou_new, E_new, fx_new);
 
-            Kokkos::deep_copy(rho.d_view, rho_new);
-            Kokkos::deep_copy(rhou.d_view, rhou_new);
-            Kokkos::deep_copy(E.d_view, E_new);
-            Kokkos::deep_copy(fx.d_view, fx_new);
+            Kokkos::deep_copy(rho.view_device(), rho_new);
+            Kokkos::deep_copy(rhou.view_device(), rhou_new);
+            Kokkos::deep_copy(E.view_device(), E_new);
+            Kokkos::deep_copy(fx.view_device(), fx_new);
 
-            g = std::make_unique<Gravity>(make_gravity(param, grid, rho.d_view));
+            g = std::make_unique<Gravity>(make_gravity(param, grid, rho.view_device()));
         }
 
-        conv_cons_to_prim(grid.range.all_ghosts(), eos, rho_new, rhou_new, E_new, u.d_view, P.d_view);
+        conv_cons_to_prim(grid.range.all_ghosts(), eos, rho_new, rhou_new, E_new, u.view_device(), P.view_device());
         modify_device(rho, u, P, E, rhou, fx);
 
-        g = std::make_unique<Gravity>(make_gravity(param, grid, rho.d_view));
+        g = std::make_unique<Gravity>(make_gravity(param, grid, rho.view_device()));
 
         t += dt;
         ++iter;
 
         if(make_output)
         {
-            temperature(grid.range.all_ghosts(), eos, rho.d_view, P.d_view, T.d_view);
+            temperature(grid.range.all_ghosts(), eos, rho.view_device(), P.view_device(), T.view_device());
             modify_device(T);
 
             outputs_record.emplace_back(iter, t);
@@ -481,7 +489,7 @@ void main(int argc, char** argv)
     Kokkos::Profiling::popRegion();
     std::chrono::steady_clock::time_point const end = std::chrono::steady_clock::now();
 
-    double const final_mass = integrate(grid.range.no_ghosts(), grid, rho.d_view);
+    double const final_mass = integrate(grid.range.no_ghosts(), grid, rho.view_device());
 
     if (grid.mpi_rank == 0)
     {
