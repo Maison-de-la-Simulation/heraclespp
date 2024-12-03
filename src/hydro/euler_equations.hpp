@@ -7,6 +7,7 @@
 #include <Kokkos_Array.hpp>
 #include <Kokkos_Assert.hpp>
 #include <Kokkos_Macros.hpp>
+#include <Kokkos_Pair.hpp>
 #include <ndim.hpp>
 
 namespace novapp
@@ -68,7 +69,7 @@ double compute_evol(EulerCons const& cons) noexcept
 //! @return flux
 template <class EoS>
 KOKKOS_FORCEINLINE_FUNCTION
-EulerFlux compute_flux(
+Kokkos::pair<EulerFlux, double> compute_flux(
         EulerPrim const& prim,
         int locdim,
         EoS const& eos) noexcept
@@ -83,9 +84,8 @@ EulerFlux compute_flux(
     {
         flux.rhou[idim] = prim.rho * prim.u[locdim] * prim.u[idim];
     }
-    flux.rhou[locdim] += prim.P;
     flux.E = prim.u[locdim] * (E + prim.P);
-    return flux;
+    return Kokkos::make_pair(flux, prim.P);
 }
 
 //! Flux formula
@@ -95,7 +95,7 @@ EulerFlux compute_flux(
 //! @return flux
 template <class EoS>
 KOKKOS_FORCEINLINE_FUNCTION
-EulerFlux compute_flux(
+Kokkos::pair<EulerFlux, double> compute_flux(
         EulerCons const& cons,
         int locdim,
         EoS const& eos) noexcept
@@ -111,9 +111,8 @@ EulerFlux compute_flux(
     {
         flux.rhou[idim] = u * cons.rhou[idim];
     }
-    flux.rhou[locdim] += P;
     flux.E = u * (cons.E + P);
-    return flux;
+    return Kokkos::make_pair(flux, P);
 }
 
 template <class EoS>

@@ -65,7 +65,7 @@ class RiemannBasedGodunovScheme : public IGodunovScheme<Gravity>
 {
     static_assert(
             std::is_invocable_r_v<
-                EulerFlux,
+                Kokkos::pair<EulerFlux, double>,
                 RiemannSolver,
                 EulerCons,
                 EulerCons,
@@ -156,7 +156,7 @@ public:
                         var_L.rhou[idr] = rhou_rec(i, j, k, 0, idim, idr);
                     }
                     var_L.E = E_rec(i, j, k, 0, idim);
-                    EulerFlux const FluxL = riemann_solver(minus_oneR, var_L, idim, eos);
+                    auto const [FluxL, PL] = riemann_solver(minus_oneR, var_L, idim, eos);
 
                     EulerCons var_R; // Right, back, top (i,j,k)
                     var_R.rho = rho_rec(i, j, k, 1, idim);
@@ -172,7 +172,7 @@ public:
                         plus_oneL.rhou[idr] = rhou_rec(i_p, j_p, k_p, 0, idim, idr);
                     }
                     plus_oneL.E = E_rec(i_p, j_p, k_p, 0, idim);
-                    EulerFlux const FluxR = riemann_solver(var_R, plus_oneL, idim, eos);
+                    auto const [FluxR, PR] = riemann_solver(var_R, plus_oneL, idim, eos);
 
                     double const dtodv = dt / dv(i, j, k);
 
@@ -183,6 +183,8 @@ public:
                         rhou_new(i, j, k, idr) += dtodv * (FluxL.rhou[idr] * ds(i, j, k, idim)
                                                     - FluxR.rhou[idr] * ds(i_p, j_p, k_p, idim));
                     }
+                    rhou_new(i, j, k, idim) += dtodv * (PL * ds(i, j, k, idim)
+                                                - PR * ds(i_p, j_p, k_p, idim));
                     E_new(i, j, k) += dtodv * (FluxL.E * ds(i, j, k, idim)
                                             - FluxR.E * ds(i_p, j_p, k_p, idim));
 

@@ -134,7 +134,7 @@ public:
                         primL.u[idr] = u_rec(i, j, k, 0, idim, idr);
                     }
                     primL.P = P_rec(i, j, k, 0, idim);
-                    EulerFlux const fluxL = compute_flux(primL, idim, eos);
+                    auto const [fluxL, PL] = compute_flux(primL, idim, eos);
 
                     EulerPrim primR; // Right, back, top
                     primR.rho = rho_old[1][idim];
@@ -143,7 +143,7 @@ public:
                         primR.u[idr] = u_rec(i, j, k, 1, idim, idr);
                     }
                     primR.P = P_rec(i, j, k, 1, idim);
-                    EulerFlux const fluxR = compute_flux(primR, idim, eos);
+                    auto const [fluxR, PR] = compute_flux(primR, idim, eos);
 
                     double const dtodv = dt_reconstruction / dv(i, j, k);
 
@@ -160,6 +160,10 @@ public:
                             rhou_rec(i, j, k, 1, ipos, idr) += dtodv * (fluxL.rhou[idr] * ds(i, j, k, idim)
                                                             - fluxR.rhou[idr] * ds(i_p, j_p, k_p, idim));
                         }
+                        rhou_rec(i, j, k, 0, ipos, idim) += dtodv * (PL * ds(i, j, k, idim)
+                                                        - PR * ds(i_p, j_p, k_p, idim));
+                        rhou_rec(i, j, k, 1, ipos, idim) += dtodv * (PL * ds(i, j, k, idim)
+                                                        - PR * ds(i_p, j_p, k_p, idim));
                         E_rec(i, j, k, 0, ipos) += dtodv * (fluxL.E * ds(i, j, k, idim)
                                                 - fluxR.E * ds(i_p, j_p, k_p, idim));
                         E_rec(i, j, k, 1, ipos) += dtodv * (fluxL.E * ds(i, j, k, idim)

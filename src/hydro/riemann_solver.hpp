@@ -24,7 +24,7 @@ public:
     //! @return intercell EulerFlux
     template <class EoS>
     KOKKOS_FORCEINLINE_FUNCTION
-    EulerFlux operator()(
+    Kokkos::pair<EulerFlux, double> operator()(
             EulerCons const& consL,
             EulerCons const& consR,
             int locdim,
@@ -44,8 +44,8 @@ public:
         double const neg_wsL = Kokkos::fmin(wsL, 0.);
         double const pos_wsR = Kokkos::fmax(wsR, 0.);
 
-        EulerFlux const fluxL = compute_flux(primL, locdim, eos);
-        EulerFlux const fluxR = compute_flux(primR, locdim, eos);
+        auto [fluxL, PL] = compute_flux(primL, locdim, eos);
+        auto [fluxR, PR] = compute_flux(primR, locdim, eos);
 
         EulerFlux flux;
         flux.rho = FluxHLL(consL.rho, consR.rho, fluxL.rho, fluxR.rho, neg_wsL, pos_wsR);
@@ -60,7 +60,7 @@ public:
                 pos_wsR);
         }
         flux.E = FluxHLL(consL.E, consR.E, fluxL.E, fluxR.E, neg_wsL, pos_wsR);
-        return flux;
+        return Kokkos::make_pair(flux, (PL + PR) / 2);
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
@@ -81,7 +81,7 @@ class HLLC
 public:
     template <class EoS>
     KOKKOS_FORCEINLINE_FUNCTION
-    EulerFlux operator()(
+    Kokkos::pair<EulerFlux, double> operator()(
             EulerCons const& consL,
             EulerCons const& consR,
             int locdim,
@@ -98,8 +98,8 @@ public:
         double const wsL = Kokkos::fmin(primL.u[locdim] - cL, primR.u[locdim] - cR);
         double const wsR = Kokkos::fmax(primL.u[locdim] + cL, primR.u[locdim] + cR);
 
-        EulerFlux const fluxL = compute_flux(primL, locdim, eos);
-        EulerFlux const fluxR = compute_flux(primR, locdim, eos);
+        auto const [fluxL, PL] = compute_flux(primL, locdim, eos);
+        auto const [fluxR, PR] = compute_flux(primR, locdim, eos);
 
         double const rcL = primL.rho * (wsL - primL.u[locdim]);
         double const rcR = primR.rho * (wsR - primR.u[locdim]);
@@ -113,6 +113,7 @@ public:
         EulerCons cons_state;
         EulerPrim prim_state;
         EulerFlux flux_state;
+        double flux_P = 0;
 
         if (ustar > 0)
         {
@@ -120,6 +121,7 @@ public:
             cons_state = consL;
             prim_state = primL;
             flux_state = fluxL;
+            flux_P = PL;
         }
         else
         {
@@ -127,6 +129,7 @@ public:
             cons_state = consR;
             prim_state = primR;
             flux_state = fluxR;
+            flux_P = PR;
         }
 
         double const un = prim_state.u[locdim];
@@ -150,14 +153,15 @@ public:
             {
                 flux.rhou[idim] = rho_star * ustar * prim_state.u[idim];
             }
-            flux.rhou[locdim] = rho_star * ustar * ustar + pstar;
+            flux.rhou[locdim] = rho_star * ustar * ustar;
 
             double const E_star = (S - un) / (S - ustar) * cons_state.E
                             + (ustar - un) / (S - ustar)
                             * (ustar * cons_state.rho * (S - un) + prim_state.P);
             flux.E = FluxHLLC(flux_state.E, cons_state.E, E_star, S);
+            flux_P = pstar;
         }
-        return flux;
+        return Kokkos::make_pair(flux, flux_P);
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
@@ -176,7 +180,7 @@ class Splitting
 public:
     template <class EoS>
     KOKKOS_FORCEINLINE_FUNCTION
-    EulerFlux operator()(
+    Kokkos::pair<EulerFlux, double> operator()(
             EulerCons const& consL,
             EulerCons const& consR,
             int locdim,
@@ -213,9 +217,8 @@ public:
         {
             flux.rhou[idim] = ustar * cons_state.rhou[idim];
         }
-        flux.rhou[locdim] += Pstar;
         flux.E = ustar * cons_state.E + Pstar * ustar;
-        return flux;
+        return Kokkos::make_pair(flux, Pstar);
     }
 };
 
