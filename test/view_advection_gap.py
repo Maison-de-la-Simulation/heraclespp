@@ -1,9 +1,10 @@
-# Test the advection crenel and compare 
+# Test the advection crenel and compare
 
-import numpy as np
-import matplotlib.pyplot as plt
-import h5py
 import sys
+
+import h5py
+import matplotlib.pyplot as plt
+import numpy as np
 
 print("********************************")
 print("     Advection test : gap")
@@ -11,7 +12,7 @@ print("********************************")
 
 filename = sys.argv[1]
 
-with h5py.File(str(filename), 'r') as f : 
+with h5py.File(str(filename), 'r') as f:
     print(f.keys())
     rho = f['rho'][0, 0, :]
     x = f['x'][()]
@@ -41,11 +42,11 @@ for i in range(nx):
 
 rho0 = np.zeros(nx)
 for i in range(nx):
-    if (x_ad[i] < 0.3) :
+    if x_ad[i] < 0.3:
         rho0[i] = 1
-    elif (x_ad[i] > 0.7):
+    elif x_ad[i] > 0.7:
         rho0[i] = 1
-    else :
+    else:
         rho0[i] = 2
 
 # ------------------------------------------
@@ -55,7 +56,8 @@ plt.title('Gap advection test')
 plt.plot(x_ad, rho0, '--', label='t = 0')
 plt.plot(xc, rho, label=f't = {t:.1f}')
 plt.xticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
-plt.ylabel('Density'); plt.xlabel('Position')
+plt.xlabel('Position')
+plt.ylabel('Density')
 plt.grid()
 plt.legend()
 plt.show()

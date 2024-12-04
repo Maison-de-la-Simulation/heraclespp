@@ -162,9 +162,9 @@ void write_pdi(
         "iter", &iter, PDI_OUT,
         "current_time", &t, PDI_OUT,
         "gamma", &gamma, PDI_OUT,
-        "x", x.h_view.data(), PDI_OUT,
-        "y", y.h_view.data(), PDI_OUT,
-        "z", z.h_view.data(), PDI_OUT,
+        "x", x.view_host().data(), PDI_OUT,
+        "y", y.view_host().data(), PDI_OUT,
+        "z", z.view_host().data(), PDI_OUT,
         nullptr);
     // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
@@ -175,13 +175,24 @@ void write_pdi(
         "directory", directory.data(), PDI_OUT,
         "output_filename_size", &output_filename_size, PDI_OUT,
         "output_filename", output_filename.data(), PDI_OUT,
-        "rho", rho.h_view.data(), PDI_OUT,
-        "u", u.h_view.data(), PDI_OUT,
-        "P", P.h_view.data(), PDI_OUT,
-        "E", E.h_view.data(), PDI_OUT,
-        "fx", fx.h_view.data(), PDI_OUT,
-        "T", T.h_view.data(), PDI_OUT,
+        "rho", rho.view_host().data(), PDI_OUT,
+        "u", u.view_host().data(), PDI_OUT,
+        "P", P.view_host().data(), PDI_OUT,
+        "E", E.view_host().data(), PDI_OUT,
+        "T", T.view_host().data(), PDI_OUT,
         nullptr);
+    for(int ifx=0; ifx<fx.extent_int(3); ++ifx)
+    {
+        PDI_multi_expose("write_fx",
+            "nullptr", nullptr, PDI_OUT,
+            "directory_size", &directory_size, PDI_OUT,
+            "directory", directory.data(), PDI_OUT,
+            "output_filename_size", &output_filename_size, PDI_OUT,
+            "output_filename", output_filename.data(), PDI_OUT,
+            "ifx", &ifx, PDI_OUT,
+            "fx", fx.view_host().data(), PDI_OUT,
+            nullptr);
+    }
     // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     if (grid.mpi_rank == 0)
     {
@@ -242,14 +253,23 @@ void read_pdi(
         "time_output_id", &time_output_id, PDI_INOUT,
         "iter", &iter, PDI_INOUT,
         "current_time", &t, PDI_INOUT,
-        "rho", rho.h_view.data(), PDI_INOUT,
-        "u", u.h_view.data(), PDI_INOUT,
-        "P", P.h_view.data(), PDI_INOUT,
-        "fx", fx.h_view.data(), PDI_INOUT,
-        "x", x_glob.h_view.data(), PDI_INOUT,
-        "y", y_glob.h_view.data(), PDI_INOUT,
-        "z", z_glob.h_view.data(), PDI_INOUT,
+        "rho", rho.view_host().data(), PDI_INOUT,
+        "u", u.view_host().data(), PDI_INOUT,
+        "P", P.view_host().data(), PDI_INOUT,
+        "x", x_glob.view_host().data(), PDI_INOUT,
+        "y", y_glob.view_host().data(), PDI_INOUT,
+        "z", z_glob.view_host().data(), PDI_INOUT,
         nullptr);
+    for(int ifx=0; ifx<fx.extent_int(3); ++ifx)
+    {
+        PDI_multi_expose("read_fx",
+            "nullptr", nullptr, PDI_OUT,
+            "restart_filename_size", &filename_size, PDI_OUT,
+            "restart_filename", restart_file.data(), PDI_OUT,
+            "ifx", &ifx, PDI_OUT,
+            "fx", fx.view_host().data(), PDI_INOUT,
+            nullptr);
+    }
     // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     modify_host(rho, u, P, fx, x_glob, y_glob, z_glob);
 }
@@ -259,8 +279,8 @@ XmlWriter::XmlWriter(std::string directory, std::string prefix, int const nfx)
     , m_prefix(std::move(prefix))
     , m_var_names({"rho", "P", "E", "T"})
 {
-    if (nfx > 0) {
-        m_var_names.emplace_back("fx");
+    for (int ifx = 0; ifx < nfx; ++ifx) {
+        m_var_names.emplace_back("fx" + std::to_string(ifx));
     }
     std::array<std::string_view, 3> const velocity {"ux", "uy", "uz"};
     for (int idim = 0; idim < ndim; ++idim) {
@@ -326,7 +346,7 @@ void XmlWriter::operator()(
         xdmfFile << ">\n";
 
         std::string const output_filename = get_output_filename(m_prefix, first_output_id + i);
-        std::array const axes_arrays {x.h_view, y.h_view, z.h_view};
+        std::array const axes_arrays {x.view_host(), y.view_host(), z.view_host()};
         std::array const axes_labels {"x_ng", "y_ng", "z_ng"};
         for (int idim = 0; idim < 3; ++idim)
         {

@@ -1,9 +1,9 @@
 # View Kelvin-Helmholtz instability
 
-import numpy as np
-import matplotlib.pyplot as plt
-import h5py
 import sys
+
+import h5py
+import matplotlib.pyplot as plt
 
 print("********************************")
 print(" Kelvin-Helmholtz instability")
@@ -11,7 +11,7 @@ print("********************************")
 
 filename = sys.argv[1]
 
-with h5py.File(str(filename), 'r') as f :
+with h5py.File(str(filename), 'r') as f:
     #print(f.keys())
     rho = f['rho'][0, :, :]
     x = f['x'][()]
@@ -34,5 +34,6 @@ plt.suptitle('Kelvin-Helmholtz instability')
 plt.title(f'Density t = {t:.1f} s')
 plt.imshow(rho, cmap='seismic', origin='lower', extent=[xmin, xmax, ymin, ymax])
 plt.colorbar(shrink=0.5)
-plt.xlabel('x'); plt.ylabel('y')
-plt.show() 
+plt.xlabel('x')
+plt.ylabel('y')
+plt.show()

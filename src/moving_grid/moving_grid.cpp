@@ -31,7 +31,7 @@ void shift_grid(
     // Shift of the Grid (only the first dimension)
     {
         x_glob.sync_host();
-        auto const& x_h = x_glob.h_view;
+        auto const x_h = x_glob.view_host();
         int const n = x_h.extent_int(0);
         for (int i = 0; i < n - 1; ++i) {
             x_h(i) = x_h(i + 1);
@@ -42,7 +42,7 @@ void shift_grid(
         x_glob.modify_host();
     }
     x_glob.sync_device();
-    grid.set_grid(x_glob.d_view, y_glob.d_view, z_glob.d_view);
+    grid.set_grid(x_glob.view_device(), y_glob.view_device(), z_glob.view_device());
 
     // Boundary conditions are done in the main
 }

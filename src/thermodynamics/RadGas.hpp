@@ -54,7 +54,7 @@ public:
     double compute_evol_from_T(double const rho, double const T) const noexcept
     {
         // evol = rho * eint
-        auto const T4 = T * T * T * T;
+        double const T4 = T * T * T * T;
         return rho * units::kb * T / (m_mmw * units::mp * m_gamma_m1) + units::ar * T4;
     }
 
@@ -68,7 +68,7 @@ public:
     [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
     double compute_P_from_T(double const rho, double const T) const noexcept
     {
-        auto const T4 = T * T * T * T;
+        double const T4 = T * T * T * T;
         //std::cout<<"Pg = "<<rho * units::kb * T / (m_mmw * units::mp)
         //<<" Pr = "<<units::ar * T4 / 3<<std::endl;
         return rho * units::kb * T / (m_mmw * units::mp) + units::ar * T4 / 3;
@@ -80,11 +80,7 @@ public:
         double const C1 = rho * units::kb / (m_mmw * units::mp);
         double const Tg = P / C1;
         double const Tr = Kokkos::pow(3 * P / units::ar, 1. / 4);
-        double T0 = Tg;
-        if (Tr > Tg)
-        {
-            T0 = Tr;
-        }
+        double const T0 = Tr > Tg ? Tr : Tg;
         double T = T0;
         int static constexpr max_itr = 100;
         int itr = 0;
@@ -116,11 +112,7 @@ public:
         double const C1 = rho * units::kb / (m_mmw * units::mp * m_gamma_m1);
         double const Tg = evol / C1;
         double const Tr = Kokkos::pow(evol / units::ar, 1. / 4);
-        double T0 = Tg;
-        if (Tr > Tg)
-        {
-            T0 = Tr;
-        }
+        double const T0 = Tr > Tg ? Tr : Tg;
         double T = T0;
         int static constexpr max_itr = 100;
         int itr = 0;
@@ -150,7 +142,7 @@ public:
     {
         double const T = compute_T_from_P(rho, P);
         double const Pg = rho * units::kb * T / (m_mmw * units::mp);
-        auto const T4 = T * T * T * T;
+        double const T4 = T * T * T * T;
         double const Pr = units::ar * T4 / 3;
         double const alpha = Pr / Pg;
         double const num = m_gamma / (m_gamma - 1) + 20 * alpha + 16 * alpha * alpha;

@@ -1,9 +1,10 @@
 # View Rayleigh Taylor instability
 
-import numpy as np
-import matplotlib.pyplot as plt
-import h5py
 import sys
+
+import h5py
+import matplotlib.pyplot as plt
+import numpy as np
 
 print("********************************")
 print("Rayleigh Taylor instability 2d")
@@ -11,7 +12,7 @@ print("********************************")
 
 filename = sys.argv[1]
 
-with h5py.File(str(filename), 'r') as f :
+with h5py.File(str(filename), 'r') as f:
     #print(f.keys())
     rho = f['rho'][0, :, :]
     u = f['ux'][0, :, :]
@@ -40,11 +41,13 @@ plt.suptitle('Rayleigh Taylor instability')
 plt.title(f'Density t = {t:.1f} s')
 plt.imshow(rho, cmap='seismic', origin='lower', extent=[xmin, xmax, ymin, ymax])
 plt.colorbar()
-plt.xlabel('x'); plt.ylabel('y')
+plt.xlabel('x')
+plt.ylabel('y')
 
 plt.figure(figsize=(10,8))
 plt.title('Passive scalar')
 plt.imshow(fx, cmap='seismic', origin='lower', extent=[xmin, xmax, ymin, ymax])
 plt.colorbar()
-plt.xlabel('x'); plt.ylabel('y')
-plt.show() 
+plt.xlabel('x')
+plt.ylabel('y')
+plt.show()

@@ -1,9 +1,10 @@
 # View stratified atmosphere
 
-import numpy as np
-import matplotlib.pyplot as plt
-import h5py
 import sys
+
+import h5py
+import matplotlib.pyplot as plt
+import numpy as np
 
 print("********************************")
 print("    Stratified atmosphere")
@@ -11,7 +12,7 @@ print("********************************")
 
 filename = sys.argv[1]
 
-with h5py.File(str(filename), 'r') as f :
+with h5py.File(str(filename), 'r') as f:
     #print(f.keys())
     rho = f['rho'][0, 0, :]
     u = f['ux'][0, 0, :]
@@ -64,7 +65,8 @@ plt.subplot(131)
 plt.plot(xc / np.max(xc), rho_tab0,  label='t = 0 s')
 plt.plot(xc / np.max(xc), rho,  label =f't = {t:.1f} s')
 #plt.plot(xc / np.max(xc), np.abs(rho - rho_tab0) / rho_tab0,  label =f't = {t:.1f} s')
-plt.xlabel('x / $x_{max}$'); plt.ylabel('Density ($kg.m^{-3}$)')
+plt.xlabel('x / $x_{max}$')
+plt.ylabel('Density ($kg.m^{-3}$)')
 plt.yscale('log')
 plt.grid()
 plt.legend()
@@ -73,7 +75,8 @@ plt.subplot(132)
 plt.plot(xc / np.max(xc), P_tab0,  label='t = 0 s')
 plt.plot(xc / np.max(xc), P, label = f't = {t:.1f} s')
 #plt.plot(xc / np.max(xc), np.abs(P - P_tab0) / P_tab0, label = f't = {t:.1f} s')
-plt.xlabel('x /$x_{max}$'); plt.ylabel('Pressure ($kg.m^{-1}.s^{-2}$)')
+plt.xlabel('x /$x_{max}$')
+plt.ylabel('Pressure ($kg.m^{-1}.s^{-2}$)')
 plt.yscale('log')
 plt.grid()
 plt.legend()
@@ -82,7 +85,8 @@ plt.subplot(133)
 plt.plot(xc / np.max(xc), u_tab0,  label='t = 0 s')
 plt.plot(xc / np.max(xc), u, label = f't = {t:.1f} s')
 #plt.plot(xc / np.max(xc), u / cs, label = f't = {t:.1f} s')
-plt.xlabel('x /$x_{max}$'); plt.ylabel('Velocity ($m.s^{-1}$)')
+plt.xlabel('x /$x_{max}$')
+plt.ylabel('Velocity ($m.s^{-1}$)')
 plt.grid()
 plt.legend()
 

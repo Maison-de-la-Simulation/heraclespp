@@ -1,14 +1,15 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import h5py
 import sys
+
+import h5py
+import matplotlib.pyplot as plt
+import numpy as np
 
 print("********************************")
 print("         1d to 3d test")
 print("********************************")
 
 file_init = '../src/setups/1d_to_3d_test/test_1d_to_3d.h5'
-with h5py.File(str(file_init), 'r') as f :
+with h5py.File(str(file_init), 'r') as f:
     rho0 = f['rho_1d'][()]
     u0 = f['u_1d'][()]
     P0 = f['P_1d'][()]
@@ -16,7 +17,7 @@ with h5py.File(str(file_init), 'r') as f :
     t0 = f['current_time'][()]
 
 file_final = "../src/setups/v1d_500/v1d_1e5.h5"
-with h5py.File(str(file_final), 'r') as f :
+with h5py.File(str(file_final), 'r') as f:
     rhof = f['rho'][0, 0, :]
     uf = f['ux'][0, 0, :]
     Pf = f['P'][0, 0, :]
@@ -25,7 +26,7 @@ with h5py.File(str(file_final), 'r') as f :
     tf = f['current_time'][()]
 
 filename = sys.argv[1]
-with h5py.File(str(filename), 'r') as f :
+with h5py.File(str(filename), 'r') as f:
     print(f.keys())
     rho = f['rho'][0, 0, :]
     rho2 = f['rho'][0, :, :]
@@ -85,8 +86,10 @@ plt.subplot(221)
 plt.plot(xc_cm, rho0_cgs, "--", label=f"$t_0$= {t0:.1e} s")
 plt.plot(xc_cm, rho_cgs, color='green', label=f"$t$= {t:.1e} s")
 plt.plot(xcf_cm, rhof_cgs, "--", color="red", label=f"$t$= {tf:.1e} s")
-plt.xlabel('rc (cm)'); plt.ylabel('Density ($g.cm^{-3}$)')
-plt.xscale('log'); plt.yscale('log')
+plt.xlabel('rc (cm)')
+plt.ylabel('Density ($g.cm^{-3}$)')
+plt.xscale('log')
+plt.yscale('log')
 plt.grid()
 plt.legend()
 
@@ -94,7 +97,8 @@ plt.subplot(222)
 plt.plot(xc_cm, u0_cgs, "--", label=f"$t_i$= {t0:.1e} s")
 plt.plot(xcf_cm, uf_cgs, "--", color="red", label=f'$t_f$ = {tf:.1e} s')
 plt.plot(xc_cm, u_cgs, color='green', label=f'$t$ = {t:.1e} s')
-plt.xlabel('rc (cm)'); plt.ylabel('Velocity ($cm.s^{-1}$)')
+plt.xlabel('rc (cm)')
+plt.ylabel('Velocity ($cm.s^{-1}$)')
 plt.xscale('log')#; plt.yscale('log')
 plt.grid()
 plt.legend()
@@ -103,21 +107,26 @@ plt.subplot(223)
 plt.plot(xc_cm, P0_cgs, "--", label=f"$t_i$= {t0:.1e} s")
 plt.plot(xcf_cm, Pf_cgs, "--", color="red", label=f'$t_f$ = {tf:.1e} s')
 plt.plot(xc_cm, P_cgs, color='green', label=f'$t$ = {t:.1e} s')
-plt.xlabel('rc (cm)'); plt.ylabel('Pressure ($g.cm^{-1}.s^{-2}$)')
-plt.xscale('log'); plt.yscale('log')
+plt.xlabel('rc (cm)')
+plt.ylabel('Pressure ($g.cm^{-1}.s^{-2}$)')
+plt.xscale('log')
+plt.yscale('log')
 plt.grid()
 plt.legend()
 
 plt.subplot(224)
 plt.plot(xcf_cm, Tf, "--", color="red", label=f'$t_f$ = {tf:.1e} s')
 plt.plot(xc_cm, T, color='green', label=f'$t$ = {t:.1e} s')
-plt.xlabel('rc (cm)'); plt.ylabel('Temperature ($K$)')
-plt.xscale('log'); plt.yscale('log')
+plt.xlabel('rc (cm)')
+plt.ylabel('Temperature ($K$)')
+plt.xscale('log')
+plt.yscale('log')
 plt.grid()
 plt.legend()
 
 plt.figure(figsize=(12,8))
 plt.imshow(rho2_cgs, extent=[np.min(xc_cm), np.max(xc_cm), np.min(xc_cm), np.max(xc_cm)])
-plt.xlabel('rc (cm)'); plt.ylabel('theta')
+plt.xlabel('rc (cm)')
+plt.ylabel('theta')
 plt.colorbar()
 plt.show()
