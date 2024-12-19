@@ -65,6 +65,9 @@
 namespace novapp
 {
 
+namespace
+{
+
 #if defined(NOVAPP_GRAVITY_Uniform)
 using Gravity = UniformGravity;
 std::string_view const gravity_label("Uniform");
@@ -98,6 +101,8 @@ std::string display_help_message(std::filesystem::path const& executable)
     ss << "usage: " << executable.filename() << " <path to the ini file> [options]";
     return ss.str();
 }
+
+} // namespace
 
 void main(int argc, char** argv)
 {

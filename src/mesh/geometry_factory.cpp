@@ -7,6 +7,7 @@
 
 #include "geom.hpp"
 #include "geometry.hpp"
+#include "geometry_factory.hpp"
 
 namespace novapp
 {
