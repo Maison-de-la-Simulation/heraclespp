@@ -146,6 +146,9 @@ void Grid::MPI_Decomp()
         is_border[i][0] = (mpi_rank_cart[i] == 0);
         is_border[i][1] = (mpi_rank_cart[i] == mpi_dims_cart[i]-1);
     }
+
+    std::array<int, 3> const remain_dims {0, 1, 1};
+    MPI_Cart_sub(comm_cart, remain_dims.data(), &comm_cart_horizontal);
 }
 
 void Grid::set_grid(KV_double_1d const& x_glob, KV_double_1d const& y_glob, KV_double_1d const& z_glob)
