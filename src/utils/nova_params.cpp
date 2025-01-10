@@ -13,7 +13,7 @@ Param::Param(INIReader const& reader)
 {
     problem = reader.Get("Problem", "type", "ShockTube");
     restart = reader.GetBoolean("Problem", "restart", false);
-    restart_file = reader.Get("Problem", "restart_file", "restart.h5");
+    restart_file = reader.Get("Problem", "restart_file", "None");
 
     Nx_glob_ng[0] = reader.GetInteger("Grid", "Nx_glob", 0); // Cell number
     Nx_glob_ng[1] = reader.GetInteger("Grid", "Ny_glob", 0); // Cell number
