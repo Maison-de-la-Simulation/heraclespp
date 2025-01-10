@@ -414,6 +414,10 @@ void main(int argc, char** argv)
         double const min_internal_energy = minimum_internal_energy(grid.range.no_ghosts(), grid, rho.view_device(), rhou.view_device(), E.view_device());
         if (Kokkos::isnan(min_internal_energy) || min_internal_energy < 0)
         {
+            temperature(grid.range.all_ghosts(), eos, rho.view_device(), P.view_device(), T.view_device());
+            modify_device(T);
+            ++output_id;
+            write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), grid, rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
             std::stringstream ss;
             ss << "Time = " << t << ", iteration = " << iter;
             ss << ": detected invalid volumic internal energy";
