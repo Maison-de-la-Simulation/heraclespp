@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <string>
 
+#include "grid_factory.hpp"
 #include "grid_type.hpp"
 
 namespace novapp
