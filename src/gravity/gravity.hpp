@@ -132,11 +132,6 @@ inline InternalMassGravity make_internal_mass_gravity(
     Grid const& grid,
     KV_cdouble_3d const& rho)
 {
-    /* if (grid.mpi_size != 1)
-    {
-        throw std::runtime_error("The function make_internal_mass_gravity does not handle more than 1 MPI process");
-    } */
-
     KV_double_1d const g_array_dv("g_array", grid.Nx_local_wg[0]);
     KV_double_1d const dv_total("dv_mean_array", grid.Nx_local_ng[0] + grid.Nghost[0]); // sum dv
     KV_double_1d const rho_mean("rho_mean_array", grid.Nx_local_ng[0] + grid.Nghost[0]); // sum (rho * dv) / (sum dv)
