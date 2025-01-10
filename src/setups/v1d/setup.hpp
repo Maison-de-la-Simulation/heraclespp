@@ -298,15 +298,6 @@ public:
                     rhou(i, j, k, 2) = 0;
                 }
 
-                /* if (ndim == 2 || ndim == 3)
-                {
-                    rhou(i, j, k, 1) = 0;
-                }
-                if (ndim == 3)
-                {
-+                   rhou(i, j, k, 2) = 0;
-                } */
-
                 E(i, j, k) = eos.compute_evol_from_T(rho(i, j, k), param_setup.T_CL);
 
                 fx(i, j, k, 0) = param_setup.Ni_CL;
