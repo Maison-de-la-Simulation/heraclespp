@@ -396,6 +396,7 @@ void main(int argc, char** argv)
         }
         if ((iter + 1) >= param.max_iter)
         {
+            make_output = true;
             should_exit = true;
         }
 
