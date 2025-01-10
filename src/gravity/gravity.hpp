@@ -150,6 +150,9 @@ inline InternalMassGravity make_internal_mass_gravity(
 
     for (int i = 0; i < grid.Nx_local_ng[0] + grid.Nghost[0]; ++i)
     {
+        double sum_mass = 0;
+        double sum_dv = 0;
+
         Kokkos::parallel_reduce(
             "integration_shell",
             Kokkos::MDRangePolicy<int, Kokkos::Rank<2>>
@@ -163,7 +166,13 @@ inline InternalMassGravity make_internal_mass_gravity(
                 local_sum_mass += rho(offset_i, offset_j, offset_k) * dv(offset_i, offset_j, offset_k);
                 local_sum_dv += dv(offset_i, offset_j, offset_k);
             },
-            Kokkos::Sum(Kokkos::subview(rho_mean, i)), Kokkos::Sum(Kokkos::subview(dv_total, i)));
+            Kokkos::Sum<double>(sum_mass), Kokkos::Sum<double>(sum_dv));
+
+        MPI_Allreduce(MPI_IN_PLACE, &sum_mass, 1, MPI_DOUBLE, MPI_SUM, grid.comm_cart);
+        MPI_Allreduce(MPI_IN_PLACE, &sum_dv, 1, MPI_DOUBLE, MPI_SUM, grid.comm_cart);
+
+        rho_mean(i) = sum_mass;
+        dv_total(i) = sum_dv;
     }
 
     Kokkos::parallel_for(
