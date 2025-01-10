@@ -14,6 +14,8 @@
 #include <nova_params.hpp>
 #include <units.hpp>
 
+#include <ndim.hpp>
+
 namespace novapp
 {
 
@@ -130,10 +132,10 @@ inline InternalMassGravity make_internal_mass_gravity(
     Grid const& grid,
     KV_cdouble_3d const& rho)
 {
-    if (grid.mpi_size != 1)
+    /* if (grid.mpi_size != 1)
     {
         throw std::runtime_error("The function make_internal_mass_gravity does not handle more than 1 MPI process");
-    }
+    } */
 
     KV_double_1d const g_array_dv("g_array", grid.Nx_local_wg[0]);
     KV_double_1d const dv_total("dv_mean_array", grid.Nx_local_ng[0] + grid.Nghost[0]); // sum dv
@@ -150,29 +152,38 @@ inline InternalMassGravity make_internal_mass_gravity(
 
     for (int i = 0; i < grid.Nx_local_ng[0] + grid.Nghost[0]; ++i)
     {
-        double sum_mass = 0;
-        double sum_dv = 0;
+        if (ndim > 1)
+        {
+            double sum_mass = 0;
+            double sum_dv = 0;
 
-        Kokkos::parallel_reduce(
-            "integration_shell",
-            Kokkos::MDRangePolicy<int, Kokkos::Rank<2>>
-            ({0, 0},
-            {grid.Nx_local_ng[1], grid.Nx_local_ng[2]}),
-            KOKKOS_LAMBDA(int j, int k, double& local_sum_mass, double& local_sum_dv)
-            {
-                int const offset_i = i + nghost[0];
-                int const offset_j = j + nghost[1];
-                int const offset_k = k + nghost[2];
-                local_sum_mass += rho(offset_i, offset_j, offset_k) * dv(offset_i, offset_j, offset_k);
-                local_sum_dv += dv(offset_i, offset_j, offset_k);
-            },
-            Kokkos::Sum<double>(sum_mass), Kokkos::Sum<double>(sum_dv));
+            Kokkos::parallel_reduce(
+                "integration_shell",
+                Kokkos::MDRangePolicy<int, Kokkos::Rank<2>>
+                ({0, 0},
+                {grid.Nx_local_ng[1], grid.Nx_local_ng[2]}),
+                KOKKOS_LAMBDA(int j, int k, double& local_sum_mass, double& local_sum_dv)
+                {
+                    int const offset_i = i + nghost[0];
+                    int const offset_j = j + nghost[1];
+                    int const offset_k = k + nghost[2];
+                    local_sum_mass += rho(offset_i, offset_j, offset_k) * dv(offset_i, offset_j, offset_k);
+                    local_sum_dv += dv(offset_i, offset_j, offset_k);
+                },
+                Kokkos::Sum<double>(sum_mass), Kokkos::Sum<double>(sum_dv));
 
-        MPI_Allreduce(MPI_IN_PLACE, &sum_mass, 1, MPI_DOUBLE, MPI_SUM, grid.comm_cart);
-        MPI_Allreduce(MPI_IN_PLACE, &sum_dv, 1, MPI_DOUBLE, MPI_SUM, grid.comm_cart);
+            MPI_Allreduce(MPI_IN_PLACE, &sum_mass, 1, MPI_DOUBLE, MPI_SUM, grid.comm_cart);
+            MPI_Allreduce(MPI_IN_PLACE, &sum_dv, 1, MPI_DOUBLE, MPI_SUM, grid.comm_cart);
 
-        rho_mean(i) = sum_mass;
-        dv_total(i) = sum_dv;
+            rho_mean(i) = sum_mass;
+            dv_total(i) = sum_dv;
+        }
+
+        else
+        {
+            rho_mean(i) = rho(i + nghost[0], 0, 0) * dv(i + nghost[0], 0, 0);
+            dv_total(i) = dv(i + nghost[0], 0, 0);
+        }
     }
 
     Kokkos::parallel_for(
