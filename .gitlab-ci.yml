@@ -295,7 +295,8 @@ cmake-format-job:
   needs: []
   image: ubuntu:latest
   before_script:
-    - apt-get --yes update && apt-get --yes install python3-pip python3-venv
+    - apt-get --yes update
+    - apt-get --yes install --no-install-recommends --no-install-suggests python3-pip python3-venv
     - python3 -m venv ./gersemi
     - . ./gersemi/bin/activate
     - python3 -m pip install gersemi==$GERSEMI_VERSION
@@ -350,7 +351,8 @@ ini-validation-job:
   needs: []
   image: ubuntu:latest
   before_script:
-    - apt-get --yes update && apt-get --yes install wget
+    - apt-get --yes update
+    - apt-get --yes --no-install-recommends --no-install-suggests install ca-certificates wget
     - mkdir validator
     - VALIDATOR_URL=https://github.com/Boeing/config-file-validator/releases/download/v${VALIDATOR_VERSION}/validator-v${VALIDATOR_VERSION}-linux-amd64.tar.gz
     - wget --quiet --output-document=- $VALIDATOR_URL | tar --directory=validator --gzip --extract
