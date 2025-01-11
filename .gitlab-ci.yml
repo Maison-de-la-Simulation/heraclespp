@@ -260,15 +260,13 @@ convergence-advection-sinusoide-test-job:serial:1d:
   script:
     - ./test/convergence_advection_sinus/run_convergence_advection_sinus.py
 
-# clang-format-job:
-#   rules:
-#     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-#     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-#   stage: test
-#   needs: []
-#   script:
-#     - find src tests -name '*.[h|c]pp' -exec clang-format --dry-run --ferror-limit=10 --Werror '{}' '+'
-#   allow_failure: true
+clang-format-job:
+  rules:
+    - when: never
+  stage: lint
+  needs: []
+  script:
+    - find src tests -name '*.[h|c]pp' -exec clang-format --dry-run --ferror-limit=10 --Werror '{}' '+'
 
 cmake-format-job:
   rules:
@@ -276,17 +274,17 @@ cmake-format-job:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   variables:
     DEBIAN_FRONTEND: noninteractive
+    GERSEMI_VERSION: 0.18
   stage: lint
   needs: []
   image: ubuntu:latest
-  before_script: []
-  script:
+  before_script:
     - apt-get --yes update && apt-get --yes install python3-pip python3-venv
     - python3 -m venv ./gersemi
     - . ./gersemi/bin/activate
-    - python3 -m pip install gersemi
+    - python3 -m pip install gersemi==$GERSEMI_VERSION
+  script:
     - find CMakeLists.txt src tests -name 'CMakeLists.txt' -exec gersemi --check '{}' '+'
-  allow_failure: true
 
 clang-tidy-job:
   rules:
@@ -331,15 +329,16 @@ ini-validation-job:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   variables:
     DEBIAN_FRONTEND: noninteractive
-    VALIDATOR_URL: https://github.com/Boeing/config-file-validator/releases/download/v1.7.1/validator-v1.7.1-linux-amd64.tar.gz
+    VALIDATOR_VERSION: 1.8.0
   stage: lint
   needs: []
   image: ubuntu:latest
-  before_script: []
-  script:
+  before_script:
     - apt-get --yes update && apt-get --yes install wget
     - mkdir validator
+    - VALIDATOR_URL=https://github.com/Boeing/config-file-validator/releases/download/v${VALIDATOR_VERSION}/validator-v${VALIDATOR_VERSION}-linux-amd64.tar.gz
     - wget --quiet --output-document=- $VALIDATOR_URL | tar --directory=validator --gzip --extract
+  script:
     - validator/validator inputs
 
 doxygen-job:
