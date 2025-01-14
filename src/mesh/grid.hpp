@@ -29,6 +29,7 @@ public:
     std::array<int, 3> Nx_local_wg;    // Number of cells on the local MPI process (including ghost)
 
     MPI_Comm comm_cart;
+    MPI_Comm comm_cart_horizontal;
     int mpi_rank;
     int mpi_size;
     std::array<int, 3> mpi_rank_cart;

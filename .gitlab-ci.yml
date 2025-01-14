@@ -5,9 +5,7 @@ variables:
   CMAKE_BUILD_PARALLEL_LEVEL: 2
   CMAKE_BUILD_TYPE: Release
   CMAKE_GENERATOR: Ninja
-  GIT_SUBMODULE_STRATEGY: recursive
-  GIT_SUBMODULE_DEPTH: 1
-  GIT_SUBMODULE_UPDATE_FLAGS: --jobs 2
+  GIT_DEPTH: 1
 
 before_script:
   - git config --global --add safe.directory $CI_PROJECT_DIR
@@ -26,6 +24,11 @@ env-job:common:gtest:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: env
   needs: []
+  variables:
+    GIT_SUBMODULE_DEPTH: 1
+    GIT_SUBMODULE_PATHS: vendor/googletest
+    GIT_SUBMODULE_STRATEGY: normal
+    GIT_SUBMODULE_UPDATE_FLAGS: --jobs 2
   script:
     - cmake -B build -S vendor/googletest
     - cmake --build build
@@ -58,6 +61,10 @@ env-job:cuda:kokkos:
   needs: []
   variables:
     CXX: $CI_PROJECT_DIR/vendor/kokkos/bin/nvcc_wrapper
+    GIT_SUBMODULE_DEPTH: 1
+    GIT_SUBMODULE_PATHS: vendor/kokkos
+    GIT_SUBMODULE_STRATEGY: normal
+    GIT_SUBMODULE_UPDATE_FLAGS: --jobs 2
     NVCC_WRAPPER_DEFAULT_COMPILER: g++-13
   script:
     - cmake -DCMAKE_CXX_EXTENSIONS=OFF -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_CUDA=ON -DKokkos_ARCH_AMPERE80=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_COMPILER_WARNINGS=ON -B build -S vendor/kokkos
@@ -76,6 +83,10 @@ env-job:hip:kokkos:
   needs: []
   variables:
     CXX: hipcc
+    GIT_SUBMODULE_DEPTH: 1
+    GIT_SUBMODULE_PATHS: vendor/kokkos
+    GIT_SUBMODULE_STRATEGY: normal
+    GIT_SUBMODULE_UPDATE_FLAGS: --jobs 2
   script:
     - cmake -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_HIP=ON -DKokkos_ENABLE_ROCTHRUST=OFF -DKokkos_ARCH_AMD_GFX90A=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_COMPILER_WARNINGS=ON -B build -S vendor/kokkos
     - cmake --build build
@@ -91,6 +102,11 @@ env-job:serial:kokkos:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   stage: env
   needs: []
+  variables:
+    GIT_SUBMODULE_DEPTH: 1
+    GIT_SUBMODULE_PATHS: vendor/kokkos
+    GIT_SUBMODULE_STRATEGY: normal
+    GIT_SUBMODULE_UPDATE_FLAGS: --jobs 2
   script:
     - cmake -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_DEBUG=ON -DKokkos_ENABLE_DEBUG_DUALVIEW_MODIFY_CHECK=ON -DKokkos_ENABLE_DEBUG_BOUNDS_CHECK=ON -DKokkos_ENABLE_COMPILER_WARNINGS=ON -B build -S vendor/kokkos
     - cmake --build build
@@ -260,15 +276,13 @@ convergence-advection-sinusoide-test-job:serial:1d:
   script:
     - ./test/convergence_advection_sinus/run_convergence_advection_sinus.py
 
-# clang-format-job:
-#   rules:
-#     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-#     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-#   stage: test
-#   needs: []
-#   script:
-#     - find src tests -name '*.[h|c]pp' -exec clang-format --dry-run --ferror-limit=10 --Werror '{}' '+'
-#   allow_failure: true
+clang-format-job:
+  rules:
+    - when: never
+  stage: lint
+  needs: []
+  script:
+    - find src tests -name '*.[h|c]pp' -exec clang-format --dry-run --ferror-limit=10 --Werror '{}' '+'
 
 cmake-format-job:
   rules:
@@ -276,17 +290,18 @@ cmake-format-job:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   variables:
     DEBIAN_FRONTEND: noninteractive
+    GERSEMI_VERSION: 0.18
   stage: lint
   needs: []
   image: ubuntu:latest
-  before_script: []
-  script:
-    - apt-get --yes update && apt-get --yes install python3-pip python3-venv
+  before_script:
+    - apt-get --yes update
+    - apt-get --yes install --no-install-recommends --no-install-suggests python3-pip python3-venv
     - python3 -m venv ./gersemi
     - . ./gersemi/bin/activate
-    - python3 -m pip install gersemi
+    - python3 -m pip install gersemi==$GERSEMI_VERSION
+  script:
     - find CMakeLists.txt src tests -name 'CMakeLists.txt' -exec gersemi --check '{}' '+'
-  allow_failure: true
 
 clang-tidy-job:
   rules:
@@ -331,15 +346,17 @@ ini-validation-job:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   variables:
     DEBIAN_FRONTEND: noninteractive
-    VALIDATOR_URL: https://github.com/Boeing/config-file-validator/releases/download/v1.7.1/validator-v1.7.1-linux-amd64.tar.gz
+    VALIDATOR_VERSION: 1.8.0
   stage: lint
   needs: []
   image: ubuntu:latest
-  before_script: []
-  script:
-    - apt-get --yes update && apt-get --yes install wget
+  before_script:
+    - apt-get --yes update
+    - apt-get --yes --no-install-recommends --no-install-suggests install ca-certificates wget
     - mkdir validator
+    - VALIDATOR_URL=https://github.com/Boeing/config-file-validator/releases/download/v${VALIDATOR_VERSION}/validator-v${VALIDATOR_VERSION}-linux-amd64.tar.gz
     - wget --quiet --output-document=- $VALIDATOR_URL | tar --directory=validator --gzip --extract
+  script:
     - validator/validator inputs
 
 doxygen-job:

@@ -130,14 +130,14 @@ inline InternalMassGravity make_internal_mass_gravity(
     Grid const& grid,
     KV_cdouble_3d const& rho)
 {
-    if (grid.mpi_size != 1)
+    if (grid.mpi_dims_cart[0] != 1)
     {
-        throw std::runtime_error("The function make_internal_mass_gravity does not handle more than 1 MPI process");
+        throw std::runtime_error("The function make_internal_mass_gravity does not handle more than 1 MPI process in the first dimension");
     }
 
     KV_double_1d const g_array_dv("g_array", grid.Nx_local_wg[0]);
-    KV_double_1d const dv_total("dv_mean_array", grid.Nx_local_ng[0] + grid.Nghost[0]); // sum dv
-    KV_double_1d const rho_mean("rho_mean_array", grid.Nx_local_ng[0] + grid.Nghost[0]); // sum (rho * dv) / (sum dv)
+    KDV_double_1d dv_total_dv("dv_mean_array", grid.Nx_local_ng[0] + grid.Nghost[0]); // sum dv
+    KDV_double_1d rho_mean_dv("rho_mean_array", grid.Nx_local_ng[0] + grid.Nghost[0]); // sum (rho * dv) / (sum dv)
 
     KV_double_1d const M_r("M_r_array", grid.Nx_local_wg[0]); // total mass at r
     double const M_star = param.M;
@@ -148,6 +148,8 @@ inline InternalMassGravity make_internal_mass_gravity(
     Kokkos::Array<int, 3> nghost;
     std::copy(grid.Nghost.begin(), grid.Nghost.end(), nghost.data());
 
+    rho_mean_dv.modify_device();
+    dv_total_dv.modify_device();
     for (int i = 0; i < grid.Nx_local_ng[0] + grid.Nghost[0]; ++i)
     {
         Kokkos::parallel_reduce(
@@ -163,9 +165,21 @@ inline InternalMassGravity make_internal_mass_gravity(
                 local_sum_mass += rho(offset_i, offset_j, offset_k) * dv(offset_i, offset_j, offset_k);
                 local_sum_dv += dv(offset_i, offset_j, offset_k);
             },
-            Kokkos::Sum(Kokkos::subview(rho_mean, i)), Kokkos::Sum(Kokkos::subview(dv_total, i)));
+            Kokkos::Sum(Kokkos::subview(rho_mean_dv.view_device(), i)),
+            Kokkos::Sum(Kokkos::subview(dv_total_dv.view_device(), i)));
     }
+    rho_mean_dv.sync_host();
+    dv_total_dv.sync_host();
 
+    rho_mean_dv.modify_host();
+    dv_total_dv.modify_host();
+    MPI_Allreduce(MPI_IN_PLACE, dv_total_dv.view_host().data(), dv_total_dv.extent_int(0), MPI_DOUBLE, MPI_SUM, grid.comm_cart_horizontal);
+    MPI_Allreduce(MPI_IN_PLACE, rho_mean_dv.view_host().data(), rho_mean_dv.extent_int(0), MPI_DOUBLE, MPI_SUM, grid.comm_cart_horizontal);
+    rho_mean_dv.sync_device();
+    dv_total_dv.sync_device();
+
+    KV_double_1d const rho_mean = rho_mean_dv.view_device();
+    KV_cdouble_1d const dv_total = dv_total_dv.view_device();
     Kokkos::parallel_for(
         "rho_mean_o_dv_tot",
         Kokkos::RangePolicy<int>(0, grid.Nx_local_ng[0] + grid.Nghost[0]),
