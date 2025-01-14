@@ -73,11 +73,13 @@ public:
         KDV_double_1d P_1d("P_1d", grid.Nx_local_ng[0]);
         KDV_double_2d fx_1d("fx_1d", grid.Nx_local_ng[0], fx.extent_int(3));
 
-        // raii_h5_hid const file_id(::H5Fopen(m_param_setup.init_filename.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT), ::H5Fclose);
-        // check_extent_dset(file_id, "/rho_1d", std::array {rho_1d.extent(0)});
-        // check_extent_dset(file_id, "/u_1d", std::array {u_1d.extent(0)});
-        // check_extent_dset(file_id, "/P_1d", std::array {P_1d.extent(0)});
-        // check_extent_dset(file_id, "/fx_1d", std::array {fx_1d.extent(1), fx_1d.extent(0)});
+        std::size_t const extent = grid.Nx_glob_ng[0];
+
+        raii_h5_hid const file_id(::H5Fopen(m_param_setup.init_filename.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT), ::H5Fclose);
+        check_extent_dset(file_id, "/rho_1d", std::array {extent});
+        check_extent_dset(file_id, "/u_1d", std::array {extent});
+        check_extent_dset(file_id, "/P_1d", std::array {extent});
+        check_extent_dset(file_id, "/fx_1d", std::array {fx_1d.extent(1), extent});
 
         if (grid.mpi_rank == 0)
         {
