@@ -38,6 +38,10 @@ public:
     double He_CL;
     double O_CL;
     double Si_CL;
+    double r_shock;
+    double r_ni_bubble;
+    double ny;
+    double nz;
 
     explicit ParamSetup(INIReader const& reader)
     {
@@ -53,6 +57,10 @@ public:
         He_CL = reader.GetReal("Boundary Condition", "He_CL", 0.);
         O_CL = reader.GetReal("Boundary Condition", "O_CL", 0.);
         Si_CL = reader.GetReal("Boundary Condition", "Si_CL", 0.);
+        r_shock = reader.GetReal("Initialisation", "r_shock", 0.);
+        r_ni_bubble = reader.GetReal("Initialisation", "r_ni_bubble", 0.);
+        ny = reader.GetReal("Grid", "Ny_glob", 1.0);
+        nz = reader.GetReal("Grid", "Nz_glob", 1.0);
    }
 };
 
@@ -130,6 +138,38 @@ public:
         {
             broadcast(range, Kokkos::subview(fx_1d.view_device(), ALL, ifx), Kokkos::subview(fx, ALL, ALL, ALL, ifx));
         }
+
+        // add Ni bubble
+        auto const r = grid.x;
+        auto const dx = grid.dx;
+        auto const& param_setup = m_param_setup;
+        int const nth_2 = param_setup.ny / 2;
+        int const nphi_2 = param_setup.nz / 2;
+
+        double const dr_reg = dx(2);
+        int const dth_ni = 2;
+        int const dphi_ni = 2;
+
+        Kokkos::parallel_for(
+        "Ni_bubble",
+        cell_mdrange(range),
+        KOKKOS_LAMBDA(int i, int j, int k)
+        {
+            if ((param_setup.r_ni_bubble - dr_reg) < r(i) && r(i) < (param_setup.r_ni_bubble + dr_reg))
+            {
+                if ((nth_2 - dth_ni) < j && j < (nth_2 + dth_ni))
+                {
+                    if ((nphi_2 - dphi_ni) < k && k < (nphi_2 + dphi_ni))
+                    {
+                        fx(i, j, k, 0) = 1;
+                        fx(i, j, k, 1) = 0;
+                        fx(i, j, k, 2) = 0;
+                        fx(i, j, k, 3) = 0;
+                        fx(i, j, k, 4) = 0;
+                  }
+                }
+            }
+        });
     }
 };
 
