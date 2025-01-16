@@ -453,16 +453,33 @@ void main(int argc, char** argv)
         // Shift the grid if necessary
         if (shift_criterion->execute(grid.range.no_ghosts(), grid, rho_new, rhou_new, E_new, fx_new))
         {
-            if (grid.mpi_rank == 0)
+            std::cout << "la" << "\n" << std::flush;
+            x_glob.sync_host();
+            auto const x_h = x_glob.view_host();
+
+            if (x_h(grid.Nx_glob_ng[0]+grid.Nghost[0]+1) >= param.rmax_shift)
             {
-                std::cout << "Shifting grid at time = " << t << ", iteration = " << iter << "\n" << std::flush;
+                shift_criterion = std::make_unique<NoShiftGrid>(); // grid shift deactivated
+
+                bcs_array[0 * 2 + 1] = factory_boundary_construction<Gravity>(
+                                "NullGradient", 0, 1);
+                DistributedBoundaryCondition const bcs(grid, param);
+                bcs(bcs_array, grid, *g, rho_new, rhou_new, E_new, fx_new); // change BC
             }
-            shift_grid(rho.view_device(), rhou.view_device(), E.view_device(), fx.view_device(),
-                       rho_new, rhou_new, E_new, fx_new,
-                       x_glob, y_glob, z_glob,
-                       grid);
+            else
+            {
+                if (grid.mpi_rank == 0)
+                {
+                    std::cout << "Shifting grid at time = " << t << ", iteration = " << iter << "\n" << std::flush;
+                    std::cout << "Rmax = " << x_h(grid.Nx_glob_ng[0]+grid.Nghost[0]+1) << "\n" << std::flush;
+                }
+                shift_grid(rho.view_device(), rhou.view_device(), E.view_device(), fx.view_device(),
+                        rho_new, rhou_new, E_new, fx_new,
+                        x_glob, y_glob, z_glob,
+                        grid);
+                bcs(bcs_array, grid, *g, rho_new, rhou_new, E_new, fx_new);
+            }
             // useful only for the process near the outer boundary (no MPI is needed indeed !!)
-            bcs(bcs_array, grid, *g, rho_new, rhou_new, E_new, fx_new);
 
             Kokkos::deep_copy(rho.view_device(), rho_new);
             Kokkos::deep_copy(rhou.view_device(), rhou_new);

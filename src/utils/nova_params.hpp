@@ -50,6 +50,7 @@ public :
     double eps_pf;
     int time_job;
     std::string shift_grid;
+    double rmax_shift;
 
     explicit Param(INIReader const& reader);
 
