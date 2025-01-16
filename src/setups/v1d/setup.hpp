@@ -6,6 +6,7 @@
 #include <inih/INIReader.hpp>
 
 #include "broadcast.hpp"
+#include "default_boundary_setup.hpp"
 #include "default_user_step.hpp"
 #include "eos.hpp"
 #include <grid.hpp>
@@ -30,37 +31,12 @@ public:
     std::string init_filename;
     double vmax_shift;
     int cell_shift;
-    double v0_CL;
-    double R_star;
-    double T_CL;
-    double Ni_CL;
-    double H_CL;
-    double He_CL;
-    double O_CL;
-    double Si_CL;
-    double r_shock;
-    double r_ni_bubble;
-    double ny;
-    double nz;
 
     explicit ParamSetup(INIReader const& reader)
     {
-        init_filename = reader.Get("Problem", "init_file", "");
-        vmax_shift = reader.GetReal("Problem", "vmax_shift", 0.);
-        cell_shift = reader.GetInteger("Problem", "cell_shift", 0);
-
-        v0_CL = reader.GetReal("Boundary Condition", "v0_CL", 0.);
-        R_star = reader.GetReal("Boundary Condition", "R_star", 0.);
-        T_CL = reader.GetReal("Boundary Condition", "T_CL", 0.);
-        Ni_CL = reader.GetReal("Boundary Condition", "Ni_CL", 0.);
-        H_CL = reader.GetReal("Boundary Condition", "H_CL", 0.);
-        He_CL = reader.GetReal("Boundary Condition", "He_CL", 0.);
-        O_CL = reader.GetReal("Boundary Condition", "O_CL", 0.);
-        Si_CL = reader.GetReal("Boundary Condition", "Si_CL", 0.);
-        r_shock = reader.GetReal("Initialisation", "r_shock", 0.);
-        r_ni_bubble = reader.GetReal("Initialisation", "r_ni_bubble", 0.);
-        ny = reader.GetReal("Grid", "Ny_glob", 1.0);
-        nz = reader.GetReal("Grid", "Nz_glob", 1.0);
+        init_filename = reader.Get("problem", "init_file", "");
+        vmax_shift = reader.GetReal("problem", "vmax_shift", 0.) * units::velocity;
+        cell_shift = reader.GetInteger("problem", "cell_shift", 0);
    }
 };
 
@@ -138,38 +114,6 @@ public:
         {
             broadcast(range, Kokkos::subview(fx_1d.view_device(), ALL, ifx), Kokkos::subview(fx, ALL, ALL, ALL, ifx));
         }
-
-        // add Ni bubble
-        auto const r = grid.x;
-        auto const dx = grid.dx;
-        auto const& param_setup = m_param_setup;
-        int const nth_2 = param_setup.ny / 2;
-        int const nphi_2 = param_setup.nz / 2;
-
-        double const dr_reg = dx(2);
-        int const dth_ni = 2;
-        int const dphi_ni = 2;
-
-        Kokkos::parallel_for(
-        "Ni_bubble",
-        cell_mdrange(range),
-        KOKKOS_LAMBDA(int i, int j, int k)
-        {
-            if ((param_setup.r_ni_bubble - dr_reg) < r(i) && r(i) < (param_setup.r_ni_bubble + dr_reg))
-            {
-                if ((nth_2 - dth_ni) < j && j < (nth_2 + dth_ni))
-                {
-                    if ((nphi_2 - dphi_ni) < k && k < (nphi_2 + dphi_ni))
-                    {
-                        fx(i, j, k, 0) = 1;
-                        fx(i, j, k, 1) = 0;
-                        fx(i, j, k, 2) = 0;
-                        fx(i, j, k, 3) = 0;
-                        fx(i, j, k, 4) = 0;
-                  }
-                }
-            }
-        });
     }
 };
 
@@ -262,91 +206,6 @@ public:
         }
         MPI_Allreduce(MPI_IN_PLACE, &vmax, 1, MPI_DOUBLE, MPI_MAX, grid.comm_cart);
         return vmax >= m_param_setup.vmax_shift;
-    }
-};
-
-template <class Gravity>
-class BoundarySetup : public IBoundaryCondition<Gravity>
-{
-    std::string m_label;
-
-private:
-    EOS m_eos;
-    ParamSetup m_param_setup;
-
-public:
-    BoundarySetup(int idim, int iface,
-        EOS const& eos,
-        ParamSetup const& param_setup)
-        : IBoundaryCondition<Gravity>(idim, iface)
-        , m_label(std::string("UserDefined").append(bc_dir[idim]).append(bc_face[iface]))
-        , m_eos(eos)
-        , m_param_setup(param_setup)
-    {
-    }
-
-    void execute(Grid const& grid,
-                 [[maybe_unused]] Gravity const& gravity,
-                 KV_double_3d const& rho,
-                 KV_double_4d const& rhou,
-                 KV_double_3d const& E,
-                 KV_double_4d const& fx) const final
-    {
-        assert(rho.extent(0) == rhou.extent(0));
-        assert(rhou.extent(0) == E.extent(0));
-        assert(rho.extent(1) == rhou.extent(1));
-        assert(rhou.extent(1) == E.extent(1));
-        assert(rho.extent(2) == rhou.extent(2));
-        assert(rhou.extent(2) == E.extent(2));
-
-        Kokkos::Array<int, 3> begin {0, 0, 0};
-        Kokkos::Array<int, 3> end {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)};
-
-        auto const xc = grid.x_center;
-        auto const& eos = m_eos;
-        auto const& param_setup = m_param_setup;
-
-        int const ng = grid.Nghost[this->bc_idim()];
-        if (this->bc_iface() == 1)
-        {
-            begin[this->bc_idim()] = rho.extent_int(this->bc_idim()) - ng;
-        }
-        end[this->bc_idim()] = begin[this->bc_idim()] + ng;
-
-        Kokkos::parallel_for(
-            m_label,
-            Kokkos::MDRangePolicy<int, Kokkos::Rank<3>>(begin, end),
-            KOKKOS_LAMBDA(int i, int j, int k)
-            {
-                double u_rgs = 50; // km s^{-1}
-                double M_sun = 1.989e30; // kg
-                //double m_dot_rsg = 1e-6 * M_sun / (365 * 24 * 3600); // kg s^{-1}
-                double m_dot_rsg = 1e-8 * M_sun / (365 * 24 * 3600); // kg s^{-1}
-
-                double u_r = param_setup.v0_CL + (u_rgs - param_setup.v0_CL)
-                            * (1 - param_setup.R_star / xc(i)) * (1 - param_setup.R_star / xc(i));
-
-                rho(i, j, k) = m_dot_rsg / (4 * units::pi * xc(i) * xc(i) * u_r);
-
-                rhou(i, j, k, 0) = rho(i, j, k) * u_r;
-
-                if (ndim == 2 || ndim == 3)
-                {
-                    rhou(i, j, k, 1) = 0;
-                }
-                if (ndim == 3)
-                {
-                    rhou(i, j, k, 2) = 0;
-                }
-
-                E(i, j, k) = eos.compute_evol_from_T(rho(i, j, k), param_setup.T_CL);
-
-                fx(i, j, k, 0) = param_setup.Ni_CL;
-                fx(i, j, k, 1) = param_setup.H_CL;
-                fx(i, j, k, 2) = param_setup.He_CL;
-                fx(i, j, k, 3) = param_setup.O_CL;
-                fx(i, j, k, 4) = param_setup.Si_CL;
-            });
     }
 };
 

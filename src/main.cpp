@@ -453,7 +453,6 @@ void main(int argc, char** argv)
         // Shift the grid if necessary
         if (shift_criterion->execute(grid.range.no_ghosts(), grid, rho_new, rhou_new, E_new, fx_new))
         {
-            std::cout << "la" << "\n" << std::flush;
             x_glob.sync_host();
             auto const x_h = x_glob.view_host();
 
