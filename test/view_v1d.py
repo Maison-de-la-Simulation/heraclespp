@@ -50,11 +50,11 @@ def read_file_1d_r(filename):
 
 def read_file_1d_r_element(filename):
     with h5py.File(str(filename), 'r') as f:
-        Ni = f['fx0'][0, 0, :]
-        H = f['fx1'][0, 0, :]
-        He = f['fx2'][0, 0, :]
-        O = f['fx3'][0, 0, :]
-        Si = f['fx4'][0, 0, :]
+        Ni = f['fx0'][2, 2, :]
+        H = f['fx1'][2, 2, :]
+        He = f['fx2'][2, 2, :]
+        O = f['fx3'][2, 2, :]
+        Si = f['fx4'][2, 2, :]
     return Ni, H, He, O, Si
 
 def fgamma(filename):
@@ -136,11 +136,11 @@ plt.xlabel(r'$r / R_{\odot}$'); plt.ylabel(r'log($T / 10^6$) [K]')
 plt.legend()
 
 plt.subplot(224)
-plt.plot(xc_cm / R_sun_cgs, Ni, c='red', label="Ni56")
-plt.plot(xc_cm / R_sun_cgs, H, c="steelblue",label="H")
-plt.plot(xc_cm / R_sun_cgs, He, c="plum", label="He")
-plt.plot(xc_cm / R_sun_cgs, O, c='green', label="O")
-plt.plot(xc_cm / R_sun_cgs, Si, color="gold",label="Si")
+plt.plot(xc_cm / 10**15, Ni, c='red', label="Ni56")
+#plt.plot(xc_cm / R_sun_cgs, H, c="steelblue",label="H")
+#plt.plot(xc_cm / R_sun_cgs, He, c="plum", label="He")
+#plt.plot(xc_cm / R_sun_cgs, O, c='green', label="O")
+#plt.plot(xc_cm / R_sun_cgs, Si, color="gold",label="Si")
 plt.xlabel(r'$r / R_{\odot}$'); plt.ylabel(r'X')
 plt.legend()
 
