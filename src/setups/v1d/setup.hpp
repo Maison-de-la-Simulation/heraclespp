@@ -141,15 +141,21 @@ public:
 
         // add Ni bubble
         auto const r = grid.x;
+        auto const th = grid.y;
+        auto const phi = grid.z;
         auto const dx = grid.dx;
         auto const dv = grid.dv;
         auto const& param_setup = m_param_setup;
         int const nth_2 = param_setup.ny / 2;
         int const nphi_2 = param_setup.nz / 2;
+        double const dr_reg = dx(2);
 
-        double const dr_reg = 4*dx(2);
-        int const dth_ni = 6;
-        int const dphi_ni = 6;
+        double const radius = 15 * dr_reg;
+        double const r_bubble = param_setup.r_ni_bubble + 10 * dr_reg;
+
+        double const x_center = r_bubble * Kokkos::sin(th(nth_2)) * Kokkos::cos(phi(nphi_2));
+        double const y_center = r_bubble * Kokkos::sin(th(nth_2)) * Kokkos::sin(phi(nphi_2));
+        double const z_center = r_bubble * Kokkos::cos(th(nth_2));
 
         double M_ni = 0;
 
@@ -158,19 +164,25 @@ public:
         cell_mdrange(range),
         KOKKOS_LAMBDA(int i, int j, int k)
         {
-            if ((param_setup.r_ni_bubble - dr_reg) < r(i) && r(i) < (param_setup.r_ni_bubble + dr_reg))
+            double x = r(i) * Kokkos::sin(th(j)) * Kokkos::cos(phi(k));
+        double y = r(i) * Kokkos::sin(th(j)) * Kokkos::sin(phi(k));
+        double z = r(i) * Kokkos::cos(th(j));
+
+            double dist = Kokkos::sqrt((x - x_center)*(x - x_center)
+                        + (y - y_center)*(y - y_center)
+                        + (z - z_center)*(z - z_center));
+
+            //std::cout << "la ;" << radius << "  " << dist << std::endl;
+
+            if (dist <= radius)
             {
-                if ((nth_2 - dth_ni) < j && j < (nth_2 + dth_ni))
-                {
-                    if ((nphi_2 - dphi_ni) < k && k < (nphi_2 + dphi_ni))
-                    {
-                        fx(i, j, k, 0) = 1;
-                        fx(i, j, k, 1) = 0;
-                        fx(i, j, k, 2) = 0;
-                        fx(i, j, k, 3) = 0;
-                        fx(i, j, k, 4) = 0;
-                  }
-                }
+                //std::cout << "la :" << radius << dist << std::endl;
+                fx(i, j, k, 0) = 1;
+                fx(i, j, k, 1) = 0;
+                fx(i, j, k, 2) = 0;
+                fx(i, j, k, 3) = 0;
+                fx(i, j, k, 4) = 0;
+
             }
         });
 
