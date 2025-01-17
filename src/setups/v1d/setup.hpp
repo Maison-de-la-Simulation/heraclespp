@@ -149,8 +149,6 @@ public:
         int const nth_2 = param_setup.ny / 2;
         int const nphi_2 = param_setup.nz / 2;
 
-        double M_ni = 0;
-
         Kokkos::parallel_for(
         "Ni_bubble",
         cell_mdrange(range),
@@ -182,15 +180,23 @@ public:
             }
         });
 
+        double sum_M_ni = 0;
+
         Kokkos::parallel_reduce(
-        "Sum_mass_Ni",
+        "sum_mass_Ni",
         cell_mdrange(range),
-        KOKKOS_LAMBDA(const int i, const int j, const int k, double& local_sum) {
+        KOKKOS_LAMBDA(const int i, const int j, const int k, double& local_sum)
+        {
             local_sum += fx(i, j, k, 0) * rho(i, j, k) * dv(i, j, k);
         },
-        M_ni);
+        Kokkos::Sum<double>(sum_M_ni));
 
-        Kokkos::printf("Masse Ni56 = %f M_sun\n", M_ni / (1.9891E30));
+        MPI_Allreduce(MPI_IN_PLACE, &sum_M_ni, 1, MPI_DOUBLE, MPI_SUM, grid.comm_cart);
+
+        if (grid.mpi_rank == 0)
+        {
+            Kokkos::printf("Masse Ni56 = %f M_sun\n", sum_M_ni / (1.9891E30));
+        }
     }
 };
 
