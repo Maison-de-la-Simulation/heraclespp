@@ -150,7 +150,7 @@ public:
         int const nphi_2 = param_setup.nz / 2;
         double const dr_reg = dx(2);
 
-        double const radius = 15 * dr_reg;
+        double const radius = 5 * dr_reg;
         double const r_bubble = param_setup.r_ni_bubble + 10 * dr_reg;
 
         double const x_center = r_bubble * Kokkos::sin(th(nth_2)) * Kokkos::cos(phi(nphi_2));
@@ -165,24 +165,20 @@ public:
         KOKKOS_LAMBDA(int i, int j, int k)
         {
             double x = r(i) * Kokkos::sin(th(j)) * Kokkos::cos(phi(k));
-        double y = r(i) * Kokkos::sin(th(j)) * Kokkos::sin(phi(k));
-        double z = r(i) * Kokkos::cos(th(j));
+            double y = r(i) * Kokkos::sin(th(j)) * Kokkos::sin(phi(k));
+            double z = r(i) * Kokkos::cos(th(j));
 
             double dist = Kokkos::sqrt((x - x_center)*(x - x_center)
                         + (y - y_center)*(y - y_center)
                         + (z - z_center)*(z - z_center));
 
-            //std::cout << "la ;" << radius << "  " << dist << std::endl;
-
             if (dist <= radius)
             {
-                //std::cout << "la :" << radius << dist << std::endl;
                 fx(i, j, k, 0) = 1;
                 fx(i, j, k, 1) = 0;
                 fx(i, j, k, 2) = 0;
                 fx(i, j, k, 3) = 0;
                 fx(i, j, k, 4) = 0;
-
             }
         });
 
