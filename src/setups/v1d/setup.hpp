@@ -148,14 +148,6 @@ public:
         auto const& param_setup = m_param_setup;
         int const nth_2 = param_setup.ny / 2;
         int const nphi_2 = param_setup.nz / 2;
-        double const dr_reg = dx(2);
-
-        double const radius = 5 * dr_reg;
-        double const r_bubble = param_setup.r_ni_bubble + 10 * dr_reg;
-
-        double const x_center = r_bubble * Kokkos::sin(th(nth_2)) * Kokkos::cos(phi(nphi_2));
-        double const y_center = r_bubble * Kokkos::sin(th(nth_2)) * Kokkos::sin(phi(nphi_2));
-        double const z_center = r_bubble * Kokkos::cos(th(nth_2));
 
         double M_ni = 0;
 
@@ -164,13 +156,21 @@ public:
         cell_mdrange(range),
         KOKKOS_LAMBDA(int i, int j, int k)
         {
-            double x = r(i) * Kokkos::sin(th(j)) * Kokkos::cos(phi(k));
-            double y = r(i) * Kokkos::sin(th(j)) * Kokkos::sin(phi(k));
-            double z = r(i) * Kokkos::cos(th(j));
+            double const dr_reg = dx(2);
+            double const radius = 5 * dr_reg;
+            double const r_bubble = param_setup.r_ni_bubble + 10 * dr_reg;
 
-            double dist = Kokkos::sqrt((x - x_center)*(x - x_center)
-                        + (y - y_center)*(y - y_center)
-                        + (z - z_center)*(z - z_center));
+            double const x_center = r_bubble * Kokkos::sin(th(nth_2)) * Kokkos::cos(phi(nphi_2));
+            double const y_center = r_bubble * Kokkos::sin(th(nth_2)) * Kokkos::sin(phi(nphi_2));
+            double const z_center = r_bubble * Kokkos::cos(th(nth_2));
+
+            double x_cart = r(i) * Kokkos::sin(th(j)) * Kokkos::cos(phi(k));
+            double y_cart = r(i) * Kokkos::sin(th(j)) * Kokkos::sin(phi(k));
+            double z_cart = r(i) * Kokkos::cos(th(j));
+
+            double dist = Kokkos::sqrt((x_cart - x_center)*(x_cart - x_center)
+                        + (y_cart - y_center)*(y_cart - y_center)
+                        + (z_cart - z_center)*(z_cart - z_center));
 
             if (dist <= radius)
             {
