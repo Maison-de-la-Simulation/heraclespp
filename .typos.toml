@@ -1,0 +1,11 @@
+# Copyright (C) The DDC development team, see COPYRIGHT.md file
+#
+# SPDX-License-Identifier: MIT
+
+[default.extend-words]
+# Don't correct these word (parts)
+UE = "UE"
+ein = "ein"
+tabl = "tabl"
+fiter = "fiter"
+strat = "strat"

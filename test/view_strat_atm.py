@@ -60,7 +60,7 @@ print(f"Free fall time = {np.sqrt(2*L / np.abs(g)):.1f} s")
 # ------------------------------------------
 
 plt.figure(figsize=(22,5))
-plt.suptitle('Stratified atmopshere')
+plt.suptitle('Stratified atmosphere')
 plt.subplot(131)
 plt.plot(xc / np.max(xc), rho_tab0,  label='t = 0 s')
 plt.plot(xc / np.max(xc), rho,  label =f't = {t:.1f} s')

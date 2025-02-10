@@ -131,13 +131,13 @@ public:
         double const dx = Lx / Nx_glob_ng[0];
         x_glob(Nghost[0]) = m_param.xmin;
 
-        int const quater_x = Nx_glob_ng[0] / 4;
-        int const three_quaters_x = 3 * quater_x;
+        int const quarter_x = Nx_glob_ng[0] / 4;
+        int const three_quarters_x = 3 * quarter_x;
 
         for (int i = Nghost[0]+1; i < x_glob.extent_int(0) ; ++i)
         {
             double dxloc;
-            if ((i >= quater_x) && (i <= three_quaters_x))
+            if ((i >= quarter_x) && (i <= three_quarters_x))
             {
                 dxloc = dx / 5;
             }

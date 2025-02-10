@@ -14,7 +14,7 @@ def CI(x, inter, tabl, tabr) :
     tabl  : array : density, velocity, pressure and speed sound left
     tabr  : array : right
 
-    ouput :
+    output :
     rho0  : array : density t=0
     u0    : array : velocity t=0
     P0    : array : pressure t=0
@@ -47,7 +47,7 @@ def StarPU(tabl, tabr, gamma):
     tabr  : array : right
     gamma : float : adiabtic constant
 
-    ouput  :
+    output  :
     P_star : float : pressure
     u_star : float : speed
     """
@@ -84,7 +84,7 @@ def GuessP(tabl, tabr, gamma):
     tabr  : array : right
     gamma : float :adiabatic constant
 
-    ouput  :
+    output  :
     P_star : float : pressure in the star region
     """
     z = (gamma - 1) / (2 * gamma)
@@ -122,7 +122,7 @@ def GuessP(tabl, tabr, gamma):
     return P_star
 
 def Prefun(P, Pk, rhok, ck, gamma):
-    """Evaluate the pressure fuction
+    """Evaluate the pressure function
 
     input :
     P     : float : input estimate pressure
@@ -131,9 +131,9 @@ def Prefun(P, Pk, rhok, ck, gamma):
     ck    : float : sound speed left or right
     gamma : float :abiabatic constant
 
-    ouput :
+    output :
     fk    : float : pressure function left or right
-    fd    : float : presure funtion derivate
+    fd    : float : pressure function derivate
     """
     z = (gamma - 1) / (2 * gamma)
     g2 = (gamma + 1) / (2 * gamma)
@@ -165,7 +165,7 @@ def Sample(P_star, u_star, S, tabl, tabr, gamma):
     tabr   : array : right
     gamma  : float : adiabatic constant
 
-    ouput :
+    output :
     rho   : float : density
     u     : float : speed
     P     : float : pressure
@@ -253,9 +253,9 @@ def ExactShockTube(x, inter, var0L, var0R, t, gamma):
     t     : float : output time
     gamma  : float : adiabatic constant
 
-    ouput :
+    output :
     rho   : array : density
-    u     : array : spped
+    u     : array : speed
     P     : array : pressure
     e     : array : internal energy
     """

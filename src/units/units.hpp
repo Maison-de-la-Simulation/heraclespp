@@ -10,7 +10,7 @@
 namespace novapp::units
 {
 
-// code units in SI : kg / meter / seconde
+// code units in SI : kg / meter / second
 constexpr double unit_M = 1.0; // Mass : kilogram
 constexpr double unit_L = 1.0; // Length : meter
 constexpr double unit_T = 1.0; // Time : second

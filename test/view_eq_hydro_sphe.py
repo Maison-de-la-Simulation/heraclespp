@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 print("*************************************")
-print("Spherical hydrodynamique equilibrum")
+print("Spherical hydrodynamique equilibrium")
 print("*************************************")
 
 filename = sys.argv[1]
@@ -71,7 +71,7 @@ print(f"Scale = {x0[0]:.1e} m")
 
 #plt.figure(figsize=(15,5))
 plt.figure(figsize=(10,8))
-plt.suptitle('Hydrodynamic equilibrum')
+plt.suptitle('Hydrodynamic equilibrium')
 plt.subplot(221)
 plt.plot(xc / np.max(xc), rho_tab0, label='t = 0 s')
 plt.plot(xc / np.max(xc), rho, 'x', label =f't = {t:.1f} s')

@@ -1,6 +1,6 @@
 //!
 //! @file array_conversion.hpp
-//! General fonctions
+//! General functions
 //!
 
 #pragma once

@@ -118,7 +118,7 @@ plt.show()
 
 # Distance from the explosion -------------------
 
-# explosion corrdinates
+# explosion coordinates
 x0 = 1 * np.sin(np.pi / 2) * np.cos(np.pi / 2)
 y0 = 1 * np.sin(np.pi / 2) * np.sin(np.pi / 2)
 z0 = 1 * np.cos(np.pi / 2)

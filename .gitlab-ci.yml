@@ -303,6 +303,25 @@ cmake-format-job:
   script:
     - find CMakeLists.txt src tests -name 'CMakeLists.txt' -exec gersemi --check '{}' '+'
 
+typos-job:
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  variables:
+    DEBIAN_FRONTEND: noninteractive
+    TYPOS_VERSION: 1.29
+  stage: lint
+  needs: []
+  image: ubuntu:latest
+  before_script:
+    - apt-get --yes update
+    - apt-get --yes install --no-install-recommends --no-install-suggests python3-pip python3-venv
+    - python3 -m venv ./typos
+    - . ./typos/bin/activate
+    - python3 -m pip install typos==$TYPOS_VERSION
+  script:
+    - typos docker/ inputs/ src/ test/ tests/ toolchains/ README.md
+
 clang-tidy-job:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

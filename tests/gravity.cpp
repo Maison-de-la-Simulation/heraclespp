@@ -66,7 +66,7 @@ void TestGravityInternalGravity()
     // Numerical gravitational field
     novapp::InternalMassGravity const g = novapp::make_internal_mass_gravity(param, grid, rho);
 
-    // Theoritical gravitational field
+    // Theoretical gravitational field
     auto xc = grid.x_center;
     novapp::KV_double_1d const g_th("g_th", grid.Nx_local_wg[0]);
     Kokkos::deep_copy(g_th, 0.);

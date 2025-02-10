@@ -215,7 +215,7 @@ plt.grid()
 plt.legend()
 
 plt.figure(figsize=(10,8))
-plt.title(f'Loglog passiv scalar graph for v1d 1e5, t = {t:.1e} s ({tday:1f} jours)')
+plt.title(f'Loglog passive scalar graph for v1d 1e5, t = {t:.1e} s ({tday:1f} jours)')
 plt.plot(xc_cm, Ni, c='brown', label="Ni56")
 plt.plot(xcf_cm, Nif, "--", c='brown', label="Ni56 V1D")
 plt.plot(xc_cm, H, c="deepskyblue",label="H")
