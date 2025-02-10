@@ -314,7 +314,7 @@ clang-tidy-job:
     inih_ROOT: $CI_PROJECT_DIR/opt/inih
     Kokkos_ROOT: $CI_PROJECT_DIR/opt/kokkos
   script:
-    - cmake -DBUILD_TESTING=ON -DCMAKE_CXX_COMPILER=clang++-18 -DCMAKE_CXX_CLANG_TIDY="clang-tidy-18;-header-filter=$CI_PROJECT_DIR/src/.*;-warnings-as-errors=*" -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+    - cmake -DBUILD_TESTING=ON -DCMAKE_CXX_COMPILER=clang++-19 -DCMAKE_CXX_CLANG_TIDY="clang-tidy-19;-header-filter=$CI_PROJECT_DIR/src/.*;-warnings-as-errors=*" -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
     - cmake --build build
 
 link-what-you-use-job:
@@ -328,7 +328,7 @@ link-what-you-use-job:
     inih_ROOT: $CI_PROJECT_DIR/opt/inih
     Kokkos_ROOT: $CI_PROJECT_DIR/opt/kokkos
   script:
-    - cmake -DBUILD_TESTING=ON -DCMAKE_CXX_COMPILER=clang++-18 -DCMAKE_LINK_WHAT_YOU_USE=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+    - cmake -DBUILD_TESTING=ON -DCMAKE_CXX_COMPILER=clang++-19 -DCMAKE_LINK_WHAT_YOU_USE=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
     - cmake --build build
 
 trailing-whitespaces-job:

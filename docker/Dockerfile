@@ -17,10 +17,12 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     apt-utils \
     ca-certificates \
     wget \
- && wget --output-document=/usr/share/keyrings/pdidev-archive-keyring.gpg https://raw.githubusercontent.com/pdidev/repo/pdi-master.ubuntu/pdidev-archive-keyring.gpg \
+ && wget --output-document=/usr/share/keyrings/pdidev-archive-keyring.gpg https://repo.pdi.dev/ubuntu/pdidev-archive-keyring.gpg \
+ && wget --output-document=/usr/share/keyrings/apt.llvm.org.asc https://apt.llvm.org/llvm-snapshot.gpg.key \
  && wget --output-document=/usr/share/keyrings/cuda-archive-keyring.asc https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/3bf863cc.pub \
  && wget --output-document=/usr/share/keyrings/rocm-archive-keyring.asc https://repo.radeon.com/rocm/rocm.gpg.key \
- && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/pdidev-archive-keyring.gpg] https://raw.githubusercontent.com/pdidev/repo/pdi-master.ubuntu noble main" > /etc/apt/sources.list.d/pdi.list \
+ && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/pdidev-archive-keyring.gpg] https://repo.pdi.dev/ubuntu noble main" > /etc/apt/sources.list.d/pdi.list \
+ && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/apt.llvm.org.asc] http://apt.llvm.org/noble/ llvm-toolchain-noble-19 main" > /etc/apt/sources.list.d/llvm.list \
  && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/cuda-archive-keyring.asc] https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64 /" > /etc/apt/sources.list.d/cuda.list \
  && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/rocm-archive-keyring.asc] https://repo.radeon.com/rocm/apt/6.2 noble main" > /etc/apt/sources.list.d/rocm.list \
  && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/rocm-archive-keyring.asc] https://repo.radeon.com/amdgpu/6.2/ubuntu noble main" > /etc/apt/sources.list.d/amdgpu.list \
@@ -29,8 +31,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
  && apt-get --yes update \
  && apt-get --yes --no-install-recommends install \
     build-essential \
-    clang-format \
-    clang-tidy \
+    clang-format-19 \
+    clang-tidy-19 \
     cmake \
     doxygen \
     git \

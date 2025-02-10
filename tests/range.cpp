@@ -6,6 +6,8 @@
 #include <ndim.hpp>
 #include <range.hpp>
 
+namespace {
+
 constexpr std::array<int, 3> dim_mask(
         std::array<int, 3> const lhs,
         std::array<int, 3> const rhs) noexcept
@@ -17,6 +19,8 @@ constexpr std::array<int, 3> dim_mask(
     }
     return out;
 }
+
+} // namespace
 
 TEST(Range, Constructor)
 {

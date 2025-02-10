@@ -104,7 +104,7 @@ std::string display_help_message(std::filesystem::path const& executable)
 
 } // namespace
 
-void main(int argc, char** argv)
+extern void main(int argc, char** argv)
 {
     if (argc < 2)
     {
@@ -151,7 +151,7 @@ void main(int argc, char** argv)
 
         grid.print_grid(std::cout);
 
-        print_info(std::cout, "setup", MY_SETUP);
+        print_info(std::cout, "setup", std::string_view(MY_SETUP));
         print_info(std::cout, "eos", eos_choice);
         print_info(std::cout, "geometry", geom_choice);
         print_info(std::cout, "gravity", gravity_label);

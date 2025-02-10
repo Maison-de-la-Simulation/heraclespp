@@ -9,7 +9,7 @@ namespace novapp {
 TEST(PrintInfo, Format)
 {
     std::stringstream ss;
-    novapp::print_info(ss, "Parameter", "Value");
+    novapp::print_info(ss, "Parameter", std::string_view("Value"));
     EXPECT_EQ(ss.str(), "Parameter..................................................................Value\n");
 }
 
