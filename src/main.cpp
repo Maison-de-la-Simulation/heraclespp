@@ -102,9 +102,7 @@ std::string display_help_message(std::filesystem::path const& executable)
     return ss.str();
 }
 
-} // namespace
-
-extern void main(int argc, char** argv)
+void main(int argc, char** argv)
 {
     if (argc < 2)
     {
@@ -537,6 +535,8 @@ extern void main(int argc, char** argv)
     PDI_finalize();
     PC_tree_destroy(&conf);
 }
+
+} // namespace
 
 } // namespace novapp
 
