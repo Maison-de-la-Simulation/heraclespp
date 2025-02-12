@@ -30,6 +30,8 @@ public:
     std::string init_filename;
     double vmax_shift;
     int cell_shift;
+    double ny;
+    double nz;
     double v0_CL;
     double R_star;
     double T_CL;
@@ -38,17 +40,17 @@ public:
     double He_CL;
     double O_CL;
     double Si_CL;
-    double r_shock;
-    double r_ni_bubble;
-    double ny;
-    double nz;
+    double Other_CL;
+    double pos_ni_bubble;
+    double radius_ni_bubble;
 
     explicit ParamSetup(INIReader const& reader)
     {
         init_filename = reader.Get("Problem", "init_file", "");
         vmax_shift = reader.GetReal("Problem", "vmax_shift", 0.);
         cell_shift = reader.GetInteger("Problem", "cell_shift", 0);
-
+        ny = reader.GetReal("Grid", "Ny_glob", 1.0);
+        nz = reader.GetReal("Grid", "Nz_glob", 1.0);
         v0_CL = reader.GetReal("Boundary Condition", "v0_CL", 0.);
         R_star = reader.GetReal("Boundary Condition", "R_star", 0.);
         T_CL = reader.GetReal("Boundary Condition", "T_CL", 0.);
@@ -57,10 +59,9 @@ public:
         He_CL = reader.GetReal("Boundary Condition", "He_CL", 0.);
         O_CL = reader.GetReal("Boundary Condition", "O_CL", 0.);
         Si_CL = reader.GetReal("Boundary Condition", "Si_CL", 0.);
-        r_shock = reader.GetReal("Initialisation", "r_shock", 0.);
-        r_ni_bubble = reader.GetReal("Initialisation", "r_ni_bubble", 0.);
-        ny = reader.GetReal("Grid", "Ny_glob", 1.0);
-        nz = reader.GetReal("Grid", "Nz_glob", 1.0);
+        Other_CL = reader.GetReal("Boundary Condition", "Other_CL", 0.);
+        pos_ni_bubble = reader.GetReal("Initialisation", "pos_ni_bubble", 0.);
+        radius_ni_bubble = reader.GetReal("Initialisation", "radius_ni_bubble", 0.);
    }
 };
 
@@ -139,8 +140,31 @@ public:
             broadcast(range, Kokkos::subview(fx_1d.view_device(), ALL, ifx), Kokkos::subview(fx, ALL, ALL, ALL, ifx));
         }
 
-        // add Ni bubble
+        // add Ni bubble 1D
         auto const r = grid.x;
+        auto const dx = grid.dx;
+        auto const dv = grid.dv;
+        auto const& param_setup = m_param_setup;
+
+        Kokkos::parallel_for(
+        "Ni_bubble_1D",
+        cell_mdrange(range),
+        KOKKOS_LAMBDA(int i, int j, int k)
+        {
+            double const rmin_bubble = param_setup.pos_ni_bubble - param_setup.radius_ni_bubble;
+            double const rmax_bubble = param_setup.pos_ni_bubble + param_setup.radius_ni_bubble;
+            //std::cout << rmin_bubble << " " << rmax_bubble << std::endl;
+
+            if  (rmin_bubble < r(i) && r(i) < rmax_bubble)
+            {
+                std::cout << i << " " << r(i) << std::endl;
+                fx(i, j, k, 0) = 1;
+                fx(i, j, k, 1) = 0;
+            }
+        });
+
+        // add Ni bubble
+        /* auto const r = grid.x;
         auto const th = grid.y;
         auto const phi = grid.z;
         auto const dx = grid.dx;
@@ -150,13 +174,14 @@ public:
         int const nphi_2 = param_setup.nz / 2;
 
         Kokkos::parallel_for(
-        "Ni_bubble",
+        "Ni_bubble_3D",
         cell_mdrange(range),
         KOKKOS_LAMBDA(int i, int j, int k)
         {
             double const dr_reg = dx(2);
             double const radius = 5 * dr_reg;
             double const r_bubble = param_setup.r_ni_bubble + 10 * dr_reg;
+            //std::cout << r_bubble  << " " << dr_reg << std::endl;
 
             double const x_center = r_bubble * Kokkos::sin(th(nth_2)) * Kokkos::cos(phi(nphi_2));
             double const y_center = r_bubble * Kokkos::sin(th(nth_2)) * Kokkos::sin(phi(nphi_2));
@@ -178,7 +203,7 @@ public:
                 fx(i, j, k, 3) = 0;
                 fx(i, j, k, 4) = 0;
             }
-        });
+        }); */
 
         double sum_M_ni = 0;
 
@@ -346,10 +371,9 @@ public:
             Kokkos::MDRangePolicy<int, Kokkos::Rank<3>>(begin, end),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                double u_rgs = 50; // km s^{-1}
+                double u_rgs = 50000; // m s^{-1}
                 double M_sun = 1.989e30; // kg
-                //double m_dot_rsg = 1e-6 * M_sun / (365 * 24 * 3600); // kg s^{-1}
-                double m_dot_rsg = 1e-8 * M_sun / (365 * 24 * 3600); // kg s^{-1}
+                double m_dot_rsg = 1e-6 * M_sun / (365 * 24 * 3600); // kg s^{-1}
 
                 double u_r = param_setup.v0_CL + (u_rgs - param_setup.v0_CL)
                             * (1 - param_setup.R_star / xc(i)) * (1 - param_setup.R_star / xc(i));
@@ -370,10 +394,11 @@ public:
                 E(i, j, k) = eos.compute_evol_from_T(rho(i, j, k), param_setup.T_CL);
 
                 fx(i, j, k, 0) = param_setup.Ni_CL;
-                fx(i, j, k, 1) = param_setup.H_CL;
+                fx(i, j, k, 1) = param_setup.Other_CL;
+                /* fx(i, j, k, 1) = param_setup.H_CL;
                 fx(i, j, k, 2) = param_setup.He_CL;
                 fx(i, j, k, 3) = param_setup.O_CL;
-                fx(i, j, k, 4) = param_setup.Si_CL;
+                fx(i, j, k, 4) = param_setup.Si_CL; */
             });
     }
 };
