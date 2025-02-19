@@ -157,7 +157,7 @@ public:
 
             if  (rmin_bubble < r(i) && r(i) < rmax_bubble)
             {
-                std::cout << i << " " << r(i) << std::endl;
+ //               std::cout << i << " " << r(i) << std::endl;
                 fx(i, j, k, 0) = 1;
                 fx(i, j, k, 1) = 0;
             }
@@ -373,7 +373,7 @@ public:
             {
                 double u_rgs = 50000; // m s^{-1}
                 double M_sun = 1.989e30; // kg
-                double m_dot_rsg = 1e-6 * M_sun / (365 * 24 * 3600); // kg s^{-1}
+                double m_dot_rsg = 1e-5 * M_sun / (365 * 24 * 3600); // kg s^{-1}
 
                 double u_r = param_setup.v0_CL + (u_rgs - param_setup.v0_CL)
                             * (1 - param_setup.R_star / xc(i)) * (1 - param_setup.R_star / xc(i));
