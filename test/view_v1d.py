@@ -24,7 +24,8 @@ rc('ytick.minor', size=3, width=1)
 # ------------------------------------------------------------------------------
 
 filename = sys.argv[1]
-#ndim = input("Dimension of the simulation (1 or 3): ")
+ndim = 1# input("Dimension of the simulation (1 or 3): ")
+nfx = 2#input("Number of passive scalar (2 or 5): ")
 
 # ------------------------------------------------------------------------------
 
@@ -39,23 +40,48 @@ def read_start_file(filename):
 
 def read_file_1d_r(filename):
     with h5py.File(str(filename), 'r') as f:
-        rho = f['rho'][0, 0, :]
-        u = f['ux'][0, 0, :]
-        P = f['P'][0, 0, :]
-        T = f['T'][0, 0, :]
-        E = f['T'][0, 0, :]
+        if (ndim == 3):
+            rho = f['rho'][128, 128, :]
+            u = f['ux'][128, 128, :]
+            P = f['P'][128, 128, :]
+            T = f['T'][128, 128, :]
+            E = f['T'][128, 128, :]
+        if (ndim == 1):
+            rho = f['rho'][0, 0, :]
+            u = f['ux'][0, 0, :]
+            P = f['P'][0, 0, :]
+            T = f['T'][0, 0, :]
+            E = f['T'][0, 0, :]
         x = f['x'][()]
         t = f['current_time'][()]
     return rho, u, P, T, E, x, t
 
 def read_file_1d_r_element(filename):
     with h5py.File(str(filename), 'r') as f:
-        Ni = f['fx0'][2, 2, :]
-        H = f['fx1'][2, 2, :]
-        He = f['fx2'][2, 2, :]
-        O = f['fx3'][2, 2, :]
-        Si = f['fx4'][2, 2, :]
-    return Ni, H, He, O, Si
+        if (nfx == 5):
+            if (ndim == 3):
+                Ni = f['fx0'][128, 128, :]
+                H = f['fx1'][128, 128, :]
+                He = f['fx2'][128, 128, :]
+                O = f['fx3'][128, 128, :]
+                Si = f['fx4'][128, 128, :]
+            if (ndim == 1):
+                Ni = f['fx0'][0, 0, :]
+                H = f['fx1'][0, 0, :]
+                He = f['fx2'][0, 0, :]
+                O = f['fx3'][0, 0, :]
+                Si = f['fx4'][0, 0, :]
+        if (nfx == 2):
+            if (ndim == 3):
+                Ni = f['fx0'][128, 128, :]
+                Other = f['fx1'][128, 128, :]
+            if (ndim == 1):
+                Ni = f['fx0'][0, 0, :]
+                Other = f['fx1'][0, 0, :]
+    if (nfx == 5):
+        return Ni, H, He, O, Si
+    if (nfx == 2):
+        return Ni, Other
 
 def fgamma(filename):
     with h5py.File(str(filename), 'r') as f:
@@ -83,15 +109,17 @@ def conversion_si_to_cgs(rho, u, P):
     P_cgs = P * 10
     return rho_cgs, u_cgs, P_cgs
 
-# ------------------------------------------
+# ------------------------------------------------------------------------------
 
 rho0, u0, P0, x0, t0 = read_start_file("../src/setups/v1d/v1d_1d_start.h5")
-rhof, uf, Pf, Tf, Ef, xf, tf = read_file_1d_r("../src/setups/v1d/v1d_1e5.h5")
 
 gamma = fgamma(filename)
 iter = fiter(filename)
 rho, u, P, T, E, x, t = read_file_1d_r(filename)
-Ni, H, He, O, Si = read_file_1d_r_element(filename)
+if (nfx == 5):
+    Ni, H, He, O, Si = read_file_1d_r_element(filename)
+if (nfx == 2):
+    Ni, Other = read_file_1d_r_element(filename)
 
 tday = t / 3600 / 24
 
@@ -100,48 +128,53 @@ print(f"Final time = {t:.3e} s or {tday} days")
 print(f"Iteration number = {iter:3e}")
 print("    ")
 
-# cgs units --------------------------------
+# cgs units --------------------------------------------------------------------
 
-xcf_cm = make_xc(xf, len(rhof))
 xc_cm = make_xc(x, len(rho))
 xc0_cm = make_xc(x0, len(rho0))
 
 rho0_cgs, u0_cgs, P0_cgs = conversion_si_to_cgs(rho0, u0, P0)
 rho_cgs, u_cgs, P_cgs = conversion_si_to_cgs(rho, u, P)
-rhof_cgs, uf_cgs, Pf_cgs = conversion_si_to_cgs(rhof, uf, Pf)
 
-# ------------------------------------------
+# ------------------------------------------------------------------------------
+
+div = 10**15
 
 plt.figure(figsize=(12,8))
-plt.suptitle(f'Loglog graph for v1d 1e5, t = {t:.1e} s ({tday:1f} jours)')
+plt.suptitle(f'Physical properties at t = {t:.1e} s ({tday:1f} jours)')
 plt.subplot(221)
-plt.plot(xc0_cm / R_sun_cgs, np.log10(rho0_cgs), "--", label=f"$t_0$= {t0:.1e} s")
-plt.plot(xcf_cm / R_sun_cgs, np.log10(rhof_cgs), "--", color="red", label=f'$t_f$ = {tf:.1e} s')
-plt.plot(xc_cm / R_sun_cgs, np.log10(rho_cgs), color='green', label=f'$t$ = {t:.1e} s')
-plt.xlabel(r'$r / R_{\odot}$'); plt.ylabel(r'log($\rho$) [$g.cm^{-3}$]')
+plt.plot(xc0_cm / div, np.log10(rho0_cgs), "--", label=f"$t_0$= {t0:.1e} s")
+plt.plot(xc_cm / div, np.log10(rho_cgs), color='green', label=f'$t$ = {t:.1e} s')
+plt.xlabel(r'$r [ 10^{15}$ cm]')
+plt.ylabel(r'log($\rho$) [$g.cm^{-3}$]')
 plt.legend()
 
 plt.subplot(222)
-plt.plot(xc0_cm / R_sun_cgs, u0_cgs / 10**8, "--", label=f"$t_i$= {t0:.1e} s")
-plt.plot(xcf_cm / R_sun_cgs, uf_cgs / 10**8, "--", color="red", label=f'$t_f$ = {tf:.1e} s')
-plt.plot(xc_cm / R_sun_cgs, u_cgs / 10**8, color='green', label=f'$t$ = {t:.1e} s')
-#plt.axline((0, 1), slope=0, label=r"$u_{shift}$", color='blue')
-plt.xlabel(r'$r / R_{\odot}$'); plt.ylabel(r'$u$ [$/ 10^8$ cm.s$^{-1}$]')
+plt.plot(xc0_cm / div, u0_cgs / 10**8, "--", label=f"$t_i$= {t0:.1e} s")
+plt.plot(xc_cm / div, u_cgs / 10**8, color='green', label=f'$t$ = {t:.1e} s')
+plt.xlabel(r'$r [ 10^{15}$ cm]')
+plt.ylabel(r'$u$ [$ 10^8$ cm.s$^{-1}$]')
 plt.legend()
 
 plt.subplot(223)
-plt.plot(xcf_cm / R_sun_cgs, np.log10(Tf / 10**6), "--", color="red", label=f'$t_f$ = {tf:.1e} s')
-plt.plot(xc_cm / R_sun_cgs, np.log10(T / 10**6), color='green', label=f'$t$ = {t:.1e} s')
-plt.xlabel(r'$r / R_{\odot}$'); plt.ylabel(r'log($T / 10^6$) [K]')
+plt.plot(xc_cm / div, np.log10(T / 10**6), color='green', label=f'$t$ = {t:.1e} s')
+plt.xlabel(r'$r [ 10^{15}$ cm]')
+plt.ylabel(r'log($T / 10^6$) [K]')
 plt.legend()
 
 plt.subplot(224)
-plt.plot(xc_cm / 10**15, Ni, c='red', label="Ni56")
-#plt.plot(xc_cm / R_sun_cgs, H, c="steelblue",label="H")
-#plt.plot(xc_cm / R_sun_cgs, He, c="plum", label="He")
-#plt.plot(xc_cm / R_sun_cgs, O, c='green', label="O")
-#plt.plot(xc_cm / R_sun_cgs, Si, color="gold",label="Si")
-plt.xlabel(r'$r / R_{\odot}$'); plt.ylabel(r'X')
+if (nfx == 5):
+    plt.plot(xc_cm / div, Ni, c='red', label="Ni56")
+    plt.plot(xc_cm / div, H, c="steelblue",label="H")
+    plt.plot(xc_cm / div, He, c="plum", label="He")
+    plt.plot(xc_cm / div, O, c='green', label="O")
+    plt.plot(xc_cm / div, Si, color="gold",label="Si")
+if (nfx == 2):
+    plt.plot(xc_cm / div, Ni, c='red', label="Ni56")
+    plt.plot(xc_cm / div, Other, c="steelblue",label="Other")
+plt.ylim(-0.1, 1.1)
+plt.xlabel(r'$r [ 10^{15}$ cm]')
+plt.ylabel(r'X')
 plt.legend()
 
 plt.show()
