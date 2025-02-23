@@ -28,6 +28,7 @@ public:
     double rho0;
     double P0;
     double E1;
+    double nx;
     double ny;
     double nz;
 
@@ -35,7 +36,8 @@ public:
         : rho0(reader.GetReal("Initialisation", "rho0", 1.0))
         , P0(reader.GetReal("Initialisation", "P0", 1.0))
         , E1(reader.GetReal("Initialisation", "E1", 1.0))
-        , ny(reader.GetReal("Grid", "Ny_glob", 1.0))
+        , nx(reader.GetReal("Grid", "Nx_glob", 1.0))
+	, ny(reader.GetReal("Grid", "Ny_glob", 1.0))
         , nz(reader.GetReal("Grid", "Nz_glob", 1.0))
     {
     }
@@ -75,9 +77,10 @@ public:
         auto const theta = grid.y;
         auto const phi = grid.z;
         auto const& dv = grid.dv;
+        int const nx_2 = param_setup.nx / 2;
         int const ny_2 = param_setup.ny / 2;
         int const nz_2 = param_setup.nz / 2;
-
+        int const mpi_rank = grid.mpi_rank;
 
         if (geom == Geometry::Geom_cartesian)
         {
@@ -95,10 +98,13 @@ public:
                     u(i, j, k, idim) = 0;
                 }
 
-                if (r(i) == 1 && j == ny_2  && k == nz_2)
-                {
-                    double const evol = param_setup.E1 / dv(i, j, k);
-                    P(i, j, k) = eos.compute_P_from_evol(rho(i, j, k), evol);
+                if (i == nx_2 && j == ny_2  && k == nz_2)
+		{    
+		    if (mpi_rank == 0)
+                    {
+                        double const evol = param_setup.E1 / dv(i, j, k);
+                        P(i, j, k) = eos.compute_P_from_evol(rho(i, j, k), evol);
+                    }
                 }
                 else
                 {
