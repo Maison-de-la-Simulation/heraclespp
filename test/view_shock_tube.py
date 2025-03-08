@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import h5py
 import sys
 
-from fonction import make_xc
 from exact_shock_tube import CI, ExactShockTube
 
 print("********************************")
@@ -12,6 +11,23 @@ print("    Shock tube 1D Cartesian")
 print("********************************")
 
 file = sys.argv[1]
+
+def make_xc(x, n):
+    """ Make x center
+    intput :
+    x      : array : node position
+    n      : int   : size
+
+    output :
+    xc     : array : node center
+    """
+    dx = np.zeros(n)
+    for i in range(2, n+2):
+        dx[i-2] = x[i+1] - x[i]
+    xc = np.zeros(n)
+    for i in range(2, n+2):
+        xc[i-2] = x[i] + dx[i-2] / 2
+    return xc
 
 def read_file(filename):
     with h5py.File(filename, 'r') as f:
