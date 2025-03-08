@@ -72,7 +72,7 @@ public:
         KV_double_3d const& rho,
         KV_double_4d const& u,
         KV_double_3d const& P,
-        KV_double_4d const& fx) const final
+        [[maybe_unused]] KV_double_4d const& fx) const final
     {
         assert(equal_extents({0, 1, 2}, rho, u, P, fx));
         assert(u.extent_int(3) == ndim);
