@@ -13,14 +13,6 @@ print("********************************")
 file = sys.argv[1]
 
 def make_xc(x, n):
-    """ Make x center
-    intput :
-    x      : array : node position
-    n      : int   : size
-
-    output :
-    xc     : array : node center
-    """
     dx = np.zeros(n)
     for i in range(2, n+2):
         dx[i-2] = x[i+1] - x[i]
