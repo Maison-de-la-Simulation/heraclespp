@@ -68,8 +68,8 @@ public:
         assert(equal_extents({0, 1, 2}, rho, u, P, fx));
         assert(u.extent_int(3) == ndim);
 
-        auto const x_d = grid.x;
-        auto const y_d = grid.y;
+        auto const xc = grid.x_center;
+        auto const yc = grid.y_center;
         auto const& param_setup = m_param_setup;
 
         Kokkos::parallel_for(
@@ -77,26 +77,24 @@ public:
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                double const x = x_d(i) * units::m;
-                double const y = y_d(j) * units::m;
+                double const x = xc(i);
+                double const y = yc(j);
 
                 if (x + y >  0.15)
                 {
-                    rho(i, j, k) = param_setup.rho0 * units::density;
-
-                    P(i, j, k) = param_setup.P0 * units::pressure;
+                    rho(i, j, k) = param_setup.rho0;
+                    P(i, j, k) = param_setup.P0;
                 }
 
                 else
                 {
-                    rho(i, j, k) = param_setup.rho1 * units::density;
-
-                    P(i, j, k) = param_setup.P1 * units::pressure;
+                    rho(i, j, k) = param_setup.rho1;
+                    P(i, j, k) = param_setup.P1;
                 }
 
                 for (int idim = 0; idim < ndim; ++idim)
                 {
-                    u(i, j, k, idim) = param_setup.u0 * units::velocity;
+                    u(i, j, k, idim) = param_setup.u0;
                 }
             });
     }
