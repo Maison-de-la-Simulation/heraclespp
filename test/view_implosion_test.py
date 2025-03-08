@@ -1,7 +1,6 @@
 # View Liska-Wendroff implosion test
 
 import sys
-
 import h5py
 import matplotlib.pyplot as plt
 
@@ -12,7 +11,6 @@ print("********************************")
 filename = sys.argv[1]
 
 with h5py.File(str(filename), 'r') as f:
-    #print(f.keys())
     rho = f['rho'][0, :, :]
     x = f['x'][()]
     y = f['y'][()]
