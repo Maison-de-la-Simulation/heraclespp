@@ -12,7 +12,6 @@ print("********************************")
 filename = sys.argv[1]
 
 with h5py.File(str(filename), 'r') as f:
-    #print(f.keys())
     rho = f['rho'][0, :, :]
     x = f['x'][()]
     y = f['y'][()]
@@ -29,7 +28,7 @@ ymax = y[len(y)-3]
 
 # ------------------------------------------
 
-plt.figure(figsize=(10,8))
+plt.figure(figsize=(10,8), constrained_layout=True)
 plt.suptitle('Kelvin-Helmholtz instability')
 plt.title(f'Density t = {t:.1f} s')
 plt.imshow(rho, cmap='seismic', origin='lower', extent=[xmin, xmax, ymin, ymax])
