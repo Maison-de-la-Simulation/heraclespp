@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <Kokkos_Core.hpp>
@@ -74,27 +73,27 @@ public:
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                if (xc(i) * units::m <= 0.3)
+                if (xc(i) <= 0.3)
                 {
-                    rho(i, j, k) = param_setup.rho0 * units::density;
+                    rho(i, j, k) = param_setup.rho0;
                 }
 
-                else if (xc(i) * units::m >= 0.7)
+                else if (xc(i) >= 0.7)
                 {
-                    rho(i, j, k) = param_setup.rho0 * units::density;
+                    rho(i, j, k) = param_setup.rho0;
                 }
 
                 else
                 {
-                    rho(i, j, k) = param_setup.rho1 * units::density;
+                    rho(i, j, k) = param_setup.rho1;
                 }
 
                 for (int idim = 0; idim < ndim; ++idim)
                 {
-                    u(i, j, k, idim) = param_setup.u0 * units::velocity;
+                    u(i, j, k, idim) = param_setup.u0;
                 }
 
-                P(i, j, k) = param_setup.P0 * units::pressure;
+                P(i, j, k) = param_setup.P0;
             });
     }
 };
