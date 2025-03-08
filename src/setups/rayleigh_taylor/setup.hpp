@@ -26,8 +26,7 @@ class ParamSetup
 public:
     double rho0;
     double rho1;
-    double u0;
-    double P0;
+    double u;
     double A;
     double fx0;
     double fx1;
@@ -35,8 +34,7 @@ public:
     explicit ParamSetup(INIReader const& reader)
         : rho0(reader.GetReal("Initialisation", "rho0", 1.0))
         , rho1(reader.GetReal("Initialisation", "rho1", 1.0))
-        , u0(reader.GetReal("Initialisation", "u0", 1.0))
-        , P0(reader.GetReal("Initialisation", "P0", 1.0))
+        , u(reader.GetReal("Initialisation", "u", 1.0))
         , A(reader.GetReal("Initialisation", "A", 1.0))
         , fx0(reader.GetReal("Initialisation", "fx0", 1.0))
         , fx1(reader.GetReal("Initialisation", "fx1", 1.0))
@@ -74,10 +72,10 @@ public:
         assert(equal_extents({0, 1, 2}, rho, u, P, fx));
         assert(u.extent_int(3) == ndim);
 
-        double const P0 = (10. / 7 + 1. / 4) * units::pressure;
+        double const P0 = (10. / 7 + 1. / 4);
 
-        auto const x_d = grid.x;
-        auto const y_d = grid.y;
+        auto const xc = grid.x_center;
+        auto const yc = grid.y_center;
         auto const& gravity = m_gravity;
         auto const& param_setup = m_param_setup;
 
@@ -86,28 +84,20 @@ public:
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                double const x = x_d(i) * units::m;
-                double const y = y_d(j) * units::m;
+                double const x = xc(i);
+                double const y = yc(j);
                 double const h = 0.01 * Kokkos::cos(4 * Kokkos::numbers::pi * x);
 
-                if (y >= h)
-                {
-                    rho(i, j, k) = param_setup.rho1 * units::density;
-                    fx(i, j, k, 0) = param_setup.fx0;
-                }
+                rho(i, j, k) = param_setup.rho1 + (param_setup.rho0 - param_setup.rho1) / 2
+                                * (1 + Kokkos::tanh((y - h) / 0.005));
 
-                if (y < h)
-                {
-                    rho(i, j, k) = param_setup.rho0 * units::density;
-                    fx(i, j, k, 0) = param_setup.fx1;
-                }
+                fx(i, j, k, 0) = (param_setup.fx0 - param_setup.fx1) / 2
+                                * (1 + Kokkos::tanh((y - h) / 0.005));
 
-                u(i, j, k, 0) = param_setup.u0 * units::velocity;
-                u(i, j, k, 1) = param_setup.u0 * units::velocity;
-                /* u(i, j, k, 1) = (param_setup.A/4) * (1+Kokkos::cos(2*Kokkos::numbers::pi*x/grid.L[0]))
-                                * (1+Kokkos::cos(2*Kokkos::numbers::pi*y/grid.L[1])); */
+                u(i, j, k, 0) = param_setup.u;
+                u(i, j, k, 1) = param_setup.u;
 
-                P(i, j, k) = (P0 + rho(i, j, k) * gravity(i, j, k, 1) * units::acc * y) * units::pressure;
+                P(i, j, k) = P0 - param_setup.rho0 * Kokkos::fabs(gravity(i, j, k, 1)) * y;
             });
     }
 };

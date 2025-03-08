@@ -60,8 +60,8 @@ public:
         assert(equal_extents({0, 1, 2}, rho, u, P, fx));
         assert(u.extent_int(3) == ndim);
 
-        auto const x_d = grid.x;
-        auto const y_d = grid.y;
+        auto const xc = grid.x_center;
+        auto const yc = grid.y_center;
         auto const& param_setup = m_param_setup;
 
         double const drho_rho = 1;
@@ -76,8 +76,8 @@ public:
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                double const x = x_d(i) * units::m;
-                double const y = y_d(j) * units::m;
+                double const x = xc(i);
+                double const y = yc(j);
 
                 rho(i, j, k)  = 1 + drho_rho * (Kokkos::tanh((y - y1) / a) - Kokkos::tanh((y - y2) / a));
 
@@ -87,7 +87,7 @@ public:
                                 * (Kokkos::exp(- (y - y1) * (y - y1) / (sigma * sigma))
                                 + Kokkos::exp(- (y - y2) * (y - y2) / (sigma * sigma)));
 
-                P(i, j, k) = param_setup.P0 * units::pressure;
+                P(i, j, k) = param_setup.P0;
             });
     }
 };
