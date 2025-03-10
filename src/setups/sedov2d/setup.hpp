@@ -73,43 +73,41 @@ public:
         assert(equal_extents({0, 1, 2}, rho, u, P, fx));
         assert(u.extent_int(3) == ndim);
 
-        auto const x_d = grid.x;
-        auto const y_d = grid.y;
+        auto const x_tad = grid.x;
+        auto const y_tad = grid.y;
         auto const& dv = grid.dv;
         auto const& eos = m_eos;
         auto const& param_setup = m_param_setup;
 
         Kokkos::parallel_for(
-            "Sedov_2D_init",
-            cell_mdrange(range),
-            KOKKOS_LAMBDA(int i, int j, int k)
+        "Sedov_2D_init",
+        cell_mdrange(range),
+        KOKKOS_LAMBDA(int i, int j, int k)
+        {
+            if (geom == Geometry::Geom_cartesian)
             {
-                if (geom == Geometry::Geom_cartesian)
+                double const x = x_tad(i);
+                double const y = y_tad(j);
+                double const r = Kokkos::sqrt(x * x + y * y);
+
+                rho(i, j, k) = param_setup.rho0;
+                for (int idim = 0; idim < ndim; ++idim)
                 {
-                    double const x = x_d(i) * units::m;
-                    double const y = y_d(j) * units::m;
-                    double const r = Kokkos::sqrt(x * x + y * y);
-
-                    rho(i, j, k) = param_setup.rho0 * units::density;
-                    for (int idim = 0; idim < ndim; ++idim)
-                    {
-                        u(i, j, k, idim) = param_setup.u0 * units::velocity;
-                    }
-
-                    if (r < 0.025)
-                    {
-                        double const evol = param_setup.E1 / dv(i, j, k) * units::evol;
-                        double const T = eos.compute_T_from_evol(rho(i, j, k), evol) * units::Kelvin;
-                        P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), T) * units::pressure;
-                    }
-                    else
-                    {
-                        double const evol = param_setup.E0 / dv(i, j, k)  * units::evol;
-                        double const T = eos.compute_T_from_evol(rho(i, j, k), evol) * units::Kelvin;
-                        P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), T) * units::pressure;
-                    }
+                    u(i, j, k, idim) = param_setup.u0;
                 }
-            });
+
+                if (r < 0.025)
+                {
+                    double const evol = param_setup.E1 / dv(i, j, k);
+                    P(i, j, k) = eos.compute_P_from_evol(rho(i, j, k), evol);
+                }
+                else
+                {
+                    double const evol = param_setup.E0 / dv(i, j, k);
+                    P(i, j, k) = eos.compute_P_from_evol(rho(i, j, k), evol);
+                }
+            }
+        });
     }
 };
 
