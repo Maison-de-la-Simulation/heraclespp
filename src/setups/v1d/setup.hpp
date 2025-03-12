@@ -30,8 +30,8 @@ public:
     std::string init_filename;
     double vmax_shift;
     int cell_shift;
-    double ny;
-    double nz;
+    double angle_min;
+    double angle_max;
     double v0_CL;
     double R_star;
     double T_CL;
@@ -49,8 +49,8 @@ public:
         init_filename = reader.Get("Problem", "init_file", "");
         vmax_shift = reader.GetReal("Problem", "vmax_shift", 0.);
         cell_shift = reader.GetInteger("Problem", "cell_shift", 0);
-        ny = reader.GetReal("Grid", "Ny_glob", 1.0);
-        nz = reader.GetReal("Grid", "Nz_glob", 1.0);
+        angle_min = reader.GetReal("Grid", "ymin", 1.0);
+        angle_max = reader.GetReal("Grid", "ymax", 1.0);
         v0_CL = reader.GetReal("Boundary Condition", "v0_CL", 0.);
         R_star = reader.GetReal("Boundary Condition", "R_star", 0.);
         T_CL = reader.GetReal("Boundary Condition", "T_CL", 0.);
@@ -169,17 +169,17 @@ public:
         auto const dx = grid.dx;
         auto const dv = grid.dv;
         auto const param_setup = m_param_setup;
-        int const nth_2 = param_setup.ny / 2;
-        int const nphi_2 = param_setup.nz / 2;
-
+        double const th_2 = (param_setup.angle_min + param_setup.angle_max) / 2;
+        double const phi_2 = (param_setup.angle_min + param_setup.angle_max) / 2;
+	Kokkos::printf("%f %f\n", th_2, phi_2);	
         Kokkos::parallel_for(
         "Ni_bubble_3D",
         cell_mdrange(range),
         KOKKOS_LAMBDA(int i, int j, int k)
         {
-	    double const x_center = param_setup.pos_ni_bubble * Kokkos::sin(th(nth_2)) * Kokkos::cos(phi(nphi_2));
-            double const y_center = param_setup.pos_ni_bubble * Kokkos::sin(th(nth_2)) * Kokkos::sin(phi(nphi_2));
-            double const z_center = param_setup.pos_ni_bubble * Kokkos::cos(th(nth_2));
+	    double const x_center = param_setup.pos_ni_bubble * Kokkos::sin(th_2) * Kokkos::cos(phi_2);
+            double const y_center = param_setup.pos_ni_bubble * Kokkos::sin(th_2) * Kokkos::sin(phi_2);
+            double const z_center = param_setup.pos_ni_bubble * Kokkos::cos(th_2);
 
             double x_cart = r(i) * Kokkos::sin(th(j)) * Kokkos::cos(phi(k));
             double y_cart = r(i) * Kokkos::sin(th(j)) * Kokkos::sin(phi(k));
@@ -190,7 +190,7 @@ public:
                         + (z_cart - z_center)*(z_cart - z_center));
             //Kokkos::printf("%f %f %d %d\n",param_setup.pos_ni_bubble, param_setup.radius_ni_bubble, nth_2, nphi_2);
             if (dist <= param_setup.radius_ni_bubble)
-            {
+            {//Kokkos::printf("%d %d %d %f\n", i, j, k, r(i));
                 fx(i, j, k, 0) = 1;
                 fx(i, j, k, 1) = 0;
             }
