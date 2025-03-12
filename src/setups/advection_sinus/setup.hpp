@@ -69,14 +69,14 @@ public:
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                rho(i, j, k) = (1 + 0.1 * Kokkos::sin(2 * Kokkos::numbers::pi * xc(i))) * units::density;
+                rho(i, j, k) = 1 + Kokkos::sin(2 * Kokkos::numbers::pi * xc(i));
 
                 for (int idim = 0; idim < ndim; ++idim)
                 {
-                    u(i, j, k, idim) = param_setup.u0 * units::velocity;
+                    u(i, j, k, idim) = param_setup.u0;
                 }
 
-                P(i, j, k) = param_setup.P0 * units::pressure;
+                P(i, j, k) = param_setup.P0;
             });
     }
 };
