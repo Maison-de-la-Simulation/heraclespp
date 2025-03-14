@@ -64,8 +64,8 @@ public:
         assert(equal_extents({0, 1, 2}, rho, u, P, fx));
         assert(u.extent_int(3) == ndim);
 
-        auto const x_d = grid.x;
-        auto const y_d = grid.y;
+        auto const xc = grid.x_center;
+        auto const yc = grid.y_center;
         auto const& eos = m_eos;
         auto const& param_setup = m_param_setup;
 
@@ -74,8 +74,8 @@ public:
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                double const x = x_d(i) * units::m;
-                double const y = y_d(j) * units::m;
+                double const x = xc(i);
+                double const y = yc(j);
                 double const r = Kokkos::sqrt(x * x + y * y);
                 double const theta = Kokkos::atan2(y, x);
                 double const P0 = 1. / (eos.adiabatic_index() * param_setup.Ma * param_setup.Ma);
@@ -88,7 +88,7 @@ public:
                     u(i, j, k, 0) = - u_theta * Kokkos::sin(theta);
                     u(i, j, k, 1) = u_theta * Kokkos::cos(theta);
 
-                    P(i, j, k) = P0 * units::pressure + 12.5 * r * r;
+                    P(i, j, k) = P0 + 12.5 * r * r;
                 }
 
                 else if ((r >= 0.2) && (r < 0.4))
@@ -97,17 +97,17 @@ public:
                     u(i, j, k, 0) = - u_theta * Kokkos::sin(theta);
                     u(i, j, k, 1) = u_theta * Kokkos::cos(theta);
 
-                    P(i, j, k) = P0 * units::pressure + 12.5 * r * r + 4 - 20 * r + 4 * Kokkos::log(5 * r);
+                    P(i, j, k) = P0 + 12.5 * r * r + 4 - 20 * r + 4 * Kokkos::log(5 * r);
                 }
 
                 else
                 {
                     for (int idim = 0; idim < ndim; ++idim)
                     {
-                    u(i, j, k, idim) = param_setup.u0 * units::velocity;
+                    u(i, j, k, idim) = param_setup.u0;
                     }
 
-                    P(i, j, k) = P0 * units::pressure - 2 + 4 * Kokkos::log(2);
+                    P(i, j, k) = P0 - 2 + 4 * Kokkos::log(2);
                 }
             });
     }

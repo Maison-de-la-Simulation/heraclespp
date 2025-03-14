@@ -86,27 +86,27 @@ public:
         auto const dv = grid.dv;
 
         Kokkos::parallel_for(
-            "Sedov_1D_init",
-            cell_mdrange(range),
-            KOKKOS_LAMBDA(int i, int j, int k)
+        "Sedov_1D_init",
+        cell_mdrange(range),
+        KOKKOS_LAMBDA(int i, int j, int k)
+        {
+            double const dv_beg = dv(2, 0, 0);
+            rho(i, j, k) = param_setup.rho0;
+
+            for (int idim = 0; idim < ndim; ++idim)
             {
-                double const dv_beg = dv(2, 0, 0);
-                rho(i, j, k) = param_setup.rho0 * units::density;
+                u(i, j, k, idim) = param_setup.u0;
+            }
 
-                for (int idim = 0; idim < ndim; ++idim)
-                {
-                    u(i, j, k, idim) = param_setup.u0 * units::velocity;
-                }
+            double const T = eos.compute_T_from_evol(rho(i, j, k), param_setup.E0 / dv_beg);
+            P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), T);
 
-                double const T = eos.compute_T_from_evol(rho(i, j, k), param_setup.E0 / dv_beg * units::evol);
-                P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), T) * units::pressure;
-
-                if(mpi_rank == 0 && i == 2)
-                {
-                    double const T_perturb = eos.compute_T_from_evol(rho(i, j, k), alpha * param_setup.E1 / dv_beg * units::evol);
-                    P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), T_perturb) * units::pressure;
-                }
-            });
+            if(mpi_rank == 0 && i == 2)
+            {
+                double const T_perturb = eos.compute_T_from_evol(rho(i, j, k), alpha * param_setup.E1 / dv_beg);
+                P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), T_perturb);
+            }
+        });
     }
 };
 
