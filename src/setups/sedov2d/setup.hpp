@@ -75,7 +75,7 @@ public:
 
         if (geom == Geometry::Geom_cartesian)
         {
-            throw std::runtime_error("No Sedov 2D in spherical implemented");
+            throw std::runtime_error("No Sedov 2D in Cartesian geometry implemented");
         }
 
         auto const x_tad = grid.x;
