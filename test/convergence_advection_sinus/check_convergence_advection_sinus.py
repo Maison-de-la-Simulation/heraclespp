@@ -16,7 +16,7 @@ def exact_solution(x: np.ndarray) -> np.ndarray:
     output :
     rho    : array : density
     """
-    return 1 + np.sin(2 * np.pi * x)
+    return 1 + 0.1 * np.sin(2 * np.pi * x)
 
 def error(x: np.ndarray, rho_simu: np.ndarray):
     """Compute L1 error between exact solution and solver simulation

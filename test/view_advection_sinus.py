@@ -34,7 +34,7 @@ for i in range(2, len(rho)+2):
 rho0 = np.zeros(len(rho))
 
 for i in range(len(rho0)):
-    rho0[i] = 1 + np.sin(2 * np.pi * xc[i])
+    rho0[i] = 1 + 0.1 * np.sin(2 * np.pi * xc[i])
 
 # ------------------------------------------
 
