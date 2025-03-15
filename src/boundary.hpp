@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <array>
 #include <string>
+#include <string_view>
 
 #include <kokkos_shortcut.hpp>
 
@@ -14,8 +14,9 @@ namespace novapp
 
 class Grid;
 
-extern std::array<std::string_view, 3> const bc_dir;
-extern std::array<std::string_view, 2> const bc_face;
+std::string_view bc_dir(int i) noexcept;
+
+std::string_view bc_face(int i) noexcept;
 
 void null_gradient_condition(int m_bc_idim, int m_bc_iface,
                              std::string const& m_label,
@@ -82,7 +83,7 @@ private:
 public:
     NullGradient(int idim, int iface)
         : IBoundaryCondition<Gravity>(idim, iface)
-        , m_label(std::string("NullGradient").append(bc_dir[idim]).append(bc_face[iface]))
+        , m_label(std::string("NullGradient").append(bc_dir(idim)).append(bc_face(iface)))
     {
     }
 
@@ -124,7 +125,7 @@ private:
 public:
     ReflexiveCondition(int idim, int iface)
         : IBoundaryCondition<Gravity>(idim, iface)
-        , m_label(std::string("Reflexive").append(bc_dir[idim]).append(bc_face[iface]))
+        , m_label(std::string("Reflexive").append(bc_dir(idim)).append(bc_face(iface)))
     {
     }
 
