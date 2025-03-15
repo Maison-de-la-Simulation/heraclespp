@@ -290,7 +290,7 @@ cmake-format-job:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   variables:
     DEBIAN_FRONTEND: noninteractive
-    GERSEMI_VERSION: 0.18
+    GERSEMI_VERSION: 0.19
   stage: lint
   needs: []
   image: ubuntu:latest
@@ -299,7 +299,7 @@ cmake-format-job:
     - apt-get --yes install --no-install-recommends --no-install-suggests python3-pip python3-venv
     - python3 -m venv ./gersemi
     - . ./gersemi/bin/activate
-    - python3 -m pip install gersemi==$GERSEMI_VERSION
+    - python3 -m pip install gersemi~=$GERSEMI_VERSION
   script:
     - find CMakeLists.txt src tests -name 'CMakeLists.txt' -exec gersemi --check '{}' '+'
 
@@ -309,7 +309,7 @@ typos-job:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   variables:
     DEBIAN_FRONTEND: noninteractive
-    TYPOS_VERSION: 1.29
+    TYPOS_VERSION: 1.30
   stage: lint
   needs: []
   image: ubuntu:latest
@@ -318,7 +318,7 @@ typos-job:
     - apt-get --yes install --no-install-recommends --no-install-suggests python3-pip python3-venv
     - python3 -m venv ./typos
     - . ./typos/bin/activate
-    - python3 -m pip install typos==$TYPOS_VERSION
+    - python3 -m pip install typos~=$TYPOS_VERSION
   script:
     - typos docker/ inputs/ src/ test/ tests/ toolchains/ README.md
 
