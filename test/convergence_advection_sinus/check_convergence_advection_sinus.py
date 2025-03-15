@@ -52,13 +52,13 @@ def check_convergence_order(filenames: typing.List[str]):
     theoretical_slope = 2
     tol = 0.05
     order_error = np.fabs(result.slope - theoretical_slope) / theoretical_slope
-    if order_error > tol:
+    if np.isfinite(order_error) and order_error < tol:
+        print("SUCCESS")
+        print(result)
+    else:
         print("FAILURE")
         print(result)
         sys.exit(1)
-    else:
-        print("SUCCESS")
-        print(result)
 
 if __name__ == "__main__":
     def main():
