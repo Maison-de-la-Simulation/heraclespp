@@ -109,7 +109,7 @@ public:
         [[maybe_unused]] EOS const& eos,
         [[maybe_unused]] ParamSetup const& param_setup)
         : IBoundaryCondition<Gravity>(idim, iface)
-        , m_label(std::string("UserDefined").append(bc_dir[idim]).append(bc_face[iface]))
+        , m_label(std::string("UserDefined").append(bc_dir(idim)).append(bc_face(iface)))
         , m_eos(eos)
         , m_param_setup(param_setup)
     {

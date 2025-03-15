@@ -180,15 +180,15 @@ void main(int argc, char** argv)
     std::array<std::string, nfaces> bc_choice_faces;
     for(int idim = 0; idim < ndim; ++idim)
     {
-        bc_choice_dir = reader.Get("Boundary Condition", std::string("BC").append(bc_dir[idim]), param.bc_choice);
+        bc_choice_dir = reader.Get("Boundary Condition", std::string("BC").append(bc_dir(idim)), param.bc_choice);
         for (int iface = 0; iface < 2; ++iface)
         {
             bc_choice_faces[idim * 2 + iface] = reader.Get("Boundary Condition",
-                                                       std::string("BC").append(bc_dir[idim]).append(bc_face[iface]),
+                                                       std::string("BC").append(bc_dir(idim)).append(bc_face(iface)),
                                                        bc_choice_dir);
             if(bc_choice_faces[idim * 2 + iface].empty() )
             {
-                throw std::runtime_error(std::string("boundary condition not fully defined for dimension ").append(bc_dir[idim]));
+                throw std::runtime_error(std::string("boundary condition not fully defined for dimension ").append(bc_dir(idim)));
             }
         }
     }

@@ -5,6 +5,7 @@
 #include <array>
 #include <cassert>
 #include <string>
+#include <string_view>
 
 #include <Kokkos_Core.hpp>
 #include <grid.hpp>
@@ -15,9 +16,17 @@
 namespace novapp
 {
 
-std::array<std::string_view, 3> const bc_dir {"_X", "_Y", "_Z"};
-std::array<std::string_view, 2> const bc_face {"_left", "_right"};
+std::string_view bc_dir(int i) noexcept
+{
+    static constexpr std::array<std::string_view, 3> s_bc_dir {"_X", "_Y", "_Z"};
+    return s_bc_dir[i];
+}
 
+std::string_view bc_face(int i) noexcept
+{
+    static constexpr std::array<std::string_view, 2> s_bc_face {"_left", "_right"};
+    return s_bc_face[i];
+}
 
 void null_gradient_condition(int m_bc_idim, int m_bc_iface,
                              std::string const& m_label,
