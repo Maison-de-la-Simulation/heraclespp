@@ -72,22 +72,22 @@ public:
         auto const& gravity = m_gravity;
         auto const& param_setup = m_param_setup;
         double const mu = m_eos.mean_molecular_weight();
-        /* std::cout <<"Scale = " << units::kb * m_param_setup.T
-            / (mu * units::mp * Kokkos::fabs(g(0))) << std::endl; */
+        std::cout <<"Scale = " << units::kb * m_param_setup.T
+            / (mu * units::mp * 10) << std::endl;
 
         Kokkos::parallel_for(
             "stratified_atm_init",
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                double const x0 = units::kb * param_setup.T * units::Kelvin
-                        / (mu * units::mp * Kokkos::fabs(gravity(i, j, k, 0)) * units::acc);
+                double const x0 = units::kb * param_setup.T
+                        / (mu * units::mp * Kokkos::fabs(gravity(i, j, k, 0)));
 
-                rho(i, j, k) = param_setup.rho0 * units::density * Kokkos::exp(- xc(i) / x0);
+                rho(i, j, k) = param_setup.rho0 * Kokkos::exp(- xc(i) / x0);
 
                 for (int idim = 0; idim < ndim; ++idim)
                 {
-                    u(i, j, k, idim) = param_setup.u0 * units::velocity;
+                    u(i, j, k, idim) = param_setup.u0;
                 }
 
                 P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), param_setup.T);
@@ -149,19 +149,19 @@ public:
             Kokkos::MDRangePolicy<int, Kokkos::Rank<3>>(begin, end),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                double const gravity_x = gravity(i, j, k, 0) * units::acc;
+                double const gravity_x = gravity(i, j, k, 0);
 
                 double const x0 = units::kb * param_setup.T * units::Kelvin
                         / (mu * units::mp * Kokkos::fabs(gravity_x));
 
-                rho(i, j, k) = param_setup.rho0 * units::density * Kokkos::exp(- xc(i) / x0);
+                rho(i, j, k) = param_setup.rho0 * Kokkos::exp(- xc(i) / x0);
 
                 for (int n = 0; n < rhou.extent_int(3); ++n)
                 {
-                    rhou(i, j, k, n) = param_setup.rho0 * units::density * param_setup.u0 * units::velocity;
+                    rhou(i, j, k, n) = param_setup.rho0 * param_setup.u0;
                 }
 
-                E(i, j, k) = eos.compute_evol_from_T(rho(i, j, k) * units::density, param_setup.T * units::Kelvin);
+                E(i, j, k) = eos.compute_evol_from_T(rho(i, j, k), param_setup.T);
             });
     }
 };
