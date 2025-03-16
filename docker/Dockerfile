@@ -5,9 +5,9 @@ FROM ubuntu:noble
 ENV BASH_ENV=/etc/profile
 SHELL ["/bin/bash", "-c"]
 
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONUNBUFFERED=1
 ENV PATH=/opt/nova-venv/bin:${PATH:+:${PATH}}
-ENV PATH=/usr/local/cuda-12.6/bin${PATH:+:${PATH}}
+ENV PATH=/usr/local/cuda-12.8/bin${PATH:+:${PATH}}
 
 RUN export DEBIAN_FRONTEND=noninteractive \
  && apt-get --yes update \
@@ -22,17 +22,17 @@ RUN export DEBIAN_FRONTEND=noninteractive \
  && wget --output-document=/usr/share/keyrings/cuda-archive-keyring.asc https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/3bf863cc.pub \
  && wget --output-document=/usr/share/keyrings/rocm-archive-keyring.asc https://repo.radeon.com/rocm/rocm.gpg.key \
  && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/pdidev-archive-keyring.gpg] https://repo.pdi.dev/ubuntu noble main" > /etc/apt/sources.list.d/pdi.list \
- && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/apt.llvm.org.asc] http://apt.llvm.org/noble/ llvm-toolchain-noble-19 main" > /etc/apt/sources.list.d/llvm.list \
+ && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/apt.llvm.org.asc] http://apt.llvm.org/noble/ llvm-toolchain-noble-20 main" > /etc/apt/sources.list.d/llvm.list \
  && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/cuda-archive-keyring.asc] https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64 /" > /etc/apt/sources.list.d/cuda.list \
- && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/rocm-archive-keyring.asc] https://repo.radeon.com/rocm/apt/6.2 noble main" > /etc/apt/sources.list.d/rocm.list \
- && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/rocm-archive-keyring.asc] https://repo.radeon.com/amdgpu/6.2/ubuntu noble main" > /etc/apt/sources.list.d/amdgpu.list \
+ && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/rocm-archive-keyring.asc] https://repo.radeon.com/rocm/apt/6.3.4 noble main" > /etc/apt/sources.list.d/rocm.list \
+ && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/rocm-archive-keyring.asc] https://repo.radeon.com/amdgpu/6.3.4/ubuntu noble main" > /etc/apt/sources.list.d/amdgpu.list \
  && wget --output-document=/etc/apt/preferences.d/cuda-repository-pin-600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-ubuntu2404.pin \
  && echo -e "Package: *\nPin: release o=repo.radeon.com\nPin-Priority: 600" > /etc/apt/preferences.d/rocm-pin-600 \
  && apt-get --yes update \
  && apt-get --yes --no-install-recommends install \
     build-essential \
-    clang-format-19 \
-    clang-tidy-19 \
+    clang-format-20 \
+    clang-tidy-20 \
     cmake \
     doxygen \
     git \
@@ -41,7 +41,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     python3-pip \
     python3-venv \
  && apt-get --yes --no-install-recommends install \
-    cuda-minimal-build-12-6 \
+    cuda-minimal-build-12-8 \
     libhdf5-openmpi-dev \
     libopenmpi-dev \
     libpdi-dev \
