@@ -73,13 +73,13 @@ public:
         assert(equal_extents({0, 1, 2}, rho, u, P, fx));
         assert(u.extent_int(3) == ndim);
 
-        if (geom == Geometry::Geom_cartesian)
+        if (geom == Geometry::Geom_spherical)
         {
-            throw std::runtime_error("No Sedov 2D in Cartesian geometry implemented");
+            throw std::runtime_error("No Sedov 2D in spherical geometry implemented");
         }
 
-        auto const x_tad = grid.x;
-        auto const y_tad = grid.y;
+        auto const x_grid = grid.x;
+        auto const y_grid = grid.y;
         auto const& dv = grid.dv;
         auto const& eos = m_eos;
         auto const& param_setup = m_param_setup;
@@ -89,8 +89,8 @@ public:
         cell_mdrange(range),
         KOKKOS_LAMBDA(int i, int j, int k)
         {
-            double const x = x_tad(i);
-            double const y = y_tad(j);
+            double const x = x_grid(i);
+            double const y = y_grid(j);
             double const r = Kokkos::sqrt(x * x + y * y);
 
             rho(i, j, k) = param_setup.rho0;
