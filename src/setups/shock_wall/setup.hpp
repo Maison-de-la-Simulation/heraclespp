@@ -81,11 +81,10 @@ public:
                     u(i, j, k, idim) = param_setup.u0;
                 }
 
-                // double T = m_eos.compute_T_from_P(rho(i, j, k), P(i, j, k));
-                // double Pr = units::ar * T * T * T * T / 3;
-                // double Pg = rho(i, j, k)  * units::kb * T / (1 * units::mp);
-
-                //std::cout<<"Pg = "<<Pg<<" Pr = "<<Pr<<" alpha = "<< Pr/Pg<<std::endl;
+                /* double T = m_eos.compute_T_from_P(rho(i, j, k), P(i, j, k));
+                double Pr = units::ar * T * T * T * T / 3;
+                double Pg = rho(i, j, k)  * units::kb * T / (1 * units::mp);
+                std::cout<<"Pg = "<<Pg<<" Pr = "<<Pr<<" alpha = "<< Pr/Pg<<" T = " << T <<std::endl; */
             });
     }
 };
