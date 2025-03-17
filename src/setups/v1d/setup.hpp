@@ -139,62 +139,64 @@ public:
         {
             broadcast(range, Kokkos::subview(fx_1d.view_device(), ALL, ifx), Kokkos::subview(fx, ALL, ALL, ALL, ifx));
         }
-
-        // add Ni bubble 1D
-        /* auto const r = grid.x;
+        auto const r = grid.x;
         auto const dx = grid.dx;
         auto const dv = grid.dv;
         auto const& param_setup = m_param_setup;
 
-        Kokkos::parallel_for(
-        "Ni_bubble_1D",
-        cell_mdrange(range),
-        KOKKOS_LAMBDA(int i, int j, int k)
+        if (ndim == 1)
         {
-            double const rmin_bubble = param_setup.pos_ni_bubble - param_setup.radius_ni_bubble;
-            double const rmax_bubble = param_setup.pos_ni_bubble + param_setup.radius_ni_bubble;
-
-            if  (rmin_bubble < r(i) && r(i) < rmax_bubble)
+            // add Ni bubble 1D
+            Kokkos::parallel_for(
+            "Ni_bubble_1D",
+            cell_mdrange(range),
+            KOKKOS_LAMBDA(int i, int j, int k)
             {
-	    	Kokkos::printf("%d, %f\n", i, r(i));
-                fx(i, j, k, 0) = 1;
-                fx(i, j, k, 1) = 0;
-            }
-        });*/
+                double const rmin_bubble = param_setup.pos_ni_bubble - param_setup.radius_ni_bubble;
+                double const rmax_bubble = param_setup.pos_ni_bubble + param_setup.radius_ni_bubble;
 
-        // add Ni bubble 3D
-        auto const r = grid.x;
-        auto const th = grid.y;
-        auto const phi = grid.z;
-        auto const dx = grid.dx;
-        auto const dv = grid.dv;
-        auto const param_setup = m_param_setup;
-        double const th_2 = (param_setup.angle_min + param_setup.angle_max) / 2;
-        double const phi_2 = (param_setup.angle_min + param_setup.angle_max) / 2;
-	Kokkos::printf("%f %f\n", th_2, phi_2);	
-        Kokkos::parallel_for(
-        "Ni_bubble_3D",
-        cell_mdrange(range),
-        KOKKOS_LAMBDA(int i, int j, int k)
+                if  (rmin_bubble < r(i) && r(i) < rmax_bubble)
+                {
+                Kokkos::printf("%d, %f\n", i, r(i));
+                    fx(i, j, k, 0) = 1;
+                    fx(i, j, k, 1) = 0;
+                }
+            });
+        }
+
+        if (ndim == 3)
         {
-	    double const x_center = param_setup.pos_ni_bubble * Kokkos::sin(th_2) * Kokkos::cos(phi_2);
-            double const y_center = param_setup.pos_ni_bubble * Kokkos::sin(th_2) * Kokkos::sin(phi_2);
-            double const z_center = param_setup.pos_ni_bubble * Kokkos::cos(th_2);
+            // add Ni bubble 3D
+            auto const th = grid.y;
+            auto const phi = grid.z;
+            auto const param_setup = m_param_setup;
+            double const th_2 = (param_setup.angle_min + param_setup.angle_max) / 2;
+            double const phi_2 = (param_setup.angle_min + param_setup.angle_max) / 2;
 
-            double x_cart = r(i) * Kokkos::sin(th(j)) * Kokkos::cos(phi(k));
-            double y_cart = r(i) * Kokkos::sin(th(j)) * Kokkos::sin(phi(k));
-            double z_cart = r(i) * Kokkos::cos(th(j));
+            Kokkos::parallel_for(
+                "Ni_bubble_3D",
+                cell_mdrange(range),
+                KOKKOS_LAMBDA(int i, int j, int k)
+                {
+                double const x_center = param_setup.pos_ni_bubble * Kokkos::sin(th_2) * Kokkos::cos(phi_2);
+                double const y_center = param_setup.pos_ni_bubble * Kokkos::sin(th_2) * Kokkos::sin(phi_2);
+                double const z_center = param_setup.pos_ni_bubble * Kokkos::cos(th_2);
 
-            double dist = Kokkos::sqrt((x_cart - x_center)*(x_cart - x_center)
-                        + (y_cart - y_center)*(y_cart - y_center)
-                        + (z_cart - z_center)*(z_cart - z_center));
-            //Kokkos::printf("%f %f %d %d\n",param_setup.pos_ni_bubble, param_setup.radius_ni_bubble, nth_2, nphi_2);
-            if (dist <= param_setup.radius_ni_bubble)
-            {//Kokkos::printf("%d %d %d %f\n", i, j, k, r(i));
-                fx(i, j, k, 0) = 1;
-                fx(i, j, k, 1) = 0;
-            }
-        });
+                double x_cart = r(i) * Kokkos::sin(th(j)) * Kokkos::cos(phi(k));
+                double y_cart = r(i) * Kokkos::sin(th(j)) * Kokkos::sin(phi(k));
+                double z_cart = r(i) * Kokkos::cos(th(j));
+
+                double dist = Kokkos::sqrt((x_cart - x_center)*(x_cart - x_center)
+                            + (y_cart - y_center)*(y_cart - y_center)
+                            + (z_cart - z_center)*(z_cart - z_center));
+
+                if (dist <= param_setup.radius_ni_bubble)
+                {
+                    fx(i, j, k, 0) = 1;
+                    fx(i, j, k, 1) = 0;
+                }
+            });
+        }
 
         double sum_M_ni = 0;
 
