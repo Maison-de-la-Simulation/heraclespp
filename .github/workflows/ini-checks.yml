@@ -1,0 +1,24 @@
+---
+name: INI checks
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/ini-checks.yml'
+      - '**.ini'
+  workflow_dispatch:
+
+jobs:
+  ini-lint:
+    name: INI lint using validator
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          cache: false
+          go-version: 1.22
+      - name: Install validator
+        run: go install github.com/Boeing/config-file-validator/cmd/validator@v1.8.0
+      - name: Run validator
+        run: validator inputs
