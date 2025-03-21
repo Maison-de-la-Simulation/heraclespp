@@ -1,3 +1,4 @@
+---
 metadata:
   ndim: int
   iter: int
@@ -10,15 +11,15 @@ metadata:
   grid_communicator: MPI_Comm
   mpi_rank: int
   directory_size: int
-  directory: { type: array, subtype: char, size: $directory_size }
+  directory: {type: array, subtype: char, size: $directory_size}
   output_filename_size: int
-  output_filename: { type: array, subtype: char, size: $output_filename_size }
+  output_filename: {type: array, subtype: char, size: $output_filename_size}
 
-data: # this describe the data that will be send by each proc
-  rho: { type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]' ] }
-  u:   { type: array, subtype: double, size: ['$ndim', '$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]'] }
-  P:   { type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]' ] }
-  x:   { type: array, subtype: double, size: ['$nx_glob_ng[0]+2*$n_ghost[0]+1'] }
+data:  # this describe the data that will be send by each proc
+  rho: {type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]']}
+  u: {type: array, subtype: double, size: ['$ndim', '$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]']}
+  P: {type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]']}
+  x: {type: array, subtype: double, size: ['$nx_glob_ng[0]+2*$n_ghost[0]+1']}
 
 plugins:
   mpi:
@@ -27,7 +28,7 @@ plugins:
       on_event: write_replicated_data
       collision_policy: replace
       datasets:
-        x_ng: {type: array, subtype: double, size: '$nx_glob_ng[0]+1' }
+        x_ng: {type: array, subtype: double, size: '$nx_glob_ng[0]+1'}
       when: '${mpi_rank}=0'
       write:
         nx_glob_ng:
@@ -42,29 +43,29 @@ plugins:
       on_event: write_distributed_data
       collision_policy: write_into
       communicator: '$grid_communicator'
-      datasets: # this is the global data size (data in the final h5 fil)
-        rho: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]' ] }
-        u:   {type: array, subtype: double, size: ['$ndim', '$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
-        P:   {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]' ] }
+      datasets:  # this is the global data size (data in the final h5 fil)
+        rho: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
+        u: {type: array, subtype: double, size: ['$ndim', '$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
+        P: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
       write:
         rho:
           memory_selection:
-            size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]'] # size of data to be extracted from the proc
-            start: ['$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']            # starting position of data to be extracted from the proc
+            size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']  # size of data to be extracted from the proc
+            start: ['$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']             # starting position of data to be extracted from the proc
           dataset_selection:
-            size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]'] # size of data to be put in the final h5 file
-            start: [ '$start[2]', '$start[1]', '$start[0]']                 # position of the data in the global index
+            size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']  # size of data to be put in the final h5 file
+            start: ['$start[2]', '$start[1]', '$start[0]']                   # position of the data in the global index
         u:
           memory_selection:
             size: ['$ndim', '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
             start: [0, '$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']
           dataset_selection:
             size: ['$ndim', '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
-            start: [ 0, '$start[2]', '$start[1]', '$start[0]']
+            start: [0, '$start[2]', '$start[1]', '$start[0]']
         P:
           memory_selection:
             size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
             start: ['$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']
           dataset_selection:
             size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
-            start: [ '$start[2]', '$start[1]', '$start[0]']
+            start: ['$start[2]', '$start[1]', '$start[0]']

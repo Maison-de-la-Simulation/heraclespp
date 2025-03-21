@@ -1,6 +1,7 @@
 ---
 name: Tests on Ubuntu
 
+# yamllint disable-line rule:truthy
 on:
   pull_request:
     paths:
