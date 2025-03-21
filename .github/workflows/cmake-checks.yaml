@@ -5,7 +5,7 @@ name: CMake checks
 on:
   pull_request:
     paths:
-      - '.github/workflows/cmake-checks.yml'
+      - '.github/workflows/cmake-checks.yaml'
       - 'CMakeLists.txt'
       - '**/CMakeLists.txt'
       - '**.cmake'

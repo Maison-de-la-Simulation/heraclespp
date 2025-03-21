@@ -8,7 +8,7 @@ on:
       - '.clang-format'
       - '.clang-tidy'
       - '.gersemirc'
-      - '.github/workflows/yaml-checks.yml'
+      - '.github/workflows/yaml-checks.yaml'
       - '**.yaml'
       - '**.yml'
   workflow_dispatch:

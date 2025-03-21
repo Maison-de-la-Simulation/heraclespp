@@ -5,7 +5,7 @@ name: Tests on Ubuntu
 on:
   pull_request:
     paths:
-      - '.github/workflows/tests-ubuntu.yml'
+      - '.github/workflows/tests-ubuntu.yaml'
       - '**.cpp'
       - '**.hpp'
       - '**.hpp.in'
