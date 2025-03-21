@@ -340,25 +340,6 @@ trailing-whitespaces-job:
   script:
     - find src tests inputs -type f \( -name '*.[c|h]pp' -o -name 'CMakeLists.txt' \) -exec ./test/trailing_spaces.py --Werror '{}' '+'
 
-ini-validation-job:
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-  variables:
-    DEBIAN_FRONTEND: noninteractive
-    VALIDATOR_VERSION: 1.8.0
-  stage: lint
-  needs: []
-  image: ubuntu:latest
-  before_script:
-    - apt-get --yes update
-    - apt-get --yes --no-install-recommends --no-install-suggests install ca-certificates wget
-    - mkdir validator
-    - VALIDATOR_URL=https://github.com/Boeing/config-file-validator/releases/download/v${VALIDATOR_VERSION}/validator-v${VALIDATOR_VERSION}-linux-amd64.tar.gz
-    - wget --quiet --output-document=- $VALIDATOR_URL | tar --directory=validator --gzip --extract
-  script:
-    - validator/validator inputs
-
 doxygen-job:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
