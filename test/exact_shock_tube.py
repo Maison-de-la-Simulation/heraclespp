@@ -27,7 +27,7 @@ def CI(x, inter, tabl, tabr) :
     P0 = np.zeros(len(x))
 
     for i in range(len(x)):
-        if x[i] <= inter: 
+        if x[i] <= inter:
             rho0[i] = rhol
             u0[i] = ul
             P0[i] = Pl
@@ -57,7 +57,7 @@ def StarPU(tabl, tabr, gamma):
     tolpre = 1e-6 # Variation threshold
     nriter = 20
     P_start = GuessP(tabl, tabr, gamma) # initale pressure
-    P_old = P_start 
+    P_old = P_start
     u_diff = ur - ul
 
     for i in range(nriter):

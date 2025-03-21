@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 #SBATCH --account=cin4698
 #SBATCH --job-name=nova-run
 #SBATCH --output=%x.o%j
