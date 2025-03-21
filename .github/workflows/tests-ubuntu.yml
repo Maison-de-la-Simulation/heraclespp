@@ -1,0 +1,330 @@
+---
+name: Tests on Ubuntu
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/tests-ubuntu.yml'
+      - '**.cpp'
+      - '**.hpp'
+      - '**.hpp.in'
+      - 'CMakeLists.txt'
+      - '**/CMakeLists.txt'
+      - '**.cmake'
+      - '**.cmake.in'
+      - 'docker/**'
+      - 'vendor/**'
+
+concurrency:
+  group: ${{github.workflow}}-${{github.ref == github.ref_protected && github.run_id || github.event.pull_request.number || github.ref}}
+  cancel-in-progress: true
+
+env:
+  CMAKE_BUILD_PARALLEL_LEVEL: 4
+  CMAKE_BUILD_TYPE: Release
+  CMAKE_GENERATOR: Ninja
+
+jobs:
+  cpp-format:
+    runs-on: ubuntu-latest
+    if: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jidicula/clang-format-action@v4.15.0
+        with:
+          clang-format-version: '20'
+          exclude-regex: 'vendor'
+
+  env-common:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/maison-de-la-simulation/nova:latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - run: |
+          cmake -B build-gtest -S vendor/googletest
+          cmake --build build-gtest
+          cmake --install build-gtest --prefix opt/gtest
+      - run: |
+          cmake -B build-inih -S vendor/inih
+          cmake --build build-inih
+          cmake --install build-inih --prefix opt/inih
+      - uses: actions/upload-artifact@v4
+        with:
+          name: env-common
+          path: opt
+          retention-days: 1
+
+  env-cuda:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/maison-de-la-simulation/nova:latest
+    env:
+      CXX: ${{github.workspace}}/vendor/kokkos/bin/nvcc_wrapper
+      NVCC_WRAPPER_DEFAULT_COMPILER: g++-13
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - run: |
+          cmake -DCMAKE_CXX_EXTENSIONS=OFF -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_CUDA=ON -DKokkos_ARCH_AMPERE80=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_COMPILER_WARNINGS=ON -B build -S vendor/kokkos
+          cmake --build build
+          cmake --install build --prefix opt/kokkos-cuda
+      - uses: actions/upload-artifact@v4
+        with:
+          name: env-cuda
+          path: opt
+          retention-days: 1
+
+  env-hip:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/maison-de-la-simulation/nova:latest
+    env:
+      CXX: hipcc
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - run: |
+          cmake -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_HIP=ON -DKokkos_ENABLE_ROCTHRUST=OFF -DKokkos_ARCH_AMD_GFX90A=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_COMPILER_WARNINGS=ON -B build -S vendor/kokkos
+          cmake --build build
+          cmake --install build --prefix opt/kokkos-hip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: env-hip
+          path: opt
+          retention-days: 1
+
+  env-serial:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/maison-de-la-simulation/nova:latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - run: |
+          cmake -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_DEBUG=ON -DKokkos_ENABLE_DEBUG_DUALVIEW_MODIFY_CHECK=ON -DKokkos_ENABLE_DEBUG_BOUNDS_CHECK=ON -DKokkos_ENABLE_COMPILER_WARNINGS=ON -B build -S vendor/kokkos
+          cmake --build build
+          cmake --install build --prefix opt/kokkos-serial
+      - uses: actions/upload-artifact@v4
+        with:
+          name: env-serial
+          path: opt
+          retention-days: 1
+
+  build-serial-all:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/maison-de-la-simulation/nova:latest
+    needs:
+      - env-common
+      - env-serial
+    env:
+      CXXFLAGS: -Werror=all -Werror=extra -Werror=pedantic -pedantic-errors
+      GTest_ROOT: ${{github.workspace}}/opt/gtest
+      inih_ROOT: ${{github.workspace}}/opt/inih
+      Kokkos_ROOT: ${{github.workspace}}/opt/kokkos-serial
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: opt
+          merge-multiple: true
+      - run: |
+          ./test/build_suite_full.py ./test/setups.yaml
+
+  build-serial-1d:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/maison-de-la-simulation/nova:latest
+    needs:
+      - env-common
+      - env-serial
+    env:
+      CMAKE_BUILD_TYPE: Debug
+      CXXFLAGS: -Werror=all -Werror=extra -Werror=pedantic -pedantic-errors -Werror=old-style-cast -Werror=extra-semi
+      GTest_ROOT: ${{github.workspace}}/opt/gtest
+      inih_ROOT: ${{github.workspace}}/opt/inih
+      Kokkos_ROOT: ${{github.workspace}}/opt/kokkos-serial
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: opt
+          merge-multiple: true
+      - run: |
+          cmake -DBUILD_TESTING=ON -DNovapp_NDIM=1 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake --build build
+          ctest --test-dir build --output-on-failure --timeout 5 --output-junit tests.xml
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v5
+        if: ( success() || failure() )  # always run even if the previous step fails
+        with:
+          report_paths: '${{github.workspace}}/tests.xml'
+      - run: |
+          ./test/convergence_advection_sinus/run_convergence_advection_sinus.py
+
+  build-serial-2d:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/maison-de-la-simulation/nova:latest
+    needs:
+      - env-common
+      - env-serial
+    env:
+      CMAKE_BUILD_TYPE: Debug
+      CXXFLAGS: -Werror=all -Werror=extra -Werror=pedantic -pedantic-errors -Werror=old-style-cast -Werror=extra-semi
+      GTest_ROOT: ${{github.workspace}}/opt/gtest
+      inih_ROOT: ${{github.workspace}}/opt/inih
+      Kokkos_ROOT: ${{github.workspace}}/opt/kokkos-serial
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: opt
+          merge-multiple: true
+      - run: |
+          cmake -DBUILD_TESTING=ON -DNovapp_NDIM=2 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake --build build
+          ctest --test-dir build --output-on-failure --timeout 5 --output-junit tests.xml
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v5
+        if: ( success() || failure() )  # always run even if the previous step fails
+        with:
+          report_paths: '${{github.workspace}}/tests.xml'
+
+  build-serial-3d:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/maison-de-la-simulation/nova:latest
+    needs:
+      - env-common
+      - env-serial
+    env:
+      CMAKE_BUILD_TYPE: Debug
+      CXXFLAGS: -Werror=all -Werror=extra -Werror=pedantic -pedantic-errors -Werror=old-style-cast -Werror=extra-semi
+      GTest_ROOT: ${{github.workspace}}/opt/gtest
+      inih_ROOT: ${{github.workspace}}/opt/inih
+      Kokkos_ROOT: ${{github.workspace}}/opt/kokkos-serial
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: opt
+          merge-multiple: true
+      - run: |
+          cmake -DBUILD_TESTING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake --build build
+          ctest --test-dir build --output-on-failure --timeout 5 --output-junit tests.xml
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v5
+        if: ( success() || failure() )  # always run even if the previous step fails
+        with:
+          report_paths: '${{github.workspace}}/tests.xml'
+
+  build-cuda-3d:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/maison-de-la-simulation/nova:latest
+    needs:
+      - env-common
+      - env-cuda
+    env:
+      CXX: ${{github.workspace}}/vendor/kokkos/bin/nvcc_wrapper
+      CXXFLAGS: -Werror=all -Werror=extra -Werror=all-warnings
+      GTest_ROOT: ${{github.workspace}}/opt/gtest
+      inih_ROOT: ${{github.workspace}}/opt/inih
+      Kokkos_ROOT: ${{github.workspace}}/opt/kokkos-cuda
+      NVCC_WRAPPER_DEFAULT_COMPILER: g++-13
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/download-artifact@v4
+        with:
+          path: opt
+          merge-multiple: true
+      - run: |
+          cmake -DBUILD_TESTING=ON -DCMAKE_CXX_EXTENSIONS=OFF -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake --build build
+
+  build-hip-3d:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/maison-de-la-simulation/nova:latest
+    needs:
+      - env-common
+      - env-hip
+    env:
+      CXX: hipcc
+      CXXFLAGS: -Werror=all -Werror=extra -Werror=pedantic -pedantic-errors -Werror=old-style-cast -Werror=extra-semi
+      GTest_ROOT: ${{github.workspace}}/opt/gtest
+      inih_ROOT: ${{github.workspace}}/opt/inih
+      Kokkos_ROOT: ${{github.workspace}}/opt/kokkos-hip
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: opt
+          merge-multiple: true
+      - run: |
+          cmake -DBUILD_TESTING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake --build build
+
+  clang-tidy:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/maison-de-la-simulation/nova:latest
+    needs:
+      - env-common
+      - env-serial
+    env:
+      GTest_ROOT: ${{github.workspace}}/opt/gtest
+      inih_ROOT: ${{github.workspace}}/opt/inih
+      Kokkos_ROOT: ${{github.workspace}}/opt/kokkos-serial
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: opt
+          merge-multiple: true
+      - run: |
+          cmake -DBUILD_TESTING=ON -DCMAKE_CXX_COMPILER=clang++-20 -DCMAKE_CXX_CLANG_TIDY="clang-tidy-20;-header-filter=${{github.workspace}}/src/.*;-warnings-as-errors=*" -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake --build build
+
+  link-what-you-use:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/maison-de-la-simulation/nova:latest
+    needs:
+      - env-common
+      - env-serial
+    env:
+      GTest_ROOT: ${{github.workspace}}/opt/gtest
+      inih_ROOT: ${{github.workspace}}/opt/inih
+      Kokkos_ROOT: ${{github.workspace}}/opt/kokkos-serial
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: opt
+          merge-multiple: true
+      - run: |
+          cmake -DBUILD_TESTING=ON -DCMAKE_CXX_COMPILER=clang++-20 -DCMAKE_LINK_WHAT_YOU_USE=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake --build build
+
+  doxygen:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/maison-de-la-simulation/nova:latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - run: |
+          cmake -DDOXYGEN_WARN_AS_ERROR=YES -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -B build
+          cmake --build build --target doxygen
