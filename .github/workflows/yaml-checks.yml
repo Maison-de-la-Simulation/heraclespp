@@ -1,0 +1,28 @@
+---
+name: YAML checks
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+    paths:
+      - '.clang-format'
+      - '.clang-tidy'
+      - '.gersemirc'
+      - '.github/workflows/yaml-checks.yml'
+      - '**.yaml'
+      - '**.yml'
+  workflow_dispatch:
+
+jobs:
+  yaml-lint:
+    name: YAML lint using yamllint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install yamllint
+        run: pipx install yamllint~=1.35
+      - run: |
+          sed '$d' src/io/config.yaml.cpp | sed '1,3d' > config.yaml
+      - run: |
+          yamllint $(git ls-files '*.yml' '*.yaml')
+          yamllint config.yaml .clang-tidy
