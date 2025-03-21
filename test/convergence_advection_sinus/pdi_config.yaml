@@ -43,7 +43,7 @@ plugins:
       on_event: write_distributed_data
       collision_policy: write_into
       communicator: '$grid_communicator'
-      datasets:  # this is the global data size (data in the final h5 fil)
+      datasets:  # this is the global data size (data in the final h5 file)
         rho: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
         u: {type: array, subtype: double, size: ['$ndim', '$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
         P: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
