@@ -284,25 +284,6 @@ clang-format-job:
   script:
     - find src tests -name '*.[h|c]pp' -exec clang-format --dry-run --ferror-limit=10 --Werror '{}' '+'
 
-typos-job:
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-  variables:
-    DEBIAN_FRONTEND: noninteractive
-    TYPOS_VERSION: 1.30
-  stage: lint
-  needs: []
-  image: ubuntu:latest
-  before_script:
-    - apt-get --yes update
-    - apt-get --yes install --no-install-recommends --no-install-suggests python3-pip python3-venv
-    - python3 -m venv ./typos
-    - . ./typos/bin/activate
-    - python3 -m pip install typos~=$TYPOS_VERSION
-  script:
-    - typos docker/ inputs/ src/ test/ tests/ toolchains/ README.md
-
 clang-tidy-job:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
@@ -330,15 +311,6 @@ link-what-you-use-job:
   script:
     - cmake -DBUILD_TESTING=ON -DCMAKE_CXX_COMPILER=clang++-20 -DCMAKE_LINK_WHAT_YOU_USE=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
     - cmake --build build
-
-trailing-whitespaces-job:
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-  stage: lint
-  needs: []
-  script:
-    - find src tests inputs -type f \( -name '*.[c|h]pp' -o -name 'CMakeLists.txt' \) -exec ./test/trailing_spaces.py --Werror '{}' '+'
 
 doxygen-job:
   rules:

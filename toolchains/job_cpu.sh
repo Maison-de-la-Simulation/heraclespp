@@ -17,7 +17,7 @@ set -x
 cd ${SLURM_SUBMIT_DIR}
 
 # number of OpenMP threads
-export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK} 
+export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK}
 
 # Binding OpenMP threads on core
 export OMP_PLACES=cores
