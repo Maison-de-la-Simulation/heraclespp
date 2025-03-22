@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+"""
+Script to find trailing whitespaces.
+"""
+
 import argparse
 import re
 import sys
@@ -48,12 +52,12 @@ def main():
     The main function to parse arguments and find/remove trailing whitespaces.
     """
     parser = argparse.ArgumentParser(description="Find and optionally remove trailing whitespaces in given files.")
-    parser.add_argument('file', type=str, nargs='+', help="File to analyze.")
+    parser.add_argument('files', type=str, nargs='+', help="Files to analyze.")
     parser.add_argument('-i', action='store_true', help="Remove trailing whitespaces.")
     parser.add_argument('--Werror', action='store_true', help="If set, treat warnings as errors")
     args = parser.parse_args()
 
-    files_with_trailing_whitespaces = find_trailing_whitespaces(args.file)
+    files_with_trailing_whitespaces = find_trailing_whitespaces(args.files)
 
     if args.i:
         remove_trailing_whitespaces(files_with_trailing_whitespaces)

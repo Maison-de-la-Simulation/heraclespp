@@ -22,3 +22,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - run: ./test/trailing_spaces.py --Werror $(git ls-files ':!vendor' ':!*.h5')
+
+  newlines-check:
+    name: Newlines check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - run: ./test/newline_at_eof.py --Werror $(git ls-files ':!vendor' ':!*.h5')
