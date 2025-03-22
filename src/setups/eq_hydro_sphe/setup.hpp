@@ -115,11 +115,11 @@ public:
     }
 
     void execute(Grid const& grid,
-                 [[maybe_unused]] Gravity const& gravity,
-                 KV_double_3d const& rho,
-                 KV_double_4d const& rhou,
-                 KV_double_3d const& E,
-                 [[maybe_unused]] KV_double_4d const& fx) const final
+                [[maybe_unused]] Gravity const& gravity,
+                KV_double_3d const& rho,
+                KV_double_4d const& rhou,
+                KV_double_3d const& E,
+                [[maybe_unused]] KV_double_4d const& fx) const final
     {
         assert(rho.extent(0) == rhou.extent(0));
         assert(rhou.extent(0) == E.extent(0));
@@ -132,6 +132,7 @@ public:
         Kokkos::Array<int, 3> end {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)};
 
         auto const xc = grid.x_center;
+        auto const dv = grid.dv;
         auto const& eos = m_eos;
         auto const& param_setup = m_param_setup;
         double const mu = m_eos.mean_molecular_weight();
@@ -149,11 +150,14 @@ public:
         KOKKOS_LAMBDA(int i, int j, int k)
         {
             double const x0 = units::kb * param_setup.T / (mu * units::mp * units::G * param_setup.M);
+
             rho(i, j, k) = param_setup.rho0 * Kokkos::exp(1. / (xc(i) * x0));
+
             for (int n = 0; n < rhou.extent_int(3); ++n)
             {
                 rhou(i, j, k, n) = param_setup.rho0 * param_setup.u0;
             }
+
             E(i, j, k) = eos.compute_evol_from_T(rho(i, j, k), param_setup.T);
         });
     }
