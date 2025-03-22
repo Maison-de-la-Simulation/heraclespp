@@ -1,10 +1,11 @@
 ---
 name: CMake checks
 
+# yamllint disable-line rule:truthy
 on:
   pull_request:
     paths:
-      - '.github/workflows/cmake-checks.yml'
+      - '.github/workflows/cmake-checks.yaml'
       - 'CMakeLists.txt'
       - '**/CMakeLists.txt'
       - '**.cmake'

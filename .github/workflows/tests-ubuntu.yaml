@@ -1,10 +1,11 @@
 ---
 name: Tests on Ubuntu
 
+# yamllint disable-line rule:truthy
 on:
   pull_request:
     paths:
-      - '.github/workflows/tests-ubuntu.yml'
+      - '.github/workflows/tests-ubuntu.yaml'
       - '**.cpp'
       - '**.hpp'
       - '**.hpp.in'

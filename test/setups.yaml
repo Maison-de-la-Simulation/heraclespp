@@ -1,3 +1,4 @@
+---
 - name: advection_gap
   cmake_options:
     ndim: 1

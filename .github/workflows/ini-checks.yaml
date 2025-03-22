@@ -1,10 +1,11 @@
 ---
 name: INI checks
 
+# yamllint disable-line rule:truthy
 on:
   pull_request:
     paths:
-      - '.github/workflows/ini-checks.yml'
+      - '.github/workflows/ini-checks.yaml'
       - '**.ini'
   workflow_dispatch:
 

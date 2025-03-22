@@ -1,3 +1,4 @@
+---
 pdi:
   metadata:
     ndim: int
@@ -13,20 +14,20 @@ pdi:
     nx_local_wg: {type: array, subtype: int, size: 3}
     n_ghost: {type: array, subtype: int, size: 3}
     start: {type: array, subtype: int, size: 3}
-    version: { type: array, subtype: int64, size: 2 }
-    whole_extents: { type: array, subtype: int64, size: 6 }
-    direction: { type: array, subtype: int64, size: 9 }
-    spacing: { type: array, subtype: double, size: 3 }
-    origin: { type: array, subtype: double, size: 3 }
-    type: { type: array, subtype: char, size: 9 }
-    x:   {type: array, subtype: double, size: ['$nx_glob_ng[0]'] }
-    y:   {type: array, subtype: double, size: ['$nx_glob_ng[1]'] }
-    z:   {type: array, subtype: double, size: ['$nx_glob_ng[2]'] }
+    version: {type: array, subtype: int64, size: 2}
+    whole_extents: {type: array, subtype: int64, size: 6}
+    direction: {type: array, subtype: int64, size: 9}
+    spacing: {type: array, subtype: double, size: 3}
+    origin: {type: array, subtype: double, size: 3}
+    type: {type: array, subtype: char, size: 9}
+    x: {type: array, subtype: double, size: ['$nx_glob_ng[0]']}
+    y: {type: array, subtype: double, size: ['$nx_glob_ng[1]']}
+    z: {type: array, subtype: double, size: ['$nx_glob_ng[2]']}
 
   data:
-    u:   { type: array, subtype: double, size: ['$ndim', '$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]'] }
-    rho: { type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]' ] }
-    P:   { type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]' ] }
+    u: {type: array, subtype: double, size: ['$ndim', '$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]']}
+    rho: {type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]']}
+    P: {type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]']}
 
   plugins:
     mpi:
@@ -36,12 +37,12 @@ pdi:
         communicator: '$MPI_COMM_WORLD'
         on_event: write_file
         datasets:
-          /VTKHDF/CellData/rho: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
-          /VTKHDF/CellData/u: {type: array, subtype: double, size: ['$ndim', '$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
-          /VTKHDF/CellData/P: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]'] }
-          /VTKHDF/CellData/x: {type: array, subtype: double, size: ['$nx_glob_ng[0]'] }
-          /VTKHDF/CellData/y: {type: array, subtype: double, size: ['$nx_glob_ng[1]'] }
-          /VTKHDF/CellData/z: {type: array, subtype: double, size: ['$nx_glob_ng[2]'] }
+          /VTKHDF/CellData/rho: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
+          /VTKHDF/CellData/u: {type: array, subtype: double, size: ['$ndim', '$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
+          /VTKHDF/CellData/P: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
+          /VTKHDF/CellData/x: {type: array, subtype: double, size: ['$nx_glob_ng[0]']}
+          /VTKHDF/CellData/y: {type: array, subtype: double, size: ['$nx_glob_ng[1]']}
+          /VTKHDF/CellData/z: {type: array, subtype: double, size: ['$nx_glob_ng[2]']}
         write:
           direction:
             attribute: VTKHDF#Direction
@@ -62,7 +63,7 @@ pdi:
               start: ['$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']
             dataset_selection:
               size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
-              start: [ '$start[2]', '$start[1]', '$start[0]']
+              start: ['$start[2]', '$start[1]', '$start[0]']
           u:
             dataset: /VTKHDF/CellData/u
             memory_selection:
@@ -70,7 +71,7 @@ pdi:
               start: [0, '$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']
             dataset_selection:
               size: ['$ndim', '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
-              start: [ 0, '$start[2]', '$start[1]', '$start[0]']
+              start: [0, '$start[2]', '$start[1]', '$start[0]']
           P:
             dataset: /VTKHDF/CellData/P
             memory_selection:
@@ -78,7 +79,7 @@ pdi:
               start: ['$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']
             dataset_selection:
               size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
-              start: [ '$start[2]', '$start[1]', '$start[0]']
+              start: ['$start[2]', '$start[1]', '$start[0]']
           x:
             dataset: /VTKHDF/CellData/rho
             memory_selection:
@@ -103,4 +104,3 @@ pdi:
             dataset_selection:
               size: ['$nx_local_ng[2]']
               start: ['$start[2]']
-    # trace:
