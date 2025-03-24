@@ -31,8 +31,6 @@ public:
     double u1;
     double P0;
     double P1;
-    double fx0;
-    double fx1;
     double inter;
 
     explicit ParamSetup(INIReader const& reader)
@@ -42,8 +40,6 @@ public:
         , u1(reader.GetReal("Initialisation", "u1", 1.0))
         , P0(reader.GetReal("Initialisation", "P0", 1.0))
         , P1(reader.GetReal("Initialisation", "P1", 1.0))
-        , fx0(reader.GetReal("Initialisation", "fx0", 1.0))
-        , fx1(reader.GetReal("Initialisation", "fx1", 1.0))
         , inter(reader.GetReal("Initialisation", "inter", 1.0))
     {
     }

@@ -13,29 +13,24 @@ print("*************************************")
 filename = sys.argv[1]
 
 with h5py.File(str(filename), 'r') as f:
-    #print(f.keys())
     rho = f['rho'][0, 0, :]
     u = f['ux'][0, 0, :]
     P = f['P'][0, 0, :]
     x = f['x'][()]
     t = f['current_time'][()]
-    iter = f['iter'][()]
     gamma = f['gamma'][()]
-
-print(f"Final time = {t:.1f} s")
-print(f"Iteration number = {iter}")
 
 xmin = x[2]
 xmax = x[len(rho)+2]
 L = xmax - xmin
-
 dx = np.zeros(len(rho))
 for i in range(2, len(rho)+2):
     dx[i-2] = x[i+1] - x[i]
-
 xc = np.zeros(len(rho))
 for i in range(2, len(rho)+2):
     xc[i-2] = x[i] + dx[i-2] / 2
+
+print(f"Final time = {t:.1f} s")
 
 # Analytical result ------------------------
 
@@ -67,33 +62,31 @@ print(f"Sound speed = {np.sqrt(gamma * P0 / rho0):.1f} s")
 print(f"Free fall time = {np.sqrt(2 * L / g0):.1f} s")
 print(f"Scale = {x0[0]:.1e} m")
 
-# ------------------------------------------
+# ---------------------------------------------------------------------------- #
 
-#plt.figure(figsize=(15,5))
-plt.figure(figsize=(10,8))
-plt.suptitle('Hydrodynamic equilibrium')
+plt.figure(figsize=(12,8))
+plt.suptitle('Spherical hydrodynamic equilibrium')
 plt.subplot(221)
-plt.plot(xc / np.max(xc), rho_tab0, label='t = 0 s')
+plt.plot(xc / np.max(xc), rho_tab0, "--", lw=2, c="black", label='$t=0$ s')
 plt.plot(xc / np.max(xc), rho, 'x', label =f't = {t:.1f} s')
-plt.xlabel('x / $x_{max}$')
+plt.xlabel('$x / x_{max}$')
 plt.ylabel('Density ($kg.m^{-3}$)')
 plt.yscale('log')
-plt.grid()
-plt.legend()
+plt.legend(frameon=False)
+
 plt.subplot(222)
-plt.plot(xc / np.max(xc), P_tab0,  label='t = 0 s')
+plt.plot(xc / np.max(xc), P_tab0, "--", lw=2, c="black", label='$t=0$ s')
 plt.plot(xc / np.max(xc), P, label = f't = {t:.1f} s')
 plt.xlabel('x /$x_{max}$')
 plt.ylabel('Pressure ($kg.m^{-1}.s^{-2}$)')
 plt.yscale('log')
-plt.legend()
-plt.grid()
+plt.legend(frameon=False)
+
 plt.subplot(223)
-plt.plot(xc / np.max(xc), u_tab0,  label='t = 0 s')
+plt.plot(xc / np.max(xc), u_tab0, "--", lw=2, c="black", label='$t=0$ s')
 plt.plot(xc / np.max(xc), u, label = f't = {t:.1f} s')
-#plt.plot(xc / np.max(xc), u / cs, label = f't = {t:1f}')
-plt.xlabel('x /$x_{max}$')
+plt.xlabel('$x /x_{max}$')
 plt.ylabel('Velocity ($m.s^{-1}$)')
-plt.legend()
-plt.grid()
+plt.legend(frameon=False)
+
 plt.show()
