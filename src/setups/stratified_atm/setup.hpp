@@ -28,11 +28,13 @@ public:
     double rho0;
     double u0;
     double T;
+    double gx;
 
     explicit ParamSetup(INIReader const& reader)
         : rho0(reader.GetReal("Initialisation", "rho0", 1.0))
         , u0(reader.GetReal("Initialisation", "u0", 1.0))
-        , T(reader.GetReal("Perfect Gas", "temperature", 100.))
+        , T(reader.GetReal("Perfect Gas", "temperature", 1.0))
+        , gx(reader.GetReal("Gravity", "gx", 1.0))
     {
     }
 };
@@ -73,7 +75,7 @@ public:
         auto const& param_setup = m_param_setup;
         double const mu = m_eos.mean_molecular_weight();
         std::cout <<"Scale = " << units::kb * m_param_setup.T
-            / (mu * units::mp * 10) << std::endl;
+            / (mu * units::mp * m_param_setup.gx) << std::endl;
 
         Kokkos::parallel_for(
             "stratified_atm_init",
