@@ -19,7 +19,7 @@ with h5py.File(str(filename), 'r') as f:
     P = f['P'][0, 0, :]
     T = f['T'][0, 0, :]
     fx = f['fx'][0, 0, 0, :]
-    x = f['x'][()]
+    x = f['x_ng'][()]
     t = f['current_time'][()]
     iter = f['iter'][()]
     gamma = f['gamma'][()]
@@ -30,13 +30,7 @@ print(f"Final time = {t:.3e} s or {tday} days")
 print(f"Iteration number = {iter:3e}")
 print("---------------------------")
 
-dx = np.zeros(len(rho))
-for i in range(len(rho)):
-    dx[i] = x[i+1] - x[i]
-
-xc = np.zeros(len(rho))
-for i in range(len(rho)):
-    xc[i] = x[i] + dx[i] / 2
+xc = (x[:-1] + x[1:]) / 2
 
 # Initialisation ---------------------------
 

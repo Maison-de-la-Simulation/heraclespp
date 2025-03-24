@@ -13,21 +13,14 @@ filename = sys.argv[1]
 
 with h5py.File(str(filename), 'r') as f:
     rho = f['rho'][0, 0, :]
-    x = f['x'][()]
+    x = f['x_ng'][()]
     t = f['current_time'][()]
     iter = f['iter'][()]
 
 print(f"Final time = {t:.1f} s")
 print(f"Iteration number = {iter}")
 
-xmin = x[2]
-xmax = x[len(x)-3]
-L = xmax - xmin
-dx = L / len(rho)
-
-xc = np.zeros(len(rho))
-for i in range(2, len(rho)+2):
-    xc[i-2] = x[i] + dx / 2
+xc = (x[:-1] + x[1:]) / 2
 
 # Analytical result ------------------------
 

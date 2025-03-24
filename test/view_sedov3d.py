@@ -32,9 +32,9 @@ with h5py.File(str(filename), 'r') as f:
     P_1d = f['P'][ind_ph, ind_th, :] # P(r)
     rho_r_th = f['rho'][ind_ph, :, :] # rho(r, theta)
     rho_r_ph = f['rho'][:, ind_th, :] # rho(r, phi)
-    x = f['x'][()]
-    y = f['y'][()]
-    z = f['z'][()]
+    x = f['x_ng'][()]
+    y = f['y_ng'][()]
+    z = f['z_ng'][()]
     t = f['current_time'][()]
     iter = f['iter'][()]
     gamma = f['gamma'][()]
@@ -46,35 +46,13 @@ print("Shape = ", P_3d.shape)
 E = 1 / 2 * rho_1d * u_1d**2 + P_1d / (gamma - 1)
 
 # Grid
-rmin = x[2]
-rmax = x[len(x)-3]
-dr = (rmax - rmin) / nr
-r = np.zeros(nr+1)
-for i in range(len(r)):
-    r[i] = x[i+2]
-rc = np.zeros(nr)
-for i in range(len(rc)):
-    rc[i] = r[i] + dr / 2
-
-th_min = y[2]
-th_max = y[len(y)-3]
-dth = (th_max - th_min) / nth
-th = np.zeros(nth+1)
-for i in range(len(th)):
-    th[i] = y[i+2]
-thc = np.zeros(nth)
-for i in range(len(thc)):
-    thc[i] = th[i] + dth / 2
-
-ph_min = z[2]
-ph_max = z[len(z)-3]
-dph = (ph_max - ph_min) / nph
-ph = np.zeros(nph+1)
-for i in range(len(ph)):
-    ph[i] = z[i+2]
-phc = np.zeros(nph)
-for i in range(len(phc)):
-    phc[i] = ph[i] + dph / 2
+r = x[:]
+dr = r[1] - r[0]
+rc = (r[:-1] + r[1:]) / 2
+th = y[:]
+thc = (th[:-1] + th[1:]) / 2
+ph = z[:]
+phc = (ph[:-1] + ph[1:]) / 2
 
 # Analytical result 1d ------------------------
 
