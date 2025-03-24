@@ -6,6 +6,8 @@
 #SBATCH --partition=gpua100           # (see available partitions)
 #SBATCH --gres=gpu:1
 
+set -e
+
 # To clean and load modules defined at the compile and link phases
 module purge
 module load gcc/11.2.0/gcc-4.8.5 hdf5/1.10.7/gcc-11.2.0-openmpi openmpi/4.1.1/gcc-11.2.0 cuda/11.7.0/gcc-11.2.0 cmake/3.21.4/gcc-11.2.0
@@ -14,7 +16,7 @@ module load gcc/11.2.0/gcc-4.8.5 hdf5/1.10.7/gcc-11.2.0-openmpi openmpi/4.1.1/gc
 set -x
 
 # To compute in the submission directory
-cd ${SLURM_SUBMIT_DIR}
+cd "${SLURM_SUBMIT_DIR}"
 
 # execution
 ./../bin/nova++ ../inputs/kelvin_helmholtz.ini
