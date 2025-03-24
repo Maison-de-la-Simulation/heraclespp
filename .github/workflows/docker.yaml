@@ -6,6 +6,7 @@ name: Docker
 # separate terms of service, privacy policy, and support
 # documentation.
 
+# yamllint disable-line rule:truthy
 on:
   push:
     branches:
