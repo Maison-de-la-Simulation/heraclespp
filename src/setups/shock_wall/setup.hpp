@@ -7,6 +7,7 @@
 #include <inih/INIReader.hpp>
 
 #include "default_boundary_setup.hpp"
+#include "default_grid_setup.hpp"
 #include "default_shift_criterion.hpp"
 #include "default_user_step.hpp"
 #include "eos.hpp"
@@ -71,77 +72,15 @@ public:
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                rho(i, j, k) = param_setup.rho0 * units::density;
+                rho(i, j, k) = param_setup.rho0;
 
-                P(i, j, k) = param_setup.P0 * units::pressure;
+                P(i, j, k) = param_setup.P0;
 
                 for (int idim = 0; idim < ndim; ++idim)
                 {
-                    u(i, j, k, idim) = param_setup.u0 * units::velocity;
+                    u(i, j, k, idim) = param_setup.u0;
                 }
-
-                // double T = m_eos.compute_T_from_P(rho(i, j, k), P(i, j, k));
-                // double Pr = units::ar * T * T * T * T / 3;
-                // double Pg = rho(i, j, k)  * units::kb * T / (1 * units::mp);
-
-                //std::cout<<"Pg = "<<Pg<<" Pr = "<<Pr<<" alpha = "<< Pr/Pg<<std::endl;
             });
-    }
-};
-
-class GridSetup : public IGridType
-{
-private :
-    Param m_param;
-
-public:
-    explicit GridSetup(
-        Param param)
-        : m_param(std::move(param))
-    {
-        // regular grid
-    }
-
-    void execute(
-        std::array<int, 3> Nghost,
-        std::array<int, 3> Nx_glob_ng,
-        KVH_double_1d const& x_glob,
-        KVH_double_1d const& y_glob,
-        KVH_double_1d const& z_glob) const final
-    {
-        double dx = m_param.xmax / (2 * Nx_glob_ng[0]);
-        x_glob(Nghost[0]) = 0;
-        for (int i = Nghost[0]+1; i < x_glob.extent_int(0) ; ++i)
-        {
-            x_glob(i) = x_glob(i-1) + dx;
-            dx *= 1.005;
-        }
-
-        double const val_xmax = x_glob(x_glob.extent_int(0)-1 - Nghost[0]);
-        for (int i = Nghost[0]; i < x_glob.extent_int(0); ++i)
-        {
-            x_glob(i) = m_param.xmax * x_glob(i) / val_xmax;
-        }
-
-        // Reflexive X-left ghost cells
-        for(int i = Nghost[0]-1; i >= 0; i--)
-        {
-            int const mirror = Nghost[0] -  2 * i + 1;
-            x_glob(i) = x_glob(i+1) - (x_glob(i+mirror+1) - x_glob(i+mirror));
-        }
-
-        // Y and Z
-        double const Ly = m_param.ymax - m_param.ymin;
-        double const dy = Ly / Nx_glob_ng[1];
-
-        double const Lz = m_param.zmax - m_param.zmin;
-        double const dz = Lz / Nx_glob_ng[2];
-
-        for (int i = 0; i < y_glob.extent_int(0) ; ++i)
-        {
-            y_glob(i) = m_param.ymin + i * dy;
-            z_glob(i) = m_param.zmin + i * dz;
-        }
     }
 };
 

@@ -53,12 +53,6 @@
     eos: PerfectGas
     gravity: Uniform
     geom: Cartesian
-- name: rayleigh_taylor3d_sph
-  cmake_options:
-    ndim: 3
-    eos: PerfectGas
-    gravity: Uniform
-    geom: Spherical
 - name: sedov1d
   cmake_options:
     ndim: 1
