@@ -115,4 +115,6 @@ plt.xlabel('Position')
 plt.ylabel('Internal energy ($m^{2}.s^{-2}$)')
 plt.legend(frameon=False)
 
+plt.savefig("shock_tube.pdf")
+
 plt.show()
