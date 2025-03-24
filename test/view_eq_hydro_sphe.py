@@ -96,4 +96,7 @@ plt.xlabel('x /$x_{max}$')
 plt.ylabel('Velocity ($m.s^{-1}$)')
 plt.legend()
 plt.grid()
+
+plt.savefig("eq_hydro_sph.pdf")
+
 plt.show()

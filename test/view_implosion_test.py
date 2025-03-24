@@ -35,4 +35,7 @@ plt.colorbar()
 #plt.colorbar(shrink=0.5)
 plt.xlabel('x')
 plt.ylabel('y')
+
+plt.savefig("implosion_test.pdf")
+
 plt.show()

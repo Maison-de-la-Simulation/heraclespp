@@ -96,4 +96,7 @@ plt.plot(xc / np.max(xc), T_tab0, label='t = 0 s')
 plt.plot(xc / np.max(xc), T, label = f't = {t:.1f} s')
 plt.ylim(99.5, 100.5)
 plt.legend()
+
+plt.savefig("strat_atm.pdf")
+
 plt.show()

@@ -47,4 +47,7 @@ plt.imshow(fx, cmap='inferno', origin='lower', extent=[xmin, xmax, ymin, ymax])
 plt.colorbar()
 plt.xlabel('x')
 plt.ylabel('y')
+
+plt.savefig("RT_2D.pdf")
+
 plt.show()

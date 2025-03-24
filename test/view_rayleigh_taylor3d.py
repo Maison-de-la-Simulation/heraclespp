@@ -46,4 +46,7 @@ plt.imshow(fx, cmap='seismic', origin='lower', extent=[xmin, xmax, zmin, zmax])
 plt.colorbar()
 plt.xlabel('x')
 plt.ylabel('z')
+
+plt.savefig("RT_3D.pdf")
+
 plt.show()

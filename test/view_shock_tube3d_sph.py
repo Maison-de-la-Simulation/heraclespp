@@ -105,4 +105,6 @@ plt.xlabel('Radius (m)')
 plt.ylabel(r'Internal energy ($m^{2}.s^{-2}$)')
 plt.legend()
 
+plt.savefig("shock_tube_3D_sph.pdf")
+
 plt.show()

@@ -85,4 +85,6 @@ plt.ylabel('Volumic energy ($kg.m^{-1}.s^{-2}$)')
 plt.xlim(0,1)
 plt.legend(frameon=False)
 
+plt.savefig("sedov_1D.pdf")
+
 plt.show()

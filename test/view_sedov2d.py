@@ -50,4 +50,6 @@ plt.colorbar(label=r"$\rho$")
 plt.xlabel(r'$x$')
 plt.ylabel(r'$y$')
 
+plt.savefig("sedov_2D.pdf")
+
 plt.show()

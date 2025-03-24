@@ -29,4 +29,7 @@ plt.colorbar(label='$u$')
 plt.plasma()
 plt.xlabel('x')
 plt.ylabel('y')
+
+plt.savefig("gresho_vortex.pdf")
+
 plt.show()

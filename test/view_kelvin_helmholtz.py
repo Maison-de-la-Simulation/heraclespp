@@ -35,4 +35,7 @@ plt.imshow(rho, cmap='seismic', origin='lower', extent=[xmin, xmax, ymin, ymax])
 plt.colorbar(shrink=0.5)
 plt.xlabel('x')
 plt.ylabel('y')
+
+plt.savefig("KH.pdf")
+
 plt.show()

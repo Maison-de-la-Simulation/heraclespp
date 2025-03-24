@@ -180,4 +180,7 @@ plt.ylabel('Pressure ($kg.m^{-1}.s^{-2}$)')
 plt.xlim(x[0], x[len(x)-1])
 plt.grid()
 plt.legend()
+
+plt.savefig("sedov_3D.pdf")
+
 plt.show()

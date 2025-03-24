@@ -55,4 +55,7 @@ plt.plot(xc, rho, label=f't = {t:.1f}')
 plt.xlabel('Position')
 plt.ylabel('Density')
 plt.legend(frameon=False)
+
+plt.savefig("advection_gap.pdf")
+
 plt.show()
