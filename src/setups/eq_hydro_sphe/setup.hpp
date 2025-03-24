@@ -115,11 +115,11 @@ public:
     }
 
     void execute(Grid const& grid,
-                [[maybe_unused]] Gravity const& gravity,
-                KV_double_3d const& rho,
-                KV_double_4d const& rhou,
-                KV_double_3d const& E,
-                [[maybe_unused]] KV_double_4d const& fx) const final
+                 [[maybe_unused]] Gravity const& gravity,
+                 KV_double_3d const& rho,
+                 KV_double_4d const& rhou,
+                 KV_double_3d const& E,
+                 [[maybe_unused]] KV_double_4d const& fx) const final
     {
         assert(rho.extent(0) == rhou.extent(0));
         assert(rhou.extent(0) == E.extent(0));
