@@ -132,7 +132,6 @@ public:
         Kokkos::Array<int, 3> end {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)};
 
         auto const xc = grid.x_center;
-        auto const dv = grid.dv;
         auto const& eos = m_eos;
         auto const& param_setup = m_param_setup;
         double const mu = m_eos.mean_molecular_weight();
