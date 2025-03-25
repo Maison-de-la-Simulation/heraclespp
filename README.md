@@ -1,11 +1,11 @@
-# Nova++
+# HERACLES++
 
 ## How to get sources
 
 To get the full source of nova and external libraries:
 
 ```bash
-git clone --recurse-submodules https://gitlab.maisondelasimulation.fr/lrousselhard/nova.git
+git clone --recurse-submodules https://github.com/Maison-de-la-Simulation/heraclespp.git
 ```
 
 In case the repository has already been cloned by
@@ -43,3 +43,18 @@ One can notice that Nova++ related options are being prefixed by `Novapp`.
 The executable can be found in the directory `build/src/nova++`.
 
 For more complex compilation scenarios, please refer to the `toolchains` directory.
+
+
+## Citation
+
+```bash
+@misc{rousselhard2025heraclesmultidimensionaleuleriancode,
+      title={HERACLES++: A multidimensional Eulerian code for exascale computing}, 
+      author={Lou Roussel-Hard and Edouard Audit and Luc Dessart and Thomas Padioleau and Yushan Wang},
+      year={2025},
+      eprint={2503.04428},
+      archivePrefix={arXiv},
+      primaryClass={astro-ph.SR},
+      url={https://arxiv.org/abs/2503.04428}, 
+}
+```
