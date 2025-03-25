@@ -1,0 +1,19 @@
+---
+name: Packages cleanup
+
+# yamllint disable-line rule:truthy
+on:
+  schedule:
+    - cron: "0 1 * * 1"  # every monday at 1am
+  workflow_dispatch:
+
+jobs:
+  delete-packages:
+    name: Delete old packages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'heraclespp'
+          package-type: 'container'
+          min-versions-to-keep: 1

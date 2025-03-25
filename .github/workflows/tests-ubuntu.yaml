@@ -39,7 +39,7 @@ jobs:
   env-common:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/maison-de-la-simulation/nova:latest
+      image: ghcr.io/maison-de-la-simulation/heraclespp:main
     steps:
       - uses: actions/checkout@v4
         with:
@@ -61,7 +61,7 @@ jobs:
   env-cuda:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/maison-de-la-simulation/nova:latest
+      image: ghcr.io/maison-de-la-simulation/heraclespp:main
     env:
       CXX: ${{github.workspace}}/vendor/kokkos/bin/nvcc_wrapper
       NVCC_WRAPPER_DEFAULT_COMPILER: g++-13
@@ -82,7 +82,7 @@ jobs:
   env-hip:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/maison-de-la-simulation/nova:latest
+      image: ghcr.io/maison-de-la-simulation/heraclespp:main
     env:
       CXX: hipcc
     steps:
@@ -102,7 +102,7 @@ jobs:
   env-serial:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/maison-de-la-simulation/nova:latest
+      image: ghcr.io/maison-de-la-simulation/heraclespp:main
     steps:
       - uses: actions/checkout@v4
         with:
@@ -120,7 +120,7 @@ jobs:
   build-serial-all:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/maison-de-la-simulation/nova:latest
+      image: ghcr.io/maison-de-la-simulation/heraclespp:main
     needs:
       - env-common
       - env-serial
@@ -141,7 +141,7 @@ jobs:
   build-serial-1d:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/maison-de-la-simulation/nova:latest
+      image: ghcr.io/maison-de-la-simulation/heraclespp:main
     needs:
       - env-common
       - env-serial
@@ -172,7 +172,7 @@ jobs:
   build-serial-2d:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/maison-de-la-simulation/nova:latest
+      image: ghcr.io/maison-de-la-simulation/heraclespp:main
     needs:
       - env-common
       - env-serial
@@ -201,7 +201,7 @@ jobs:
   build-serial-3d:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/maison-de-la-simulation/nova:latest
+      image: ghcr.io/maison-de-la-simulation/heraclespp:main
     needs:
       - env-common
       - env-serial
@@ -230,7 +230,7 @@ jobs:
   build-cuda-3d:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/maison-de-la-simulation/nova:latest
+      image: ghcr.io/maison-de-la-simulation/heraclespp:main
     needs:
       - env-common
       - env-cuda
@@ -256,7 +256,7 @@ jobs:
   build-hip-3d:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/maison-de-la-simulation/nova:latest
+      image: ghcr.io/maison-de-la-simulation/heraclespp:main
     needs:
       - env-common
       - env-hip
@@ -279,7 +279,7 @@ jobs:
   clang-tidy:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/maison-de-la-simulation/nova:latest
+      image: ghcr.io/maison-de-la-simulation/heraclespp:main
     needs:
       - env-common
       - env-serial
@@ -300,7 +300,7 @@ jobs:
   link-what-you-use:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/maison-de-la-simulation/nova:latest
+      image: ghcr.io/maison-de-la-simulation/heraclespp:main
     needs:
       - env-common
       - env-serial
@@ -321,7 +321,7 @@ jobs:
   doxygen:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/maison-de-la-simulation/nova:latest
+      image: ghcr.io/maison-de-la-simulation/heraclespp:main
     steps:
       - uses: actions/checkout@v4
         with:
