@@ -20,12 +20,17 @@ with h5py.File(str(filename), 'r') as f:
 print(f"Final time = {t:.1f} s")
 print(f"Iteration number = {iter}")
 
+xmin = x[0]
+xmax = x[-1]
+ymin = y[0]
+ymax = y[-1]
+
 # ------------------------------------------
 
 plt.figure(figsize=(10,8))
 plt.suptitle('View Liska-Wendroff implosion test')
 plt.title(f'Density t = {t:.1f} s')
-plt.imshow(rho, cmap='seismic', origin='lower', extent=[x[0], x[-1], y[0], y[-1]])
+plt.imshow(rho, cmap='seismic', origin='lower', extent=[xmin, xmax, ymin, ymax])
 plt.colorbar()
 #plt.colorbar(shrink=0.5)
 plt.xlabel('x')
