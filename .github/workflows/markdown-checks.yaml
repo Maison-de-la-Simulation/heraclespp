@@ -1,0 +1,19 @@
+---
+name: Markdown checks
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/markdown-checks.yaml'
+      - '**.md'
+  workflow_dispatch:
+
+jobs:
+  markdown-lint:
+    name: Markdown lint using markdownlint-cli2
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: rm -rf vendor
+      - uses: DavidAnson/markdownlint-cli2-action@v19
