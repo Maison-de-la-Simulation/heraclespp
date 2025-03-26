@@ -53,7 +53,7 @@ For more complex compilation scenarios, please refer to the `toolchains` directo
 The results can be observed with the Python script:
 
 ```bash
-python ../test/view_shock_tube.py shock_tube_00000002.h5
+python3 ./test/view_shock_tube.py shock_tube_00000002.h5
 ```
 
 ## How to build with vendored dependencies
