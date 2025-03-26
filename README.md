@@ -50,7 +50,7 @@ The execution needs an input file and is done with the following command:
 
 For more complex compilation scenarios, please refer to the `toolchains` directory.
 
-The results can be observed with the Python script:
+The results can be displayed with the Python script:
 
 ```bash
 python3 ./test/view_shock_tube.py shock_tube_00000002.h5
