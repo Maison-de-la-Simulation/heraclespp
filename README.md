@@ -52,7 +52,7 @@ cmake --build build-pdi --parallel 4
 cmake --install build-pdi --prefix vendor/install_pdi
 ```
 
-The second step is to compile HERACLES++. This will create a directory called `build` using the following commands:
+A straightforward way to build HERACLES++ is to assume that all dependencies are available in the environment. In this case, one can compile the Sod shock tube setup in a directory called `build` with the following commands:
 
 ```bash
 cmake \
@@ -67,8 +67,6 @@ cmake \
     -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED
 cmake --build build --parallel 2
 ```
-
-In this case, one can compile the Sod shock tube setup in 1D Cartesian.
 
 One can notice that HERACLES++ related options are being prefixed by `Novapp`.
 
