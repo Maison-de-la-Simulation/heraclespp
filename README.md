@@ -20,37 +20,7 @@ You can retrieve the dependencies (PDI, Kokkos,...) with:
 git submodule init && git submodule update
 ```
 
-## How to build
-
-### Build PDI
-
-The first step is to build PDI, the library for I/O. This needs to be done at the root of the directory. If PDI is already installed, this step is not necessary.
-
-```bash
-cmake \
-    -B build-pdi \
-    -S vendor/pdi \
-    -D BUILD_BENCHMARKING=OFF \
-    -D BUILD_DECL_HDF5_PLUGIN=ON \
-    -D BUILD_FORTRAN=OFF \
-    -D BUILD_HDF5_PARALLEL=ON \
-    -D BUILD_DECL_NETCDF_PLUGIN=OFF \
-    -D BUILD_MPI_PLUGIN=ON \
-    -D BUILD_NETCDF_PARALLEL=OFF \
-    -D BUILD_SERIALIZE_PLUGIN=OFF \
-    -D BUILD_SET_VALUE_PLUGIN=OFF \
-    -D BUILD_SHARED_LIBS=ON \
-    -D BUILD_TESTING=OFF \
-    -D BUILD_TRACE_PLUGIN=ON \
-    -D BUILD_USER_CODE_PLUGIN=OFF \
-    -D CMAKE_BUILD_TYPE=Release \
-    -D USE_HDF5=SYSTEM \
-    -D USE_paraconf=EMBEDDED \
-    -D USE_spdlog=EMBEDDED \
-    -D USE_yaml=EMBEDDED
-cmake --build build-pdi --parallel 4
-cmake --install build-pdi --prefix vendor/install_pdi
-```
+## How to build with pre-installed dependencies
 
 A straightforward way to build HERACLES++ is to assume that all dependencies are available in the environment. In this case, one can compile the Sod shock tube setup in a directory called `build` with the following commands:
 
@@ -84,6 +54,36 @@ The results can be observed with the Python script:
 
 ```bash
 python ../test/view_shock_tube.py shock_tube_00000002.h5
+```
+
+## How to build with vendored dependencies
+
+The library PDI is used for the I/O. The compilation needs to be done at the root of the directory. If PDI is already installed, this step is not necessary.
+
+```bash
+cmake \
+    -B build-pdi \
+    -S vendor/pdi \
+    -D BUILD_BENCHMARKING=OFF \
+    -D BUILD_DECL_HDF5_PLUGIN=ON \
+    -D BUILD_FORTRAN=OFF \
+    -D BUILD_HDF5_PARALLEL=ON \
+    -D BUILD_DECL_NETCDF_PLUGIN=OFF \
+    -D BUILD_MPI_PLUGIN=ON \
+    -D BUILD_NETCDF_PARALLEL=OFF \
+    -D BUILD_SERIALIZE_PLUGIN=OFF \
+    -D BUILD_SET_VALUE_PLUGIN=OFF \
+    -D BUILD_SHARED_LIBS=ON \
+    -D BUILD_TESTING=OFF \
+    -D BUILD_TRACE_PLUGIN=ON \
+    -D BUILD_USER_CODE_PLUGIN=OFF \
+    -D CMAKE_BUILD_TYPE=Release \
+    -D USE_HDF5=SYSTEM \
+    -D USE_paraconf=EMBEDDED \
+    -D USE_spdlog=EMBEDDED \
+    -D USE_yaml=EMBEDDED
+cmake --build build-pdi --parallel 4
+cmake --install build-pdi --prefix vendor/install_pdi
 ```
 
 ## How to cite
