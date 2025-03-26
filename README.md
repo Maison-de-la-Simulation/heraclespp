@@ -88,7 +88,7 @@ The results can be observed with the Python script:
 python ../test/view_shock_tube.py shock_tube_00000002.h5
 ```
 
-## Citation
+## How to cite
 
 ```bash
 @misc{rousselhard2025heraclesmultidimensionaleuleriancode,
