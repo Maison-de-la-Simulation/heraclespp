@@ -45,7 +45,7 @@ The executable can be found in the directory `build/src/nova++`.
 The execution needs an input file and is done with the following command:
 
 ```bash
-./../bin/nova++ ../inputs/shock_tube.ini
+./build/src/nova++ ./inputs/shock_tube.ini
 ```
 
 For more complex compilation scenarios, please refer to the `toolchains` directory.
