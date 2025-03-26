@@ -22,7 +22,7 @@ git submodule init && git submodule update
 
 ## How to build with pre-installed dependencies
 
-A straightforward way to build HERACLES++ is to assume that all dependencies are available in the environment. In this case, one can compile the Sod shock tube setup in a directory called `build` with the following commands:
+A straightforward way to build HERACLES++ is to assume that all dependencies are available in the environment. In this case, one can compile the Sod shock tube setup from the root of the project with the following commands:
 
 ```bash
 cmake \
