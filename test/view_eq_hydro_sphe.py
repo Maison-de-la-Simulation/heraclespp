@@ -36,11 +36,9 @@ M = 2e19 # kg
 rho0 = 10 # kg.m^{-3}
 T = 100 # K
 
-g = np.zeros(len(rho))
-for i in range(len(g)):
-    g[i] = G * M / x[i]**2
+g = G * M / xc**2
 g2 = G * M
-g0 = G * M / x[0]**2
+g0 = G * M / xc[0]**2
 
 x0 = np.zeros(len(rho))
 for i in range(len(x0)):
