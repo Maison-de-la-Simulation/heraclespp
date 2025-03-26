@@ -12,18 +12,18 @@ filename = sys.argv[1]
 
 with h5py.File(str(filename), 'r') as f:
     rho = f['rho'][0, :, :]
-    x = f['x'][()]
-    y = f['y'][()]
+    x = f['x_ng'][()]
+    y = f['y_ng'][()]
     t = f['current_time'][()]
     iter = f['iter'][()]
 
 print(f"Final time = {t:.1f} s")
 print(f"Iteration number = {iter}")
 
-xmin = x[2]
-xmax = x[len(x)-3]
-ymin = y[2]
-ymax = y[len(y)-3]
+xmin = x[0]
+xmax = x[-1]
+ymin = y[0]
+ymax = y[-1]
 
 # ------------------------------------------
 

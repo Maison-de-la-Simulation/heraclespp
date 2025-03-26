@@ -16,19 +16,12 @@ with h5py.File(str(filename), 'r') as f:
     rho = f['rho'][0, 0, :]
     u = f['ux'][0, 0, :]
     P = f['P'][0, 0, :]
-    x = f['x'][()]
+    x = f['x_ng'][()]
     t = f['current_time'][()]
     gamma = f['gamma'][()]
 
-xmin = x[2]
-xmax = x[len(rho)+2]
-L = xmax - xmin
-dx = np.zeros(len(rho))
-for i in range(2, len(rho)+2):
-    dx[i-2] = x[i+1] - x[i]
-xc = np.zeros(len(rho))
-for i in range(2, len(rho)+2):
-    xc[i-2] = x[i] + dx[i-2] / 2
+L = x[-1] - x[0]
+xc = (x[:-1] + x[1:]) / 2
 
 print(f"Final time = {t:.1f} s")
 
@@ -43,11 +36,9 @@ M = 2e19 # kg
 rho0 = 10 # kg.m^{-3}
 T = 100 # K
 
-g = np.zeros(len(rho))
-for i in range(len(g)):
-    g[i] = G * M / x[i]**2
+g = G * M / xc**2
 g2 = G * M
-g0 = G * M / x[0]**2
+g0 = G * M / xc[0]**2
 
 x0 = np.zeros(len(rho))
 for i in range(len(x0)):

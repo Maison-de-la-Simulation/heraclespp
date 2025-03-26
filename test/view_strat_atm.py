@@ -17,7 +17,7 @@ with h5py.File(str(filename), 'r') as f:
     u = f['ux'][0, 0, :]
     P = f['P'][0, 0, :]
     T = f['T'][0, 0, :]
-    x = f['x'][()]
+    x = f['x_ng'][()]
     t = f['current_time'][()]
     iter = f['iter'][()]
     gamma = f['gamma'][()]
@@ -25,15 +25,9 @@ with h5py.File(str(filename), 'r') as f:
 print(f"Final time = {t:.1f} s")
 print(f"Iteration number = {iter}")
 
-xmin = x[2]
-xmax = x[len(rho)+2]
-L = xmax - xmin
+L = x[-1] - x[0]
 
-dx = L / len(rho)
-
-xc = np.zeros(len(rho))
-for i in range(len(rho)):
-    xc[i] = x[i] + dx / 2
+xc = (x[:-1] + x[1:]) / 2
 
 # Analytical result ---------------------------------------------------------- #
 

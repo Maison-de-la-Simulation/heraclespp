@@ -20,7 +20,7 @@ def read_start_file(filename):
         rho = f['rho_1d'][()]
         u = f['u_1d'][()]
         P = f['P_1d'][()]
-        x = f['x'][()]
+        x = f['x_ng'][()]
         t = f['current_time'][()]
     return rho, u, P, x, t
 
@@ -30,7 +30,7 @@ def read_file_1d_r(filename):
         u = f['ux'][0, 0, :]
         P = f['P'][0, 0, :]
         T = f['T'][0, 0, :]
-        x = f['x'][()]
+        x = f['x_ng'][()]
         t = f['current_time'][()]
     return rho, u, P, T, x, t
 
@@ -120,12 +120,7 @@ def fiter(filename):
     return iter
 
 def make_xc(x, n):
-    dx = np.zeros(n)
-    for i in range(2, n+2):
-        dx[i-2] = x[i+1] - x[i]
-    xc = np.zeros(n)
-    for i in range(2, n+2):
-        xc[i-2] = x[i] + dx[i-2] / 2
+    xc = (x[:-1] + x[1:]) / 2
     xc_cgs = xc * 10**2
     return xc_cgs
 

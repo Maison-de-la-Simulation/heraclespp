@@ -17,9 +17,9 @@ with h5py.File(str(filename), 'r') as f:
     rho2 = f['rho'][:, 0, :] # rho(r, phi)
     u_1d = f['ux'][0, 0, :]
     P_1d = f['P'][0, 0, :]
-    x = f['x'][()]
-    y = f['y'][()]
-    z = f['z'][()]
+    x = f['x_ng'][()]
+    y = f['y_ng'][()]
+    z = f['z_ng'][()]
     t = f['current_time'][()]
     iter = f['iter'][()]
     gamma = f['gamma'][()]
@@ -28,27 +28,12 @@ print(f"Final time = {t:.1f} s")
 
 e_1d = P_1d / rho_1d / (gamma - 1)
 
-rmin = x[2]
-rmax = x[len(x)-3]
-th_min = y[2]
-th_max = y[len(y)-3]
-phi_min = z[2]
-phi_max = z[len(z)-3]
+rmin = x[0]
+rmax = x[-1]
+phi_min = z[0]
+phi_max = z[-1]
 
-L = rmax - rmin
-nr = len(rho_1d)
-
-dr = (rmax - rmin) / nr
-dth = (th_max - th_min) / nr
-dphi = (phi_max - phi_min) / nr
-
-rc = np.zeros(nr)
-thc = np.zeros(nr)
-phic = np.zeros(nr)
-for i in range(2, nr+2):
-    rc[i-2] = x[i] + dr / 2
-    """ thc[i-2] = y[i] + dth / 2
-    phic[i-2] = z[i] + dphi / 2 """
+rc = (x[:-1] + x[1:]) / 2
 
 # ------------------------------------------
 
