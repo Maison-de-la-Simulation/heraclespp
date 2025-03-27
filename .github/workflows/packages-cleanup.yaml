@@ -16,4 +16,4 @@ jobs:
         with:
           package-name: 'heraclespp'
           package-type: 'container'
-          min-versions-to-keep: 1
+          min-versions-to-keep: 2
