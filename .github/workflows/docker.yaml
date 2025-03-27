@@ -20,6 +20,7 @@ on:
     paths:
       - '.github/workflows/docker.yaml'
       - 'docker/**'
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
