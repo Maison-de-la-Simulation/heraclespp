@@ -57,7 +57,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6.15.0
         env:
-          DOCKER_BUILD_RECORD_UPLOAD: 1
+          DOCKER_BUILD_RECORD_UPLOAD: false
         with:
           context: ${{github.workspace}}/docker
           push: ${{github.event_name != 'pull_request'}}
