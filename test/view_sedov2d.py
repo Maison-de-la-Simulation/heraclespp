@@ -34,7 +34,7 @@ E1 = 1e5
 rho0 = 1
 beta = 1.15 # gamma = 5/3
 
-r_choc = beta * (E1 * t**2 / rho0)**(1/5)
+r_choc = beta * (E1 * t**2 / rho0)**(1/4)
 
 theta = np.linspace(0, 2*np.pi, len(x))
 x_choc = r_choc * np.cos(theta)
