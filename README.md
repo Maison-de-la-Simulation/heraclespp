@@ -26,7 +26,6 @@ A straightforward way to build HERACLES++ is to assume that all dependencies are
 
 ```bash
 cmake \
-    -B build \
     -DBUILD_TESTING=OFF \
     -DCMAKE_BUILD_TYPE=Release \
     -DNovapp_SETUP=shock_tube \
@@ -34,7 +33,9 @@ cmake \
     -DNovapp_EOS=PerfectGas \
     -DNovapp_GRAVITY=Uniform \
     -DNovapp_GEOM=Cartesian \
-    -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED
+    -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED \
+    -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED \
+    -B build
 cmake --build build --parallel 2
 ```
 
