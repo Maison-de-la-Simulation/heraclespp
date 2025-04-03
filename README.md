@@ -88,7 +88,7 @@ cmake --install build-pdi --prefix vendor/install_pdi
 
 ## How to cite
 
-```bash
+```BibTex
 @misc{rousselhard2025heraclesmultidimensionaleuleriancode,
       title={HERACLES++: A multidimensional Eulerian code for exascale computing},
       author={Lou Roussel-Hard and Edouard Audit and Luc Dessart and Thomas Padioleau and Yushan Wang},
