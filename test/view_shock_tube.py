@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 The HERACLES++ development team, see COPYRIGHT.md file
+#
+# SPDX-License-Identifier: MIT
+
 # Test the shock tube problem and compare
 import numpy as np
 import matplotlib.pyplot as plt
