@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 The HERACLES++ development team, see COPYRIGHT.md file
+//
+// SPDX-License-Identifier: MIT
+
 //!
 //! @file units.hpp
 //! Define code units and useful constants and units.

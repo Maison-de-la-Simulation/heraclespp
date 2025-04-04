@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 The HERACLES++ development team, see COPYRIGHT.md file
+
+SPDX-License-Identifier: MIT
+-->
+
 # Authors
 
 HERACLES++ has been developed by multiple contributors. Below is a non-exhaustive list of contributors, ordered alphabetically by last name.
