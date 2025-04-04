@@ -51,8 +51,6 @@ build*/
 # compilation database
 compile_commands.json
 
-bin/
-
 ## Python
 ############################
 __pycache__/
