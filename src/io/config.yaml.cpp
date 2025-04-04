@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 The HERACLES++ development team, see COPYRIGHT.md file
+//
+// SPDX-License-Identifier: MIT
+
 #include "config.yaml.hpp"
 
 char const* const io_config = R"PDI_CONFIG(

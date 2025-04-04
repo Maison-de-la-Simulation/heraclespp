@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 The HERACLES++ development team, see COPYRIGHT.md file
+#
+# SPDX-License-Identifier: MIT
+
 cmake_minimum_required(VERSION 3.20)
 
 project(Nova++ LANGUAGES CXX)

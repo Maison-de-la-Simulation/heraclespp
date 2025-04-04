@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# SPDX-FileCopyrightText: 2025 The HERACLES++ development team, see COPYRIGHT.md file
+#
+# SPDX-License-Identifier: MIT
+
 import argparse
 import configparser
 import pathlib

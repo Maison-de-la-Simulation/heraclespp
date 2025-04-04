@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 The HERACLES++ development team, see COPYRIGHT.md file
+#
+# SPDX-License-Identifier: MIT
+
 # Test the advection sinusoide and compare
 
 import h5py
