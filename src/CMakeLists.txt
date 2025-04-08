@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 The HERACLES++ development team, see COPYRIGHT.md file
+#
+# SPDX-License-Identifier: MIT
+
 # Workaround a defect from FindHDF5.cmake
 if(
     ("${Novapp_inih_DEPENDENCY_POLICY}" STREQUAL "INSTALLED")
