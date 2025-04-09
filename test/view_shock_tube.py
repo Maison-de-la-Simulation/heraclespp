@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: MIT
 
 # Test the shock tube problem and compare
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import h5py
-import sys
 
 from exact_shock_tube import CI, ExactShockTube
 

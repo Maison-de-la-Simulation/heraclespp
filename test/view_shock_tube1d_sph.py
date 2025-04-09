@@ -3,10 +3,9 @@
 # SPDX-License-Identifier: MIT
 
 # Test the shock tube problem and compare
-import numpy as np
+import sys
 import matplotlib.pyplot as plt
 import h5py
-import sys
 
 print("********************************")
 print("    Shock tube spherical 1D")

@@ -25,3 +25,15 @@ jobs:
       - name: Check format using black
         run: |
           black --line-length 100 $(git ls-files '*.py')
+
+  python-lint:
+    name: Python lint using pylint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          pipx install pylint
+      - name: Analysing the code with pylint
+        run: |
+          pylint --disable=all --enable=W0611,C0411 $(git ls-files '*.py')

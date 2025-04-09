@@ -8,7 +8,6 @@ import sys
 
 import h5py
 import matplotlib.pyplot as plt
-import numpy as np
 
 print("********************************")
 print("Rayleigh Taylor instability 2d")

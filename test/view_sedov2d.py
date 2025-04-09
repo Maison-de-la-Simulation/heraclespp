@@ -4,9 +4,9 @@
 
 # View Sedov blast wave 2d
 
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
-import sys
 import h5py
 
 print("********************************")
