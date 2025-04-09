@@ -131,7 +131,7 @@ def fiter(filename):
     return iteration
 
 
-def make_xc(x, n):
+def make_xc(x):
     xc = (x[:-1] + x[1:]) / 2
     xc_cgs = xc * 10**2
     return xc_cgs
@@ -168,9 +168,9 @@ print("    ")
 
 # cgs units --------------------------------
 
-xcf_cm = make_xc(xf, len(rhof))
-xc_cm = make_xc(x, len(rho))
-xc0_cm = make_xc(x0, len(rho0))
+xcf_cm = make_xc(xf)
+xc_cm = make_xc(x)
+xc0_cm = make_xc(x0)
 
 rho0_cgs, u0_cgs, P0_cgs = conversion_si_to_cgs(rho0, u0, P0)
 rho_cgs, u_cgs, P_cgs = conversion_si_to_cgs(rho, u, P)
