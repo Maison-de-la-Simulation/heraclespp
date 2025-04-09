@@ -52,11 +52,8 @@ def analytical_result(x, gamma, t):
     var0r = np.array([rho0r, u0r, P0r, c0r])
 
     Ncell = 1_000
-    dx_exact = L / Ncell
-    x_exact = np.zeros(Ncell)
-
-    for i in range(len(x_exact)):
-        x_exact[i] = i * dx_exact + dx_exact / 2
+    nodes_exact = np.linspace(0, L, Ncell + 1)
+    x_exact = (nodes_exact[:-1] + nodes_exact[1:]) / 2
 
     rho0, u0, P0 = CI(x_exact, inter, var0l, var0r)
     e0 = P0 / rho0 / (gamma - 1)
