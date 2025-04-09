@@ -1,9 +1,9 @@
 # Test the advection sinusoide and compare
 
+import sys
 import h5py
 import matplotlib.pyplot as plt
 import numpy as np
-import sys
 
 print("********************************")
 print("  Advection test : sinus")

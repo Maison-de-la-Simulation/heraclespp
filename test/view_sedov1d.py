@@ -1,9 +1,8 @@
 # View Sedov blast wave 1d
 
+import sys
 import h5py
 import matplotlib.pyplot as plt
-import numpy as np
-import sys
 
 from exact_sedov import ExactSedov
 
