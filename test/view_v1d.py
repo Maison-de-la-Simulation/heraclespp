@@ -123,8 +123,8 @@ def fgamma(filename):
 
 def fiter(filename):
     with h5py.File(str(filename), "r") as f:
-        iter = f["iter"][()]
-    return iter
+        iteration = f["iter"][()]
+    return iteration
 
 
 def make_xc(x, n):
@@ -147,7 +147,7 @@ rhof, uf, Pf, Tf, xf, tf = read_file_1d_r("../src/setups/v1d/v1d_1e5.h5")
 Nif, Hf, Hef, Of, Sif = read_file_1d_r_element("../src/setups/v1d/v1d_1e5.h5")
 
 gamma = fgamma(filename)
-iter = fiter(filename)
+iteration = fiter(filename)
 rho, u, P, T, x, t = read_file_1d_r(filename)
 Ni, H, He, O, Si = read_file_1d_r_element(filename)
 
@@ -159,7 +159,7 @@ tday = t / 3600 / 24
 
 print("    ")
 print(f"Final time = {t:.3e} s or {tday} days")
-print(f"Iteration number = {iter:3e}")
+print(f"Iteration number = {iteration:3e}")
 print("    ")
 
 # cgs units --------------------------------
