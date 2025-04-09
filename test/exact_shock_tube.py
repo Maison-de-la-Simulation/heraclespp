@@ -24,8 +24,8 @@ def CI(x, inter, tabl, tabr):
     u0    : array : velocity t=0
     P0    : array : pressure t=0
     """
-    rhol, ul, Pl, cl = tabl
-    rhor, ur, Pr, cr = tabr
+    rhol, ul, Pl, _ = tabl
+    rhor, ur, Pr, _ = tabr
 
     rho0 = np.zeros(len(x))
     u0 = np.zeros(len(x))

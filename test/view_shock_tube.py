@@ -23,7 +23,6 @@ def read_file(filename):
         u = f["ux"][0, 0, :]
         P = f["P"][0, 0, :]
         x = f["x_ng"][()]
-        T = f["T"][0, 0, :]
         t = f["current_time"][()]
         iteration = f["iter"][()]
         gamma = f["gamma"][()]
