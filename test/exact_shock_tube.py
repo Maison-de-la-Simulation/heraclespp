@@ -27,20 +27,9 @@ def CI(x, inter, tabl, tabr):
     rhol, ul, Pl, _ = tabl
     rhor, ur, Pr, _ = tabr
 
-    rho0 = np.zeros(len(x))
-    u0 = np.zeros(len(x))
-    P0 = np.zeros(len(x))
-
-    for i in range(len(x)):
-        if x[i] <= inter:
-            rho0[i] = rhol
-            u0[i] = ul
-            P0[i] = Pl
-
-        else:
-            rho0[i] = rhor
-            u0[i] = ur
-            P0[i] = Pr
+    rho0 = np.where(x <= inter, rhol, rhor)
+    u0 = np.where(x <= inter, ul, ur)
+    P0 = np.where(x <= inter, Pl, Pr)
 
     return rho0, u0, P0
 
@@ -275,8 +264,8 @@ def ExactShockTube(x, inter, var0L, var0R, t, gamma):
     u = np.zeros(len(x))
     P = np.zeros(len(x))
     u_star, P_star = StarPU(var0L, var0R, gamma)
-    for i in range(len(x)):
-        S = (x[i] - inter) / t
+    for i, x_value in enumerate(x):
+        S = (x_value - inter) / t
         rho[i], u[i], P[i] = Sample(P_star, u_star, S, var0L, var0R, gamma)
     e = P / (rho * (gamma - 1))
     return rho, u, P, e

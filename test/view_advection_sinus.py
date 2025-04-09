@@ -28,10 +28,7 @@ xc = (x[:-1] + x[1:]) / 2
 
 # Analytical result ------------------------
 
-rho0 = np.zeros(len(rho))
-
-for i in range(len(rho0)):
-    rho0[i] = 1 + 0.1 * np.sin(2 * np.pi * xc[i])
+rho0 = 1 + 0.1 * np.sin(2 * np.pi * xc)
 
 # ------------------------------------------
 

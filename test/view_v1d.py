@@ -57,28 +57,10 @@ def read_3d_file_in_1d_angular_mean(filename):
         u_file = f["ux"][:, :, :]
         P_file = f["P"][:, :, :]
         T_file = f["E"][:, :, :]
-    nr = int(rho_file.shape[2])
-    nth = int(rho_file.shape[1])
-    nph = int(rho_file.shape[0])
-    rho = np.zeros(nr)
-    u = np.zeros(nr)
-    P = np.zeros(nr)
-    T = np.zeros(nr)
-    for i in range(len(rho)):
-        sum_rho = 0
-        sum_u = 0
-        sum_P = 0
-        sum_T = 0
-        for j in range(nth):
-            for k in range(nph):
-                sum_rho += rho_file[k, j, i]
-                sum_u += u_file[k, j, i]
-                sum_P += P_file[k, j, i]
-                sum_T += T_file[k, j, i]
-        rho[i] = sum_rho / (nth * nph)
-        u[i] = sum_u / (nth * nph)
-        P[i] = sum_P / (nth * nph)
-        T[i] = sum_T / (nth * nph)
+    rho = np.mean(rho_file, axis=(0, 1))
+    u = np.mean(u_file, axis=(0, 1))
+    P = np.mean(P_file, axis=(0, 1))
+    T = np.mean(T_file, axis=(0, 1))
     return rho, u, P, T
 
 
