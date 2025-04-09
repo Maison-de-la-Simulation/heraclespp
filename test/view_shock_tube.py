@@ -12,16 +12,17 @@ print("********************************")
 
 file = sys.argv[1]
 
+
 def read_file(filename):
-    with h5py.File(filename, 'r') as f:
-        rho = f['rho'][0, 0, :]
-        u = f['ux'][0, 0, :]
-        P = f['P'][0, 0, :]
-        x = f['x_ng'][()]
-        T = f['T'][0, 0, :]
-        t = f['current_time'][()]
-        iter = f['iter'][()]
-        gamma = f['gamma'][()]
+    with h5py.File(filename, "r") as f:
+        rho = f["rho"][0, 0, :]
+        u = f["ux"][0, 0, :]
+        P = f["P"][0, 0, :]
+        x = f["x_ng"][()]
+        T = f["T"][0, 0, :]
+        t = f["current_time"][()]
+        iter = f["iter"][()]
+        gamma = f["gamma"][()]
     e = P / rho / (gamma - 1)
     xc = (x[:-1] + x[1:]) / 2
 
@@ -30,10 +31,11 @@ def read_file(filename):
 
     return rho, u, P, e, xc, x, gamma, t
 
+
 def analytical_result(x, gamma, t):
-    inter = 0.5 # Interface position
+    inter = 0.5  # Interface position
     xmin = x[2]
-    xmax = x[len(x)-3]
+    xmax = x[len(x) - 3]
     L = xmax - xmin
 
     # Left
@@ -64,6 +66,7 @@ def analytical_result(x, gamma, t):
 
     return rho0, u0, P0, e0, rho_exact, u_exact, P_exact, e_exact, x_exact
 
+
 # ------------------------------------------------------------------------------
 
 rho, u, P, e, xc, x, gamma, t = read_file(file)
@@ -72,37 +75,37 @@ rho0, u0, P0, e0, rho_exact, u_exact, P_exact, e_exact, x_exact = analytical_res
 # ------------------------------------------------------------------------------
 
 plt.figure(figsize=(12, 6))
-plt.suptitle(f'Shock tube t = {t:.1f} s')
+plt.suptitle(f"Shock tube t = {t:.1f} s")
 plt.subplot(221)
-plt.plot(x_exact, rho0, '--', label='$t_0$')
-plt.plot(x_exact,rho_exact, label='Exact')
-plt.plot(xc, rho, label = 'Solver')
-plt.xlabel('Position')
-plt.ylabel('Density ($kg.m^{-3}$)')
+plt.plot(x_exact, rho0, "--", label="$t_0$")
+plt.plot(x_exact, rho_exact, label="Exact")
+plt.plot(xc, rho, label="Solver")
+plt.xlabel("Position")
+plt.ylabel("Density ($kg.m^{-3}$)")
 plt.legend(frameon=False)
 
 plt.subplot(222)
-plt.plot(x_exact, u0, '--', label='$t_0$')
-plt.plot(x_exact, u_exact, label='Exact')
-plt.plot(xc, u, label = 'Solver')
-plt.xlabel('Position')
-plt.ylabel('Velocity ($m.s^{-1}$)')
+plt.plot(x_exact, u0, "--", label="$t_0$")
+plt.plot(x_exact, u_exact, label="Exact")
+plt.plot(xc, u, label="Solver")
+plt.xlabel("Position")
+plt.ylabel("Velocity ($m.s^{-1}$)")
 plt.legend(frameon=False)
 
 plt.subplot(223)
-plt.plot(x_exact, P0,'--', label='$t_0$')
-plt.plot(x_exact, P_exact, label='Exact')
-plt.plot(xc, P, label = 'Solver')
-plt.xlabel('Position')
-plt.ylabel('Pressure ($kg.m^{-1}.s^{-2}$)')
+plt.plot(x_exact, P0, "--", label="$t_0$")
+plt.plot(x_exact, P_exact, label="Exact")
+plt.plot(xc, P, label="Solver")
+plt.xlabel("Position")
+plt.ylabel("Pressure ($kg.m^{-1}.s^{-2}$)")
 plt.legend(frameon=False)
 
 plt.subplot(224)
-plt.plot(x_exact, e0,'--', label='$t_0$')
-plt.plot(x_exact, e_exact, label='Exact')
-plt.plot(xc, e, label = 'Solver')
-plt.xlabel('Position')
-plt.ylabel('Internal energy ($m^{2}.s^{-2}$)')
+plt.plot(x_exact, e0, "--", label="$t_0$")
+plt.plot(x_exact, e_exact, label="Exact")
+plt.plot(xc, e, label="Solver")
+plt.xlabel("Position")
+plt.ylabel("Internal energy ($m^{2}.s^{-2}$)")
 plt.legend(frameon=False)
 
 plt.show()

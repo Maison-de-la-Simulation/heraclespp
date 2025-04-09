@@ -15,40 +15,44 @@ ndim = input("Dimension of the simulation (1 or 3): ")
 
 # ------------------------------------------
 
+
 def read_start_file(filename):
-    with h5py.File(str(filename), 'r') as f:
-        rho = f['rho_1d'][()]
-        u = f['u_1d'][()]
-        P = f['P_1d'][()]
-        x = f['x_ng'][()]
-        t = f['current_time'][()]
+    with h5py.File(str(filename), "r") as f:
+        rho = f["rho_1d"][()]
+        u = f["u_1d"][()]
+        P = f["P_1d"][()]
+        x = f["x_ng"][()]
+        t = f["current_time"][()]
     return rho, u, P, x, t
 
+
 def read_file_1d_r(filename):
-    with h5py.File(str(filename), 'r') as f:
-        rho = f['rho'][0, 0, :]
-        u = f['ux'][0, 0, :]
-        P = f['P'][0, 0, :]
-        T = f['T'][0, 0, :]
-        x = f['x_ng'][()]
-        t = f['current_time'][()]
+    with h5py.File(str(filename), "r") as f:
+        rho = f["rho"][0, 0, :]
+        u = f["ux"][0, 0, :]
+        P = f["P"][0, 0, :]
+        T = f["T"][0, 0, :]
+        x = f["x_ng"][()]
+        t = f["current_time"][()]
     return rho, u, P, T, x, t
 
+
 def read_file_1d_r_element(filename):
-    with h5py.File(str(filename), 'r') as f:
-        Ni = f['fx'][0, 0, 0, :]
-        H = f['fx'][1, 0, 0, :]
-        He = f['fx'][2, 0, 0, :]
-        O = f['fx'][3, 0, 0, :]
-        Si = f['fx'][4, 0, 0, :]
+    with h5py.File(str(filename), "r") as f:
+        Ni = f["fx"][0, 0, 0, :]
+        H = f["fx"][1, 0, 0, :]
+        He = f["fx"][2, 0, 0, :]
+        O = f["fx"][3, 0, 0, :]
+        Si = f["fx"][4, 0, 0, :]
     return Ni, H, He, O, Si
 
+
 def read_3d_file_in_1d_angular_mean(filename):
-    with h5py.File(str(filename), 'r') as f:
-        rho_file = f['rho'][:, :, :]
-        u_file = f['ux'][:, :, :]
-        P_file = f['P'][:, :, :]
-        T_file = f['E'][:, :, :]
+    with h5py.File(str(filename), "r") as f:
+        rho_file = f["rho"][:, :, :]
+        u_file = f["ux"][:, :, :]
+        P_file = f["P"][:, :, :]
+        T_file = f["E"][:, :, :]
     nr = int(rho_file.shape[2])
     nth = int(rho_file.shape[1])
     nph = int(rho_file.shape[0])
@@ -73,13 +77,14 @@ def read_3d_file_in_1d_angular_mean(filename):
         T[i] = sum_T / (nth * nph)
     return rho, u, P, T
 
+
 def read_3d_file_element_in_1d_angular_mean(filename):
-    with h5py.File(str(filename), 'r') as f:
-        Ni_file = f['fx'][0, 0, 0, :]
-        H_file = f['fx'][1, 0, 0, :]
-        He_file = f['fx'][2, 0, 0, :]
-        O_file = f['fx'][3, 0, 0, :]
-        Si_file = f['fx'][4, 0, 0, :]
+    with h5py.File(str(filename), "r") as f:
+        Ni_file = f["fx"][0, 0, 0, :]
+        H_file = f["fx"][1, 0, 0, :]
+        He_file = f["fx"][2, 0, 0, :]
+        O_file = f["fx"][3, 0, 0, :]
+        Si_file = f["fx"][4, 0, 0, :]
     nr = int(Ni_file.shape[2])
     nth = int(Ni_file.shape[1])
     nph = int(Ni_file.shape[0])
@@ -94,7 +99,7 @@ def read_3d_file_element_in_1d_angular_mean(filename):
         sum_h = 0
         sum_he = 0
         sum_o = 0
-        sum_si =0
+        sum_si = 0
         for j in range(nth):
             for k in range(nph):
                 sum_ni += Ni_file[k, j, i]
@@ -109,26 +114,31 @@ def read_3d_file_element_in_1d_angular_mean(filename):
         Si[i] = sum_si / (nth * nph)
     return Ni, H, He, O, Si
 
+
 def fgamma(filename):
-    with h5py.File(str(filename), 'r') as f:
-        gamma = f['gamma'][()]
+    with h5py.File(str(filename), "r") as f:
+        gamma = f["gamma"][()]
     return gamma
 
+
 def fiter(filename):
-    with h5py.File(str(filename), 'r') as f:
-        iter = f['iter'][()]
+    with h5py.File(str(filename), "r") as f:
+        iter = f["iter"][()]
     return iter
+
 
 def make_xc(x, n):
     xc = (x[:-1] + x[1:]) / 2
     xc_cgs = xc * 10**2
     return xc_cgs
 
+
 def conversion_si_to_cgs(rho, u, P):
-    rho_cgs = rho * 10**(-3)
+    rho_cgs = rho * 10 ** (-3)
     u_cgs = u * 10**2
     P_cgs = P * 10
     return rho_cgs, u_cgs, P_cgs
+
 
 # ------------------------------------------
 
@@ -164,70 +174,70 @@ rhof_cgs, uf_cgs, Pf_cgs = conversion_si_to_cgs(rhof, uf, Pf)
 
 # ------------------------------------------
 
-plt.figure(figsize=(12,8))
-plt.suptitle(f'Loglog graph for v1d 1e5, t = {t:.1e} s ({tday:1f} jours)')
+plt.figure(figsize=(12, 8))
+plt.suptitle(f"Loglog graph for v1d 1e5, t = {t:.1e} s ({tday:1f} jours)")
 plt.subplot(221)
 plt.plot(xc0_cm, rho0_cgs, "--", label=f"$t_0$= {t0:.1e} s")
-plt.plot(xcf_cm, rhof_cgs, "--", color="red", label=f'$t_f$ = {tf:.1e} s')
-plt.plot(xc_cm, rho_cgs, color='green', label=f'$t$ = {t:.1e} s')
-plt.xlabel('rc (cm)')
-plt.ylabel('Density ($g.cm^{-3}$)')
-plt.xscale('log')
-plt.yscale('log')
+plt.plot(xcf_cm, rhof_cgs, "--", color="red", label=f"$t_f$ = {tf:.1e} s")
+plt.plot(xc_cm, rho_cgs, color="green", label=f"$t$ = {t:.1e} s")
+plt.xlabel("rc (cm)")
+plt.ylabel("Density ($g.cm^{-3}$)")
+plt.xscale("log")
+plt.yscale("log")
 plt.grid()
 plt.legend()
 
 plt.subplot(222)
 plt.plot(xc0_cm, u0_cgs, "--", label=f"$t_i$= {t0:.1e} s")
-plt.plot(xcf_cm, uf_cgs, "--", color="red", label=f'$t_f$ = {tf:.1e} s')
-plt.plot(xc_cm, u_cgs, color='green', label=f'$t$ = {t:.1e} s')
-plt.xlabel('rc (cm)')
-plt.ylabel('Velocity ($cm.s^{-1}$)')
-plt.xscale('log')#; plt.yscale('log')
+plt.plot(xcf_cm, uf_cgs, "--", color="red", label=f"$t_f$ = {tf:.1e} s")
+plt.plot(xc_cm, u_cgs, color="green", label=f"$t$ = {t:.1e} s")
+plt.xlabel("rc (cm)")
+plt.ylabel("Velocity ($cm.s^{-1}$)")
+plt.xscale("log")  # ; plt.yscale('log')
 plt.grid()
 plt.legend()
 
 plt.subplot(223)
 plt.plot(xc0_cm, P0_cgs, "--", label=f"$t_i$= {t0:.1e} s")
-plt.plot(xcf_cm, Pf_cgs, "--", color="red", label=f'$t_f$ = {tf:.1e} s')
-plt.plot(xc_cm, P_cgs, color='green', label=f'$t$ = {t:.1e} s')
-plt.xlabel('rc (cm)')
-plt.ylabel('Pressure ($g.cm^{-1}.s^{-2}$)')
-plt.xscale('log')
-plt.yscale('log')
+plt.plot(xcf_cm, Pf_cgs, "--", color="red", label=f"$t_f$ = {tf:.1e} s")
+plt.plot(xc_cm, P_cgs, color="green", label=f"$t$ = {t:.1e} s")
+plt.xlabel("rc (cm)")
+plt.ylabel("Pressure ($g.cm^{-1}.s^{-2}$)")
+plt.xscale("log")
+plt.yscale("log")
 plt.grid()
 plt.legend()
 
 plt.subplot(224)
-#plt.plot(xc0_cm, T0, "--", label=f"$t_i$= {t0:.1e} s")
-plt.plot(xcf_cm, Tf, "--", color="red", label=f'$t_f$ = {tf:.1e} s')
-plt.plot(xc_cm, T, color='green', label=f'$t$ = {t:.1e} s')
-plt.xlabel('rc (cm)')
-plt.ylabel('Temperature ($K$)')
-plt.xscale('log')
-plt.yscale('log')
+# plt.plot(xc0_cm, T0, "--", label=f"$t_i$= {t0:.1e} s")
+plt.plot(xcf_cm, Tf, "--", color="red", label=f"$t_f$ = {tf:.1e} s")
+plt.plot(xc_cm, T, color="green", label=f"$t$ = {t:.1e} s")
+plt.xlabel("rc (cm)")
+plt.ylabel("Temperature ($K$)")
+plt.xscale("log")
+plt.yscale("log")
 plt.grid()
 plt.legend()
 
-plt.figure(figsize=(10,8))
-plt.title(f'Loglog passive scalar graph for v1d 1e5, t = {t:.1e} s ({tday:1f} jours)')
-plt.plot(xc_cm, Ni, c='brown', label="Ni56")
-plt.plot(xcf_cm, Nif, "--", c='brown', label="Ni56 V1D")
-plt.plot(xc_cm, H, c="deepskyblue",label="H")
-plt.plot(xcf_cm, Hf,"--", c="deepskyblue",label="H V1D")
+plt.figure(figsize=(10, 8))
+plt.title(f"Loglog passive scalar graph for v1d 1e5, t = {t:.1e} s ({tday:1f} jours)")
+plt.plot(xc_cm, Ni, c="brown", label="Ni56")
+plt.plot(xcf_cm, Nif, "--", c="brown", label="Ni56 V1D")
+plt.plot(xc_cm, H, c="deepskyblue", label="H")
+plt.plot(xcf_cm, Hf, "--", c="deepskyblue", label="H V1D")
 plt.plot(xc_cm, He, c="seagreen", label="He")
 plt.plot(xcf_cm, Hef, "--", c="seagreen", label="He V1D")
-plt.plot(xc_cm, O, c='darkorange', label="O")
-plt.plot(xcf_cm, Of, "--", color='darkorange', label="O V1D")
-plt.plot(xc_cm, Si, color="violet",label="Si")
-plt.plot(xcf_cm, Sif, "--", color="violet",label="Si V1D")
-plt.xscale('log')
-plt.yscale('log')
-plt.xlabel('rc (cm)')
-plt.ylabel('Concentration')
+plt.plot(xc_cm, O, c="darkorange", label="O")
+plt.plot(xcf_cm, Of, "--", color="darkorange", label="O V1D")
+plt.plot(xc_cm, Si, color="violet", label="Si")
+plt.plot(xcf_cm, Sif, "--", color="violet", label="Si V1D")
+plt.xscale("log")
+plt.yscale("log")
+plt.xlabel("rc (cm)")
+plt.ylabel("Concentration")
 plt.grid()
 plt.legend()
-plt.ylim(10**(-27), 10)
+plt.ylim(10 ** (-27), 10)
 
 """plt.figure(figsize=(10,8))
 plt.plot(xc_cm, ei / ec)
