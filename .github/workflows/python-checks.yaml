@@ -36,4 +36,4 @@ jobs:
           pipx install pylint
       - name: Analysing the code with pylint
         run: |
-          pylint --disable=all --enable=W0611,C0411 $(git ls-files '*.py')
+          pylint --disable=all --enable=W0611,W0622,C0411 $(git ls-files '*.py')

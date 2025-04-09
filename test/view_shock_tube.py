@@ -25,13 +25,13 @@ def read_file(filename):
         x = f["x_ng"][()]
         T = f["T"][0, 0, :]
         t = f["current_time"][()]
-        iter = f["iter"][()]
+        iteration = f["iter"][()]
         gamma = f["gamma"][()]
     e = P / rho / (gamma - 1)
     xc = (x[:-1] + x[1:]) / 2
 
     print(f"Final time = {t:.1f} s")
-    print(f"Iteration number = {iter}")
+    print(f"Iteration number = {iteration}")
 
     return rho, u, P, e, xc, x, gamma, t
 

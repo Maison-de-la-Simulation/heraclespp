@@ -125,9 +125,9 @@ def SolutionSedov(n, gamma):
     int2 = p / (gamma - 1) * vol
     sum1 = np.sum(int1)
     sum2 = np.sum(int2)
-    sum = sum1 + sum2
-    # print('chi0 =', sum**(-1 / (2 + n)))
-    chi0 = sum ** (-1 / (2 + n))
+    total_energy = sum1 + sum2
+    # print('chi0 =', total_energy**(-1 / (2 + n)))
+    chi0 = total_energy ** (-1 / (2 + n))
     r = r * chi0
     u = u * chi0
     p = p * chi0**2

@@ -24,7 +24,6 @@ with h5py.File(str(filename), "r") as f:
     y = f["y_ng"][()]
     z = f["z_ng"][()]
     t = f["current_time"][()]
-    iter = f["iter"][()]
     gamma = f["gamma"][()]
 
 print(f"Final time = {t:.1f} s")

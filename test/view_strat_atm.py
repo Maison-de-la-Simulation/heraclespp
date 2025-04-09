@@ -23,11 +23,11 @@ with h5py.File(str(filename), "r") as f:
     T = f["T"][0, 0, :]
     x = f["x_ng"][()]
     t = f["current_time"][()]
-    iter = f["iter"][()]
+    iteration = f["iter"][()]
     gamma = f["gamma"][()]
 
 print(f"Final time = {t:.1f} s")
-print(f"Iteration number = {iter}")
+print(f"Iteration number = {iteration}")
 
 L = x[-1] - x[0]
 

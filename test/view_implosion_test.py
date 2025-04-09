@@ -19,10 +19,10 @@ with h5py.File(str(filename), "r") as f:
     x = f["x_ng"][()]
     y = f["y_ng"][()]
     t = f["current_time"][()]
-    iter = f["iter"][()]
+    iteration = f["iter"][()]
 
 print(f"Final time = {t:.1f} s")
-print(f"Iteration number = {iter}")
+print(f"Iteration number = {iteration}")
 
 xmin = x[0]
 xmax = x[-1]
