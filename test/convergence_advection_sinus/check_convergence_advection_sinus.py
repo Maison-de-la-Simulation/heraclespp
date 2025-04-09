@@ -8,6 +8,7 @@ import h5py
 import numpy as np
 from scipy import stats
 
+
 def exact_solution(x: np.ndarray) -> np.ndarray:
     """Exact solution sinusoide density
     input  :
@@ -17,6 +18,7 @@ def exact_solution(x: np.ndarray) -> np.ndarray:
     rho    : array : density
     """
     return 1 + 0.1 * np.sin(2 * np.pi * x)
+
 
 def error(x: np.ndarray, rho_simu: np.ndarray):
     """Compute L1 error between exact solution and solver simulation
@@ -29,6 +31,7 @@ def error(x: np.ndarray, rho_simu: np.ndarray):
     """
     rho_exact = exact_solution((x[1:] + x[:-1]) / 2)
     return np.sum(np.abs(rho_exact - rho_simu) * np.diff(x))
+
 
 def check_convergence_order(filenames: typing.List[str]):
     """Check convergence order from the list of the given h5 files"""
@@ -60,14 +63,13 @@ def check_convergence_order(filenames: typing.List[str]):
         print(result)
         sys.exit(1)
 
+
 if __name__ == "__main__":
+
     def main():
         """main function"""
         parser = argparse.ArgumentParser(description="")
-        parser.add_argument("filenames",
-                            nargs="+",
-                            type=str,
-                            help="")
+        parser.add_argument("filenames", nargs="+", type=str, help="")
         args = parser.parse_args()
 
         print("********************************")
