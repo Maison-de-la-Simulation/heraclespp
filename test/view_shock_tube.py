@@ -34,9 +34,7 @@ def read_file(filename):
 
 def analytical_result(x, gamma, t):
     inter = 0.5  # Interface position
-    xmin = x[2]
-    xmax = x[len(x) - 3]
-    L = xmax - xmin
+    L = x[-1] - x[0]
 
     # Left
     rho0l = 1
