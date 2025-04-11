@@ -11,13 +11,13 @@ git clone --recurse-submodules https://github.com/Maison-de-la-Simulation/heracl
 In case the repository has already been cloned by:
 
 ```bash
-git clone https://gitlab.maisondelasimulation.fr/lrousselhard/nova.git
+git clone https://github.com/Maison-de-la-Simulation/heraclespp.git
 ```
 
 You can retrieve the dependencies (PDI, Kokkos,...) with:
 
 ```bash
-git submodule init && git submodule update
+git submodule update --init
 ```
 
 ## How to build with pre-installed dependencies
