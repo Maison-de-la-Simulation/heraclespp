@@ -26,15 +26,15 @@ A straightforward way to build HERACLES++ is to assume that all dependencies are
 
 ```bash
 cmake \
-    -DBUILD_TESTING=OFF \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DNovapp_SETUP=shock_tube \
-    -DNovapp_NDIM=1 \
-    -DNovapp_EOS=PerfectGas \
-    -DNovapp_GRAVITY=Uniform \
-    -DNovapp_GEOM=Cartesian \
-    -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED \
-    -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED \
+    -D BUILD_TESTING=OFF \
+    -D CMAKE_BUILD_TYPE=Release \
+    -D Novapp_SETUP=shock_tube \
+    -D Novapp_NDIM=1 \
+    -D Novapp_EOS=PerfectGas \
+    -D Novapp_GRAVITY=Uniform \
+    -D Novapp_GEOM=Cartesian \
+    -D Novapp_inih_DEPENDENCY_POLICY=INSTALLED \
+    -D Novapp_Kokkos_DEPENDENCY_POLICY=INSTALLED \
     -B build
 cmake --build build --parallel 2
 ```
@@ -63,8 +63,6 @@ The library PDI is used for the I/O. The compilation needs to be done at the roo
 
 ```bash
 cmake \
-    -B build-pdi \
-    -S vendor/pdi \
     -D BUILD_BENCHMARKING=OFF \
     -D BUILD_DECL_HDF5_PLUGIN=ON \
     -D BUILD_FORTRAN=OFF \
@@ -82,7 +80,9 @@ cmake \
     -D USE_HDF5=SYSTEM \
     -D USE_paraconf=EMBEDDED \
     -D USE_spdlog=EMBEDDED \
-    -D USE_yaml=EMBEDDED
+    -D USE_yaml=EMBEDDED \
+    -B build-pdi \
+    -S vendor/pdi
 cmake --build build-pdi --parallel 4
 cmake --install build-pdi --prefix vendor/install_pdi
 ```
