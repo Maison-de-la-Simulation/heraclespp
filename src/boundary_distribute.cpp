@@ -9,7 +9,7 @@
 #include <array>
 #include <cassert>
 #include <cstddef>
-#ifndef NDEBUG
+#if !defined(NDEBUG)
 #include <limits>
 #endif
 #include <numeric>

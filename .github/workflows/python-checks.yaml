@@ -1,0 +1,23 @@
+---
+name: Python checks
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/python-checks.yaml'
+      - '**.py'
+  workflow_dispatch:
+
+jobs:
+  python-format:
+    name: Python format using black
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          pipx install black
+      - name: Check format using black
+        run: |
+          black --line-length 100 $(git ls-files '*.py')

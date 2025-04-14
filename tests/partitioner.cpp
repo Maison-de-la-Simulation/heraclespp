@@ -68,14 +68,14 @@ public:
         return lhs.m_front == rhs.m_front;
     }
 
-#ifndef __cpp_lib_three_way_comparison
+#if !defined(__cpp_lib_three_way_comparison)
     friend bool operator!=(iterator const& lhs, iterator const& rhs)
     {
         return lhs.m_front != rhs.m_front;
     }
 #endif
 
-#ifdef __cpp_lib_three_way_comparison
+#if defined(__cpp_lib_three_way_comparison)
     friend std::strong_ordering operator<=>(iterator const& lhs, iterator const& rhs)
     {
         return lhs.m_front <=> rhs.m_front;

@@ -10,11 +10,11 @@ print("********************************")
 
 filename = sys.argv[1]
 
-with h5py.File(str(filename), 'r') as f:
-    rho = f['rho'][0, 0, :]
-    x = f['x_ng'][()]
-    t = f['current_time'][()]
-    iter = f['iter'][()]
+with h5py.File(str(filename), "r") as f:
+    rho = f["rho"][0, 0, :]
+    x = f["x_ng"][()]
+    t = f["current_time"][()]
+    iter = f["iter"][()]
 
 print(f"Final time = {t:.1f} s")
 print(f"Iteration number = {iter}")
@@ -37,11 +37,11 @@ for i in range(nx):
 
 # ---------------------------------------------------------------------------- #
 
-plt.figure(figsize=(10,8))
-plt.title('Gap advection test')
-plt.plot(x_ad, rho0, '--', label='t = 0')
-plt.plot(xc, rho, label=f't = {t:.1f}')
-plt.xlabel('Position')
-plt.ylabel('Density')
+plt.figure(figsize=(10, 8))
+plt.title("Gap advection test")
+plt.plot(x_ad, rho0, "--", label="t = 0")
+plt.plot(xc, rho, label=f"t = {t:.1f}")
+plt.xlabel("Position")
+plt.ylabel("Density")
 plt.legend(frameon=False)
 plt.show()

@@ -36,6 +36,15 @@ jobs:
           clang-format-version: '20'
           exclude-regex: 'vendor'
 
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prefer 'if defined'/'if !defined' over 'ifdef'/'ifndef'
+        run: if grep -RE "(ifdef|ifndef)" $(git ls-files '*.[ch]pp' ':!vendor'); then exit 1; fi
+      - name: Find modifications of Kokkos reserved macros
+        run: if grep -RE "(define|undef) KOKKOS_" $(git ls-files '*.[ch]pp'); then exit 1; fi
+
   env-common:
     runs-on: ubuntu-latest
     container:
@@ -161,6 +170,7 @@ jobs:
           cmake -DBUILD_TESTING=ON -DNovapp_NDIM=1 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
           cmake --build build
           ctest --test-dir build --output-on-failure --timeout 5 --output-junit tests.xml
+          cmake --install build --prefix $PWD
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v5
         if: ( success() || failure() )  # always run even if the previous step fails

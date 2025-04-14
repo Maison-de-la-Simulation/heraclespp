@@ -30,13 +30,14 @@ nfx = 2#input("Number of passive scalar (2 or 5): ")
 # ------------------------------------------------------------------------------
 
 def read_start_file(filename):
-    with h5py.File(str(filename), 'r') as f:
-        rho = f['rho_1d'][()]
-        u = f['u_1d'][()]
-        P = f['P_1d'][()]
-        x = f['x'][()]
-        t = f['current_time'][()]
+    with h5py.File(str(filename), "r") as f:
+        rho = f["rho_1d"][()]
+        u = f["u_1d"][()]
+        P = f["P_1d"][()]
+        x = f["x_ng"][()]
+        t = f["current_time"][()]
     return rho, u, P, x, t
+
 
 def read_file_1d_r(filename):
     with h5py.File(str(filename), 'r') as f:
@@ -55,6 +56,7 @@ def read_file_1d_r(filename):
         x = f['x'][()]
         t = f['current_time'][()]
     return rho, u, P, T, E, x, t
+
 
 def read_file_1d_r_element(filename):
     with h5py.File(str(filename), 'r') as f:
@@ -83,15 +85,18 @@ def read_file_1d_r_element(filename):
     if (nfx == 2):
         return Ni, Other
 
+
 def fgamma(filename):
-    with h5py.File(str(filename), 'r') as f:
-        gamma = f['gamma'][()]
+    with h5py.File(str(filename), "r") as f:
+        gamma = f["gamma"][()]
     return gamma
 
+
 def fiter(filename):
-    with h5py.File(str(filename), 'r') as f:
-        iter = f['iter'][()]
+    with h5py.File(str(filename), "r") as f:
+        iter = f["iter"][()]
     return iter
+
 
 def make_xc(x, n):
     dx = np.zeros(n)
@@ -103,8 +108,9 @@ def make_xc(x, n):
     xc_cgs = xc * 10**2
     return xc_cgs
 
+
 def conversion_si_to_cgs(rho, u, P):
-    rho_cgs = rho * 10**(-3)
+    rho_cgs = rho * 10 ** (-3)
     u_cgs = u * 10**2
     P_cgs = P * 10
     return rho_cgs, u_cgs, P_cgs

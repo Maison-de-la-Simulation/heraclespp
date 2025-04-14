@@ -59,10 +59,6 @@ target_link_libraries(
     PUBLIC inih io libnova++ MPI::MPI_CXX paraconf::paraconf PDI::PDI_C
 )
 
-add_custom_command(
-    TARGET nova++
-    POST_BUILD
-    COMMAND
-        ${CMAKE_COMMAND} -E copy $<TARGET_FILE:nova++>
-        ${PROJECT_SOURCE_DIR}/bin/nova++
-)
+include(GNUInstallDirs)
+
+install(TARGETS nova++ RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
