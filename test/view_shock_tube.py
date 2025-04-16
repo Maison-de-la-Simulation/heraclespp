@@ -38,7 +38,6 @@ def read_file(filename):
 
 def analytical_result(x, gamma, t):
     inter = 0.5  # Interface position
-    L = x[-1] - x[0]
 
     # Left
     rho0l = 1
@@ -55,11 +54,11 @@ def analytical_result(x, gamma, t):
     var0r = np.array([rho0r, u0r, P0r, c0r])
 
     Ncell = 1_000
-    dx_exact = L / Ncell
+    dx_exact = (x[-1] - x[0]) / Ncell
     x_exact = np.zeros(Ncell)
 
     for i in range(len(x_exact)):
-        x_exact[i] = i * dx_exact + dx_exact / 2
+        x_exact[i] = x[0] + dx_exact / 2 + i * dx_exact
 
     rho0, u0, P0 = CI(x_exact, inter, var0l, var0r)
     e0 = P0 / rho0 / (gamma - 1)
