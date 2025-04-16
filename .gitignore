@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 The HERACLES++ development team, see COPYRIGHT.md file
+#
+# SPDX-License-Identifier: MIT
+
 ## C++
 ##############################
 
@@ -46,8 +50,6 @@ build*/
 
 # compilation database
 compile_commands.json
-
-bin/
 
 ## Python
 ############################
