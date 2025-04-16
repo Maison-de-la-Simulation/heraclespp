@@ -4,7 +4,6 @@
 
 /**
  * @file main.cpp
- * Code d'hydrodynamique radiative en devenir...
  */
 
 #include <mpi.h>
