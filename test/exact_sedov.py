@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: MIT
 
 #           SEDOV BLAST-WAVE
-#           Solution exacte
+#           Exact solution
 #
-# Réécriture de la routine IDL : sedovana.pro
+# Rewrite of the IDL routine : sedovana.pro
 
 import numpy as np
 
