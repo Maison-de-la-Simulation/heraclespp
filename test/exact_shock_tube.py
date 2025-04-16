@@ -122,7 +122,7 @@ def GuessP(tabl, tabr, gamma):
             )  # Vitesse moyenne
             Ptl = 1 + g7 * (ul - u_star) / cl
             Ptr = 1 + g7 * (u_star - ur) / cr
-            P_star = (1 / 2) * (Pl * Ptr ** (1 / z) + Pr * Ptr ** (1 / z))
+            P_star = (1 / 2) * (Pl * Ptl ** (1 / z) + Pr * Ptr ** (1 / z))
         else:
             gl = np.sqrt((g5 / rhol) / (P_pvrs + g6 * Pl))
             gr = np.sqrt((g5 / rhor) / (P_pvrs + g6 * Pr))
