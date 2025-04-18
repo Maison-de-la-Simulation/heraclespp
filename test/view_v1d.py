@@ -29,16 +29,6 @@ nfx = 2#input("Number of passive scalar (2 or 5): ")
 
 # ------------------------------------------------------------------------------
 
-def read_start_file(filename):
-    with h5py.File(str(filename), "r") as f:
-        rho = f["rho_1d"][()]
-        u = f["u_1d"][()]
-        P = f["P_1d"][()]
-        x = f["x_ng"][()]
-        t = f["current_time"][()]
-    return rho, u, P, x, t
-
-
 def read_file_1d_r(filename):
     with h5py.File(str(filename), 'r') as f:
         if (ndim == 3):
@@ -56,7 +46,6 @@ def read_file_1d_r(filename):
         x = f['x'][()]
         t = f['current_time'][()]
     return rho, u, P, T, E, x, t
-
 
 def read_file_1d_r_element(filename):
     with h5py.File(str(filename), 'r') as f:
@@ -97,7 +86,6 @@ def fiter(filename):
         iter = f["iter"][()]
     return iter
 
-
 def make_xc(x, n):
     dx = np.zeros(n)
     for i in range(2, n+2):
@@ -117,8 +105,6 @@ def conversion_si_to_cgs(rho, u, P):
 
 # ------------------------------------------------------------------------------
 
-rho0, u0, P0, x0, t0 = read_start_file("../src/setups/v1d/v1d_1d_start.h5")
-
 gamma = fgamma(filename)
 iter = fiter(filename)
 rho, u, P, T, E, x, t = read_file_1d_r(filename)
@@ -137,9 +123,7 @@ print("    ")
 # cgs units --------------------------------------------------------------------
 
 xc_cm = make_xc(x, len(rho))
-xc0_cm = make_xc(x0, len(rho0))
 
-rho0_cgs, u0_cgs, P0_cgs = conversion_si_to_cgs(rho0, u0, P0)
 rho_cgs, u_cgs, P_cgs = conversion_si_to_cgs(rho, u, P)
 
 # ------------------------------------------------------------------------------
@@ -149,14 +133,12 @@ div = 10**15
 plt.figure(figsize=(12,8))
 plt.suptitle(f'Physical properties at t = {t:.1e} s ({tday:1f} jours)')
 plt.subplot(221)
-plt.plot(xc0_cm / div, np.log10(rho0_cgs), "--", label=f"$t_0$= {t0:.1e} s")
 plt.plot(xc_cm / div, np.log10(rho_cgs), color='green', label=f'$t$ = {t:.1e} s')
 plt.xlabel(r'$r [ 10^{15}$ cm]')
 plt.ylabel(r'log($\rho$) [$g.cm^{-3}$]')
 plt.legend()
 
 plt.subplot(222)
-plt.plot(xc0_cm / div, u0_cgs / 10**8, "--", label=f"$t_i$= {t0:.1e} s")
 plt.plot(xc_cm / div, u_cgs / 10**8, color='green', label=f'$t$ = {t:.1e} s')
 plt.xlabel(r'$r [ 10^{15}$ cm]')
 plt.ylabel(r'$u$ [$ 10^8$ cm.s$^{-1}$]')
