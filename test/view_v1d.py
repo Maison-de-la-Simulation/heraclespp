@@ -57,28 +57,10 @@ def read_3d_file_in_1d_angular_mean(filename):
         u_file = f["ux"][:, :, :]
         P_file = f["P"][:, :, :]
         T_file = f["E"][:, :, :]
-    nr = int(rho_file.shape[2])
-    nth = int(rho_file.shape[1])
-    nph = int(rho_file.shape[0])
-    rho = np.zeros(nr)
-    u = np.zeros(nr)
-    P = np.zeros(nr)
-    T = np.zeros(nr)
-    for i in range(len(rho)):
-        sum_rho = 0
-        sum_u = 0
-        sum_P = 0
-        sum_T = 0
-        for j in range(nth):
-            for k in range(nph):
-                sum_rho += rho_file[k, j, i]
-                sum_u += u_file[k, j, i]
-                sum_P += P_file[k, j, i]
-                sum_T += T_file[k, j, i]
-        rho[i] = sum_rho / (nth * nph)
-        u[i] = sum_u / (nth * nph)
-        P[i] = sum_P / (nth * nph)
-        T[i] = sum_T / (nth * nph)
+    rho = np.mean(rho_file, axis=(0, 1))
+    u = np.mean(u_file, axis=(0, 1))
+    P = np.mean(P_file, axis=(0, 1))
+    T = np.mean(T_file, axis=(0, 1))
     return rho, u, P, T
 
 
@@ -127,11 +109,11 @@ def fgamma(filename):
 
 def fiter(filename):
     with h5py.File(str(filename), "r") as f:
-        iter = f["iter"][()]
-    return iter
+        iteration = f["iter"][()]
+    return iteration
 
 
-def make_xc(x, n):
+def make_xc(x):
     xc = (x[:-1] + x[1:]) / 2
     xc_cgs = xc * 10**2
     return xc_cgs
@@ -151,7 +133,7 @@ rhof, uf, Pf, Tf, xf, tf = read_file_1d_r("../src/setups/v1d/v1d_1e5.h5")
 Nif, Hf, Hef, Of, Sif = read_file_1d_r_element("../src/setups/v1d/v1d_1e5.h5")
 
 gamma = fgamma(filename)
-iter = fiter(filename)
+iteration = fiter(filename)
 rho, u, P, T, x, t = read_file_1d_r(filename)
 Ni, H, He, O, Si = read_file_1d_r_element(filename)
 
@@ -163,14 +145,14 @@ tday = t / 3600 / 24
 
 print("    ")
 print(f"Final time = {t:.3e} s or {tday} days")
-print(f"Iteration number = {iter:3e}")
+print(f"Iteration number = {iteration:3e}")
 print("    ")
 
 # cgs units --------------------------------
 
-xcf_cm = make_xc(xf, len(rhof))
-xc_cm = make_xc(x, len(rho))
-xc0_cm = make_xc(x0, len(rho0))
+xcf_cm = make_xc(xf)
+xc_cm = make_xc(x)
+xc0_cm = make_xc(x0)
 
 rho0_cgs, u0_cgs, P0_cgs = conversion_si_to_cgs(rho0, u0, P0)
 rho_cgs, u_cgs, P_cgs = conversion_si_to_cgs(rho, u, P)

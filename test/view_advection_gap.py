@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: MIT
 
 # Test the advection crenel and compare
+import sys
 import h5py
 import matplotlib.pyplot as plt
 import numpy as np
-import sys
 
 print("********************************")
 print("     Advection test : gap")
@@ -18,10 +18,10 @@ with h5py.File(str(filename), "r") as f:
     rho = f["rho"][0, 0, :]
     x = f["x_ng"][()]
     t = f["current_time"][()]
-    iter = f["iter"][()]
+    iteration = f["iter"][()]
 
 print(f"Final time = {t:.1f} s")
-print(f"Iteration number = {iter}")
+print(f"Iteration number = {iteration}")
 
 xc = (x[:-1] + x[1:]) / 2
 

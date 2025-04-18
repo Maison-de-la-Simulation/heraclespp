@@ -40,11 +40,11 @@ with h5py.File(str(filename), "r") as f:
     y = f["y_ng"][()]
     z = f["z_ng"][()]
     t = f["current_time"][()]
-    iter = f["iter"][()]
+    iteration = f["iter"][()]
     gamma = f["gamma"][()]
 
 print(f"Final time = {t:.5f} s")
-print(f"Iteration number = {iter}")
+print(f"Iteration number = {iteration}")
 print("Shape = ", P_3d.shape)
 
 E = 1 / 2 * rho_1d * u_1d**2 + P_1d / (gamma - 1)

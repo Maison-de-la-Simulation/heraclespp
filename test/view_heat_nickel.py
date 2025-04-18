@@ -25,13 +25,13 @@ with h5py.File(str(filename), "r") as f:
     fx = f["fx"][0, 0, 0, :]
     x = f["x_ng"][()]
     t = f["current_time"][()]
-    iter = f["iter"][()]
+    iteration = f["iter"][()]
     gamma = f["gamma"][()]
 
 tday = t / 3600 / 24
 
 print(f"Final time = {t:.3e} s or {tday} days")
-print(f"Iteration number = {iter:3e}")
+print(f"Iteration number = {iteration:3e}")
 print("---------------------------")
 
 xc = (x[:-1] + x[1:]) / 2
