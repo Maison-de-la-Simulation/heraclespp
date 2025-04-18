@@ -193,16 +193,16 @@ plugins:
             dataset_selection:
               size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
               start: ['$start[2]', '$start[1]', '$start[0]']
-            when: '$ndim>1'
           - dataset: uy
+            when: '$ndim>1'
             memory_selection:
               size: [1, '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
               start: [1, '$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']
             dataset_selection:
               size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
               start: ['$start[2]', '$start[1]', '$start[0]']
-            when: '$ndim>2'
           - dataset: uz
+            when: '$ndim>2'
             memory_selection:
               size: [1, '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
               start: [2, '$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']
