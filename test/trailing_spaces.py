@@ -17,11 +17,16 @@ def find_trailing_whitespaces(files):
     """
     Find all lines with trailing whitespaces in C++ and CMake files within the given directory.
 
-    Args:
-        directory (str): The directory to search for files.
+    Parameters
+    ----------
+    directory : str
+        The directory to search for files.
 
-    Returns:
-        list: A list of tuples containing the filename, line number, and line content with trailing whitespaces.
+    Returns
+    -------
+    list
+        A list of tuples containing the filename, line number, and line content with trailing
+        whitespaces.
     """
     files_with_trailing_whitespaces = []
 
@@ -39,9 +44,11 @@ def remove_trailing_whitespaces(files_with_trailing_whitespaces):
     """
     Remove trailing whitespaces from the specified files.
 
-    Args:
-        files_with_trailing_whitespaces (list): A list of tuples containing the filename, line number,
-                                                and line content with trailing whitespaces.
+    Parameters
+    ----------
+    files_with_trailing_whitespaces : list
+        A list of tuples containing the filename, line number, and line content with trailing
+        whitespaces.
     """
     for filename, _, _ in files_with_trailing_whitespaces:
         with open(filename, "r", encoding="utf-8") as file:

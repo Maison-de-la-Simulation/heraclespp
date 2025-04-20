@@ -15,23 +15,32 @@ from scipy import stats
 
 def exact_solution(x: np.ndarray) -> np.ndarray:
     """Exact solution sinusoide density
-    input  :
-    x      : array : position
+    Parameters
+    ----------
+    x : array
+        position
 
-    output :
-    rho    : array : density
+    Returns
+    -------
+    rho : array
+        density
     """
     return 1 + 0.1 * np.sin(2 * np.pi * x)
 
 
 def error(x: np.ndarray, rho_simu: np.ndarray):
     """Compute L1 error between exact solution and solver simulation
-    input    :
-    x        : array : position
-    rho_simu : array : density on which to compute the error
+    Parameters
+    ----------
+    x : array
+        position
+    rho_simu : array
+        density on which to compute the error
 
-    output   :
-    error    : float : error value
+    Returns
+    -------
+    error : float
+        error value
     """
     rho_exact = exact_solution((x[1:] + x[:-1]) / 2)
     return np.sum(np.abs(rho_exact - rho_simu) * np.diff(x))
