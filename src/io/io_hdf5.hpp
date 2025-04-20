@@ -54,10 +54,7 @@ public:
 /// @param[in] dset_path A c-string representing the path of a dataset inside \p file_id
 /// @param[in] expected_extents Expected extents of \p dset_path
 template <std::size_t N>
-void check_extent_dset(
-        raii_h5_hid const& file_id,
-        char const* const dset_path,
-        std::array<std::size_t, N> const& expected_extents)
+void check_extent_dset(raii_h5_hid const& file_id, char const* const dset_path, std::array<std::size_t, N> const& expected_extents)
 {
     raii_h5_hid const dset_id(::H5Dopen(*file_id, dset_path, H5P_DEFAULT), ::H5Dclose);
     raii_h5_hid const dspace(::H5Dget_space(*dset_id), ::H5Sclose);

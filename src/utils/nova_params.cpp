@@ -9,11 +9,9 @@
 
 #include "nova_params.hpp"
 
-namespace novapp
-{
+namespace novapp {
 
-Param::Param(INIReader const& reader)
-    : reader(reader)
+Param::Param(INIReader const& reader) : reader(reader)
 {
     problem = reader.Get("Problem", "type", "ShockTube");
     restart = reader.GetBoolean("Problem", "restart", false);
@@ -34,7 +32,8 @@ Param::Param(INIReader const& reader)
     shift_grid = reader.Get("Grid", "shift_grid", "Off");
 
     mpi_device_aware = reader.GetBoolean("Parallelization", "mpi_device_aware", false);
-    mpi_dims_cart[0] = reader.GetInteger("Parallelization", "mpi_dims_cart_x", 0); // number of procs, default 0=>defined by MPI
+    mpi_dims_cart[0] = reader.GetInteger("Parallelization", "mpi_dims_cart_x",
+                                         0); // number of procs, default 0=>defined by MPI
     mpi_dims_cart[1] = reader.GetInteger("Parallelization", "mpi_dims_cart_y", 0); // number of procs
     mpi_dims_cart[2] = reader.GetInteger("Parallelization", "mpi_dims_cart_z", 0); // number of procs
 
@@ -57,7 +56,7 @@ Param::Param(INIReader const& reader)
     gz = reader.GetReal("Gravity", "gz", 0.0);
     M = reader.GetReal("Gravity", "M", 1.0);
 
-    gamma = reader.GetReal("Perfect Gas", "gamma", 5./3);
+    gamma = reader.GetReal("Perfect Gas", "gamma", 5. / 3);
     mu = reader.GetReal("Perfect Gas", "mu", 1.);
 
     bc_choice = reader.Get("Boundary Condition", "BC", "");
