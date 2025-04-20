@@ -13,6 +13,7 @@ on:
 
 permissions:
   contents: read
+  packages: write  # Required by actions/delete-package-versions
 
 jobs:
   delete-packages:
