@@ -14,7 +14,7 @@
 #include <cassert>
 #include <cstddef>
 #if !defined(NDEBUG)
-#include <limits>
+#    include <limits>
 #endif
 #include <numeric>
 #include <sstream>
@@ -29,8 +29,7 @@
 
 #include "boundary_distribute.hpp"
 
-namespace novapp
-{
+namespace novapp {
 
 namespace {
 
@@ -76,41 +75,28 @@ void generate_order(std::array<int, nfaces>& bc_order, std::string const& bc_pri
 
 } // namespace
 
-void DistributedBoundaryCondition::ghost_sync(
-    Grid const& grid,
-    std::vector<KV_double_3d> const& views,
-    int bc_idim,
-    int bc_iface) const
+void DistributedBoundaryCondition::ghost_sync(Grid const& grid, std::vector<KV_double_3d> const& views, int bc_idim, int bc_iface) const
 {
     int const ng = grid.Nghost[bc_idim];
 
     mpi_buffer_type buf = m_mpi_buffer[bc_idim];
 
-    Kokkos::Array<Kokkos::pair<int, int>, 3> KRange
-            = {Kokkos::make_pair(0, views[0].extent_int(0)),
-               Kokkos::make_pair(0, views[0].extent_int(1)),
-               Kokkos::make_pair(0, views[0].extent_int(2))};
+    Kokkos::Array<Kokkos::pair<int, int>, 3> KRange = {Kokkos::make_pair(0, views[0].extent_int(0)), Kokkos::make_pair(0, views[0].extent_int(1)), Kokkos::make_pair(0, views[0].extent_int(2))};
 
     KRange[bc_idim].first = bc_iface == 0 ? ng : views[0].extent_int(bc_idim) - 2 * ng;
     KRange[bc_idim].second = KRange[bc_idim].first + ng;
 
-    for (std::size_t i = 0; i < views.size(); ++i)
-    {
-        Kokkos::deep_copy(
-                Kokkos::subview(buf.view_device(), ALL, ALL, ALL, i),
-                Kokkos::subview(views[i], KRange[0], KRange[1], KRange[2]));
+    for (std::size_t i = 0; i < views.size(); ++i) {
+        Kokkos::deep_copy(Kokkos::subview(buf.view_device(), ALL, ALL, ALL, i), Kokkos::subview(views[i], KRange[0], KRange[1], KRange[2]));
     }
 
     buf.modify_device();
 
     double* ptr = nullptr;
-    if (!m_param.mpi_device_aware)
-    {
+    if (!m_param.mpi_device_aware) {
         buf.sync_host();
         ptr = buf.view_host().data();
-    }
-    else
-    {
+    } else {
         ptr = buf.view_device().data();
     }
 
@@ -120,19 +106,9 @@ void DistributedBoundaryCondition::ghost_sync(
 
     // check that it is not bigger than the capacity of an `int` (because of MPI API)
     assert(buf.view_host().size() <= std::numeric_limits<int>::max());
-    MPI_Sendrecv_replace(
-            ptr,
-            static_cast<int>(buf.view_host().size()),
-            MPI_DOUBLE,
-            dst,
-            bc_idim,
-            src,
-            bc_idim,
-            grid.comm_cart,
-            MPI_STATUS_IGNORE);
+    MPI_Sendrecv_replace(ptr, static_cast<int>(buf.view_host().size()), MPI_DOUBLE, dst, bc_idim, src, bc_idim, grid.comm_cart, MPI_STATUS_IGNORE);
 
-    if (!m_param.mpi_device_aware)
-    {
+    if (!m_param.mpi_device_aware) {
         buf.modify_host();
         buf.sync_device();
     }
@@ -140,22 +116,15 @@ void DistributedBoundaryCondition::ghost_sync(
     KRange[bc_idim].first = bc_iface == 0 ? views[0].extent_int(bc_idim) - ng : 0;
     KRange[bc_idim].second = KRange[bc_idim].first + ng;
 
-    for (std::size_t i = 0; i < views.size(); ++i)
-    {
-        Kokkos::deep_copy(
-                Kokkos::subview(views[i], KRange[0], KRange[1], KRange[2]),
-                Kokkos::subview(buf.view_device(), ALL, ALL, ALL, i));
+    for (std::size_t i = 0; i < views.size(); ++i) {
+        Kokkos::deep_copy(Kokkos::subview(views[i], KRange[0], KRange[1], KRange[2]), Kokkos::subview(buf.view_device(), ALL, ALL, ALL, i));
     }
 }
 
-DistributedBoundaryCondition::DistributedBoundaryCondition(
-    Grid const& grid,
-    Param const& param)
-    : m_param(param)
+DistributedBoundaryCondition::DistributedBoundaryCondition(Grid const& grid, Param const& param) : m_param(param)
 {
     std::array<int, 3> buf_size = grid.Nx_local_wg;
-    for (int idim = 0; idim < ndim; ++idim)
-    {
+    for (int idim = 0; idim < ndim; ++idim) {
         buf_size[idim] = grid.Nghost[idim];
         m_mpi_buffer[idim] = mpi_buffer_type("", buf_size[0], buf_size[1], buf_size[2], ndim + 2 + param.nfx);
         buf_size[idim] = grid.Nx_local_wg[idim];

@@ -12,13 +12,10 @@
 
 namespace {
 
-constexpr std::array<int, 3> dim_mask(
-        std::array<int, 3> const lhs,
-        std::array<int, 3> const rhs) noexcept
+constexpr std::array<int, 3> dim_mask(std::array<int, 3> const lhs, std::array<int, 3> const rhs) noexcept
 {
     std::array<int, 3> out = lhs;
-    for (int idim = novapp::ndim; idim < 3; ++idim)
-    {
+    for (int idim = novapp::ndim; idim < 3; ++idim) {
         out[idim] = rhs[idim];
     }
     return out;
