@@ -26,6 +26,10 @@ on:
       - 'docker/**'
   workflow_dispatch:
 
+permissions:
+  contents: read
+  packages: write  # Required by actions/build-push-action
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{github.repository}}

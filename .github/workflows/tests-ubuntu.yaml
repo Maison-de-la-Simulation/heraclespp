@@ -20,6 +20,10 @@ on:
       - 'docker/**'
       - 'vendor/**'
 
+permissions:
+  contents: read
+  checks: write  # Required by mikepenz/action-junit-report
+
 concurrency:
   group: ${{github.workflow}}-${{github.ref == github.ref_protected && github.run_id || github.event.pull_request.number || github.ref}}
   cancel-in-progress: true

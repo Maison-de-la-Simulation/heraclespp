@@ -13,6 +13,9 @@ on:
       - '**.ini'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   ini-lint:
     name: INI lint using validator
