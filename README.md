@@ -6,6 +6,8 @@ SPDX-License-Identifier: MIT
 
 # HERACLES++
 
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/Maison-de-la-Simulation/heraclespp/badge)](https://scorecard.dev/viewer/?uri=github.com/Maison-de-la-Simulation/heraclespp)
+
 ## How to get sources
 
 To get the full source of HERACLES++ and external libraries:
