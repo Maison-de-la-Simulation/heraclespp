@@ -225,14 +225,14 @@ plt.grid()
 plt.legend()
 plt.ylim(10 ** (-27), 10)
 
-"""plt.figure(figsize=(10,8))
-plt.plot(xc_cm, ei / ec)
-plt.xlabel('rc (cm)'); plt.ylabel('ei / ec')
-plt.xscale('log'); plt.yscale('log')
-plt.grid()
+# plt.figure(figsize=(10,8))
+# plt.plot(xc_cm, ei / ec)
+# plt.xlabel('rc (cm)'); plt.ylabel('ei / ec')
+# plt.xscale('log'); plt.yscale('log')
+# plt.grid()
 
-plt.figure(figsize=(12,8))
-plt.imshow(rho_r_th, origin='lower')
-plt.colorbar() """
+# plt.figure(figsize=(12,8))
+# plt.imshow(rho_r_th, origin='lower')
+# plt.colorbar()
 
 plt.show()
