@@ -11,6 +11,9 @@ on:
     - cron: "0 1 * * 1"  # every monday at 1am
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   delete-packages:
     name: Delete old packages

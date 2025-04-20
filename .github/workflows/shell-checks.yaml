@@ -13,6 +13,9 @@ on:
       - '**.sh'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   shell-lint:
     name: Shell lint using shellcheck

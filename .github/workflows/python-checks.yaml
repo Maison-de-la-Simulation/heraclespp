@@ -13,6 +13,9 @@ on:
       - '**.py'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   python-format:
     name: Python format using black

@@ -17,6 +17,9 @@ on:
       - '**.yml'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   yaml-lint:
     name: YAML lint using yamllint
