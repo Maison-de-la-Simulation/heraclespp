@@ -19,6 +19,8 @@
 #include <range.hpp>
 #include <units.hpp>
 
+#include "utils_dual_view.hpp"
+
 namespace {
 
 void TestGravityInternalGravity()
@@ -108,7 +110,7 @@ void TestGravityUniformGravity()
     double const gz = 3.7;
     novapp::KDV_double_1d g("g", 3);
     {
-        auto const g_h = g.view_host();
+        auto const g_h = novapp::view_host(g);
         g_h(0) = gx;
         g_h(1) = gy;
         g_h(2) = gz;
@@ -121,7 +123,7 @@ void TestGravityUniformGravity()
     int const nz = 3;
     novapp::KDV_double_4d result("result", nx, ny, nz, 3);
     {
-        auto const result_d = result.view_device();
+        auto const result_d = novapp::view_device(result);
         Kokkos::parallel_for(
                 Kokkos::MDRangePolicy<Kokkos::Rank<3>, int>({0, 0, 0}, {nx, ny, nz}),
                 KOKKOS_LAMBDA(int i, int j, int k) {
@@ -133,7 +135,7 @@ void TestGravityUniformGravity()
     result.modify_device();
     result.sync_host();
     {
-        auto const result_h = result.view_host();
+        auto const result_h = novapp::view_host(result);
         for (int k = 0; k < nz; ++k) {
             for (int j = 0; j < ny; ++j) {
                 for (int i = 0; i < nx; ++i) {
