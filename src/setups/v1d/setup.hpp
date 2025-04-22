@@ -183,7 +183,6 @@ public:
             double const phi_mid = (param_setup.angle_min + param_setup.angle_max) / 2;
 
             // 10 clumps
-
             /* Kokkos::Array<double, 10> r_pos_clump = {
                 417233163728.52905, 337905289262.4407, 313061610295.1375, 371257728091.282,
                 451505158167.9636, 351204417143.1321, 289995527549.96924, 362228105447.54553,
@@ -199,6 +198,11 @@ public:
                 1.7568154804992924, 1.0265265594723458, 1.506031275274886, 1.1705557304687533,
                 1.8617550977085668, 1.3619799947091014}; */
 
+            // 3 clumps
+            double const phi_1 = (param_setup.angle_min + param_setup.angle_max) / 2 + 0.25;
+            double const phi_2 = (param_setup.angle_min + param_setup.angle_max) / 2 - 0.25;
+            Kokkos::Array<double, 2> phi_pos_clump = {phi_1, phi_2};
+
             Kokkos::parallel_for(
                 "Ni_clump_3D",
                 cell_mdrange(range),
@@ -210,7 +214,7 @@ public:
                 double z_cart = r(i) * Kokkos::cos(th(j));
 
                 // clump 1
-                double const x_center = param_setup.pos_ni_bubble * Kokkos::sin(th_mid) * Kokkos::cos(phi_mid);
+                /* double const x_center = param_setup.pos_ni_bubble * Kokkos::sin(th_mid) * Kokkos::cos(phi_mid);
                 double const y_center = param_setup.pos_ni_bubble * Kokkos::sin(th_mid) * Kokkos::sin(phi_mid);
                 double const z_center = param_setup.pos_ni_bubble * Kokkos::cos(th_mid);
 
@@ -222,11 +226,28 @@ public:
                 {
                     fx(i, j, k, 0) = 1;
                     fx(i, j, k, 1) = 0;
-                }
+                } */
 
                 // 2 clumps
 
                 // 3 clumps
+                for (int iclump = 0; iclump < 2; ++iclump)
+                {
+                    //std::cout << phi_pos_clump[iclump] << std::endl;
+                    double x_center = param_setup.pos_ni_bubble * Kokkos::sin(th_mid) * Kokkos::cos(phi_pos_clump[iclump]);
+                    double y_center = param_setup.pos_ni_bubble * Kokkos::sin(th_mid) * Kokkos::sin(phi_pos_clump[iclump]);
+                    double z_center = param_setup.pos_ni_bubble * Kokkos::cos(th_mid);
+
+                    double dist = Kokkos::sqrt((x_cart - x_center)*(x_cart - x_center)
+                            + (y_cart - y_center)*(y_cart - y_center)
+                            + (z_cart - z_center)*(z_cart - z_center));
+
+                    if (dist <= param_setup.radius_ni_bubble)
+                    {
+                        fx(i, j, k, 0) = 1;
+                        fx(i, j, k, 1) = 0;
+                    }
+                }
 
                 // 10 clumps
                 /* for (int iclump = 0; iclump < 10; ++iclump)
