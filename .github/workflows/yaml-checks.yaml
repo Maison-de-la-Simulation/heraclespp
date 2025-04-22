@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 The HERACLES++ development team, see COPYRIGHT.md file
+#
+# SPDX-License-Identifier: MIT
+
 ---
 name: YAML checks
 
@@ -18,11 +22,11 @@ jobs:
     name: YAML lint using yamllint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
       - name: Install yamllint
         run: pipx install yamllint~=1.35
       - run: |
-          sed '$d' src/io/config.yaml.cpp | sed '1,3d' > config.yaml
+          sed '$d' src/io/config.yaml.cpp | sed '1,7d' > config.yaml
       - run: |
           yamllint $(git ls-files '*.yml' '*.yaml')
           yamllint config.yaml .clang-tidy

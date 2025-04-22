@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 The HERACLES++ development team, see COPYRIGHT.md file
+//
+// SPDX-License-Identifier: MIT
+
 #pragma once
 
 #include <Kokkos_Core.hpp>
@@ -158,10 +162,11 @@ public:
             {
                 double const rmin_bubble = param_setup.pos_ni_bubble - param_setup.radius_ni_bubble;
                 double const rmax_bubble = param_setup.pos_ni_bubble + param_setup.radius_ni_bubble;
+                Kokkos::printf("%f %f\n", rmin_bubble, rmax_bubble);
 
                 if  (rmin_bubble < r(i) && r(i) < rmax_bubble)
                 {
-                Kokkos::printf("1: %d, %f\n", i, r(i));
+                    Kokkos::printf("1: %d, %f\n", i, r(i));
                     fx(i, j, k, 0) = 1;
                     fx(i, j, k, 1) = 0;
                 }

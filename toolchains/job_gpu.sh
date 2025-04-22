@@ -1,4 +1,9 @@
 #!/bin/bash
+
+# SPDX-FileCopyrightText: 2025 The HERACLES++ development team, see COPYRIGHT.md file
+#
+# SPDX-License-Identifier: MIT
+
 #SBATCH --job-name=sgpu
 #SBATCH --output=%x.o%j
 #SBATCH --ntasks=1

@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 The HERACLES++ development team, see COPYRIGHT.md file
+#
+# SPDX-License-Identifier: MIT
+
 # Test shock wall 1D
 import sys
 import h5py
@@ -20,13 +24,6 @@ with h5py.File(filename, "r") as f:
     gamma = f["gamma"][()]
 e = P / rho / (gamma - 1)
 print("Final time =", t, "s")
-
-xmin = x[2]
-xmax = x[len(rho) + 2]
-L = xmax - xmin
-dx = np.zeros(len(rho))
-for i in range(2, len(rho) + 2):
-    dx[i - 2] = x[i + 1] - x[i]
 
 xc = (x[:-1] + x[1:]) / 2
 

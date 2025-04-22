@@ -1,6 +1,9 @@
+// SPDX-FileCopyrightText: 2025 The HERACLES++ development team, see COPYRIGHT.md file
+//
+// SPDX-License-Identifier: MIT
+
 /**
  * @file main.cpp
- * Code d'hydrodynamique radiative en devenir...
  */
 
 #include <mpi.h>

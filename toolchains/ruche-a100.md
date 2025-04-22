@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 The HERACLES++ development team, see COPYRIGHT.md file
+
+SPDX-License-Identifier: MIT
+-->
+
 # Building Nova++ on the A100 partition of Ruche
 
 ## Environment

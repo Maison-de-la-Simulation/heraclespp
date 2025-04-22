@@ -1,7 +1,11 @@
-#           SEDOV BLAST-WAVE
-#           Solution exacte
+# SPDX-FileCopyrightText: 2025 The HERACLES++ development team, see COPYRIGHT.md file
 #
-# Réécriture de la routine IDL : sedovana.pro
+# SPDX-License-Identifier: MIT
+
+#           SEDOV BLAST-WAVE
+#           Exact solution
+#
+# Rewrite of the IDL routine : sedovana.pro
 
 import numpy as np
 
