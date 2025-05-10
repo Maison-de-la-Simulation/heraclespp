@@ -12,8 +12,7 @@
 #include <Kokkos_MathematicalFunctions.hpp>
 #include <units.hpp>
 
-namespace novapp::thermodynamics
-{
+namespace novapp::thermodynamics {
 
 class PerfectGas
 {
@@ -34,60 +33,51 @@ public:
 
     PerfectGas& operator=(PerfectGas&& rhs) noexcept = default;
 
-    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
-    double adiabatic_index() const noexcept
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION double adiabatic_index() const noexcept
     {
         return m_gamma;
     }
 
-    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
-    double mean_molecular_weight() const noexcept
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION double mean_molecular_weight() const noexcept
     {
         return m_mmw;
     }
 
-    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
-    double compute_evol_from_P(double const rho, double const P) const noexcept
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION double compute_evol_from_P(double const rho, double const P) const noexcept
     {
         // evol = rho * eint
         return compute_evol_from_T(rho, compute_T_from_P(rho, P));
     }
 
-    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
-    double compute_evol_from_T(double const rho, double const T) const noexcept
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION double compute_evol_from_T(double const rho, double const T) const noexcept
     {
         // evol = rho * eint
         return rho * units::kb * T / (m_mmw * units::mp * m_gamma_m1);
     }
 
-    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
-    double compute_P_from_evol(double const rho, double const evol) const noexcept
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION double compute_P_from_evol(double const rho, double const evol) const noexcept
     {
         // evol = rho * eint
         return compute_P_from_T(rho, compute_T_from_evol(rho, evol));
     }
 
-    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
-    double compute_P_from_T(double const rho, double const T) const noexcept
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION double compute_P_from_T(double const rho, double const T) const noexcept
     {
         return rho * units::kb * T / (m_mmw * units::mp);
     }
 
-    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
-    double compute_T_from_P(double const rho, double const P) const noexcept
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION double compute_T_from_P(double const rho, double const P) const noexcept
     {
         return P * m_mmw * units::mp / (rho * units::kb);
     }
 
-    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
-    double compute_T_from_evol(double const rho, double const evol) const noexcept
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION double compute_T_from_evol(double const rho, double const evol) const noexcept
     {
         // evol = rho * eint
         return evol * m_mmw * units::mp * m_gamma_m1 / (rho * units::kb);
     }
 
-    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
-    double compute_speed_of_sound(double const rho, double const P) const noexcept
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION double compute_speed_of_sound(double const rho, double const P) const noexcept
     {
         return Kokkos::sqrt(m_gamma * P / rho);
     }
