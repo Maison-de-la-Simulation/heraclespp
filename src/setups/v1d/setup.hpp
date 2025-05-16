@@ -164,13 +164,32 @@ public:
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
+                // grumeau 1
                 double const rmin_bubble = param_setup.pos_ni_bubble - param_setup.radius_ni_bubble;
                 double const rmax_bubble = param_setup.pos_ni_bubble + param_setup.radius_ni_bubble;
-                Kokkos::printf("%f %f\n", rmin_bubble, rmax_bubble);
 
                 if  (rmin_bubble < r(i) && r(i) < rmax_bubble)
                 {
-                    Kokkos::printf("1: %d, %f\n", i, r(i));
+                    fx(i, j, k, 0) = 1;
+                    fx(i, j, k, 1) = 0;
+                }
+
+                // grumeau 2
+                double const rmin_bubble_2 = param_setup.pos_ni_bubble_2 - param_setup.radius_ni_bubble_2;
+                double const rmax_bubble_2 = param_setup.pos_ni_bubble_2 + param_setup.radius_ni_bubble_2;
+
+                if  (rmin_bubble_2 < r(i) && r(i) < rmax_bubble_2)
+                {
+                    fx(i, j, k, 0) = 1;
+                    fx(i, j, k, 1) = 0;
+                }
+
+                // grumeau 3
+                double const rmin_bubble_3 = param_setup.pos_ni_bubble_3 - param_setup.radius_ni_bubble_3;
+                double const rmax_bubble_3 = param_setup.pos_ni_bubble_3 + param_setup.radius_ni_bubble_3;
+
+                if  (rmin_bubble_3 < r(i) && r(i) < rmax_bubble_3)
+                {
                     fx(i, j, k, 0) = 1;
                     fx(i, j, k, 1) = 0;
                 }
@@ -187,12 +206,6 @@ public:
             double const phi_mid = (param_setup.angle_min + param_setup.angle_max) / 2;
 
             // 3 clumps
-            /* double const phi_1 = (param_setup.angle_min + param_setup.angle_max) / 2 + 0.25;
-            double const phi_2 = (param_setup.angle_min + param_setup.angle_max) / 2 - 0.25;
-            Kokkos::Array<double, 2> phi_pos_clump = {phi_1, phi_2}; */
-
-
-
             Kokkos::parallel_for(
                 "Ni_clump_3D",
                 cell_mdrange(range),
@@ -257,9 +270,7 @@ public:
                     fx(i, j, k, 4) = 0;
                 }
 
-                // 2 clumps
-
-                // 3 clumps
+                // 1 clump
                 /* for (int iclump = 0; iclump < 2; ++iclump)
                 {
                     //std::cout << phi_pos_clump[iclump] << std::endl;
