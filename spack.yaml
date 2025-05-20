@@ -1,0 +1,41 @@
+# SPDX-FileCopyrightText: 2025 The HERACLES++ development team, see COPYRIGHT.md file
+#
+# SPDX-License-Identifier: MIT
+
+spack:
+  specs:
+    - 'benchmark@1.8 ~performance_counters'
+    - 'cmake@3.22:3'
+    - 'doxygen@1.9.8:1'
+    - 'googletest@1.14 +gmock'
+    - 'kokkos@4 ~cuda ~openmp ~rocm'
+    - 'kokkos-tools@develop'
+    - 'mpi'
+    - 'paraconf@1 ~fortran'
+    - 'pdi@1.6:1 +python ~fortran'
+    - 'pdiplugin-decl-hdf5@1.6:1 +mpi ~fortran'
+    - 'pdiplugin-mpi@1.6:1'
+    - 'pdiplugin-set-value@1.6:1'
+    - 'pdiplugin-trace@1.6:1'
+    - 'py-h5py'
+    - 'py-matplotlib'
+    - 'py-numpy'
+    - 'py-pyyaml'
+    - 'py-scipy'
+
+  config:
+    install_tree:
+      padded_length: 128
+
+  packages:
+    all:
+      require: 'target=x86_64_v3'
+
+  mirrors:
+    local-buildcache:
+      url: oci://ghcr.io/Maison-de-la-Simulation/spack-buildcache
+      binary: true
+      signed: false
+      access_pair:
+        id_variable: GITHUB_USER
+        secret_variable: GITHUB_TOKEN
