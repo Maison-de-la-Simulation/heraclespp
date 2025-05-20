@@ -24,19 +24,20 @@ rc('ytick.minor', size=3, width=1)
 # ------------------------------------------------------------------------------
 
 filename = sys.argv[1]
-ndim = 1# input("Dimension of the simulation (1 or 3): ")
+ndim = 3# input("Dimension of the simulation (1 or 3): ")
 nfx = 2#input("Number of passive scalar (2 or 5): ")
+ind_ang = 56
 
 # ------------------------------------------------------------------------------
 
 def read_file_1d_r(filename):
     with h5py.File(str(filename), 'r') as f:
         if (ndim == 3):
-            rho = f['rho'][128, 128, :]
-            u = f['ux'][128, 128, :]
-            P = f['P'][128, 128, :]
-            T = f['T'][128, 128, :]
-            E = f['T'][128, 128, :]
+            rho = f['rho'][ind_ang, ind_ang, :]
+            u = f['ux'][ind_ang, ind_ang, :]
+            P = f['P'][ind_ang, ind_ang, :]
+            T = f['T'][ind_ang, ind_ang, :]
+            E = f['T'][ind_ang, ind_ang, :]
         if (ndim == 1):
             rho = f['rho'][0, 0, :]
             u = f['ux'][0, 0, :]
@@ -51,11 +52,11 @@ def read_file_1d_r_element(filename):
     with h5py.File(str(filename), 'r') as f:
         if (nfx == 5):
             if (ndim == 3):
-                Ni = f['fx0'][128, 128, :]
-                H = f['fx1'][128, 128, :]
-                He = f['fx2'][128, 128, :]
-                O = f['fx3'][128, 128, :]
-                Si = f['fx4'][128, 128, :]
+                Ni = f['fx0'][ind_ang, ind_ang, :]
+                H = f['fx1'][ind_ang, ind_ang, :]
+                He = f['fx2'][ind_ang, ind_ang, :]
+                O = f['fx3'][ind_ang, ind_ang, :]
+                Si = f['fx4'][ind_ang, ind_ang, :]
             if (ndim == 1):
                 Ni = f['fx0'][0, 0, :]
                 H = f['fx1'][0, 0, :]
@@ -64,8 +65,8 @@ def read_file_1d_r_element(filename):
                 Si = f['fx4'][0, 0, :]
         if (nfx == 2):
             if (ndim == 3):
-                Ni = f['fx0'][128, 128, :]
-                Other = f['fx1'][128, 128, :]
+                Ni = f['fx0'][ind_ang, ind_ang, :]
+                Other = f['fx1'][ind_ang, ind_ang, :]
             if (ndim == 1):
                 Ni = f['fx0'][0, 0, :]
                 Other = f['fx1'][0, 0, :]
