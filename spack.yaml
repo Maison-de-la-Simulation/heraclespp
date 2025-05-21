@@ -4,14 +4,45 @@
 
 ---
 spack:
+  concretizer:
+    reuse: false
+    unify: true
+  packages:
+    all:
+      require:
+        - 'target=x86_64_v2'
+        - spec: 'generator=ninja'
+          when: 'build_system=cmake'
+        - '~cuda'
+        - '~rocm'
+        - '~openmp'
+        - '+mpi'
+        - '~fortran'
+      variants: 'cxxstd=17'
+    c:
+      require: 'gcc@13'
+    cxx:
+      require: 'gcc@13'
+    fortran:
+      require: 'gcc@13'
+    mpi:
+      require: 'openmpi@5.0'
   specs:
-    - 'benchmark@1.8 ~performance_counters'
-    - 'cmake@3.22:3'
-    - 'doxygen@1.9.8:1'
-    - 'googletest@1.14 +gmock'
-    - 'kokkos@4 ~cuda ~openmp ~rocm'
-    - 'kokkos-tools@develop'
+    - 'gcc@13'
+    - 'benchmark@1.9 ~performance_counters'
+    - 'cmake@3.31'
+    - 'doxygen@1.14'
+    - 'googletest@1.17'
+    - 'hdf5@1.14 +mpi'
+    - 'kokkos@4.7'
+    - 'kokkos-tools'
     - 'mpi'
+    - 'paraconf@1.0'
+    - 'pdi@1.9'
+    - 'pdiplugin-decl-hdf5@1.9 +mpi'
+    - 'pdiplugin-mpi@1.9'
+    - 'pdiplugin-set-value@1.9'
+    - 'pdiplugin-trace@1.9'
     - 'py-h5py'
     - 'py-matplotlib'
     - 'py-numpy'
@@ -22,13 +53,9 @@ spack:
     install_tree:
       padded_length: 128
 
-  packages:
-    all:
-      require: 'target=x86_64_v3'
-
   mirrors:
     local-buildcache:
-      url: oci://ghcr.io/Maison-de-la-Simulation/spack-buildcache
+      url: oci://ghcr.io/Maison-de-la-Simulation/heraclespp-spack-cache
       binary: true
       signed: false
       access_pair:
