@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+---
 spack:
   specs:
     - 'benchmark@1.8 ~performance_counters'
