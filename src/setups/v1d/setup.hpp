@@ -281,8 +281,6 @@ public:
                     fx(i, j, k, 1) = 0;
                 }
 
-                */
-
                 // 10 clumps
                 Kokkos::Array<double, 10> r_pos_clump = {271230889327.60284, 240770771585.01318,
                     286102405445.7304, 207067396733.2647, 135757085890.76822, 287642158033.6244,
@@ -310,10 +308,20 @@ public:
                     {
                         fx(i, j, k, 0) = 1;
                         fx(i, j, k, 1) = 0;
-
-                        //std::cout << iclump << " " << i << " " << j << " " << k << std::endl;
-                        //std::cout << r(i) << " " << th(j) << " " << phi(k) << std::endl;
                     }
+                }*/
+
+                // clump au centre + perturbation
+                double r_max_ni = 2E11;
+                int n_mode = 10;
+                int m_mode = 10;
+                double epsilon = 0.05;
+                double perturbed_r_max = r_max_ni * (1.0 + epsilon * sin(n_mode * th(j)) * cos(m_mode * phi(k)));
+
+                if (r(i) <= perturbed_r_max)
+                {
+                    fx(i, j, k, 0) = 1;
+                    fx(i, j, k, 1) = 0;
                 }
             });
         }
