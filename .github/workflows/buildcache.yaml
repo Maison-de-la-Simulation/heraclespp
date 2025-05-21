@@ -14,11 +14,6 @@ on:
 permissions:
   contents: read
 
-env:
-  CMAKE_BUILD_PARALLEL_LEVEL: 4
-  CMAKE_BUILD_TYPE: Release
-  CMAKE_GENERATOR: Ninja
-
 jobs:
   build:
     runs-on: ubuntu-24.04
