@@ -26,7 +26,7 @@ rc('ytick.minor', size=3, width=1)
 filename = sys.argv[1]
 ndim = 3# input("Dimension of the simulation (1 or 3): ")
 nfx = 2#input("Number of passive scalar (2 or 5): ")
-ind_ang = 56
+ind_ang = 64
 
 # ------------------------------------------------------------------------------
 
@@ -162,6 +162,7 @@ if (nfx == 2):
     plt.plot(xc_cm / div, Ni, c='red', label="Ni56")
     plt.plot(xc_cm / div, Other, c="steelblue",label="Other")
 plt.ylim(-0.1, 1.1)
+#plt.xlim(0, 0.5)
 plt.xlabel(r'$r [ 10^{15}$ cm]')
 plt.ylabel(r'X')
 plt.legend()
