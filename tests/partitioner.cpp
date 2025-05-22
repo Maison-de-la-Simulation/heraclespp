@@ -45,12 +45,7 @@ public:
 
     iterator() = default;
 
-    explicit iterator(int const begin, int const end, int const block) noexcept
-        : m_front(begin)
-        , m_end(end)
-        , m_block(std::min(block, end - begin))
-    {
-    }
+    explicit iterator(int const begin, int const end, int const block) noexcept : m_front(begin), m_end(end), m_block(std::min(block, end - begin)) {}
 
     std::array<int, 2> operator*() const noexcept
     {
@@ -60,8 +55,7 @@ public:
     iterator& operator++() noexcept
     {
         m_front += m_block;
-        if (m_front + m_block > m_end)
-        {
+        if (m_front + m_block > m_end) {
             m_block = m_end - m_front;
         }
         return *this;
@@ -80,9 +74,9 @@ public:
 #endif
 
 #if defined(__cpp_lib_three_way_comparison)
-    friend std::strong_ordering operator<=>(iterator const& lhs, iterator const& rhs)
+    friend std::strong_ordering operator<= > (iterator const& lhs, iterator const& rhs)
     {
-        return lhs.m_front <=> rhs.m_front;
+        return lhs.m_front <= > rhs.m_front;
     }
 #else
     friend bool operator>(iterator const& lhs, iterator const& rhs)
@@ -107,9 +101,7 @@ public:
 #endif
 };
 
-Partitioner::Partitioner(int const size, int const block) noexcept : m_dom {0, size}, m_block(block)
-{
-}
+Partitioner::Partitioner(int const size, int const block) noexcept : m_dom {0, size}, m_block(block) {}
 
 Partitioner::iterator Partitioner::begin() const noexcept
 {
@@ -133,12 +125,9 @@ TEST(Partitionner, SomeTest)
         auto const [begin, end] = novapp::cell_range(rng.no_ghosts());
         auto const [ibegin, jbegin, kbegin] = begin;
         auto const [iend, jend, kend] = end;
-        for (int k = kbegin; k < kend; ++k)
-        {
-            for (int j = jbegin; j < jend; ++j)
-            {
-                for (int i = ibegin; i < iend; ++i)
-                {
+        for (int k = kbegin; k < kend; ++k) {
+            for (int j = jbegin; j < jend; ++j) {
+                for (int i = ibegin; i < iend; ++i) {
                     std::array<int, 3> const elem {i, j, k};
                     list_of_cells.emplace(elem);
                 }
@@ -147,22 +136,16 @@ TEST(Partitionner, SomeTest)
     }
     EXPECT_FALSE(list_of_cells.empty());
 
-    for (std::array<int, 2> const rng_z : Partitioner(nx[2], block[2]))
-    {
-        for (std::array<int, 2> const rng_y : Partitioner(nx[1], block[1]))
-        {
-            for (std::array<int, 2> const rng_x : Partitioner(nx[0], block[0]))
-            {
+    for (std::array<int, 2> const rng_z : Partitioner(nx[2], block[2])) {
+        for (std::array<int, 2> const rng_y : Partitioner(nx[1], block[1])) {
+            for (std::array<int, 2> const rng_x : Partitioner(nx[0], block[0])) {
                 novapp::Range const rng(rng_x, rng_y, rng_z, nghosts);
                 auto const [begin, end] = novapp::cell_range(rng.no_ghosts());
                 auto const [ibegin, jbegin, kbegin] = begin;
                 auto const [iend, jend, kend] = end;
-                for (int k = kbegin; k < kend; ++k)
-                {
-                    for (int j = jbegin; j < jend; ++j)
-                    {
-                        for (int i = ibegin; i < iend; ++i)
-                        {
+                for (int k = kbegin; k < kend; ++k) {
+                    for (int j = jbegin; j < jend; ++j) {
+                        for (int i = ibegin; i < iend; ++i) {
                             std::array<int, 3> const elem {rng_x[0] + i, rng_y[0] + j, rng_z[0] + k};
                             list_of_cells.erase(elem);
                         }

@@ -11,8 +11,7 @@
 #include <memory>
 #include <string>
 
-namespace novapp
-{
+namespace novapp {
 
 class IUserStep;
 

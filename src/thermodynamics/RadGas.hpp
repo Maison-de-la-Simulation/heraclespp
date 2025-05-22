@@ -13,8 +13,7 @@
 #include <Kokkos_Printf.hpp>
 #include <units.hpp>
 
-namespace novapp::thermodynamics
-{
+namespace novapp::thermodynamics {
 
 class RadGas
 {
@@ -35,42 +34,36 @@ public:
 
     RadGas& operator=(RadGas&& rhs) noexcept = default;
 
-    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
-    double adiabatic_index() const noexcept
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION double adiabatic_index() const noexcept
     {
         return m_gamma;
     }
 
-    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
-    double mean_molecular_weight() const noexcept
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION double mean_molecular_weight() const noexcept
     {
         return m_mmw;
     }
 
-    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
-    double compute_evol_from_P(double const rho, double const P) const noexcept
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION double compute_evol_from_P(double const rho, double const P) const noexcept
     {
         // evol = rho * eint
         return compute_evol_from_T(rho, compute_T_from_P(rho, P));
     }
 
-    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
-    double compute_evol_from_T(double const rho, double const T) const noexcept
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION double compute_evol_from_T(double const rho, double const T) const noexcept
     {
         // evol = rho * eint
         double const T4 = T * T * T * T;
         return rho * units::kb * T / (m_mmw * units::mp * m_gamma_m1) + units::ar * T4;
     }
 
-    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
-    double compute_P_from_evol(double const rho, double const evol) const noexcept
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION double compute_P_from_evol(double const rho, double const evol) const noexcept
     {
         // evol = rho * eint
         return compute_P_from_T(rho, compute_T_from_evol(rho, evol));
     }
 
-    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
-    double compute_P_from_T(double const rho, double const T) const noexcept
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION double compute_P_from_T(double const rho, double const T) const noexcept
     {
         double const T4 = T * T * T * T;
         //std::cout<<"Pg = "<<rho * units::kb * T / (m_mmw * units::mp)
@@ -78,8 +71,7 @@ public:
         return rho * units::kb * T / (m_mmw * units::mp) + units::ar * T4 / 3;
     }
 
-    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
-    double compute_T_from_P(double const rho, double const P) const noexcept
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION double compute_T_from_P(double const rho, double const P) const noexcept
     {
         double const C1 = rho * units::kb / (m_mmw * units::mp);
         double const Tg = P / C1;
@@ -89,28 +81,24 @@ public:
         int static constexpr max_itr = 100;
         int itr = 0;
         double delta_T = 0;
-        for (int i = 0; i < max_itr; ++i)
-        {
+        for (int i = 0; i < max_itr; ++i) {
             double const T3 = T * T * T;
             double const f = units::ar * T3 * T / 3 + C1 * T - P;
             double const df = 4 * units::ar * T3 / 3 + C1;
             delta_T = -f / df;
             T += delta_T;
             itr = i;
-            if (Kokkos::abs(delta_T) <= 1E-6)
-            {
+            if (Kokkos::abs(delta_T) <= 1E-6) {
                 break;
             }
         }
-        if (Kokkos::isnan(delta_T) || (itr == max_itr && Kokkos::abs(delta_T) > 1E-6))
-        {
+        if (Kokkos::isnan(delta_T) || (itr == max_itr && Kokkos::abs(delta_T) > 1E-6)) {
             Kokkos::printf("P No convergence in temperature : %d %f\n", itr, Kokkos::abs(delta_T));
         }
         return T;
     }
 
-    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
-    double compute_T_from_evol(double const rho, double const evol) const noexcept
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION double compute_T_from_evol(double const rho, double const evol) const noexcept
     {
         // evol = rho * eint
         double const C1 = rho * units::kb / (m_mmw * units::mp * m_gamma_m1);
@@ -121,28 +109,24 @@ public:
         int static constexpr max_itr = 100;
         int itr = 0;
         double delta_T = 0;
-        for (int i = 0; i < max_itr; ++i)
-        {
+        for (int i = 0; i < max_itr; ++i) {
             double const T3 = T * T * T;
             double const f = units::ar * T3 * T + C1 * T - evol;
             double const df = 4 * units::ar * T3 + C1;
             delta_T = -f / df;
             T += delta_T;
             itr = i;
-            if (Kokkos::abs(delta_T) <= 1E-6 || Kokkos::isnan(delta_T))
-            {
+            if (Kokkos::abs(delta_T) <= 1E-6 || Kokkos::isnan(delta_T)) {
                 break;
             }
         }
-        if (Kokkos::isnan(delta_T) || (itr == max_itr && Kokkos::abs(delta_T) > 1E-6))
-        {
+        if (Kokkos::isnan(delta_T) || (itr == max_itr && Kokkos::abs(delta_T) > 1E-6)) {
             Kokkos::printf("evol No convergence in temperature : %d %f\n", itr, Kokkos::abs(delta_T));
         }
         return T;
     }
 
-    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
-    double compute_speed_of_sound(double const rho, double const P) const noexcept
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION double compute_speed_of_sound(double const rho, double const P) const noexcept
     {
         double const T = compute_T_from_P(rho, P);
         double const Pg = rho * units::kb * T / (m_mmw * units::mp);

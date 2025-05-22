@@ -10,8 +10,7 @@
 
 #include <kokkos_shortcut.hpp>
 
-namespace novapp
-{
+namespace novapp {
 
 class Grid;
 class Range;
@@ -31,25 +30,13 @@ public:
 
     IShiftCriterion& operator=(IShiftCriterion&& rhs) noexcept;
 
-    [[nodiscard]] virtual bool execute(
-        Range const& range,
-        Grid const& grid,
-        KV_double_3d const& rho,
-        KV_double_4d const& rhou,
-        KV_double_3d const& E,
-        KV_double_4d const& fx) const = 0;
+    [[nodiscard]] virtual bool execute(Range const& range, Grid const& grid, KV_double_3d const& rho, KV_double_4d const& rhou, KV_double_3d const& E, KV_double_4d const& fx) const = 0;
 };
 
 class NoShiftGrid : public IShiftCriterion
 {
 public:
-    [[nodiscard]] bool execute(
-        Range const& range,
-        Grid const& grid,
-        KV_double_3d const& rho,
-        KV_double_4d const& rhou,
-        KV_double_3d const& E,
-        KV_double_4d const& fx) const final;
+    [[nodiscard]] bool execute(Range const& range, Grid const& grid, KV_double_3d const& rho, KV_double_4d const& rhou, KV_double_3d const& E, KV_double_4d const& fx) const final;
 };
 
 } // namespace novapp

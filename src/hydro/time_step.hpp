@@ -20,8 +20,7 @@
 #include <ndim.hpp>
 #include <range.hpp>
 
-namespace novapp
-{
+namespace novapp {
 
 //! Time step with the cfl condition
 //! @param[in] range output iteration range
@@ -32,13 +31,7 @@ namespace novapp
 //! @param[in] P pressure array 3D
 //! @return time step
 template <class EoS>
-[[nodiscard]] double time_step(
-    Range const& range,
-    EoS const& eos,
-    Grid const& grid,
-    KV_cdouble_3d const& rho,
-    KV_cdouble_4d const& u,
-    KV_cdouble_3d const& P)
+[[nodiscard]] double time_step(Range const& range, EoS const& eos, Grid const& grid, KV_cdouble_3d const& rho, KV_cdouble_4d const& u, KV_cdouble_3d const& P)
 {
     assert(equal_extents({0, 1, 2}, rho, u, P));
     assert(u.extent(3) == ndim);
@@ -52,33 +45,28 @@ template <class EoS>
     double inverse_dt = 0;
 
     Kokkos::parallel_reduce(
-        "time_step",
-        cell_mdrange(range),
-        KOKKOS_LAMBDA(int i, int j, int k, double& local_inverse_dt)
-        {
-            double const sound = eos.compute_speed_of_sound(rho(i, j, k), P(i, j, k));
-            Kokkos::Array<double, 3> dx_geom {dx(i), dy(j), dz(k)};
-            if (geom == Geometry::Geom_spherical)
-            {
-                if (ndim == 2)
-                {
-                    dx_geom[1] *= x_center(i);
+            "time_step",
+            cell_mdrange(range),
+            KOKKOS_LAMBDA(int i, int j, int k, double& local_inverse_dt) {
+                double const sound = eos.compute_speed_of_sound(rho(i, j, k), P(i, j, k));
+                Kokkos::Array<double, 3> dx_geom {dx(i), dy(j), dz(k)};
+                if (geom == Geometry::Geom_spherical) {
+                    if (ndim == 2) {
+                        dx_geom[1] *= x_center(i);
+                    }
+                    if (ndim == 3) {
+                        dx_geom[1] *= x_center(i);
+                        dx_geom[2] *= x_center(i) * Kokkos::sin(y_center(j));
+                    }
                 }
-                if (ndim == 3)
-                {
-                    dx_geom[1] *= x_center(i);
-                    dx_geom[2] *= x_center(i) * Kokkos::sin(y_center(j));
-                }
-            }
 
-            double cell_inverse_dt = 0;
-            for(int idim = 0; idim < ndim; ++idim)
-            {
-                cell_inverse_dt += (Kokkos::abs(u(i, j, k, idim)) + sound) / dx_geom[idim];
-            }
-            local_inverse_dt = Kokkos::max(local_inverse_dt, cell_inverse_dt);
-        },
-        Kokkos::Max<double>(inverse_dt));
+                double cell_inverse_dt = 0;
+                for (int idim = 0; idim < ndim; ++idim) {
+                    cell_inverse_dt += (Kokkos::abs(u(i, j, k, idim)) + sound) / dx_geom[idim];
+                }
+                local_inverse_dt = Kokkos::max(local_inverse_dt, cell_inverse_dt);
+            },
+            Kokkos::Max<double>(inverse_dt));
 
     MPI_Allreduce(MPI_IN_PLACE, &inverse_dt, 1, MPI_DOUBLE, MPI_MAX, grid.comm_cart);
 

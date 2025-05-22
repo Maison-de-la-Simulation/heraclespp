@@ -4,25 +4,24 @@
 
 #pragma once
 
-#include <Kokkos_Core.hpp>
-#include <units.hpp>
-
 #include <inih/INIReader.hpp>
+
+#include <Kokkos_Core.hpp>
+#include <grid.hpp>
+#include <range.hpp>
+#include <units.hpp>
 
 #include "default_boundary_setup.hpp"
 #include "default_grid_setup.hpp"
 #include "default_shift_criterion.hpp"
 #include "default_user_step.hpp"
 #include "eos.hpp"
-#include <grid.hpp>
 #include "initialization_interface.hpp"
 #include "kokkos_shortcut.hpp"
 #include "ndim.hpp"
 #include "nova_params.hpp"
-#include <range.hpp>
 
-namespace novapp
-{
+namespace novapp {
 
 class ParamSetup
 {
@@ -54,23 +53,9 @@ private:
     Gravity m_gravity;
 
 public:
-    InitializationSetup(
-        EOS const& eos,
-        ParamSetup const& param_set_up,
-        Gravity gravity)
-        : m_eos(eos)
-        , m_param_setup(param_set_up)
-        , m_gravity(std::move(gravity))
-    {
-    }
+    InitializationSetup(EOS const& eos, ParamSetup const& param_set_up, Gravity gravity) : m_eos(eos), m_param_setup(param_set_up), m_gravity(std::move(gravity)) {}
 
-    void execute(
-        Range const& range,
-        Grid const& grid,
-        KV_double_3d const& rho,
-        KV_double_4d const& u,
-        KV_double_3d const& P,
-        KV_double_4d const& fx) const final
+    void execute(Range const& range, Grid const& grid, KV_double_3d const& rho, KV_double_4d const& u, KV_double_3d const& P, KV_double_4d const& fx) const final
     {
         assert(equal_extents({0, 1, 2}, rho, u, P, fx));
         assert(u.extent_int(3) == ndim);
@@ -83,25 +68,22 @@ public:
         auto const& param_setup = m_param_setup;
 
         Kokkos::parallel_for(
-            "Rayleigh_Taylor_2D_init",
-            cell_mdrange(range),
-            KOKKOS_LAMBDA(int i, int j, int k)
-            {
-                double const x = xc(i);
-                double const y = yc(j);
-                double const h = 0.01 * Kokkos::cos(4 * Kokkos::numbers::pi * x);
+                "Rayleigh_Taylor_2D_init",
+                cell_mdrange(range),
+                KOKKOS_LAMBDA(int i, int j, int k) {
+                    double const x = xc(i);
+                    double const y = yc(j);
+                    double const h = 0.01 * Kokkos::cos(4 * Kokkos::numbers::pi * x);
 
-                rho(i, j, k) = param_setup.rho1 + (param_setup.rho0 - param_setup.rho1) / 2
-                                * (1 + Kokkos::tanh((y - h) / 0.005));
+                    rho(i, j, k) = param_setup.rho1 + (param_setup.rho0 - param_setup.rho1) / 2 * (1 + Kokkos::tanh((y - h) / 0.005));
 
-                fx(i, j, k, 0) = (param_setup.fx0 - param_setup.fx1) / 2
-                                * (1 + Kokkos::tanh((y - h) / 0.005));
+                    fx(i, j, k, 0) = (param_setup.fx0 - param_setup.fx1) / 2 * (1 + Kokkos::tanh((y - h) / 0.005));
 
-                u(i, j, k, 0) = param_setup.u;
-                u(i, j, k, 1) = param_setup.u;
+                    u(i, j, k, 0) = param_setup.u;
+                    u(i, j, k, 1) = param_setup.u;
 
-                P(i, j, k) = P0 - param_setup.rho0 * Kokkos::fabs(gravity(i, j, k, 1)) * y;
-            });
+                    P(i, j, k) = P0 - param_setup.rho0 * Kokkos::fabs(gravity(i, j, k, 1)) * y;
+                });
     }
 };
 
