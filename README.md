@@ -57,7 +57,7 @@ The execution needs an input file and is done with the following command:
 ./build/src/nova++ ./inputs/shock_tube.ini
 ```
 
-For more complex compilation scenarios, please refer to the `toolchains` directory.
+For more complex compilation scenarios, please refer to the `toolchains` directory or the [Kokkos documentation](https://kokkos.org/kokkos-core-wiki/get-started.html).
 
 The results can be displayed with the Python script:
 
@@ -66,6 +66,8 @@ python3 ./test/view_shock_tube.py shock_tube_00000002.h5
 ```
 
 ## How to build with vendored dependencies
+
+### Installing PDI
 
 The library PDI is used for the I/O. The compilation needs to be done at the root of the directory. If PDI is already installed, this step is not necessary.
 
@@ -94,6 +96,16 @@ cmake \
 cmake --build build-pdi --parallel 4
 cmake --install build-pdi --prefix vendor/install_pdi
 ```
+
+### Activating PDI
+
+Once PDI is installed, it must be activated by sourcing the appropriate shell script:
+
+```bash
+. vendor/install_pdi/share/pdi/env.bash
+```
+
+Be sure to source the script that matches your shell (e.g., .env.bash for bash, .env.zsh for zsh).
 
 ## How to cite
 
