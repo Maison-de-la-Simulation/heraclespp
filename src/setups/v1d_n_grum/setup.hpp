@@ -45,12 +45,6 @@ public:
     double O_CL;
     double Si_CL;
     double Other_CL;
-    double pos_ni_bubble;
-    double radius_ni_bubble;
-    double pos_ni_bubble_2;
-    double radius_ni_bubble_2;
-    double pos_ni_bubble_3;
-    double radius_ni_bubble_3;
 
     explicit ParamSetup(INIReader const& reader)
     {
@@ -68,12 +62,6 @@ public:
         O_CL = reader.GetReal("Boundary Condition", "O_CL", 0.);
         Si_CL = reader.GetReal("Boundary Condition", "Si_CL", 0.);
         Other_CL = reader.GetReal("Boundary Condition", "Other_CL", 0.);
-        pos_ni_bubble = reader.GetReal("Initialisation", "pos_ni_bubble", 0.);
-        radius_ni_bubble = reader.GetReal("Initialisation", "radius_ni_bubble", 0.);
-        pos_ni_bubble_2 = reader.GetReal("Initialisation", "pos_ni_bubble_2", 0.);
-        radius_ni_bubble_2 = reader.GetReal("Initialisation", "radius_ni_bubble_2", 0.);
-        pos_ni_bubble_3 = reader.GetReal("Initialisation", "pos_ni_bubble_3", 0.);
-        radius_ni_bubble_3 = reader.GetReal("Initialisation", "radius_ni_bubble_3", 0.);
    }
 };
 
@@ -188,6 +176,10 @@ public:
                     1.369636022580458, 1.472950881749111, 1.4895882611690403, 1.0411139006449406,
                     1.004718902756585, 1.515869988650633, 1.8800853257461492, 1.0078914623990334};
 
+                Kokkos::Array<double, 10> rad_clump = {3.4370340121223326, 4.843773432362134,
+                    3.994726894960195, 4.499014058135227, 3.225678585893833, 4.575019600108599,
+                    4.2073502689860796, 3.9295982147001656, 4.011628407106111, 4.886794617507746};
+
                 for (int iclump = 0; iclump < 10; ++iclump)
                 {
                     double x_center = r_pos_clump[iclump] * Kokkos::sin(th_pos_clump[iclump]) * Kokkos::cos(phi_pos_clump[iclump]);
@@ -198,7 +190,7 @@ public:
                             + (y_cart - y_center)*(y_cart - y_center)
                             + (z_cart - z_center)*(z_cart - z_center));
 
-                    if (dist <= 4.5E10)
+                    if (dist <= rad_clump[iclump] * 1E10)
                     {
                         fx(i, j, k, 0) = 1;
                         fx(i, j, k, 1) = 0;
