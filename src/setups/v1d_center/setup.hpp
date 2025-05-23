@@ -153,13 +153,40 @@ public:
         {
             broadcast(range, Kokkos::subview(fx_1d.view_device(), ALL, ifx), Kokkos::subview(fx, ALL, ALL, ALL, ifx));
         }
+
+        // clump au centre + perturbation
         auto const rc = grid.x_center;
         auto const r = grid.x;
-        auto const dx = grid.dx;
+        auto const thc = grid.y_center;
+        auto const phic = grid.z_center;
         auto const dv = grid.dv;
-        auto const& param_setup = m_param_setup;
 
-        if (ndim == 3)
+        Kokkos::Random_XorShift64_Pool<> random_pool(54321);
+
+        Kokkos::parallel_for(
+            "Ni_clump_3D",
+            cell_mdrange(range),
+            KOKKOS_LAMBDA(int i, int j, int k)
+            {
+                double r_max_ni = 1.245E9;
+                int n_mode = 500;
+                int m_mode = 800;
+                double perturbed_r_max = r_max_ni * (1.0 + 0.01 * Kokkos::sin(n_mode * thc(j)) * Kokkos::cos(m_mode * phic(k)));
+
+                double noise = 0;
+                auto generator = random_pool.get_state();
+                noise = generator.drand(-1.0, 1.0);
+                random_pool.free_state(generator);
+                double perturbed_r_max2 = r_max_ni * (1.0 + 0.01 * noise * noise);
+
+                if (rc(i) <= perturbed_r_max2)
+                {
+                    fx(i, j, k, 0) = 1;
+                    fx(i, j, k, 1) = 0;
+                }
+            });
+
+        /* if (ndim == 3)
         {
             // clump au centre + perturbation
             auto const th = grid.y;
@@ -223,7 +250,7 @@ public:
                     rho(i, j, k) = rho(i, j, k) * (1 + perturb + 0.01 * noise);
 
                     // perturbation interface fx
-                    /* double X = rc(i) * sin(thc(j)) * cos(phic(k));
+                    double X = rc(i) * sin(thc(j)) * cos(phic(k));
                     double Y = rc(i) * sin(thc(j)) * sin(phic(k));
                     double h = 0;
                     double ak = 0.861466;
@@ -245,7 +272,7 @@ public:
                             }
                         }
                     }
-                    double perturbed_r_max2 = r_max_ni * (1 + 0.01 * h * h); */
+                    double perturbed_r_max2 = r_max_ni * (1 + 0.01 * h * h);
 
                     double r_max_ni = 2E11;
                     int n_mode = 900;
@@ -258,7 +285,7 @@ public:
                         fx(i, j, k, 1) = 0;
                     }
             });
-        }
+        } */
 
         double sum_M_ni = 0;
 
