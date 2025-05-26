@@ -209,6 +209,9 @@ public:
                     {
                         fx(i, j, k, 0) = 1;
                         fx(i, j, k, 1) = 0;
+                        fx(i, j, k, 2) = 0;
+                        fx(i, j, k, 3) = 0;
+                        fx(i, j, k, 4) = 0;
                     }
                 }
             });
