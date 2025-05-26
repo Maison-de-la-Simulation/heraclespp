@@ -406,11 +406,11 @@ public:
                 E(i, j, k) = eos.compute_evol_from_T(rho(i, j, k), param_setup.T_CL);
 
                 fx(i, j, k, 0) = param_setup.Ni_CL;
-                fx(i, j, k, 1) = param_setup.Other_CL;
-                /* fx(i, j, k, 1) = param_setup.H_CL;
+                //fx(i, j, k, 1) = param_setup.Other_CL;
+                fx(i, j, k, 1) = param_setup.H_CL;
                 fx(i, j, k, 2) = param_setup.He_CL;
                 fx(i, j, k, 3) = param_setup.O_CL;
-                fx(i, j, k, 4) = param_setup.Si_CL; */
+                fx(i, j, k, 4) = param_setup.Si_CL;
             });
     }
 };
