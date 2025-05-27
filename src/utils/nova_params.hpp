@@ -35,6 +35,7 @@ public :
     int max_iter;
     int iter_output_frequency;
     double time_output_frequency;
+    double time_output_ini;
     std::string directory;
     std::string prefix;
     std::string reconstruction_type;
