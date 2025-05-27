@@ -12,8 +12,7 @@
 
 #include <kokkos_shortcut.hpp>
 
-namespace novapp
-{
+namespace novapp {
 
 class Param;
 
@@ -34,12 +33,7 @@ public:
 
     IGridType& operator=(IGridType&& rhs) noexcept;
 
-    virtual void execute(
-        std::array<int, 3> Nghost,
-        std::array<int, 3> Nx_glob_ng,
-        KVH_double_1d const& x_glob,
-        KVH_double_1d const& y_glob,
-        KVH_double_1d const& z_glob) const = 0;
+    virtual void execute(std::array<int, 3> Nghost, std::array<int, 3> Nx_glob_ng, KVH_double_1d const& x_glob, KVH_double_1d const& y_glob, KVH_double_1d const& z_glob) const = 0;
 };
 
 class Regular : public IGridType
@@ -54,12 +48,7 @@ public:
 
     explicit Regular(Param const& param);
 
-    void execute(
-        std::array<int, 3> Nghost,
-        std::array<int, 3> Nx_glob_ng,
-        KVH_double_1d const& x_glob,
-        KVH_double_1d const& y_glob,
-        KVH_double_1d const& z_glob) const final;
+    void execute(std::array<int, 3> Nghost, std::array<int, 3> Nx_glob_ng, KVH_double_1d const& x_glob, KVH_double_1d const& y_glob, KVH_double_1d const& z_glob) const final;
 };
 
 } // namespace novapp

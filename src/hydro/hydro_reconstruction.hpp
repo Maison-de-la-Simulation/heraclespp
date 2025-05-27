@@ -19,8 +19,7 @@
 #include "extrapolation_time.hpp"
 #include "face_reconstruction.hpp"
 
-namespace novapp
-{
+namespace novapp {
 
 class Grid;
 class Range;
@@ -67,12 +66,7 @@ class MUSCLHancockHydroReconstruction : public IHydroReconstruction<Gravity>
     KV_double_6d m_u_rec;
 
 public:
-    MUSCLHancockHydroReconstruction(
-            std::unique_ptr<IFaceReconstruction> face_reconstruction,
-            std::unique_ptr<IExtrapolationReconstruction<Gravity>> hancock_reconstruction,
-            EoS const& eos,
-            KV_double_5d P_rec,
-            KV_double_6d u_rec)
+    MUSCLHancockHydroReconstruction(std::unique_ptr<IFaceReconstruction> face_reconstruction, std::unique_ptr<IExtrapolationReconstruction<Gravity>> hancock_reconstruction, EoS const& eos, KV_double_5d P_rec, KV_double_6d u_rec)
         : m_face_reconstruction(std::move(face_reconstruction))
         , m_hancock_reconstruction(std::move(hancock_reconstruction))
         , m_eos(eos)
@@ -96,29 +90,17 @@ public:
             KV_double_6d const& fx_rec) const final
     {
         m_face_reconstruction->execute(range, grid, rho, rho_rec);
-        for (int idim = 0; idim < ndim; ++idim)
-        {
-            m_face_reconstruction->execute(
-                    range,
-                    grid,
-                    Kokkos::subview(u, ALL, ALL, ALL, idim),
-                    Kokkos::subview(m_u_rec, ALL, ALL, ALL, ALL, ALL, idim));
+        for (int idim = 0; idim < ndim; ++idim) {
+            m_face_reconstruction->execute(range, grid, Kokkos::subview(u, ALL, ALL, ALL, idim), Kokkos::subview(m_u_rec, ALL, ALL, ALL, ALL, ALL, idim));
         }
         m_face_reconstruction->execute(range, grid, P, m_P_rec);
         int const nfx = fx.extent_int(3);
-        for (int ifx = 0; ifx < nfx; ++ifx)
-        {
-            m_face_reconstruction->execute(
-                    range,
-                    grid,
-                    Kokkos::subview(fx, ALL, ALL, ALL, ifx),
-                    Kokkos::subview(fx_rec, ALL, ALL, ALL, ALL, ALL, ifx));
+        for (int ifx = 0; ifx < nfx; ++ifx) {
+            m_face_reconstruction->execute(range, grid, Kokkos::subview(fx, ALL, ALL, ALL, ifx), Kokkos::subview(fx_rec, ALL, ALL, ALL, ALL, ALL, ifx));
         }
 
-        for (int idim = 0; idim < ndim; ++idim)
-        {
-            for (int iside = 0; iside < 2; ++iside)
-            {
+        for (int idim = 0; idim < ndim; ++idim) {
+            for (int iside = 0; iside < 2; ++iside) {
                 conv_prim_to_cons(
                         range,
                         m_eos,

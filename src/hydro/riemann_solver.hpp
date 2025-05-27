@@ -15,8 +15,7 @@
 
 #include "euler_equations.hpp"
 
-namespace novapp
-{
+namespace novapp {
 
 class HLL
 {
@@ -27,12 +26,7 @@ public:
     //! @param[in] eos Equation of state
     //! @return intercell EulerFlux
     template <class EoS>
-    KOKKOS_FORCEINLINE_FUNCTION
-    EulerFlux operator()(
-            EulerCons const& consL,
-            EulerCons const& consR,
-            int locdim,
-            EoS const& eos) const noexcept
+    KOKKOS_FORCEINLINE_FUNCTION EulerFlux operator()(EulerCons const& consL, EulerCons const& consR, int locdim, EoS const& eos) const noexcept
     {
         KOKKOS_ASSERT(locdim >= 0)
         KOKKOS_ASSERT(locdim < ndim)
@@ -53,28 +47,15 @@ public:
 
         EulerFlux flux;
         flux.rho = FluxHLL(consL.rho, consR.rho, fluxL.rho, fluxR.rho, neg_wsL, pos_wsR);
-        for (int idim = 0; idim < ndim; ++idim)
-        {
-            flux.rhou[idim] = FluxHLL(
-                consL.rhou[idim],
-                consR.rhou[idim],
-                fluxL.rhou[idim],
-                fluxR.rhou[idim],
-                neg_wsL,
-                pos_wsR);
+        for (int idim = 0; idim < ndim; ++idim) {
+            flux.rhou[idim] = FluxHLL(consL.rhou[idim], consR.rhou[idim], fluxL.rhou[idim], fluxR.rhou[idim], neg_wsL, pos_wsR);
         }
         flux.E = FluxHLL(consL.E, consR.E, fluxL.E, fluxR.E, neg_wsL, pos_wsR);
         return flux;
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
-    static double FluxHLL(
-            double const UL,
-            double const UR,
-            double const FL,
-            double const FR,
-            double const wsL,
-            double const wsR) noexcept
+    static double FluxHLL(double const UL, double const UR, double const FL, double const FR, double const wsL, double const wsR) noexcept
     {
         return (wsR * FL - wsL * FR + wsL * wsR * (UR - UL)) / (wsR - wsL);
     }
@@ -84,12 +65,7 @@ class HLLC
 {
 public:
     template <class EoS>
-    KOKKOS_FORCEINLINE_FUNCTION
-    EulerFlux operator()(
-            EulerCons const& consL,
-            EulerCons const& consR,
-            int locdim,
-            EoS const& eos) const noexcept
+    KOKKOS_FORCEINLINE_FUNCTION EulerFlux operator()(EulerCons const& consL, EulerCons const& consR, int locdim, EoS const& eos) const noexcept
     {
         KOKKOS_ASSERT(locdim >= 0)
         KOKKOS_ASSERT(locdim < ndim)
@@ -108,25 +84,20 @@ public:
         double const rcL = primL.rho * (wsL - primL.u[locdim]);
         double const rcR = primR.rho * (wsR - primR.u[locdim]);
 
-        double const ustar = (primR.P - primL.P + rcL * primL.u[locdim] - rcR * primR.u[locdim])
-                            / (rcL - rcR);
-        double const pstar = 1. / 2 * (primL.P + primR.P + rcL * (ustar - primL.u[locdim])
-                            + rcR * (ustar - primR.u[locdim]));
+        double const ustar = (primR.P - primL.P + rcL * primL.u[locdim] - rcR * primR.u[locdim]) / (rcL - rcR);
+        double const pstar = 1. / 2 * (primL.P + primR.P + rcL * (ustar - primL.u[locdim]) + rcR * (ustar - primR.u[locdim]));
 
         double S = 0;
         EulerCons cons_state;
         EulerPrim prim_state;
         EulerFlux flux_state;
 
-        if (ustar > 0)
-        {
+        if (ustar > 0) {
             S = wsL;
             cons_state = consL;
             prim_state = primL;
             flux_state = fluxL;
-        }
-        else
-        {
+        } else {
             S = wsR;
             cons_state = consR;
             prim_state = primR;
@@ -136,40 +107,29 @@ public:
         double const un = prim_state.u[locdim];
         EulerFlux flux;
 
-        if (wsL * wsR > 0)
-        {
+        if (wsL * wsR > 0) {
             flux.rho = flux_state.rho;
-            for (int idim = 0; idim < ndim; ++idim)
-            {
+            for (int idim = 0; idim < ndim; ++idim) {
                 flux.rhou[idim] = flux_state.rhou[idim];
             }
             flux.E = flux_state.E;
-        }
-        else
-        {
+        } else {
             double const rho_star = cons_state.rho * (S - un) / (S - ustar);
             flux.rho = FluxHLLC(flux_state.rho, cons_state.rho, rho_star, S);
 
-            for (int idim = 0; idim < ndim; ++idim)
-            {
+            for (int idim = 0; idim < ndim; ++idim) {
                 flux.rhou[idim] = rho_star * ustar * prim_state.u[idim];
             }
             flux.rhou[locdim] = rho_star * ustar * ustar + pstar;
 
-            double const E_star = (S - un) / (S - ustar) * cons_state.E
-                            + (ustar - un) / (S - ustar)
-                            * (ustar * cons_state.rho * (S - un) + prim_state.P);
+            double const E_star = (S - un) / (S - ustar) * cons_state.E + (ustar - un) / (S - ustar) * (ustar * cons_state.rho * (S - un) + prim_state.P);
             flux.E = FluxHLLC(flux_state.E, cons_state.E, E_star, S);
         }
         return flux;
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
-    static double FluxHLLC(
-            double const F,
-            double const U,
-            double const Ustar,
-            double const ws) noexcept
+    static double FluxHLLC(double const F, double const U, double const Ustar, double const ws) noexcept
     {
         return F + ws * (Ustar - U);
     }
@@ -179,12 +139,7 @@ class Splitting
 {
 public:
     template <class EoS>
-    KOKKOS_FORCEINLINE_FUNCTION
-    EulerFlux operator()(
-            EulerCons const& consL,
-            EulerCons const& consR,
-            int locdim,
-            EoS const& eos) const noexcept
+    KOKKOS_FORCEINLINE_FUNCTION EulerFlux operator()(EulerCons const& consL, EulerCons const& consR, int locdim, EoS const& eos) const noexcept
     {
         KOKKOS_ASSERT(locdim >= 0)
         KOKKOS_ASSERT(locdim < ndim)
@@ -202,19 +157,15 @@ public:
         double const Pstar = (primL.P + primR.P) / 2 - (theta * a) / 2 * (primR.u[locdim] - primL.u[locdim]);
 
         EulerCons cons_state;
-        if (ustar > 0)
-        {
+        if (ustar > 0) {
             cons_state = consL;
-        }
-        else
-        {
+        } else {
             cons_state = consR;
         }
 
         EulerFlux flux;
         flux.rho = ustar * cons_state.rho;
-        for (int idim = 0; idim < ndim; ++idim)
-        {
+        for (int idim = 0; idim < ndim; ++idim) {
             flux.rhou[idim] = ustar * cons_state.rhou[idim];
         }
         flux.rhou[locdim] += Pstar;
