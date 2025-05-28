@@ -10,6 +10,7 @@
 #include <inih/INIReader.hpp>
 
 #include "broadcast.hpp"
+#include "default_boundary_setup.hpp"
 #include "default_user_step.hpp"
 #include "eos.hpp"
 #include <grid.hpp>
@@ -262,92 +263,6 @@ public:
         }
         MPI_Allreduce(MPI_IN_PLACE, &vmax, 1, MPI_DOUBLE, MPI_MAX, grid.comm_cart);
         return vmax >= m_param_setup.vmax_shift;
-    }
-};
-
-template <class Gravity>
-class BoundarySetup : public IBoundaryCondition<Gravity>
-{
-    std::string m_label;
-
-private:
-    EOS m_eos;
-    ParamSetup m_param_setup;
-
-public:
-    BoundarySetup(int idim, int iface,
-        EOS const& eos,
-        ParamSetup const& param_setup)
-        : IBoundaryCondition<Gravity>(idim, iface)
-        , m_label(std::string("UserDefined").append(bc_dir(idim)).append(bc_face(iface)))
-        , m_eos(eos)
-        , m_param_setup(param_setup)
-    {
-    }
-
-    void execute(Grid const& grid,
-                 [[maybe_unused]] Gravity const& gravity,
-                 KV_double_3d const& rho,
-                 KV_double_4d const& rhou,
-                 KV_double_3d const& E,
-                 KV_double_4d const& fx) const final
-    {
-        assert(rho.extent(0) == rhou.extent(0));
-        assert(rhou.extent(0) == E.extent(0));
-        assert(rho.extent(1) == rhou.extent(1));
-        assert(rhou.extent(1) == E.extent(1));
-        assert(rho.extent(2) == rhou.extent(2));
-        assert(rhou.extent(2) == E.extent(2));
-
-        Kokkos::Array<int, 3> begin {0, 0, 0};
-        Kokkos::Array<int, 3> end {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)};
-
-        auto const xc = grid.x_center;
-        auto const& eos = m_eos;
-        auto const& param_setup = m_param_setup;
-        double const mu = m_eos.mean_molecular_weight();
-
-        int const ng = grid.Nghost[this->bc_idim()];
-        if (this->bc_iface() == 1)
-        {
-            begin[this->bc_idim()] = rho.extent_int(this->bc_idim()) - ng;
-        }
-        end[this->bc_idim()] = begin[this->bc_idim()] + ng;
-
-        Kokkos::parallel_for(
-            m_label,
-            Kokkos::MDRangePolicy<int, Kokkos::Rank<3>>(begin, end),
-            KOKKOS_LAMBDA(int i, int j, int k)
-            {
-                double u_rgs = 50000; // m s^{-1}
-                double M_sun = 1.989e30; // kg
-                double m_dot_rsg = 1e-6 * M_sun / (365 * 24 * 3600); // kg s^{-1}
-
-                double u_r = param_setup.v0_CL + (u_rgs - param_setup.v0_CL)
-                            * (1 - param_setup.R_star / xc(i)) * (1 - param_setup.R_star / xc(i));
-
-                rho(i, j, k) = m_dot_rsg / (4 * units::pi * xc(i) * xc(i) * u_r);
-
-                rhou(i, j, k, 0) = rho(i, j, k) * u_r;
-
-                if (ndim == 2 || ndim == 3)
-                {
-                    rhou(i, j, k, 1) = 0;
-                }
-                if (ndim == 3)
-                {
-                    rhou(i, j, k, 2) = 0;
-                }
-
-                E(i, j, k) = eos.compute_evol_from_T(rho(i, j, k), param_setup.T_CL);
-
-                fx(i, j, k, 0) = param_setup.Ni_CL;
-                fx(i, j, k, 1) = param_setup.Other_CL;
-                /* fx(i, j, k, 1) = param_setup.H_CL;
-                fx(i, j, k, 2) = param_setup.He_CL;
-                fx(i, j, k, 3) = param_setup.O_CL;
-                fx(i, j, k, 4) = param_setup.Si_CL; */
-            });
     }
 };
 
