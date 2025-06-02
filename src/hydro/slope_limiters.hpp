@@ -41,12 +41,11 @@ public:
     KOKKOS_FORCEINLINE_FUNCTION
     double operator()(double const diffR, double const diffL) const noexcept
     {
-        if (diffL * diffR > 0)
+    	if (diffL * diffR > 0)
         {
             double const ratio = diffR / diffL;
             return (1. / 2) * (diffR + diffL) * (4 * ratio) / ((ratio + 1) * (ratio + 1));
         }
-
         return 0;
     }
 };
@@ -62,11 +61,21 @@ public:
     KOKKOS_FORCEINLINE_FUNCTION
     double operator()(double const diffR, double const diffL) const noexcept
     {
-        if (diffL * diffR > 0)
+        // if (diffL * diffR > 0)
+        // {
+        //     double const ratio = diffR / diffL;
+        //     double const minmod = 2 * Kokkos::fmin(1., ratio) / (1 + ratio);
+        //     return minmod * (diffL + diffR) / 2;
+        // }
+	
+	double const ratio = 0.1;
+	double const tmp = 2 * Kokkos::fmin(1., ratio) / (1 + ratio);
+	double const res = tmp * (diffL + diffR) / 2;
+	if (diffL * diffR * res > 0)
         {
-            double const ratio = diffR / diffL;
-            double const minmod = 2 * Kokkos::fmin(1., ratio) / (1 + ratio);
-            return minmod * (diffL + diffR) / 2;
+             double const ratio = diffR / diffL;
+             double const minmod = 2 * Kokkos::fmin(1., ratio) / (1 + ratio);
+             return minmod * (diffL + diffR) / 2;
         }
 
         return 0;

@@ -41,8 +41,8 @@ cmake \
     -D Novapp_EOS=PerfectGas \
     -D Novapp_GRAVITY=Uniform \
     -D Novapp_GEOM=Cartesian \
-    -D Novapp_inih_DEPENDENCY_POLICY=INSTALLED \
-    -D Novapp_Kokkos_DEPENDENCY_POLICY=INSTALLED \
+    -D Novapp_inih_DEPENDENCY_POLICY=EMBEDDED \
+    -D Novapp_Kokkos_DEPENDENCY_POLICY=EMBEDDED \
     -B build
 cmake --build build --parallel 2
 ```

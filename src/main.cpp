@@ -497,18 +497,18 @@ void main(int argc, char** argv)
         t += dt;
         ++iter;
 
-        if(make_output)
-        {
-            temperature(grid.range.all_ghosts(), eos, rho.view_device(), P.view_device(), T.view_device());
-            modify_device(T);
+        // if(make_output)
+        // {
+        //    temperature(grid.range.all_ghosts(), eos, rho.view_device(), P.view_device(), T.view_device());
+        //    modify_device(T);
 
-            outputs_record.emplace_back(iter, t);
-            ++output_id;
-            xml_writer(grid, output_id, outputs_record, x_glob, y_glob, z_glob);
-            write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), grid, rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
-            print_simulation_status(std::cout, iter, t, param.t_end, output_id);
-            std::cout << std::flush;
-        }
+        //    outputs_record.emplace_back(iter, t);
+        //    ++output_id;
+        //    xml_writer(grid, output_id, outputs_record, x_glob, y_glob, z_glob);
+        //    write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), grid, rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
+        //    print_simulation_status(std::cout, iter, t, param.t_end, output_id);
+        //    std::cout << std::flush;
+        //}
     }
 
     Kokkos::fence("Nova++: after main time loop");
