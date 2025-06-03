@@ -94,26 +94,33 @@ public:
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                for (int idim = 0; idim < ndim; ++idim)
+                double const var_ijk = var(i, j, k);	
+		for (int idim = 0; idim < ndim; ++idim)
                 {
+		    double const kron_0 = kron(idim,0);
+		    double const kron_1 = kron(idim,1);
+		    double const kron_2 = kron(idim,2);
+ 
                     auto const [i_m, j_m, k_m] = lindex(idim, i, j, k); // i - 1
                     auto const [i_p, j_p, k_p] = rindex(idim, i, j, k); // i + 1
-                    double const dl = kron(idim,0) * dx(i)
-                                    + kron(idim,1) * dy(j)
-                                    + kron(idim,2) * dz(k);
-                    double const dl_m = kron(idim,0) * dx(i_m)
-                                      + kron(idim,1) * dy(j_m)
-                                      + kron(idim,2) * dz(k_m);
-                    double const dl_p = kron(idim,0) * dx(i_p)
-                                      + kron(idim,1) * dy(j_p)
-                                      + kron(idim,2) * dz(k_p);
+                    
+		    double const dl   = kron_0 * dx(i)
+                                      + kron_1 * dy(j)
+				      + kron_2 * dz(k);
+                    double const dl_m = kron_0 * dx(i_m)
+                                      + kron_1 * dy(j_m)
+                                      + kron_2 * dz(k_m);
+                    double const dl_p = kron_0 * dx(i_p)
+                                      + kron_1 * dy(j_p)
+                                      + kron_2 * dz(k_p);
+	            double const dl_2 = dl / 2;
+                     
+		    double const slope = slope_limiter(
+                        (var(i_p, j_p, k_p) - var_ijk) / (dl_p / 2 + dl_2),
+                        (var_ijk - var(i_m, j_m, k_m)) / (dl_m / 2 + dl_2));
 
-                    double const slope = slope_limiter(
-                        (var(i_p, j_p, k_p) - var(i, j, k)) / ((dl + dl_p) / 2),
-                        (var(i, j, k) - var(i_m, j_m, k_m)) / ((dl_m + dl) / 2));
-
-                    var_rec(i, j, k, 0, idim) =  var(i, j, k) - (dl / 2) * slope;
-                    var_rec(i, j, k, 1, idim) =  var(i, j, k) + (dl / 2) * slope;
+                    var_rec(i, j, k, 0, idim) =  var_ijk - dl_2 * slope;
+                    var_rec(i, j, k, 1, idim) =  var_ijk + dl_2 * slope;
                 }
             });
     }
