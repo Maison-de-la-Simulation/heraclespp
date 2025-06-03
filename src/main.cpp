@@ -379,7 +379,7 @@ void main(int argc, char** argv)
         }
         if (param.time_output_frequency > 0)
         {
-            double const next_output = param.time_output_ini + (time_output_id + 1) * param.time_output_frequency;
+            double const next_output = param.time_first_output + (time_output_id + 1) * param.time_output_frequency;
             if ((t + dt) >= next_output)
             {
                 dt = next_output - t;
