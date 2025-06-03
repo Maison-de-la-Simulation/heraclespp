@@ -343,7 +343,6 @@ void main(int argc, char** argv)
     if (!param.restart && (param.iter_output_frequency > 0 || param.time_output_frequency > 0))
     {
         ++iter_output_id;
-        ++time_output_id;
 
         temperature(grid.range.all_ghosts(), eos, rho.view_device(), P.view_device(), T.view_device());
         modify_device(T);
