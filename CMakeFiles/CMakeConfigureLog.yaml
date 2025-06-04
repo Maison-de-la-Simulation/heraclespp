@@ -1,0 +1,175 @@
+
+---
+events:
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/gpfs/softs/spack_0.17/opt/spack/linux-centos7-cascadelake/gcc-11.2.0/cmake-3.28.3-deiiu5wf3udnwf4aa3pxerkk75usbq7s/share/cmake-3.28/Modules/CMakeDetermineSystem.cmake:233 (message)"
+      - "CMakeLists.txt:7 (project)"
+    message: |
+      The system is: Linux - 3.10.0-1160.el7.x86_64 - x86_64
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/gpfs/softs/spack_0.17/opt/spack/linux-centos7-cascadelake/gcc-11.2.0/cmake-3.28.3-deiiu5wf3udnwf4aa3pxerkk75usbq7s/share/cmake-3.28/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "/gpfs/softs/spack_0.17/opt/spack/linux-centos7-cascadelake/gcc-11.2.0/cmake-3.28.3-deiiu5wf3udnwf4aa3pxerkk75usbq7s/share/cmake-3.28/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/gpfs/softs/spack_0.17/opt/spack/linux-centos7-cascadelake/gcc-11.2.0/cmake-3.28.3-deiiu5wf3udnwf4aa3pxerkk75usbq7s/share/cmake-3.28/Modules/CMakeDetermineCXXCompiler.cmake:126 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:7 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+      Compiler: /gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/bin/g++ 
+      Build flags: -lineinfo
+      Id flags:  
+      
+      The output was:
+      1
+      /usr/bin/ld : ne peut trouver -lineinfo
+      collect2: error: ld returned 1 exit status
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/gpfs/softs/spack_0.17/opt/spack/linux-centos7-cascadelake/gcc-11.2.0/cmake-3.28.3-deiiu5wf3udnwf4aa3pxerkk75usbq7s/share/cmake-3.28/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "/gpfs/softs/spack_0.17/opt/spack/linux-centos7-cascadelake/gcc-11.2.0/cmake-3.28.3-deiiu5wf3udnwf4aa3pxerkk75usbq7s/share/cmake-3.28/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/gpfs/softs/spack_0.17/opt/spack/linux-centos7-cascadelake/gcc-11.2.0/cmake-3.28.3-deiiu5wf3udnwf4aa3pxerkk75usbq7s/share/cmake-3.28/Modules/CMakeDetermineCXXCompiler.cmake:126 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:7 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+      Compiler: /gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/bin/g++ 
+      Build flags: -lineinfo
+      Id flags: -c 
+      
+      The output was:
+      0
+      
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CMakeCXXCompilerId.o"
+      
+      The CXX compiler identification is GNU, found in:
+        /gpfs/users/roaldese/session0/Heraclespp/heraclespp_ers/CMakeFiles/3.28.3/CompilerIdCXX/CMakeCXXCompilerId.o
+      
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/gpfs/softs/spack_0.17/opt/spack/linux-centos7-cascadelake/gcc-11.2.0/cmake-3.28.3-deiiu5wf3udnwf4aa3pxerkk75usbq7s/share/cmake-3.28/Modules/CMakeDetermineCompilerABI.cmake:57 (try_compile)"
+      - "/gpfs/softs/spack_0.17/opt/spack/linux-centos7-cascadelake/gcc-11.2.0/cmake-3.28.3-deiiu5wf3udnwf4aa3pxerkk75usbq7s/share/cmake-3.28/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:7 (project)"
+    checks:
+      - "Detecting CXX compiler ABI info"
+    directories:
+      source: "/gpfs/users/roaldese/session0/Heraclespp/heraclespp_ers/CMakeFiles/CMakeScratch/TryCompile-JCCLa2"
+      binary: "/gpfs/users/roaldese/session0/Heraclespp/heraclespp_ers/CMakeFiles/CMakeScratch/TryCompile-JCCLa2"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "-lineinfo"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "CMAKE_CXX_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: '/gpfs/users/roaldese/session0/Heraclespp/heraclespp_ers/CMakeFiles/CMakeScratch/TryCompile-JCCLa2'
+        
+        Run Build Command(s): /gpfs/softs/spack_0.17/opt/spack/linux-centos7-cascadelake/gcc-11.2.0/cmake-3.28.3-deiiu5wf3udnwf4aa3pxerkk75usbq7s/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_0c912/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_0c912.dir/build.make CMakeFiles/cmTC_0c912.dir/build
+        gmake[1]: Entering directory `/gpfs/users/roaldese/session0/Heraclespp/heraclespp_ers/CMakeFiles/CMakeScratch/TryCompile-JCCLa2'
+        Building CXX object CMakeFiles/cmTC_0c912.dir/CMakeCXXCompilerABI.cpp.o
+        /gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/bin/g++   -lineinfo    -v -o CMakeFiles/cmTC_0c912.dir/CMakeCXXCompilerABI.cpp.o -c /gpfs/softs/spack_0.17/opt/spack/linux-centos7-cascadelake/gcc-11.2.0/cmake-3.28.3-deiiu5wf3udnwf4aa3pxerkk75usbq7s/share/cmake-3.28/Modules/CMakeCXXCompilerABI.cpp
+        Reading specs from /gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib/gcc/x86_64-pc-linux-gnu/11.2.0/specs
+        COLLECT_GCC=/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/bin/g++
+        OFFLOAD_TARGET_NAMES=nvptx-none
+        Target: x86_64-pc-linux-gnu
+        Configured with: /gpfs/users/soft/.spack/stage/spack-stage-gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/spack-src/configure --prefix=/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3 --with-cuda-driver-include=/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/cuda-11.4.0-mcin36kupzg57nxqqszfaqimvourkjdn/include --with-cuda-driver-lib=/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/cuda-11.4.0-mcin36kupzg57nxqqszfaqimvourkjdn/targets/x86_64-linux/lib/stubs --prefix=/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3 --with-pkgversion='Spack GCC' --with-bugurl=https://github.com/spack/spack/issues --disable-multilib --enable-languages=c,c++,fortran --disable-nls --with-mpfr=/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/mpfr-3.1.6-nsgsjfylcpv3hznfbpiyw22mytku3tu5 --with-gmp=/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gmp-6.1.2-zn55wh7voutcbk46jzwgfyjfincjyuhh --with-system-zlib --with-mpc=/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/mpc-1.1.0-eogmmaousuogpnirvn32ain5qv7fxkrb --with-isl=/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/isl-0.20-hyy2twd64ysizcg4bzlvlvohu6mpshsr --enable-offload-targets=nvptx-none --with-cuda-driver-include=/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/cuda-11.4.0-mcin36kupzg57nxqqszfaqimvourkjdn/include --with-cuda-driver-lib=/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/cuda-11.4.0-mcin36kupzg57nxqqszfaqimvourkjdn/targets/x86_64-linux/lib/stubs --disable-bootstrap --disable-multilib
+        Thread model: posix
+        Supported LTO compression algorithms: zlib
+        gcc version 11.2.0 (Spack GCC) 
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_0c912.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_0c912.dir/'
+         /gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/libexec/gcc/x86_64-pc-linux-gnu/11.2.0/cc1plus -quiet -v -D_GNU_SOURCE /gpfs/softs/spack_0.17/opt/spack/linux-centos7-cascadelake/gcc-11.2.0/cmake-3.28.3-deiiu5wf3udnwf4aa3pxerkk75usbq7s/share/cmake-3.28/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpdir CMakeFiles/cmTC_0c912.dir/ -dumpbase CMakeCXXCompilerABI.cpp.cpp -dumpbase-ext .cpp -mtune=generic -march=x86-64 -version -o /tmp/cclliamo.s
+        GNU C++17 (Spack GCC) version 11.2.0 (x86_64-pc-linux-gnu)
+        	compiled by GNU C version 4.8.5 20150623 (Red Hat 4.8.5-44), GMP version 6.1.2, MPFR version 3.1.6-p2, MPC version 1.1.0, isl version isl-0.20-GMP
+        
+        GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+        ignoring nonexistent directory "/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib/gcc/x86_64-pc-linux-gnu/11.2.0/../../../../x86_64-pc-linux-gnu/include"
+        ignoring duplicate directory "/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/include"
+          as it is a non-system directory that duplicates a system directory
+        #include "..." search starts here:
+        #include <...> search starts here:
+         /gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib/gcc/x86_64-pc-linux-gnu/11.2.0/../../../../include/c++/11.2.0
+         /gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib/gcc/x86_64-pc-linux-gnu/11.2.0/../../../../include/c++/11.2.0/x86_64-pc-linux-gnu
+         /gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib/gcc/x86_64-pc-linux-gnu/11.2.0/../../../../include/c++/11.2.0/backward
+         /gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib/gcc/x86_64-pc-linux-gnu/11.2.0/include
+         /usr/local/include
+         /gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/include
+         /gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib/gcc/x86_64-pc-linux-gnu/11.2.0/include-fixed
+         /usr/include
+        End of search list.
+        GNU C++17 (Spack GCC) version 11.2.0 (x86_64-pc-linux-gnu)
+        	compiled by GNU C version 4.8.5 20150623 (Red Hat 4.8.5-44), GMP version 6.1.2, MPFR version 3.1.6-p2, MPC version 1.1.0, isl version isl-0.20-GMP
+        
+        GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+        Compiler executable checksum: 1cecf50748cc71cf85a3eb2a9808cc30
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_0c912.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_0c912.dir/'
+         as -v --64 -o CMakeFiles/cmTC_0c912.dir/CMakeCXXCompilerABI.cpp.o /tmp/cclliamo.s
+        GNU assembler version 2.27 (x86_64-redhat-linux) using BFD version version 2.27-44.base.el7
+        COMPILER_PATH=/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/libexec/gcc/x86_64-pc-linux-gnu/11.2.0/:/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/libexec/gcc/x86_64-pc-linux-gnu/11.2.0/:/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/libexec/gcc/x86_64-pc-linux-gnu/:/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib/gcc/x86_64-pc-linux-gnu/11.2.0/:/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib/gcc/x86_64-pc-linux-gnu/
+        LIBRARY_PATH=/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib64/../lib64/:/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib/../lib64/:/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib/gcc/x86_64-pc-linux-gnu/11.2.0/:/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib/gcc/x86_64-pc-linux-gnu/11.2.0/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib64/:/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib/:/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib/gcc/x86_64-pc-linux-gnu/11.2.0/../../../:/lib/:/usr/lib/
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_0c912.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_0c912.dir/CMakeCXXCompilerABI.cpp.'
+        Linking CXX executable cmTC_0c912
+        /gpfs/softs/spack_0.17/opt/spack/linux-centos7-cascadelake/gcc-11.2.0/cmake-3.28.3-deiiu5wf3udnwf4aa3pxerkk75usbq7s/bin/cmake -E cmake_link_script CMakeFiles/cmTC_0c912.dir/link.txt --verbose=1
+        /gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/bin/g++ -lineinfo   -v CMakeFiles/cmTC_0c912.dir/CMakeCXXCompilerABI.cpp.o -o cmTC_0c912 
+        Reading specs from /gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib/gcc/x86_64-pc-linux-gnu/11.2.0/specs
+        COLLECT_GCC=/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/bin/g++
+        COLLECT_LTO_WRAPPER=/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/libexec/gcc/x86_64-pc-linux-gnu/11.2.0/lto-wrapper
+        OFFLOAD_TARGET_NAMES=nvptx-none
+        Target: x86_64-pc-linux-gnu
+        Configured with: /gpfs/users/soft/.spack/stage/spack-stage-gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/spack-src/configure --prefix=/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3 --with-cuda-driver-include=/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/cuda-11.4.0-mcin36kupzg57nxqqszfaqimvourkjdn/include --with-cuda-driver-lib=/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/cuda-11.4.0-mcin36kupzg57nxqqszfaqimvourkjdn/targets/x86_64-linux/lib/stubs --prefix=/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3 --with-pkgversion='Spack GCC' --with-bugurl=https://github.com/spack/spack/issues --disable-multilib --enable-languages=c,c++,fortran --disable-nls --with-mpfr=/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/mpfr-3.1.6-nsgsjfylcpv3hznfbpiyw22mytku3tu5 --with-gmp=/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gmp-6.1.2-zn55wh7voutcbk46jzwgfyjfincjyuhh --with-system-zlib --with-mpc=/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/mpc-1.1.0-eogmmaousuogpnirvn32ain5qv7fxkrb --with-isl=/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/isl-0.20-hyy2twd64ysizcg4bzlvlvohu6mpshsr --enable-offload-targets=nvptx-none --with-cuda-driver-include=/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/cuda-11.4.0-mcin36kupzg57nxqqszfaqimvourkjdn/include --with-cuda-driver-lib=/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/cuda-11.4.0-mcin36kupzg57nxqqszfaqimvourkjdn/targets/x86_64-linux/lib/stubs --disable-bootstrap --disable-multilib
+        Thread model: posix
+        Supported LTO compression algorithms: zlib
+        gcc version 11.2.0 (Spack GCC) 
+        COMPILER_PATH=/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/libexec/gcc/x86_64-pc-linux-gnu/11.2.0/:/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/libexec/gcc/x86_64-pc-linux-gnu/11.2.0/:/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/libexec/gcc/x86_64-pc-linux-gnu/:/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib/gcc/x86_64-pc-linux-gnu/11.2.0/:/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib/gcc/x86_64-pc-linux-gnu/
+        LIBRARY_PATH=/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib64/../lib64/:/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib/../lib64/:/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib/gcc/x86_64-pc-linux-gnu/11.2.0/:/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib/gcc/x86_64-pc-linux-gnu/11.2.0/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib64/:/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib/:/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib/gcc/x86_64-pc-linux-gnu/11.2.0/../../../:/lib/:/usr/lib/
+        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_0c912' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_0c912.'
+         /gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/libexec/gcc/x86_64-pc-linux-gnu/11.2.0/collect2 -plugin /gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/libexec/gcc/x86_64-pc-linux-gnu/11.2.0/liblto_plugin.so -plugin-opt=/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/libexec/gcc/x86_64-pc-linux-gnu/11.2.0/lto-wrapper -plugin-opt=-fresolution=/tmp/ccpKCrVt.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -rpath /gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib:/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib64 --eh-frame-hdr -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_0c912 /lib/../lib64/crt1.o /lib/../lib64/crti.o /gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib/gcc/x86_64-pc-linux-gnu/11.2.0/crtbegin.o -L/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib64/../lib64 -L/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib/../lib64 -L/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib/gcc/x86_64-pc-linux-gnu/11.2.0 -L/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib/gcc/x86_64-pc-linux-gnu/11.2.0/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib64 -L/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib -L/gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib/gcc/x86_64-pc-linux-gnu/11.2.0/../../.. -lineinfo CMakeFiles/cmTC_0c912.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/lib/gcc/x86_64-pc-linux-gnu/11.2.0/crtend.o /lib/../lib64/crtn.o
+        /usr/bin/ld: cannot find -lineinfo
+        collect2: error: ld returned 1 exit status
+        gmake[1]: *** [cmTC_0c912] Error 1
+        gmake[1]: Leaving directory `/gpfs/users/roaldese/session0/Heraclespp/heraclespp_ers/CMakeFiles/CMakeScratch/TryCompile-JCCLa2'
+        gmake: *** [cmTC_0c912/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/gpfs/softs/spack_0.17/opt/spack/linux-centos7-cascadelake/gcc-11.2.0/cmake-3.28.3-deiiu5wf3udnwf4aa3pxerkk75usbq7s/share/cmake-3.28/Modules/CMakeTestCXXCompiler.cmake:49 (try_compile)"
+      - "CMakeLists.txt:7 (project)"
+    checks:
+      - "Check for working CXX compiler: /gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/bin/g++"
+    directories:
+      source: "/gpfs/users/roaldese/session0/Heraclespp/heraclespp_ers/CMakeFiles/CMakeScratch/TryCompile-dkdHU0"
+      binary: "/gpfs/users/roaldese/session0/Heraclespp/heraclespp_ers/CMakeFiles/CMakeScratch/TryCompile-dkdHU0"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "-lineinfo"
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "CMAKE_CXX_COMPILER_WORKS"
+      cached: true
+      stdout: |
+        Change Dir: '/gpfs/users/roaldese/session0/Heraclespp/heraclespp_ers/CMakeFiles/CMakeScratch/TryCompile-dkdHU0'
+        
+        Run Build Command(s): /gpfs/softs/spack_0.17/opt/spack/linux-centos7-cascadelake/gcc-11.2.0/cmake-3.28.3-deiiu5wf3udnwf4aa3pxerkk75usbq7s/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_70473/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_70473.dir/build.make CMakeFiles/cmTC_70473.dir/build
+        gmake[1] : on entre dans le répertoire « /gpfs/users/roaldese/session0/Heraclespp/heraclespp_ers/CMakeFiles/CMakeScratch/TryCompile-dkdHU0 »
+        Building CXX object CMakeFiles/cmTC_70473.dir/testCXXCompiler.cxx.o
+        /gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/bin/g++   -lineinfo  -o CMakeFiles/cmTC_70473.dir/testCXXCompiler.cxx.o -c /gpfs/users/roaldese/session0/Heraclespp/heraclespp_ers/CMakeFiles/CMakeScratch/TryCompile-dkdHU0/testCXXCompiler.cxx
+        Linking CXX executable cmTC_70473
+        /gpfs/softs/spack_0.17/opt/spack/linux-centos7-cascadelake/gcc-11.2.0/cmake-3.28.3-deiiu5wf3udnwf4aa3pxerkk75usbq7s/bin/cmake -E cmake_link_script CMakeFiles/cmTC_70473.dir/link.txt --verbose=1
+        /gpfs/softs/spack/opt/spack/linux-centos7-haswell/gcc-4.8.5/gcc-11.2.0-mpv3i3uebzvnvz7wxn6ywysd5hftycj3/bin/g++ -lineinfo  CMakeFiles/cmTC_70473.dir/testCXXCompiler.cxx.o -o cmTC_70473 
+        /usr/bin/ld : ne peut trouver -lineinfo
+        collect2: error: ld returned 1 exit status
+        gmake[1]: *** [cmTC_70473] Erreur 1
+        gmake[1] : on quitte le répertoire « /gpfs/users/roaldese/session0/Heraclespp/heraclespp_ers/CMakeFiles/CMakeScratch/TryCompile-dkdHU0 »
+        gmake: *** [cmTC_70473/fast] Erreur 2
+        
+      exitCode: 2
+...
