@@ -114,7 +114,10 @@ public:
                                       + kron_1 * dy(j_p)
                                       + kron_2 * dz(k_p);
 	            double const dl_2 = dl / 2;
-                     
+                    double x = 2;
+		    for (int ii=0; ii<100; ii++){
+		    	x = cos(x) + sin(x);
+		    } 
 		    double const slope = slope_limiter(
                         (var(i_p, j_p, k_p) - var_ijk) / (dl_p / 2 + dl_2),
                         (var_ijk - var(i_m, j_m, k_m)) / (dl_m / 2 + dl_2));
