@@ -7,7 +7,7 @@
 #SBATCH --job-name=sgpu
 #SBATCH --output=%x.o%j
 #SBATCH --time=00:30:00
-#SBATCH --partition=gpu_test # V100 : gpu/gpu_test || A100 : gpua100 || P100 : gpup100
+#SBATCH --partition=gpua100 # V100 : gpu/gpu_test || A100 : gpua100 || P100 : gpup100
 #SBATCH --mem=8G
 ## GPU allocation
 #SBATCH --gres=gpu:1
@@ -35,4 +35,4 @@ set -x
 ## To compute in the submission directory
 cd "${SLURM_SUBMIT_DIR}"
 
-ncu --nvtx --import-source 1 --launch-skip 0 --set basic -f -o report.ncu-rep ./../build/src/nova++ ./../inputs/rayleigh_taylor3d.ini
+ncu --nvtx --import-source yes --target-processes all --launch-skip 0 --set basic --kernel-name-base demangled -k regex:".*econstruction" -f -o report.ncu-rep ./../build_V100/src/nova++ ./../inputs/rayleigh_taylor3d.ini

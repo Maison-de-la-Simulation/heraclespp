@@ -35,6 +35,6 @@ set -x
 ## To compute in the submission directory
 cd "${SLURM_SUBMIT_DIR}"
 
-nsys profile --trace=cuda,nvtx ./../build/src/nova++ ../inputs/rayleigh_taylor3d.ini
+nsys profile --trace=cuda,nvtx ./../build_V100/src/nova++ ../inputs/rayleigh_taylor3d.ini
 
 rm *.h5 *.xmf
