@@ -368,7 +368,7 @@ void main(int argc, char** argv)
     {
         double dt = param.cfl * time_step(grid.range.all_ghosts(), eos, grid, rho.view_device(), u.view_device(), P.view_device());
 
-        bool make_output = false;
+        // (Enzo) bool make_output = false;
         if (param.iter_output_frequency > 0)
         {
             int const next_output = iter_ini + (iter_output_id + 1) * param.iter_output_frequency;
@@ -497,7 +497,7 @@ void main(int argc, char** argv)
         t += dt;
         ++iter;
 
-        // if(make_output)
+        // (Enzo) if(make_output)
         // {
         //    temperature(grid.range.all_ghosts(), eos, rho.view_device(), P.view_device(), T.view_device());
         //    modify_device(T);

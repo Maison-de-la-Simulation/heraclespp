@@ -4,11 +4,11 @@
 ##
 ## SPDX-License-Identifier: MIT
 
-#SBATCH --job-name=sgpu
+#SBATCH --job-name=sgpu_nsys
 #SBATCH --output=%x.o%j
 #SBATCH --time=00:30:00
 #SBATCH --partition=gpu_test # V100 : gpu/gpu_test || A100 : gpua100 || P100 : gpup100
-
+#SBATCH --mem=8G
 ## GPU allocation
 #SBATCH --gres=gpu:1
 #SBATCH --ntasks=1
