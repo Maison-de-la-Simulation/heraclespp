@@ -4,10 +4,9 @@
 
 # View Sedov blast wave 1d
 
+import sys
 import h5py
 import matplotlib.pyplot as plt
-import numpy as np
-import sys
 
 from exact_sedov import ExactSedov
 
@@ -24,7 +23,6 @@ with h5py.File(str(filename), "r") as f:
     P = f["P"][0, 0, :]
     x = f["x_ng"][()]
     t = f["current_time"][()]
-    iter = f["iter"][()]
     gamma = f["gamma"][()]
 E = 1 / 2 * rho * u**2 + P / (gamma - 1)
 xc = (x[:-1] + x[1:]) / 2

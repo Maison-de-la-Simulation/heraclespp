@@ -13,6 +13,9 @@ on:
       - '**.py'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   python-format:
     name: Python format using black
@@ -25,3 +28,15 @@ jobs:
       - name: Check format using black
         run: |
           black --line-length 100 $(git ls-files '*.py')
+
+  python-lint:
+    name: Python lint using pylint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      - name: Install dependencies
+        run: |
+          pipx install pylint
+      - name: Analysing the code with pylint
+        run: |
+          pylint  --disable=R0801,R0912,R0913,R0914,R0915,R0917,W0621,C0103,C0114,C0116,E1101,E0401 --max-line-length 100 $(git ls-files '*.py')

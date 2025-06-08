@@ -26,8 +26,6 @@ def SolutionSedov(n, gamma):
     a3 = n / (2 * (gamma - 1) + n)
     a4 = a1 * (n + 2) / (2 - gamma)
     a5 = 2 / (gamma - 2)
-    a6 = gamma / (2 * (gamma - 1) + n)
-    a7 = a1 * (2 + n * (gamma - 1)) / (n * (2 - gamma))
 
     r1 = (
         ((n + 2) * (gamma + 1) / 4 * v) ** (-2 / (2 + n))
@@ -125,9 +123,9 @@ def SolutionSedov(n, gamma):
     int2 = p / (gamma - 1) * vol
     sum1 = np.sum(int1)
     sum2 = np.sum(int2)
-    sum = sum1 + sum2
-    # print('chi0 =', sum**(-1 / (2 + n)))
-    chi0 = sum ** (-1 / (2 + n))
+    total_energy = sum1 + sum2
+    # print('chi0 =', total_energy**(-1 / (2 + n)))
+    chi0 = total_energy ** (-1 / (2 + n))
     r = r * chi0
     u = u * chi0
     p = p * chi0**2

@@ -13,34 +13,32 @@ import numpy as np
 def CI(x, inter, tabl, tabr):
     """Shock tube initialisation
 
-    input :
-    x     : array : position
-    inter : float : interface position
-    tabl  : array : density, velocity, pressure and speed sound left
-    tabr  : array : right
+    Parameters
+    ----------
+    x : array
+        position
+    inter : float
+        interface position
+    tabl : array
+        density, velocity, pressure and speed sound left
+    tabr : array
+        right
 
-    output :
-    rho0  : array : density t=0
-    u0    : array : velocity t=0
-    P0    : array : pressure t=0
+    Returns
+    -------
+    rho0 : array
+        density t=0
+    u0 : array
+        velocity t=0
+    P0 : array
+        pressure t=0
     """
-    rhol, ul, Pl, cl = tabl
-    rhor, ur, Pr, cr = tabr
+    rhol, ul, Pl, _ = tabl
+    rhor, ur, Pr, _ = tabr
 
-    rho0 = np.zeros(len(x))
-    u0 = np.zeros(len(x))
-    P0 = np.zeros(len(x))
-
-    for i in range(len(x)):
-        if x[i] <= inter:
-            rho0[i] = rhol
-            u0[i] = ul
-            P0[i] = Pl
-
-        else:
-            rho0[i] = rhor
-            u0[i] = ur
-            P0[i] = Pr
+    rho0 = np.where(x <= inter, rhol, rhor)
+    u0 = np.where(x <= inter, ul, ur)
+    P0 = np.where(x <= inter, Pl, Pr)
 
     return rho0, u0, P0
 
@@ -48,14 +46,21 @@ def CI(x, inter, tabl, tabr):
 def StarPU(tabl, tabr, gamma):
     """Pressure and velocity in the star region
 
-    input :
-    tabl  : array : density, velocity, pressure and speed sound left
-    tabr  : array : right
-    gamma : float : adiabtic constant
+    Parameters
+    ----------
+    tabl : array
+        density, velocity, pressure and speed sound left
+    tabr : array
+        right
+    gamma : float
+        adiabtic constant
 
-    output  :
-    P_star : float : pressure
-    u_star : float : speed
+    Returns
+    -------
+    P_star : float
+        pressure
+    u_star : float
+        speed
     """
     rhol, ul, Pl, cl = tabl
     rhor, ur, Pr, cr = tabr
@@ -86,13 +91,19 @@ def StarPU(tabl, tabr, gamma):
 def GuessP(tabl, tabr, gamma):
     """Define an intelligent initial pressure in the star region
 
-    input :
-    tabl  : array : density, velocity, pressure and speed sound left
-    tabr  : array : right
-    gamma : float :adiabatic constant
+    Parameters
+    ----------
+    tabl : array
+        density, velocity, pressure and speed sound left
+    tabr : array
+        right
+    gamma : float
+        adiabatic constant
 
-    output  :
-    P_star : float : pressure in the star region
+    Returns
+    -------
+    P_star : float
+        pressure in the star region
     """
     z = (gamma - 1) / (2 * gamma)
     g4 = 2 / (gamma - 1)
@@ -112,7 +123,7 @@ def GuessP(tabl, tabr, gamma):
     Pmax = np.max([Pl, Pr])
     qmax = Pmax / Pmin
 
-    if (qmax < quser) and ((Pmin <= P_pvrs) and (P_pvrs <= Pmax)):
+    if (qmax < quser) and (Pmin <= P_pvrs <= Pmax):
         P_star = P_pvrs
     else:
         if P_pvrs < Pmin:
@@ -134,16 +145,25 @@ def GuessP(tabl, tabr, gamma):
 def Prefun(P, Pk, rhok, ck, gamma):
     """Evaluate the pressure function
 
-    input :
-    P     : float : input estimate pressure
-    Pk    : float : pressure left k=l or right k=r
-    rhok  : float : density left or right
-    ck    : float : sound speed left or right
-    gamma : float :abiabatic constant
+    Parameters
+    ----------
+    P : float
+        input estimate pressure
+    Pk : float
+        pressure left k=l or right k=r
+    rhok : float
+        density left or right
+    ck : float
+        sound speed left or right
+    gamma : float
+        abiabatic constant
 
-    output :
-    fk    : float : pressure function left or right
-    fd    : float : pressure function derivate
+    Returns
+    -------
+    fk : float
+        pressure function left or right
+    fd : float
+        pressure function derivate
     """
     z = (gamma - 1) / (2 * gamma)
     g2 = (gamma + 1) / (2 * gamma)
@@ -168,18 +188,29 @@ def Prefun(P, Pk, rhok, ck, gamma):
 def Sample(P_star, u_star, S, tabl, tabr, gamma):
     """Find solution between the wave
 
-    input  :
-    P_star : float : pressure in the star region
-    u_star : float : velocity in the star region
-    S      : float : velocity depends of the position
-    tabl   : array : density, velocity, pressure and speed sound left
-    tabr   : array : right
-    gamma  : float : adiabatic constant
+    Parameters
+    ----------
+    P_star : float
+        pressure in the star region
+    u_star : float
+        velocity in the star region
+    S : float
+        velocity depends of the position
+    tabl : array
+        density, velocity, pressure and speed sound left
+    tabr : array
+        right
+    gamma : float
+        adiabatic constant
 
-    output :
-    rho   : float : density
-    u     : float : speed
-    P     : float : pressure
+    Returns
+    -------
+    rho : float
+        density
+    u : float
+        speed
+    P : float
+        pressure
     """
     z = (gamma - 1) / (2 * gamma)
     g2 = (gamma + 1) / (2 * gamma)
@@ -257,26 +288,38 @@ def Sample(P_star, u_star, S, tabl, tabr, gamma):
 def ExactShockTube(x, inter, var0L, var0R, t, gamma):
     """Exact solution
 
-    input :
-    x     : array : position
-    inter : float : interface position
-    var0L : array : density, velocity, pressure and speed sound left
-    var0R : array : right
-    t     : float : output time
-    gamma  : float : adiabatic constant
+    Parameters
+    ----------
+    x : array
+        position
+    inter : float
+        interface position
+    var0L : array
+        density, velocity, pressure and speed sound left
+    var0R : array
+        right
+    t : float
+        output time
+    gamma : float
+        adiabatic constant
 
-    output :
-    rho   : array : density
-    u     : array : speed
-    P     : array : pressure
-    e     : array : internal energy
+    Returns
+    -------
+    rho : array
+        density
+    u : array
+        speed
+    P : array
+        pressure
+    e : array
+        internal energy
     """
     rho = np.zeros(len(x))
     u = np.zeros(len(x))
     P = np.zeros(len(x))
     u_star, P_star = StarPU(var0L, var0R, gamma)
-    for i in range(len(x)):
-        S = (x[i] - inter) / t
+    for i, x_value in enumerate(x):
+        S = (x_value - inter) / t
         rho[i], u[i], P[i] = Sample(P_star, u_star, S, var0L, var0R, gamma)
     e = P / (rho * (gamma - 1))
     return rho, u, P, e

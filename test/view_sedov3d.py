@@ -40,11 +40,11 @@ with h5py.File(str(filename), "r") as f:
     y = f["y_ng"][()]
     z = f["z_ng"][()]
     t = f["current_time"][()]
-    iter = f["iter"][()]
+    iteration = f["iter"][()]
     gamma = f["gamma"][()]
 
 print(f"Final time = {t:.5f} s")
-print(f"Iteration number = {iter}")
+print(f"Iteration number = {iteration}")
 print("Shape = ", P_3d.shape)
 
 E = 1 / 2 * rho_1d * u_1d**2 + P_1d / (gamma - 1)
@@ -107,31 +107,31 @@ z0 = 1 * np.cos(np.pi / 2)
 
 rdist = np.zeros(P_3d.shape)
 
-""" for i in range(nr):
-    print(i)
-    for j in range(nth):
-    #j = int(nth / 2)
-        for k in range(nphi):
-        #k = int(nphi / 2)
-            xcart = r[i] * np.sin(th[j]) * np.cos(phi[k])
-            ycart = r[i] * np.sin(th[j]) * np.sin(phi[k])
-            zcart = r[i] * np.cos(th[j])
-            rdist[k, j, i] = np.sqrt((xcart - x0)**2 + (ycart - y0)**2 + (zcart - z0)**2)
-print("tableau done")
+# for i in range(nr):
+#     print(i)
+#     for j in range(nth):
+#     #j = int(nth / 2)
+#         for k in range(nphi):
+#         #k = int(nphi / 2)
+#             xcart = r[i] * np.sin(th[j]) * np.cos(phi[k])
+#             ycart = r[i] * np.sin(th[j]) * np.sin(phi[k])
+#             zcart = r[i] * np.cos(th[j])
+#             rdist[k, j, i] = np.sqrt((xcart - x0)**2 + (ycart - y0)**2 + (zcart - z0)**2)
+# print("tableau done")
 
-plt.figure(figsize=(10,8))
-for i in range(nr):
-    print(i)
-    for j in range(nth):
-        for k in range(nphi):
-        #j = int(nth / 2)
-        #k = int(nphi / 2)
-            plt.plot(rdist[k, j, i], P_3d[k, j, i], "o", color='#1f77b4')
-plt.plot(r_exact, P_exact, "--", label=f"Exact", color='black')
-plt.xlabel("Radius (m)"); plt.ylabel('Pressure ($kg.m^{-1}.s^{-2}$)')
-plt.legend()
-plt.xlim(0, 1)
-plt.show() """
+# plt.figure(figsize=(10,8))
+# for i in range(nr):
+#     print(i)
+#     for j in range(nth):
+#         for k in range(nphi):
+#         #j = int(nth / 2)
+#         #k = int(nphi / 2)
+#             plt.plot(rdist[k, j, i], P_3d[k, j, i], "o", color='#1f77b4')
+# plt.plot(r_exact, P_exact, "--", label=f"Exact", color='black')
+# plt.xlabel("Radius (m)"); plt.ylabel('Pressure ($kg.m^{-1}.s^{-2}$)')
+# plt.legend()
+# plt.xlim(0, 1)
+# plt.show()
 
 # ------------------------------------------
 

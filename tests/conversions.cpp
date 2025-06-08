@@ -14,6 +14,8 @@
 #include <ndim.hpp>
 #include <range.hpp>
 
+#include "utils_dual_view.hpp"
+
 TEST(Conversions, PrimToCons)
 {
     int const n = 10;
@@ -52,8 +54,8 @@ TEST(Conversions, PrimToCons)
     rhou_view.sync_host();
     E_view.sync_host();
 
-    novapp::KDV_double_4d::t_host const rhou_host = rhou_view.view_host();
-    novapp::KDV_double_3d::t_host const E_host = E_view.view_host();
+    novapp::KDV_double_4d::t_host const rhou_host = novapp::view_host(rhou_view);
+    novapp::KDV_double_3d::t_host const E_host = novapp::view_host(E_view);
     novapp::EulerCons const cons = to_cons(prim, eos);
     for (int k = 0; k < n; ++k)
     {
@@ -109,8 +111,8 @@ TEST(Conversions, ConsToPrim)
     u_view.sync_host();
     P_view.sync_host();
 
-    novapp::KDV_double_4d::t_host const u_host = u_view.view_host();
-    novapp::KDV_double_3d::t_host const P_host = P_view.view_host();
+    novapp::KDV_double_4d::t_host const u_host = novapp::view_host(u_view);
+    novapp::KDV_double_3d::t_host const P_host = novapp::view_host(P_view);
     novapp::EulerPrim const prim = to_prim(cons, eos);
     for (int k = 0; k < n; ++k)
     {

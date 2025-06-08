@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: MIT
 
 # Test the shock tube problem and compare
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import h5py
-import sys
 
 from exact_shock_tube import CI, ExactShockTube
 
@@ -23,15 +23,14 @@ def read_file(filename):
         u = f["ux"][0, 0, :]
         P = f["P"][0, 0, :]
         x = f["x_ng"][()]
-        T = f["T"][0, 0, :]
         t = f["current_time"][()]
-        iter = f["iter"][()]
+        iteration = f["iter"][()]
         gamma = f["gamma"][()]
     e = P / rho / (gamma - 1)
     xc = (x[:-1] + x[1:]) / 2
 
     print(f"Final time = {t:.1f} s")
-    print(f"Iteration number = {iter}")
+    print(f"Iteration number = {iteration}")
 
     return rho, u, P, e, xc, x, gamma, t
 
@@ -54,11 +53,8 @@ def analytical_result(x, gamma, t):
     var0r = np.array([rho0r, u0r, P0r, c0r])
 
     Ncell = 1_000
-    dx_exact = (x[-1] - x[0]) / Ncell
-    x_exact = np.zeros(Ncell)
-
-    for i in range(len(x_exact)):
-        x_exact[i] = x[0] + dx_exact / 2 + i * dx_exact
+    nodes_exact = np.linspace(x[0], x[-1], Ncell + 1)
+    x_exact = (nodes_exact[:-1] + nodes_exact[1:]) / 2
 
     rho0, u0, P0 = CI(x_exact, inter, var0l, var0r)
     e0 = P0 / rho0 / (gamma - 1)

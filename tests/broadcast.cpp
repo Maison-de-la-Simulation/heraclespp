@@ -12,6 +12,8 @@
 #include <ndim.hpp>
 #include <range.hpp>
 
+#include "utils_dual_view.hpp"
+
 TEST(BroadcastScalar, Case1d)
 {
     if (novapp::ndim != 1) {
@@ -25,7 +27,7 @@ TEST(BroadcastScalar, Case1d)
     array.modify_device();
     array.sync_host();
     {
-        auto const array_h = array.view_host();
+        auto const array_h = novapp::view_host(array);
         for (int i = 0; i < 12; ++i) {
             for (int j = 0; j < 11; ++j) {
                 for (int k = 0; k < 12; ++k) {
@@ -53,7 +55,7 @@ TEST(BroadcastScalar, Case2d)
     array.modify_device();
     array.sync_host();
     {
-        auto const array_h = array.view_host();
+        auto const array_h = novapp::view_host(array);
         for (int i = 0; i < 12; ++i) {
             for (int j = 0; j < 13; ++j) {
                 for (int k = 0; k < 12; ++k) {
@@ -81,7 +83,7 @@ TEST(BroadcastScalar, Case3d)
     array.modify_device();
     array.sync_host();
     {
-        auto const array_h = array.view_host();
+        auto const array_h = novapp::view_host(array);
         for (int i = 0; i < 12; ++i) {
             for (int j = 0; j < 13; ++j) {
                 for (int k = 0; k < 14; ++k) {
@@ -111,7 +113,7 @@ TEST(BroadcastArray, Case1d)
     array.modify_device();
     array.sync_host();
     {
-        auto const array_h = array.view_host();
+        auto const array_h = novapp::view_host(array);
         for (int i = 0; i < 12; ++i) {
             for (int j = 0; j < 11; ++j) {
                 for (int k = 0; k < 12; ++k) {
@@ -141,7 +143,7 @@ TEST(BroadcastArray, Case2d)
     array.modify_device();
     array.sync_host();
     {
-        auto const array_h = array.view_host();
+        auto const array_h = novapp::view_host(array);
         for (int i = 0; i < 12; ++i) {
             for (int j = 0; j < 13; ++j) {
                 for (int k = 0; k < 12; ++k) {
@@ -171,7 +173,7 @@ TEST(BroadcastArray, Case3d)
     array.modify_device();
     array.sync_host();
     {
-        auto const array_h = array.view_host();
+        auto const array_h = novapp::view_host(array);
         for (int i = 0; i < 12; ++i) {
             for (int j = 0; j < 13; ++j) {
                 for (int k = 0; k < 14; ++k) {

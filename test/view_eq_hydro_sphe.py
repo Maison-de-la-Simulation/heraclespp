@@ -44,9 +44,7 @@ g = G * M / xc**2
 g2 = G * M
 g0 = G * M / xc[0] ** 2
 
-x0 = np.zeros(len(rho))
-for i in range(len(x0)):
-    x0[i] = kb * T / (mu * mp * g2)
+x0 = kb * T / (mu * mp * g2) * np.ones(len(rho))
 P0 = rho0 * kb * T / (mu * mp)  # kg.m^{-1}.s^{-2}
 
 rho_tab0 = rho0 * np.exp(1 / (x0 * xc))

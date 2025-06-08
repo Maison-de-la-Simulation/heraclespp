@@ -3,10 +3,9 @@
 # SPDX-License-Identifier: MIT
 
 # Test the shock tube problem and compare
-import numpy as np
+import sys
 import matplotlib.pyplot as plt
 import h5py
-import sys
 
 print("********************************")
 print("    Shock tube spherical 1D")
@@ -21,15 +20,14 @@ def read_file(filename):
         u = f["ux"][0, 0, :]
         P = f["P"][0, 0, :]
         x = f["x_ng"][()]
-        T = f["T"][0, 0, :]
         t = f["current_time"][()]
-        iter = f["iter"][()]
+        iteration = f["iter"][()]
         gamma = f["gamma"][()]
     e = P / rho / (gamma - 1)
     xc = (x[:-1] + x[1:]) / 2
 
     print(f"Final time = {t:.1f} s")
-    print(f"Iteration number = {iter}")
+    print(f"Iteration number = {iteration}")
 
     return rho, u, P, e, xc, x, gamma, t
 

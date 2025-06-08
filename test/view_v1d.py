@@ -84,8 +84,8 @@ def fgamma(filename):
 
 def fiter(filename):
     with h5py.File(str(filename), "r") as f:
-        iter = f["iter"][()]
-    return iter
+        iteration = f["iter"][()]
+    return iteration
 
 def make_xc(x, n):
     dx = np.zeros(n)
@@ -118,7 +118,7 @@ tday = t / 3600 / 24
 
 print("    ")
 print(f"Final time = {t:.3e} s or {tday} days")
-print(f"Iteration number = {iter:3e}")
+print(f"Iteration number = {iteration:3e}")
 print("    ")
 
 # cgs units --------------------------------------------------------------------
@@ -166,5 +166,6 @@ plt.ylim(-0.1, 1.1)
 plt.xlabel(r'$r [ 10^{15}$ cm]')
 plt.ylabel(r'X')
 plt.legend()
+
 
 plt.show()
