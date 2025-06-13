@@ -34,12 +34,14 @@ public:
     double rho1;
     double u0;
     double P0;
+    int nfx; // (Enzo)
 
     explicit ParamSetup(INIReader const& reader)
         : rho0(reader.GetReal("Initialisation", "rho0", 1.0))
         , rho1(reader.GetReal("Initialisation", "rho1", 1.0))
         , u0(reader.GetReal("Initialisation", "u0", 1.0))
         , P0(reader.GetReal("Initialisation", "P0", 1.0))
+	, nfx(reader.GetInteger("Passive Scalar", "nfx", 0)) // (Enzo)
     {
     }
 };
@@ -71,7 +73,8 @@ public:
         KV_double_3d const& P,
         KV_double_4d const& fx) const final
     {
-        assert(equal_extents({0, 1, 2}, rho, u, P, fx));
+        if (m_param_setup.nfx >= 1) // (Enzo)
+		assert(equal_extents({0, 1, 2}, rho, u, P, fx));
         assert(u.extent_int(3) == ndim);
 
         int const mpi_rank = grid.mpi_rank;
@@ -155,10 +158,9 @@ public:
                 {
                     rho(i, j, k) = param_setup.rho0 * Kokkos::pow(1 - (gamma - 1) / gamma
                                 * (param_setup.rho0 * Kokkos::fabs(gravity(i, j, k, 2)) * z) / P0, 1. / (gamma - 1)) * units::density;
-
                     P(i, j, k) = P0 * Kokkos::pow(rho(i, j, k) / param_setup.rho0, gamma) * units::pressure;
-
-                    fx(i, j, k, 0) = 1;
+		    if (param_setup.nfx >= 1) // (Enzo)
+		    	fx(i, j, k, 0) = 1;
                 }
 
                 if(z < h)
@@ -168,7 +170,9 @@ public:
 
                     P(i, j, k) = P0 * Kokkos::pow(rho(i, j, k) / param_setup.rho1, gamma) * units::pressure;
 
-                    fx(i, j, k, 0) = 0;
+                    if (param_setup.nfx >= 1) // (Enzo)
+
+			fx(i, j, k, 0) = 0;
                 }
 
                 for (int idim = 0; idim < ndim; ++idim)

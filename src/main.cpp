@@ -374,7 +374,7 @@ void main(int argc, char** argv)
             int const next_output = iter_ini + (iter_output_id + 1) * param.iter_output_frequency;
             if ((iter + 1) >= next_output)
             {
-                make_output = true;
+                // (Enzo) make_output = true;
                 ++iter_output_id;
             }
         }
@@ -384,7 +384,7 @@ void main(int argc, char** argv)
             if ((t + dt) >= next_output)
             {
                 dt = next_output - t;
-                make_output = true;
+                // (Enzo) make_output = true;
                 ++time_output_id;
             }
         }
@@ -392,12 +392,12 @@ void main(int argc, char** argv)
         if ((t + dt) >= param.t_end)
         {
             dt = param.t_end - t;
-            make_output = true;
+            // (Enzo) make_output = true;
             should_exit = true;
         }
         if ((iter + 1) >= param.max_iter)
         {
-            make_output = true;
+            // (Enzo) make_output = true;
             should_exit = true;
         }
 
@@ -407,7 +407,7 @@ void main(int argc, char** argv)
             MPI_Bcast(&save_and_exit, 1, MPI_CXX_BOOL, 0, grid.comm_cart);
             if (save_and_exit)
             {
-                make_output = true;
+                // (Enzo) make_output = true;
                 should_exit = true;
             }
         }
