@@ -1,0 +1,122 @@
+# SPDX-FileCopyrightText: 2025 The HERACLES++ development team, see COPYRIGHT.md file
+#
+# SPDX-License-Identifier: MIT
+
+---
+name: Tests on macOS
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/tests-macos.yaml'
+      - '**.cpp'
+      - '**.hpp'
+      - '**.hpp.in'
+      - 'CMakeLists.txt'
+      - '**/CMakeLists.txt'
+      - '**.cmake'
+      - '**.cmake.in'
+      - 'vendor/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{github.workflow}}-${{github.ref == github.ref_protected && github.run_id || github.event.pull_request.number || github.ref}}
+  cancel-in-progress: true
+
+env:
+  CMAKE_BUILD_TYPE: Release
+  CMAKE_GENERATOR: Ninja
+
+jobs:
+  build-serial-3d:
+    strategy:
+      fail-fast: false
+      matrix:
+        backend:
+          - name: 'cpu'
+            c_compiler: 'clang'
+            cxx_compiler: 'clang++'
+        cxx_version: ['17', '20', '23']
+        os: [macos-13, macos-14, macos-15]
+        exclude:
+          - cxx_version: '23'  # Broken mdspan integration in Kokkos
+            os: 'macos-15'
+    runs-on: ${{matrix.os}}
+    env:
+      CXXFLAGS: -Werror=all -Werror=extra -Werror=pedantic -pedantic-errors
+      GTest_ROOT: ${{github.workspace}}/opt/gtest
+      inih_ROOT: ${{github.workspace}}/opt/inih
+      Kokkos_ROOT: ${{github.workspace}}/opt/kokkos-serial
+      PDI_ROOT: ${{github.workspace}}/opt/pdi
+      CC: ${{matrix.backend.c_compiler}}
+      CXX: ${{matrix.backend.cxx_compiler}}
+    permissions:
+      checks: write  # Required by mikepenz/action-junit-report
+    steps:
+      - name: Checkout built branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      - run: brew install googletest hdf5-mpi ninja
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          repository: pdidev/pdi
+          ref: 1.9.2
+          path: pdi
+      - name: Install PDI
+        run: |
+          cmake \
+            -D BUILD_BENCHMARKING=OFF \
+            -D BUILD_DECL_HDF5_PLUGIN=OFF \
+            -D BUILD_DECL_NETCDF_PLUGIN=OFF \
+            -D BUILD_DEISA_PLUGIN=OFF \
+            -D BUILD_DOCUMENTATION=OFF \
+            -D BUILD_FORTRAN=OFF \
+            -D BUILD_MPI_PLUGIN=OFF \
+            -D BUILD_PYCALL_PLUGIN=OFF \
+            -D BUILD_SERIALIZE_PLUGIN=OFF \
+            -D BUILD_SET_VALUE_PLUGIN=OFF \
+            -D BUILD_TESTING=OFF \
+            -D BUILD_TRACE_PLUGIN=OFF \
+            -D BUILD_USER_CODE_PLUGIN=OFF \
+            -D CMAKE_CXX_FLAGS="-Wno-unqualified-std-cast-call" \
+            -D CMAKE_CXX_STANDARD=17 \
+            -B build \
+            -S ./pdi
+          cmake --build build
+          cmake --install build --prefix $PDI_ROOT
+          rm -rf build
+      - run: |
+          cmake -B build -S vendor/inih
+          cmake --build build
+          cmake --install build --prefix $inih_ROOT
+          rm -rf build
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          repository: kokkos/kokkos
+          ref: 4.6.00
+          path: kokkos
+      - name: Install Kokkos
+        run: |
+          cmake \
+            -D CMAKE_CXX_STANDARD=${{matrix.cxx_version}} \
+            -D Kokkos_ENABLE_DEPRECATED_CODE_4=OFF \
+            -D Kokkos_ENABLE_DEPRECATION_WARNINGS=OFF \
+            -D Kokkos_ENABLE_SERIAL=ON \
+            -B build \
+            -S ./kokkos
+          cmake --build build
+          cmake --install build --prefix $Kokkos_ROOT
+          rm -rf build
+      - name: Build Heracles++
+        run: |
+          . $PDI_ROOT/share/pdi/env.sh
+          cmake -DBUILD_TESTING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake --build build
+          ctest --test-dir build --output-on-failure --timeout 5 --output-junit tests.xml
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@65fe03598d8d251738592a497a9e8547a5c48eaa  # v5.6.0
+        if: ( success() || failure() )  # always run even if the previous step fails
+        with:
+          report_paths: '${{github.workspace}}/tests.xml'
