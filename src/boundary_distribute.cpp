@@ -69,7 +69,7 @@ void generate_order(std::array<int, nfaces>& bc_order, std::string const& bc_pri
             ++counter;
         }
     }
-    std::reverse(bc_order.begin(), bc_order.end());
+    std::ranges::reverse(bc_order);
     if (counter != nfaces) {
         throw std::runtime_error("boundary priority not fully defined !");
     }
