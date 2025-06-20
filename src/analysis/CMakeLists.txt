@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 add_library(analysis integration.cpp internal_energy.cpp)
+target_compile_features(analysis INTERFACE cxx_std_20)
 target_include_directories(analysis PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(
     analysis

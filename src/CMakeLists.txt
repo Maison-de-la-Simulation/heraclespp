@@ -57,6 +57,7 @@ target_compile_definitions(
     nova++
     PUBLIC MY_SETUP="${Novapp_SETUP}" NOVAPP_GRAVITY_${Novapp_GRAVITY}
 )
+target_compile_features(nova++ PUBLIC cxx_std_20)
 target_include_directories(nova++ PUBLIC setups/${Novapp_SETUP}/)
 target_link_libraries(
     nova++

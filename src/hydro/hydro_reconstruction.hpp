@@ -16,6 +16,7 @@
 #include <ndim.hpp>
 
 #include "array_conversion.hpp"
+#include "concepts.hpp"
 #include "extrapolation_time.hpp"
 #include "face_reconstruction.hpp"
 
@@ -25,7 +26,7 @@ namespace novapp
 class Grid;
 class Range;
 
-template <class Gravity>
+template <concepts::GravityField Gravity>
 class IHydroReconstruction
 {
 public:
@@ -57,7 +58,7 @@ public:
             = 0;
 };
 
-template <class EoS, class Gravity>
+template <concepts::EulerEoS EoS, concepts::GravityField Gravity>
 class MUSCLHancockHydroReconstruction : public IHydroReconstruction<Gravity>
 {
     std::unique_ptr<IFaceReconstruction> m_face_reconstruction;
