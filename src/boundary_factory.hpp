@@ -12,12 +12,14 @@
 #include <stdexcept>
 #include <string>
 
+#include <concepts.hpp>
+
 #include "boundary.hpp"
 
 namespace novapp
 {
 
-template<class Gravity>
+template<concepts::GravityField Gravity>
 std::unique_ptr<IBoundaryCondition<Gravity>> factory_boundary_construction(
     std::string const& boundary,
     int idim,

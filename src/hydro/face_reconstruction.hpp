@@ -21,6 +21,7 @@
 #include <ndim.hpp>
 #include <range.hpp>
 
+#include "concepts.hpp"
 #include "slope_limiters.hpp"
 
 namespace novapp
@@ -53,17 +54,9 @@ public:
         = 0;
 };
 
-template <class SlopeLimiter>
+template <concepts::SlopeLimiter SlopeLimiter>
 class LimitedLinearReconstruction : public IFaceReconstruction
 {
-    static_assert(
-            std::is_invocable_r_v<
-            double,
-            SlopeLimiter,
-            double,
-            double>,
-            "Invalid slope limiter.");
-
 private:
     SlopeLimiter m_slope_limiter;
 

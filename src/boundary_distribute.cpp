@@ -23,6 +23,7 @@
 #include <vector>
 
 #include <grid.hpp>
+#include <int_cast.hpp>
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
 #include <nova_params.hpp>
@@ -118,11 +119,9 @@ void DistributedBoundaryCondition::ghost_sync(
     int dst = 0;
     MPI_Cart_shift(grid.comm_cart, bc_idim, bc_iface == 0 ? -1 : 1, &src, &dst);
 
-    // check that it is not bigger than the capacity of an `int` (because of MPI API)
-    assert(buf.view_host().size() <= std::numeric_limits<int>::max());
     MPI_Sendrecv_replace(
             ptr,
-            static_cast<int>(buf.view_host().size()),
+            int_cast<int>(buf.view_host().size()),
             MPI_DOUBLE,
             dst,
             bc_idim,

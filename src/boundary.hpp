@@ -11,6 +11,7 @@
 #include <string>
 #include <string_view>
 
+#include <concepts.hpp>
 #include <kokkos_shortcut.hpp>
 
 namespace novapp
@@ -38,7 +39,7 @@ void reflexive_condition(int m_bc_idim, int m_bc_iface,
                          KV_double_3d const& E,
                          KV_double_4d const& fx);
 
-template <class Gravity>
+template <concepts::GravityField Gravity>
 class IBoundaryCondition
 {
 private:
@@ -78,7 +79,7 @@ public:
                          KV_double_4d const& fx) const = 0;
 };
 
-template <class Gravity>
+template <concepts::GravityField Gravity>
 class NullGradient : public IBoundaryCondition<Gravity>
 {
 private:
@@ -102,7 +103,7 @@ public:
     }
 };
 
-template <class Gravity>
+template <concepts::GravityField Gravity>
 class PeriodicCondition : public IBoundaryCondition<Gravity>
 {
 public:
@@ -120,7 +121,7 @@ public:
     }
 };
 
-template <class Gravity>
+template <concepts::GravityField Gravity>
 class ReflexiveCondition : public IBoundaryCondition<Gravity>
 {
 private:

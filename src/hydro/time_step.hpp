@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include "concepts.hpp"
 #include <mpi.h>
 
 #include <cassert>
@@ -31,7 +32,7 @@ namespace novapp
 //! @param[in] u velocity array 3D
 //! @param[in] P pressure array 3D
 //! @return time step
-template <class EoS>
+template <concepts::EulerEoS EoS>
 [[nodiscard]] double time_step(
     Range const& range,
     EoS const& eos,
