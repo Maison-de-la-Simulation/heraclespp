@@ -14,6 +14,7 @@
 
 #include <Kokkos_Core.hpp>
 #include <Kokkos_DualView.hpp>
+#include <concepts.hpp>
 #include <grid.hpp>
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
@@ -40,7 +41,7 @@ public:
             Grid const& grid,
             Param const& param);
 
-    template <class Gravity>
+    template <concepts::GravityField Gravity>
     void operator()(std::array<std::unique_ptr<IBoundaryCondition<Gravity>>, nfaces> const& bcs,
                     Grid const& grid,
                     Gravity const& gravity,

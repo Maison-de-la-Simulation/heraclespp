@@ -9,6 +9,7 @@
 #include <ndim.hpp>
 #include <range.hpp>
 
+#include "concepts.hpp"
 #include "euler_equations.hpp"
 #include "grid.hpp"
 #include "kronecker.hpp"
@@ -16,7 +17,7 @@
 namespace novapp
 {
 
-template <class EoS>
+template <concepts::EulerEoS EoS>
 void pressure_fix(
     Range const& range,
     EoS const& eos,

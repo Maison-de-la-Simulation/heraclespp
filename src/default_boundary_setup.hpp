@@ -6,6 +6,7 @@
 
 #include <stdexcept>
 
+#include <concepts.hpp>
 #include <eos.hpp>
 #include <kokkos_shortcut.hpp>
 
@@ -17,7 +18,7 @@ namespace novapp
 class Grid;
 class ParamSetup;
 
-template <class Gravity>
+template <concepts::GravityField Gravity>
 class BoundarySetup : public IBoundaryCondition<Gravity>
 {
 public:

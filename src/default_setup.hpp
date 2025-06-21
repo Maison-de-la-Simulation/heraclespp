@@ -6,6 +6,7 @@
 
 #include <stdexcept>
 
+#include <concepts.hpp>
 #include <eos.hpp>
 #include <kokkos_shortcut.hpp>
 
@@ -30,7 +31,7 @@ public:
     }
 };
 
-template <class Gravity>
+template <concepts::GravityField Gravity>
 class InitializationSetup : public IInitializationProblem
 {
 public:

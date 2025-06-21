@@ -9,13 +9,14 @@
 #pragma once
 
 #include <Kokkos_Core.hpp>
+#include <concepts.hpp>
 #include <kokkos_shortcut.hpp>
 #include <range.hpp>
 
 namespace novapp
 {
 
-template <class EoS>
+template <concepts::EulerEoS EoS>
 void temperature(
     Range const& range,
     EoS const& eos,

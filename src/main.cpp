@@ -123,7 +123,7 @@ void main(int argc, char** argv)
     {
         std::string_view const arg(argv[iarg]);
         std::string_view const option_name("--pdi-config=");
-        if (arg.find(option_name) == 0)
+        if (arg.starts_with(option_name))
         {
             std::string_view option_value = arg;
             option_value.remove_prefix(option_name.size());

@@ -12,6 +12,7 @@
 #include <cassert>
 
 #include <Kokkos_Core.hpp>
+#include <concepts.hpp>
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
 #include <range.hpp>
@@ -29,7 +30,7 @@ namespace novapp
 //! @param[in] P pressure array 3D
 //! @param[inout] rhou momentum array 3D
 //! @param[inout] E total energy array 3D
-template<class EoS>
+template<concepts::EulerEoS EoS>
 void conv_prim_to_cons(
     Range const& range,
     EoS const& eos,
@@ -74,7 +75,7 @@ void conv_prim_to_cons(
 //! @param[in] E total energy array 3D
 //! @param[inout] u velocity array 3D
 //! @param[inout] P pressure array 3D
-template<class EoS>
+template<concepts::EulerEoS EoS>
 void conv_cons_to_prim(
     Range const& range,
     EoS const& eos,

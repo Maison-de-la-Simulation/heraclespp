@@ -20,6 +20,7 @@ add_executable(
     riemann_solvers.cpp
     slopes.cpp
     thermodynamics.cpp
+    int_cast.cpp
 )
 target_compile_features(unit_tests PUBLIC cxx_std_17)
 target_link_libraries(unit_tests PUBLIC libnova++ GTest::gtest)

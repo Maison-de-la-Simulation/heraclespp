@@ -19,13 +19,14 @@
 #include <ndim.hpp>
 #include <range.hpp>
 
+#include "concepts.hpp"
 #include "euler_equations.hpp"
 #include "source_terms.hpp"
 
 namespace novapp
 {
 
-template <class Gravity>
+template <concepts::GravityField Gravity>
 class IExtrapolationReconstruction
 {
 public:
@@ -55,19 +56,9 @@ public:
         = 0;
 };
 
-template <class EoS, class Gravity>
+template <concepts::EulerEoS EoS, concepts::GravityField Gravity>
 class ExtrapolationTimeReconstruction : public IExtrapolationReconstruction<Gravity>
 {
-    static_assert(
-            std::is_invocable_r_v<
-                void,
-                Gravity,
-                int,
-                int,
-                int,
-                int>,
-            "Incompatible gravity.");
-
 private:
     EoS m_eos;
 
