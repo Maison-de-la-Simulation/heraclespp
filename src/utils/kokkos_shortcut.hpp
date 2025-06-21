@@ -49,41 +49,42 @@ using KDV_cdouble_3d=Kokkos::DualView<const double***, Kokkos::LayoutLeft>;
 using KDV_cdouble_4d=Kokkos::DualView<const double****, Kokkos::LayoutLeft>;
 
 template <class... DualViews>
+    requires((Kokkos::is_dual_view_v<DualViews> && ...))
 void modify_host(DualViews&... views)
 {
-    static_assert((Kokkos::is_dual_view_v<DualViews> && ...));
     (views.modify_host(), ...);
 }
 
 template <class... DualViews>
+    requires((Kokkos::is_dual_view_v<DualViews> && ...))
 void modify_device(DualViews&... views)
 {
-    static_assert((Kokkos::is_dual_view_v<DualViews> && ...));
     (views.modify_device(), ...);
 }
 
 template <class... DualViews>
+    requires((Kokkos::is_dual_view_v<DualViews> && ...))
 void sync_host(DualViews&... views)
 {
-    static_assert((Kokkos::is_dual_view_v<DualViews> && ...));
     (views.sync_host(), ...);
 }
 
 template <class... DualViews>
+    requires((Kokkos::is_dual_view_v<DualViews> && ...))
 void sync_device(DualViews&... views)
 {
-    static_assert((Kokkos::is_dual_view_v<DualViews> && ...));
     (views.sync_device(), ...);
 }
 
 template <class View0, class... Views>
+    requires(Kokkos::is_view_v<View0> || Kokkos::is_dual_view_v<View0>)
 bool equal_extents(std::size_t const i, View0 const& view0, Views const&... views) noexcept
 {
-    static_assert(Kokkos::is_view_v<View0> || Kokkos::is_dual_view_v<View0>);
     return ((view0.extent(i) == views.extent(i)) && ...);
 }
 
 template <class View0, class... Views>
+    requires(Kokkos::is_view_v<View0> || Kokkos::is_dual_view_v<View0>)
 bool equal_extents(
         std::initializer_list<std::size_t> idx,
         View0 const& view0,
