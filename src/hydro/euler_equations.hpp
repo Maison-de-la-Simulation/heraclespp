@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include "concepts.hpp"
+
 #include <Kokkos_Array.hpp>
 #include <Kokkos_Assert.hpp>
 #include <Kokkos_Macros.hpp>
@@ -70,7 +72,7 @@ double compute_evol(EulerCons const& cons) noexcept
 //! @param[in] locdim index of the direction X, Y or Z
 //! @param[in] eos Equation of state
 //! @return flux
-template <class EoS>
+template <concepts::EulerEoS EoS>
 KOKKOS_FORCEINLINE_FUNCTION
 EulerFlux compute_flux(
         EulerPrim const& prim,
@@ -97,7 +99,7 @@ EulerFlux compute_flux(
 //! @param[in] locdim index of the direction X, Y or Z
 //! @param[in] eos Equation of state
 //! @return flux
-template <class EoS>
+template <concepts::EulerEoS EoS>
 KOKKOS_FORCEINLINE_FUNCTION
 EulerFlux compute_flux(
         EulerCons const& cons,
@@ -120,7 +122,7 @@ EulerFlux compute_flux(
     return flux;
 }
 
-template <class EoS>
+template <concepts::EulerEoS EoS>
 KOKKOS_FORCEINLINE_FUNCTION
 EulerPrim to_prim(
         EulerCons const& cons,
@@ -137,7 +139,7 @@ EulerPrim to_prim(
     return prim;
 }
 
-template <class EoS>
+template <concepts::EulerEoS EoS>
 KOKKOS_FORCEINLINE_FUNCTION
 EulerCons to_cons(EulerPrim const& prim, EoS const& eos) noexcept
 {

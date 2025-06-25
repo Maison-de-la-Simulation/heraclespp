@@ -8,14 +8,18 @@
 
 namespace novapp {
 
-template <class DualView> auto view_device(DualView const &view) noexcept {
-  static_assert(Kokkos::is_dual_view_v<DualView>);
-  return view.view_device();
+template <class DualView>
+    requires(Kokkos::is_dual_view_v<DualView>)
+auto view_device(DualView const& view) noexcept
+{
+    return view.view_device();
 }
 
-template <class DualView> auto view_host(DualView const &view) noexcept {
-  static_assert(Kokkos::is_dual_view_v<DualView>);
-  return view.view_host();
+template <class DualView>
+    requires(Kokkos::is_dual_view_v<DualView>)
+auto view_host(DualView const& view) noexcept
+{
+    return view.view_host();
 }
 
 } // namespace novapp

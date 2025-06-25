@@ -41,7 +41,7 @@ target_include_directories(
     INTERFACE ${CMAKE_CURRENT_BINARY_DIR}
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 )
-target_compile_features(utils PUBLIC cxx_std_17)
+target_compile_features(utils PUBLIC cxx_std_20)
 target_link_libraries(utils INTERFACE Kokkos::kokkos thermodynamics PUBLIC inih)
 
 configure_file(eos.hpp.in eos.hpp NO_SOURCE_PERMISSIONS @ONLY)

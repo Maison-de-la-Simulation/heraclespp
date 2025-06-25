@@ -37,7 +37,7 @@ public :
             [[maybe_unused]] int i,
             [[maybe_unused]] int j,
             [[maybe_unused]] int k,
-            int dir) const
+            int dir) const noexcept
     {
         return m_g(dir);
     }
@@ -74,7 +74,7 @@ public :
             int i,
             [[maybe_unused]] int j,
             [[maybe_unused]] int k,
-            int dir) const
+            int dir) const noexcept
     {
         if (dir == 0)
         {
@@ -119,7 +119,7 @@ public :
             int i,
             [[maybe_unused]] int j,
             [[maybe_unused]] int k,
-            int dir) const
+            int dir) const noexcept
     {
         if (dir == 0)
         {
@@ -150,7 +150,7 @@ inline InternalMassGravity make_internal_mass_gravity(
     auto const dv = grid.dv;
 
     Kokkos::Array<int, 3> nghost;
-    std::copy(grid.Nghost.begin(), grid.Nghost.end(), nghost.data());
+    std::ranges::copy(grid.Nghost, nghost.data());
 
     rho_mean_dv.modify_device();
     dv_total_dv.modify_device();
