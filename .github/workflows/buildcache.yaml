@@ -1,0 +1,38 @@
+# SPDX-FileCopyrightText: 2025 The HERACLES++ development team, see COPYRIGHT.md file
+#
+# SPDX-License-Identifier: MIT
+
+---
+name: Build cache on Ubuntu
+
+# yamllint disable-line rule:truthy
+on:
+  workflow_dispatch:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    permissions:
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+
+      - name: Set up Spack
+        uses: spack/setup-spack@5ab3c91bdefffffad9a7e45d1d156146afebb3a7  # 2.1.1
+        with:
+          ref: v0.23.1      # Spack version (examples: develop, releases/v0.21)
+
+      - uses: viperML/spack-buildcache-action@main # TODO: Lock commit when merged to numpex/spack-buildcache-action
+        with:
+          environment: "."
+          base-image: ubuntu:24.04
+
+      - name: Run
+        run: |
+          which -a python3
+          python3 -c 'print("hello world")'
