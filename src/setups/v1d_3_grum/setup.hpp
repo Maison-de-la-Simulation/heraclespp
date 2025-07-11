@@ -184,8 +184,8 @@ public:
 
             if (dist <= param_setup.radius_ni_bubble)
             {
-                fx(i, j, k, 0) = 1;
-                fx(i, j, k, 1) = 0;
+                //fx(i, j, k, 0) = 1;
+                //fx(i, j, k, 1) = 0;
             }
 
             // clump 2
@@ -199,8 +199,8 @@ public:
 
             if (dist_2 <= param_setup.radius_ni_bubble_2)
             {
-                fx(i, j, k, 0) = 1;
-                fx(i, j, k, 1) = 0;
+                //fx(i, j, k, 0) = 1;
+                //fx(i, j, k, 1) = 0;
             }
 
             // clump 3
