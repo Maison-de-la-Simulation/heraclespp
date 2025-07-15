@@ -45,6 +45,46 @@ public:
     double O_CL;
     double Si_CL;
     double Other_CL;
+    double pos_ni_bubble_1;
+    double pos_ni_bubble_2;
+    double pos_ni_bubble_3;
+    double pos_ni_bubble_4;
+    double pos_ni_bubble_5;
+    double pos_ni_bubble_6;
+    double pos_ni_bubble_7;
+    double pos_ni_bubble_8;
+    double pos_ni_bubble_9;
+    double pos_ni_bubble_10;
+    double pos_ni_bubble_11;
+    double pos_ni_bubble_12;
+    double pos_ni_bubble_13;
+    double pos_ni_bubble_14;
+    double pos_ni_bubble_15;
+    double pos_ni_bubble_16;
+    double pos_ni_bubble_17;
+    double pos_ni_bubble_18;
+    double pos_ni_bubble_19;
+    double pos_ni_bubble_20;
+    double rad_clump_1;
+    double rad_clump_2;
+    double rad_clump_3;
+    double rad_clump_4;
+    double rad_clump_5;
+    double rad_clump_6;
+    double rad_clump_7;
+    double rad_clump_8;
+    double rad_clump_9;
+    double rad_clump_10;
+    double rad_clump_11;
+    double rad_clump_12;
+    double rad_clump_13;
+    double rad_clump_14;
+    double rad_clump_15;
+    double rad_clump_16;
+    double rad_clump_17;
+    double rad_clump_18;
+    double rad_clump_19;
+    double rad_clump_20;
 
     explicit ParamSetup(INIReader const& reader)
     {
@@ -62,6 +102,46 @@ public:
         O_CL = reader.GetReal("Boundary Condition", "O_CL", 0.);
         Si_CL = reader.GetReal("Boundary Condition", "Si_CL", 0.);
         Other_CL = reader.GetReal("Boundary Condition", "Other_CL", 0.);
+        pos_ni_bubble_1 = reader.GetReal("Initialisation", "pos_ni_bubble_1", 0.);
+        pos_ni_bubble_2 = reader.GetReal("Initialisation", "pos_ni_bubble_2", 0.);
+        pos_ni_bubble_3 = reader.GetReal("Initialisation", "pos_ni_bubble_3", 0.);
+        pos_ni_bubble_4 = reader.GetReal("Initialisation", "pos_ni_bubble_4", 0.);
+        pos_ni_bubble_5 = reader.GetReal("Initialisation", "pos_ni_bubble_5", 0.);
+        pos_ni_bubble_6 = reader.GetReal("Initialisation", "pos_ni_bubble_6", 0.);
+        pos_ni_bubble_7 = reader.GetReal("Initialisation", "pos_ni_bubble_7", 0.);
+        pos_ni_bubble_8 = reader.GetReal("Initialisation", "pos_ni_bubble_8", 0.);
+        pos_ni_bubble_9 = reader.GetReal("Initialisation", "pos_ni_bubble_9", 0.);
+        pos_ni_bubble_10 = reader.GetReal("Initialisation", "pos_ni_bubble_10", 0.);
+        pos_ni_bubble_11 = reader.GetReal("Initialisation", "pos_ni_bubble_11", 0.);
+        pos_ni_bubble_12 = reader.GetReal("Initialisation", "pos_ni_bubble_12", 0.);
+        pos_ni_bubble_13 = reader.GetReal("Initialisation", "pos_ni_bubble_13", 0.);
+        pos_ni_bubble_14 = reader.GetReal("Initialisation", "pos_ni_bubble_14", 0.);
+        pos_ni_bubble_15 = reader.GetReal("Initialisation", "pos_ni_bubble_15", 0.);
+        pos_ni_bubble_16 = reader.GetReal("Initialisation", "pos_ni_bubble_16", 0.);
+        pos_ni_bubble_17 = reader.GetReal("Initialisation", "pos_ni_bubble_17", 0.);
+        pos_ni_bubble_18 = reader.GetReal("Initialisation", "pos_ni_bubble_18", 0.);
+        pos_ni_bubble_19 = reader.GetReal("Initialisation", "pos_ni_bubble_19", 0.);
+        pos_ni_bubble_20 = reader.GetReal("Initialisation", "pos_ni_bubble_20", 0.);
+        rad_clump_1  = reader.GetReal("Initialisation", "rad_clump_1", 0.);
+        rad_clump_2  = reader.GetReal("Initialisation", "rad_clump_2", 0.);
+        rad_clump_3  = reader.GetReal("Initialisation", "rad_clump_3", 0.);
+        rad_clump_4  = reader.GetReal("Initialisation", "rad_clump_4", 0.);
+        rad_clump_5  = reader.GetReal("Initialisation", "rad_clump_5", 0.);
+        rad_clump_6  = reader.GetReal("Initialisation", "rad_clump_6", 0.);
+        rad_clump_7  = reader.GetReal("Initialisation", "rad_clump_7", 0.);
+        rad_clump_8  = reader.GetReal("Initialisation", "rad_clump_8", 0.);
+        rad_clump_9  = reader.GetReal("Initialisation", "rad_clump_9", 0.);
+        rad_clump_10 = reader.GetReal("Initialisation", "rad_clump_10", 0.);
+        rad_clump_11 = reader.GetReal("Initialisation", "rad_clump_11", 0.);
+        rad_clump_12 = reader.GetReal("Initialisation", "rad_clump_12", 0.);
+        rad_clump_13 = reader.GetReal("Initialisation", "rad_clump_13", 0.);
+        rad_clump_14 = reader.GetReal("Initialisation", "rad_clump_14", 0.);
+        rad_clump_15 = reader.GetReal("Initialisation", "rad_clump_15", 0.);
+        rad_clump_16 = reader.GetReal("Initialisation", "rad_clump_16", 0.);
+        rad_clump_17 = reader.GetReal("Initialisation", "rad_clump_17", 0.);
+        rad_clump_18 = reader.GetReal("Initialisation", "rad_clump_18", 0.);
+        rad_clump_19 = reader.GetReal("Initialisation", "rad_clump_19", 0.);
+        rad_clump_20 = reader.GetReal("Initialisation", "rad_clump_20", 0.);
    }
 };
 
@@ -163,35 +243,34 @@ public:
                 double y_cart = r(i) * Kokkos::sin(th(j)) * Kokkos::sin(phi(k));
                 double z_cart = r(i) * Kokkos::cos(th(j));
 
-                // 20 clumps until 4.65e11 m, 15 between the two shocks
-                // v1d 9
-                /* Kokkos::Array<double, 20> r_pos_clump = {3.43452771e+11, 1.77298726e+11, 3.40513417e+11, 1.36647263e+11,
-                    1.65819797e+11, 4.50461474e+11, 3.85707678e+11, 4.06880918e+11,
-                    4.32887613e+11, 3.63889951e+11, 4.61718550e+11, 3.75922642e+11,
-                    4.39919189e+11, 4.40020104e+11, 3.95555551e+11, 3.63888013e+11,
-                    4.18960379e+11, 3.73747159e+11, 3.75281290e+11, 4.55100978e+11};
+                Kokkos::Array<double, 20> r_pos_clump = {param_setup.pos_ni_bubble_1,
+                    param_setup.pos_ni_bubble_2, param_setup.pos_ni_bubble_3, param_setup.pos_ni_bubble_4,
+                    param_setup.pos_ni_bubble_5, param_setup.pos_ni_bubble_6, param_setup.pos_ni_bubble_7,
+                    param_setup.pos_ni_bubble_8, param_setup.pos_ni_bubble_9, param_setup.pos_ni_bubble_10,
+                    param_setup.pos_ni_bubble_11, param_setup.pos_ni_bubble_12, param_setup.pos_ni_bubble_13,
+                    param_setup.pos_ni_bubble_14, param_setup.pos_ni_bubble_15, param_setup.pos_ni_bubble_16,
+                    param_setup.pos_ni_bubble_17, param_setup.pos_ni_bubble_18, param_setup.pos_ni_bubble_19,
+                    param_setup.pos_ni_bubble_20
+                };
 
-                //m 25
-                Kokkos::Array<double, 20> r_pos_clump = {2.69826033e+11, 1.76488326e+11, 1.89893639e+11, 2.11275630e+11,
-                    2.41878303e+11, 4.18551860e+11, 4.22626892e+11, 4.35829408e+11,
-                    3.85561020e+11, 3.70830581e+11, 3.58815903e+11, 4.55656646e+11,
-                    3.70665294e+11, 4.40900614e+11, 4.03392645e+11, 3.96782309e+11,
-                    4.58587589e+11, 3.53371787e+11, 4.21489361e+11, 3.92864232e+11};
+                Kokkos::Array<double, 20> rad_clump = {param_setup.rad_clump_1,
+                    param_setup.rad_clump_2, param_setup.rad_clump_3, param_setup.rad_clump_4,
+                    param_setup.rad_clump_5, param_setup.rad_clump_6, param_setup.rad_clump_7,
+                    param_setup.rad_clump_8, param_setup.rad_clump_9, param_setup.rad_clump_10,
+                    param_setup.rad_clump_11, param_setup.rad_clump_12, param_setup.rad_clump_13,
+                    param_setup.rad_clump_14, param_setup.rad_clump_15, param_setup.rad_clump_16,
+                    param_setup.rad_clump_17, param_setup.rad_clump_18, param_setup.rad_clump_19,
+                    param_setup.rad_clump_20
+                };
 
-                // 20 clumps until sous la couche H
-                // v1d 9
-                Kokkos::Array<double, 20> r_pos_clump = {1.89961235e+11, 2.04238098e+11, 2.17861250e+11, 2.66025000e+11,
-                    2.77253313e+11, 3.00259129e+11, 3.03851454e+11, 3.18892260e+11,
-                    3.52418492e+11, 3.54230286e+11, 3.55675654e+11, 3.60100509e+11,
-                    3.61254211e+11, 3.63136017e+11, 3.64369659e+11, 3.64729247e+11,
-                    3.65375314e+11, 3.68025069e+11, 3.68662201e+11, 3.70051478e+11}; */
+                /*
 
                 // m25
                 Kokkos::Array<double, 20> r_pos_clump = {1.77141887e+11, 1.78791637e+11, 1.91855706e+11, 2.11104949e+11,
                     2.52245467e+11, 2.62345276e+11, 3.05792752e+11, 3.16184701e+11,
                     3.25017366e+11, 3.41402412e+11, 3.50561781e+11, 3.52168683e+11,
                     3.52253582e+11, 3.53098437e+11, 3.53227268e+11, 3.54037414e+11,
-                    3.54555585e+11, 3.55001788e+11, 3.55529775e+11, 3.56048270e+11};
+                    3.54555585e+11, 3.55001788e+11, 3.55529775e+11, 3.56048270e+11}; */
 
                 Kokkos::Array<double, 20> th_pos_clump = {1.57062107, 1.23285187, 1.70336447,
                     1.84833712, 1.2581159, 1.37732577,
@@ -205,17 +284,13 @@ public:
                     1.69077599, 1.69659713};
 
                 //double rad_clump = 3.5E10;
-                // v1d 9
-                /* Kokkos::Array<double, 20> rad_clump = {2.7588201320643764, 2.661550941810921, 2.621417676977413,
-                    2.6186418881256968, 2.539790682241017, 2.437366067905366, 2.39295048451544, 2.358231540377209,
-                    2.1205412257092675, 2.0765138209455136, 2.0350537847928845, 2.0198651992646006, 1.9745075486172643, 1.8918290026628628, 1.8865384081224315,
-                    1.8552655834012088, 1.847326765037701, 1.7954394634338837, 1.788854081486872, 1.7472145148853444}; */
+                /*
                 //m 25
                 Kokkos::Array<double, 20> rad_clump = {1.579066911049704, 1.5783825538889114, 1.57383143975951,
                     1.5153073261201304, 1.5032456903104354, 1.4901662073686701, 1.4763414254507166, 1.4760081523806399,
                     1.4342193824328078, 1.4142044388513932, 1.4042037432917414, 1.3958618324536198, 1.3709117574558876,
                     1.3144371813337081, 1.2974845282661625, 1.2669518831053048, 1.2435433963418836, 1.232523742752487,
-                    1.2300949264578374, 1.1528002795360854};
+                    1.2300949264578374, 1.1528002795360854}; */
 
                 for (int iclump = 0; iclump < 20; ++iclump)
                 {
