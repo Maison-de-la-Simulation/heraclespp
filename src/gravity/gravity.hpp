@@ -8,9 +8,13 @@
 
 #pragma once
 
+#include <mpi.h>
+
 #include <algorithm>
-#include <utility>
+#include <array>
 #include <stdexcept>
+#include <string>
+#include <utility>
 
 #include <Kokkos_Core.hpp>
 #include <grid.hpp>

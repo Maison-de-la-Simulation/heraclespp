@@ -9,7 +9,6 @@
 #pragma once
 
 #include <cassert>
-#include <type_traits>
 
 #include <Kokkos_Core.hpp>
 #include <geom.hpp>

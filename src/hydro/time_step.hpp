@@ -9,7 +9,6 @@
 
 #pragma once
 
-#include "concepts.hpp"
 #include <mpi.h>
 
 #include <cassert>
@@ -20,6 +19,8 @@
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
 #include <range.hpp>
+
+#include "concepts.hpp"
 
 namespace novapp
 {

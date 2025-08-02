@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <Kokkos_Array.hpp>
 #include <Kokkos_Assert.hpp>
 #include <Kokkos_Macros.hpp>
 #include <Kokkos_MathematicalFunctions.hpp>

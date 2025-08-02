@@ -17,6 +17,7 @@
 #include <utility>
 #include <vector>
 
+#include <Kokkos_Core.hpp>
 #include <git_version.hpp>
 #include <grid.hpp>
 #include <hdf5.h>
@@ -25,6 +26,7 @@
 #include <ndim.hpp>
 #include <nova_params.hpp>
 #include <pdi.h>
+#include <range.hpp>
 
 #include "io.hpp"
 #include "io_hdf5.hpp"
