@@ -12,7 +12,6 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
-#include <type_traits>
 
 #include <Kokkos_Core.hpp>
 #include <geom.hpp>

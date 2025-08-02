@@ -4,23 +4,25 @@
 
 #pragma once
 
+#include <cassert>
+#include <iostream>
 #include <string>
-
-#include <Kokkos_Core.hpp>
-#include <units.hpp>
 
 #include <inih/INIReader.hpp>
 
+#include <Kokkos_Core.hpp>
+#include <grid.hpp>
+#include <range.hpp>
+#include <units.hpp>
+
+#include "boundary.hpp"
 #include "default_grid_setup.hpp"
 #include "default_shift_criterion.hpp"
 #include "default_user_step.hpp"
 #include "eos.hpp"
-#include <grid.hpp>
 #include "initialization_interface.hpp"
 #include "kokkos_shortcut.hpp"
 #include "ndim.hpp"
-#include "nova_params.hpp"
-#include <range.hpp>
 
 namespace novapp
 {

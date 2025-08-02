@@ -14,7 +14,7 @@ struct EulerFlux;
 namespace concepts {
 
 template <class Solver, class EoS>
-concept EulerRiemannSolver = requires(Solver const solver, EulerCons const s, int const i, EoS const eos) {
+concept EulerRiemannSolver = requires(Solver const solver, EulerCons const& s, int const i, EoS const eos) {
     { solver(s, s, i, eos) } noexcept -> std::same_as<EulerFlux>;
 };
 

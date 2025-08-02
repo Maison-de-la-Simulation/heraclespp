@@ -8,12 +8,12 @@
 
 #pragma once
 
-#include "concepts.hpp"
-
 #include <Kokkos_Array.hpp>
 #include <Kokkos_Assert.hpp>
 #include <Kokkos_Macros.hpp>
 #include <ndim.hpp>
+
+#include "concepts.hpp"
 
 namespace novapp
 {

@@ -11,11 +11,7 @@
 
 #include <algorithm>
 #include <array>
-#include <cassert>
 #include <cstddef>
-#if !defined(NDEBUG)
-#include <limits>
-#endif
 #include <numeric>
 #include <sstream>
 #include <stdexcept>

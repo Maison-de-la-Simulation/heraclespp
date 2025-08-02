@@ -4,27 +4,31 @@
 
 #pragma once
 
-#include <Kokkos_Core.hpp>
-#include <units.hpp>
+#include <cassert>
+#include <string>
 
 #include <inih/INIReader.hpp>
+
+#include <Kokkos_Core.hpp>
+#include <grid.hpp>
+#include <grid_type.hpp>
+#include <hdf5.h>
+#include <io_hdf5.hpp>
+#include <pdi.h>
+#include <range.hpp>
+#include <shift_criterion_interface.hpp>
+#include <units.hpp>
 
 #include "broadcast.hpp"
 #include "default_boundary_setup.hpp"
 #include "default_user_step.hpp"
 #include "eos.hpp"
-#include <grid.hpp>
-#include <grid_type.hpp>
 #include "initialization_interface.hpp"
 #include "kokkos_shortcut.hpp"
-#include "ndim.hpp"
+#if !defined(NDEBUG)
+#    include "ndim.hpp"
+#endif
 #include "nova_params.hpp"
-#include <range.hpp>
-#include <pdi.h>
-#include <string>
-#include <shift_criterion_interface.hpp>
-#include <hdf5.h>
-#include <io_hdf5.hpp>
 
 namespace novapp
 {

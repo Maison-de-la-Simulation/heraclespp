@@ -12,11 +12,11 @@
 #include <cassert>
 
 #include <Kokkos_Core.hpp>
-#include <concepts.hpp>
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
 #include <range.hpp>
 
+#include "concepts.hpp"
 #include "euler_equations.hpp"
 
 namespace novapp
