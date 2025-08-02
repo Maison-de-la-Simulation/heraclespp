@@ -82,12 +82,10 @@ public:
                 {
                     rho(i, j, k) = param_setup.rho0;
                 }
-
                 else if (xc(i) >= 0.7)
                 {
                     rho(i, j, k) = param_setup.rho0;
                 }
-
                 else
                 {
                     rho(i, j, k) = param_setup.rho1;
