@@ -95,7 +95,6 @@ public:
 
                     P(i, j, k) = P0 + 12.5 * r * r;
                 }
-
                 else if ((r >= 0.2) && (r < 0.4))
                 {
                     double const u_theta = 2 - 5 * r;
@@ -104,7 +103,6 @@ public:
 
                     P(i, j, k) = P0 + 12.5 * r * r + 4 - 20 * r + 4 * Kokkos::log(5 * r);
                 }
-
                 else
                 {
                     for (int idim = 0; idim < ndim; ++idim)

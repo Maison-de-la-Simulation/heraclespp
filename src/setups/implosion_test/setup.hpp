@@ -90,7 +90,6 @@ public:
                     rho(i, j, k) = param_setup.rho0;
                     P(i, j, k) = param_setup.P0;
                 }
-
                 else
                 {
                     rho(i, j, k) = param_setup.rho1;
