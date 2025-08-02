@@ -2,7 +2,11 @@
 #
 # SPDX-License-Identifier: MIT
 
-add_library(hydro INTERFACE)
-target_compile_features(hydro INTERFACE cxx_std_20)
+add_library(hydro face_reconstruction.cpp)
+target_compile_features(hydro PUBLIC cxx_std_20)
 target_include_directories(hydro INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(hydro INTERFACE Kokkos::kokkos mesh MPI::MPI_CXX utils)
+target_link_libraries(
+    hydro
+    PUBLIC Kokkos::kokkos mesh utils
+    INTERFACE MPI::MPI_CXX
+)
