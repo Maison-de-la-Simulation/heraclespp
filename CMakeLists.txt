@@ -77,6 +77,22 @@ include(CTest)
 
 set(Novapp_DEPENDENCY_POLICIES "EMBEDDED" "INSTALLED")
 
+# benchmark dependency
+set(Novapp_benchmark_DEPENDENCY_POLICY
+    "EMBEDDED"
+    CACHE STRING
+    "Policy to find the `benchmark` package. Options: ${Novapp_DEPENDENCY_POLICIES}"
+)
+set_property(
+    CACHE Novapp_benchmark_DEPENDENCY_POLICY
+    PROPERTY STRINGS "${Novapp_DEPENDENCY_POLICIES}"
+)
+if("${Novapp_benchmark_DEPENDENCY_POLICY}" STREQUAL "EMBEDDED")
+    add_subdirectory(vendor/benchmark)
+elseif("${Novapp_benchmark_DEPENDENCY_POLICY}" STREQUAL "INSTALLED")
+    find_package(benchmark REQUIRED)
+endif()
+
 # Doxygen dependency
 find_package(Doxygen)
 
@@ -138,3 +154,5 @@ endif()
 if("${BUILD_TESTING}")
     add_subdirectory(tests)
 endif()
+
+add_subdirectory(benchmarks)
