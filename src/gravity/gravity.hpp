@@ -15,7 +15,6 @@ namespace novapp
 {
 
 class Grid;
-class Param;
 
 class UniformGravity
 {
@@ -46,7 +45,7 @@ public :
     }
 };
 
-UniformGravity make_uniform_gravity(Param const& param);
+UniformGravity make_uniform_gravity(double gx, double gy, double gz);
 
 class PointMassGravity
 {
@@ -82,7 +81,7 @@ public :
 };
 
 PointMassGravity make_point_mass_gravity(
-    Param const& param,
+    double central_mass,
     Grid const& grid);
 
 class InternalMassGravity
@@ -119,7 +118,7 @@ public :
 };
 
 InternalMassGravity make_internal_mass_gravity(
-    Param const& param,
+    double central_mass,
     Grid const& grid,
     KV_cdouble_3d const& rho);
 

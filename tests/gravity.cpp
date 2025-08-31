@@ -7,7 +7,6 @@
 #include <string>
 
 #include <gtest/gtest.h>
-#include <inih/INIReader.hpp>
 
 #include <Kokkos_Core.hpp>
 #include <gravity.hpp>
@@ -15,7 +14,6 @@
 #include <grid_type.hpp>
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
-#include <nova_params.hpp>
 #include <range.hpp>
 #include <units.hpp>
 
@@ -39,21 +37,14 @@ void TestGravityInternalGravity()
     double const zmax = 2.356194490192345;
     double const M_star = 2E30;
 
-    INIReader const reader;
-    novapp::Param param(reader);
-    param.xmin = xmin;
-    param.xmax = xmax;
-    param.ymin = ymin;
-    param.ymax = ymax;
-    param.zmin = zmin;
-    param.zmax = zmax;
-    param.M = M_star;
-    for(int idim = 0; idim < novapp::ndim; ++idim)
-    {
-        param.Nx_glob_ng[idim] = 15;
+    std::array<int, 3> Nx_glob_ng {0, 0, 0};
+    for (int idim = 0; idim < novapp::ndim; ++idim) {
+        Nx_glob_ng[idim] = 15;
     }
+    std::array<int, 3> const mpi_dims_cart {0, 0, 0};
+    int const Ng = 2;
 
-    novapp::Grid grid(param);
+    novapp::Grid grid(Nx_glob_ng, mpi_dims_cart, Ng);
     std::unique_ptr const grid_type = std::make_unique<
             novapp::Regular>(std::array {xmin, ymin, zmin}, std::array {xmax, ymax, zmax});
 
@@ -70,7 +61,7 @@ void TestGravityInternalGravity()
     Kokkos::deep_copy(rho, rho_value);
 
     // Numerical gravitational field
-    novapp::InternalMassGravity const g = novapp::make_internal_mass_gravity(param, grid, rho);
+    novapp::InternalMassGravity const g = novapp::make_internal_mass_gravity(M_star, grid, rho);
 
     // Theoretical gravitational field
     auto xc = grid.x_center;

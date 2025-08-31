@@ -57,13 +57,13 @@ void compute_cell_center(KV_cdouble_1d const& x, KV_double_1d const& x_center)
 
 } // namespace
 
-Grid::Grid(Param const& param)
-    : Ng(param.Ng)
+Grid::Grid(std::array<int, 3> const& nx_glob_ng, std::array<int, 3> const& mpi_dims_cart, int const Ng)
+    : Ng(Ng)
     , Nghost {0, 0, 0}
-    , Nx_glob_ng(param.Nx_glob_ng)
-    , Nx_local_ng(param.Nx_glob_ng)
+    , Nx_glob_ng(nx_glob_ng)
+    , Nx_local_ng(nx_glob_ng)
     , mpi_rank_cart {0, 0, 0}
-    , mpi_dims_cart(param.mpi_dims_cart)
+    , mpi_dims_cart(mpi_dims_cart)
 {
     for (int idim = 0; idim < ndim; ++idim)
     {

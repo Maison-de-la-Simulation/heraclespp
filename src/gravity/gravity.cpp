@@ -17,7 +17,6 @@
 #include <Kokkos_Core.hpp>
 #include <grid.hpp>
 #include <kokkos_shortcut.hpp>
-#include <nova_params.hpp>
 #include <units.hpp>
 
 #include "gravity.hpp"
@@ -27,16 +26,15 @@ namespace novapp
 
 UniformGravity::UniformGravity(KV_cdouble_1d g) : m_g(std::move(g)) {}
 
-UniformGravity make_uniform_gravity(
-    Param const& param)
+UniformGravity make_uniform_gravity(double const gx, double const gy, double const gz)
 {
     KDV_double_1d g_array_dv("g_array", 3);
     {
         // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
         auto const g_array_h = g_array_dv.view_host();
-        g_array_h(0) = param.gx;
-        g_array_h(1) = param.gy;
-        g_array_h(2) = param.gz;
+        g_array_h(0) = gx;
+        g_array_h(1) = gy;
+        g_array_h(2) = gz;
     }
     g_array_dv.modify_host();
     g_array_dv.sync_device();
@@ -46,11 +44,10 @@ UniformGravity make_uniform_gravity(
 PointMassGravity::PointMassGravity(KV_cdouble_1d g) : m_g(std::move(g)) {}
 
 PointMassGravity make_point_mass_gravity(
-    Param const& param,
+    double const central_mass,
     Grid const& grid)
 {
     KV_double_1d const g_array("g_array", grid.Nx_local_wg[0]);
-    double const M = param.M;
 
     KV_cdouble_1d const xc = grid.x_center;
 
@@ -59,7 +56,7 @@ PointMassGravity make_point_mass_gravity(
         Kokkos::RangePolicy<int>(0, grid.Nx_local_wg[0]),
         KOKKOS_LAMBDA(int i)
         {
-            g_array(i) = - units::G * M / (xc(i) * xc(i));
+            g_array(i) = - units::G * central_mass / (xc(i) * xc(i));
         });
     return PointMassGravity(g_array);
 }
@@ -67,7 +64,7 @@ PointMassGravity make_point_mass_gravity(
 InternalMassGravity::InternalMassGravity(KV_cdouble_1d g) : m_g(std::move(g)) {}
 
 InternalMassGravity make_internal_mass_gravity(
-    Param const& param,
+    double const central_mass,
     Grid const& grid,
     KV_cdouble_3d const& rho)
 {
@@ -81,7 +78,6 @@ InternalMassGravity make_internal_mass_gravity(
     KDV_double_1d rho_mean_dv("rho_mean_array", grid.Nx_local_ng[0] + grid.Nghost[0]); // sum (rho * dv) / (sum dv)
 
     KV_double_1d const M_r("M_r_array", grid.Nx_local_wg[0]); // total mass at r
-    double const M_star = param.M;
     auto const x = grid.x;
     auto const xc = grid.x_center;
     auto const dv = grid.dv;
@@ -134,7 +130,7 @@ InternalMassGravity make_internal_mass_gravity(
         Kokkos::RangePolicy<int>(0, grid.Nghost[0]),
         KOKKOS_LAMBDA(int i)
         {
-            M_r(i) = M_star;
+            M_r(i) = central_mass;
         });
 
     Kokkos::parallel_scan(
@@ -146,7 +142,7 @@ InternalMassGravity make_internal_mass_gravity(
             double const x3 = x(i) * x(i) * x(i);
             if (i == nghost[0])
             {
-                partial_sum += M_star + 4. / 3 * units::pi * (xc(i) * xc(i) * xc(i) - x3) * rho_mean(offset);
+                partial_sum += central_mass + 4. / 3 * units::pi * (xc(i) * xc(i) * xc(i) - x3) * rho_mean(offset);
             }
             else
             {
