@@ -90,11 +90,11 @@ Gravity make_gravity(
         [[maybe_unused]] KV_cdouble_3d const& rho)
 {
 #if defined(NOVAPP_GRAVITY_Uniform)
-    return make_uniform_gravity(param);
+    return make_uniform_gravity(param.gx, param.gy, param.gz);
 #elif defined(NOVAPP_GRAVITY_Point_mass)
-    return make_point_mass_gravity(param, grid);
+    return make_point_mass_gravity(param.M, grid);
 #elif defined(NOVAPP_GRAVITY_Internal_mass)
-    return make_internal_mass_gravity(param, grid, rho);
+    return make_internal_mass_gravity(param.M, grid, rho);
 #endif
 }
 
@@ -144,7 +144,7 @@ void main(int argc, char** argv)
 
     Param const param(reader);
     ParamSetup const param_setup(reader);
-    Grid grid(param);
+    Grid grid(param.Nx_glob_ng, param.mpi_dims_cart, param.Ng);
 
     if (grid.mpi_rank == 0)
     {

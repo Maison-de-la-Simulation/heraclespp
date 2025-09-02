@@ -21,8 +21,6 @@
 namespace novapp
 {
 
-class Param;
-
 class Grid
 {
 public:
@@ -57,7 +55,7 @@ public:
     KV_double_4d ds;
     KV_double_3d dv;
 
-    explicit Grid(Param const& param);
+    Grid(std::array<int, 3> const& nx_glob_ng, std::array<int, 3> const& mpi_dims_cart, int Ng);
 
     Grid(Grid const& rhs) = delete;
 
