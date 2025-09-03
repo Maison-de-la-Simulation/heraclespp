@@ -107,6 +107,7 @@ std::string display_help_message(std::filesystem::path const& executable)
 
 void main(int argc, char** argv)
 {
+    // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     if (argc < 2)
     {
         throw std::runtime_error(display_help_message(argv[0]));
@@ -130,6 +131,7 @@ void main(int argc, char** argv)
             pdi_config_path = option_value;
         }
     }
+    // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 
     PC_tree_t conf;
     if (!pdi_config_path.empty())
