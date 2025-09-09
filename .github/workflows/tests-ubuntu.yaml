@@ -68,6 +68,10 @@ jobs:
           cmake -B build-inih -S vendor/inih
           cmake --build build-inih
           cmake --install build-inih --prefix opt/inih
+      - run: |
+          cmake -B build-benchmark -S vendor/benchmark
+          cmake --build build-benchmark
+          cmake --install build-benchmark --prefix opt/benchmark
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: env-common
@@ -142,6 +146,7 @@ jobs:
       - env-serial
     env:
       CXXFLAGS: -Werror=all -Werror=extra -Werror=pedantic -pedantic-errors
+      benchmark_ROOT: ${{github.workspace}}/opt/benchmark
       GTest_ROOT: ${{github.workspace}}/opt/gtest
       inih_ROOT: ${{github.workspace}}/opt/inih
       Kokkos_ROOT: ${{github.workspace}}/opt/kokkos-serial
@@ -164,6 +169,7 @@ jobs:
     env:
       CMAKE_BUILD_TYPE: Debug
       CXXFLAGS: -Werror=all -Werror=extra -Werror=pedantic -pedantic-errors -Werror=old-style-cast -Werror=extra-semi
+      benchmark_ROOT: ${{github.workspace}}/opt/benchmark
       GTest_ROOT: ${{github.workspace}}/opt/gtest
       inih_ROOT: ${{github.workspace}}/opt/inih
       Kokkos_ROOT: ${{github.workspace}}/opt/kokkos-serial
@@ -176,7 +182,7 @@ jobs:
           path: opt
           merge-multiple: true
       - run: |
-          cmake -DBUILD_TESTING=ON -DNovapp_NDIM=1 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake -DBUILD_TESTING=ON -DNovapp_NDIM=1 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
           cmake --build build
           ctest --test-dir build --output-on-failure --timeout 5 --output-junit tests.xml
           ./build/benchmarks/benchmarks --benchmark_dry_run=true
@@ -199,6 +205,7 @@ jobs:
     env:
       CMAKE_BUILD_TYPE: Debug
       CXXFLAGS: -Werror=all -Werror=extra -Werror=pedantic -pedantic-errors -Werror=old-style-cast -Werror=extra-semi
+      benchmark_ROOT: ${{github.workspace}}/opt/benchmark
       GTest_ROOT: ${{github.workspace}}/opt/gtest
       inih_ROOT: ${{github.workspace}}/opt/inih
       Kokkos_ROOT: ${{github.workspace}}/opt/kokkos-serial
@@ -211,7 +218,7 @@ jobs:
           path: opt
           merge-multiple: true
       - run: |
-          cmake -DBUILD_TESTING=ON -DNovapp_NDIM=2 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake -DBUILD_TESTING=ON -DNovapp_NDIM=2 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
           cmake --build build
           ctest --test-dir build --output-on-failure --timeout 5 --output-junit tests.xml
           ./build/benchmarks/benchmarks --benchmark_dry_run=true
@@ -231,6 +238,7 @@ jobs:
     env:
       CMAKE_BUILD_TYPE: Debug
       CXXFLAGS: -Werror=all -Werror=extra -Werror=pedantic -pedantic-errors -Werror=old-style-cast -Werror=extra-semi
+      benchmark_ROOT: ${{github.workspace}}/opt/benchmark
       GTest_ROOT: ${{github.workspace}}/opt/gtest
       inih_ROOT: ${{github.workspace}}/opt/inih
       Kokkos_ROOT: ${{github.workspace}}/opt/kokkos-serial
@@ -243,7 +251,7 @@ jobs:
           path: opt
           merge-multiple: true
       - run: |
-          cmake -DBUILD_TESTING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake -DBUILD_TESTING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
           cmake --build build
           ctest --test-dir build --output-on-failure --timeout 5 --output-junit tests.xml
           ./build/benchmarks/benchmarks --benchmark_dry_run=true
@@ -263,6 +271,7 @@ jobs:
     env:
       CXX: ${{github.workspace}}/vendor/kokkos/bin/nvcc_wrapper
       CXXFLAGS: -Werror=all -Werror=extra -Werror=all-warnings
+      benchmark_ROOT: ${{github.workspace}}/opt/benchmark
       GTest_ROOT: ${{github.workspace}}/opt/gtest
       inih_ROOT: ${{github.workspace}}/opt/inih
       Kokkos_ROOT: ${{github.workspace}}/opt/kokkos-cuda
@@ -276,7 +285,7 @@ jobs:
           path: opt
           merge-multiple: true
       - run: |
-          cmake -DBUILD_TESTING=ON -DCMAKE_CXX_EXTENSIONS=OFF -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake -DBUILD_TESTING=ON -DCMAKE_CXX_EXTENSIONS=OFF -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
           cmake --build build
 
   build-hip-3d:
@@ -289,6 +298,7 @@ jobs:
     env:
       CXX: hipcc
       CXXFLAGS: -Werror=all -Werror=extra -Werror=pedantic -pedantic-errors -Werror=old-style-cast -Werror=extra-semi
+      benchmark_ROOT: ${{github.workspace}}/opt/benchmark
       GTest_ROOT: ${{github.workspace}}/opt/gtest
       inih_ROOT: ${{github.workspace}}/opt/inih
       Kokkos_ROOT: ${{github.workspace}}/opt/kokkos-hip
@@ -299,7 +309,7 @@ jobs:
           path: opt
           merge-multiple: true
       - run: |
-          cmake -DBUILD_TESTING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake -DBUILD_TESTING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
           cmake --build build
 
   clang-tidy:
@@ -310,6 +320,7 @@ jobs:
       - env-common
       - env-serial
     env:
+      benchmark_ROOT: ${{github.workspace}}/opt/benchmark
       GTest_ROOT: ${{github.workspace}}/opt/gtest
       inih_ROOT: ${{github.workspace}}/opt/inih
       Kokkos_ROOT: ${{github.workspace}}/opt/kokkos-serial
@@ -320,7 +331,7 @@ jobs:
           path: opt
           merge-multiple: true
       - run: |
-          cmake -DBUILD_TESTING=ON -DCMAKE_CXX_COMPILER=clang++-20 -DCMAKE_CXX_CLANG_TIDY="clang-tidy-20;-header-filter=${{github.workspace}}/src/.*;-warnings-as-errors=*" -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake -DBUILD_TESTING=ON -DCMAKE_CXX_COMPILER=clang++-20 -DCMAKE_CXX_CLANG_TIDY="clang-tidy-20;-header-filter=${{github.workspace}}/src/.*;-warnings-as-errors=*" -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
           cmake --build build
 
   link-what-you-use:
@@ -331,6 +342,7 @@ jobs:
       - env-common
       - env-serial
     env:
+      benchmark_ROOT: ${{github.workspace}}/opt/benchmark
       GTest_ROOT: ${{github.workspace}}/opt/gtest
       inih_ROOT: ${{github.workspace}}/opt/inih
       Kokkos_ROOT: ${{github.workspace}}/opt/kokkos-serial
@@ -341,7 +353,7 @@ jobs:
           path: opt
           merge-multiple: true
       - run: |
-          cmake -DBUILD_TESTING=ON -DCMAKE_CXX_COMPILER=clang++-20 -DCMAKE_LINK_WHAT_YOU_USE=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake -DBUILD_TESTING=ON -DCMAKE_CXX_COMPILER=clang++-20 -DCMAKE_LINK_WHAT_YOU_USE=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
           cmake --build build
 
   doxygen:
