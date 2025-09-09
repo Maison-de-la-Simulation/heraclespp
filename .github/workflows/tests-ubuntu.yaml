@@ -69,7 +69,7 @@ jobs:
           cmake --build build-inih
           cmake --install build-inih --prefix opt/inih
       - run: |
-          cmake -B build-benchmark -S vendor/benchmark
+          cmake -DBENCHMARK_ENABLE_TESTING=OFF -B build-benchmark -S vendor/benchmark
           cmake --build build-benchmark
           cmake --install build-benchmark --prefix opt/benchmark
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
@@ -365,5 +365,5 @@ jobs:
         with:
           submodules: true
       - run: |
-          cmake -DDOXYGEN_WARN_AS_ERROR=YES -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -B build
+          cmake -DBENCHMARK_ENABLE_TESTING=OFF -DDOXYGEN_WARN_AS_ERROR=YES -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -B build
           cmake --build build --target doxygen
