@@ -182,7 +182,7 @@ jobs:
           path: opt
           merge-multiple: true
       - run: |
-          cmake -DBUILD_TESTING=ON -DNovapp_NDIM=1 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake -DBUILD_TESTING=ON -DNovapp_BUILD_BENCHMARKING=ON -DNovapp_NDIM=1 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
           cmake --build build
           ctest --test-dir build --output-on-failure --timeout 5 --output-junit tests.xml
           ./build/benchmarks/benchmarks --benchmark_dry_run=true
@@ -218,7 +218,7 @@ jobs:
           path: opt
           merge-multiple: true
       - run: |
-          cmake -DBUILD_TESTING=ON -DNovapp_NDIM=2 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake -DBUILD_TESTING=ON -DNovapp_BUILD_BENCHMARKING=ON -DNovapp_NDIM=2 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
           cmake --build build
           ctest --test-dir build --output-on-failure --timeout 5 --output-junit tests.xml
           ./build/benchmarks/benchmarks --benchmark_dry_run=true
@@ -251,7 +251,7 @@ jobs:
           path: opt
           merge-multiple: true
       - run: |
-          cmake -DBUILD_TESTING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake -DBUILD_TESTING=ON -DNovapp_BUILD_BENCHMARKING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
           cmake --build build
           ctest --test-dir build --output-on-failure --timeout 5 --output-junit tests.xml
           ./build/benchmarks/benchmarks --benchmark_dry_run=true
@@ -285,7 +285,7 @@ jobs:
           path: opt
           merge-multiple: true
       - run: |
-          cmake -DBUILD_TESTING=ON -DCMAKE_CXX_EXTENSIONS=OFF -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake -DBUILD_TESTING=ON -DCMAKE_CXX_EXTENSIONS=OFF -DNovapp_BUILD_BENCHMARKING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
           cmake --build build
 
   build-hip-3d:
@@ -309,7 +309,7 @@ jobs:
           path: opt
           merge-multiple: true
       - run: |
-          cmake -DBUILD_TESTING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake -DBUILD_TESTING=ON -DNovapp_BUILD_BENCHMARKING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
           cmake --build build
 
   clang-tidy:
@@ -331,7 +331,7 @@ jobs:
           path: opt
           merge-multiple: true
       - run: |
-          cmake -DBUILD_TESTING=ON -DCMAKE_CXX_COMPILER=clang++-20 -DCMAKE_CXX_CLANG_TIDY="clang-tidy-20;-header-filter=${{github.workspace}}/src/.*;-warnings-as-errors=*" -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake -DBUILD_TESTING=ON -DCMAKE_CXX_COMPILER=clang++-20 -DCMAKE_CXX_CLANG_TIDY="clang-tidy-20;-header-filter=${{github.workspace}}/src/.*;-warnings-as-errors=*" -DNovapp_BUILD_BENCHMARKING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
           cmake --build build
 
   link-what-you-use:
@@ -353,7 +353,7 @@ jobs:
           path: opt
           merge-multiple: true
       - run: |
-          cmake -DBUILD_TESTING=ON -DCMAKE_CXX_COMPILER=clang++-20 -DCMAKE_LINK_WHAT_YOU_USE=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake -DBUILD_TESTING=ON -DCMAKE_CXX_COMPILER=clang++-20 -DCMAKE_LINK_WHAT_YOU_USE=ON -DNovapp_BUILD_BENCHMARKING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
           cmake --build build
 
   doxygen:
