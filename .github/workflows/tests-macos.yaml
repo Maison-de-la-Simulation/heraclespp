@@ -112,7 +112,7 @@ jobs:
       - name: Build Heracles++
         run: |
           . $PDI_ROOT/share/pdi/env.sh
-          cmake -DBUILD_TESTING=ON -DNovapp_BUILD_BENCHMARKING=OFF -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake -DBUILD_TESTING=ON -DNovapp_BUILD_BENCHMARKING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
           cmake --build build
           ctest --test-dir build --output-on-failure --timeout 5 --output-junit tests.xml
           ./build/benchmarks/benchmarks --benchmark_dry_run=true

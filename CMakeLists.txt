@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.25)
 
 project(Nova++ LANGUAGES CXX)
 
@@ -90,7 +90,7 @@ set_property(
     PROPERTY STRINGS "${Novapp_DEPENDENCY_POLICIES}"
 )
 if("${Novapp_benchmark_DEPENDENCY_POLICY}" STREQUAL "EMBEDDED")
-    add_subdirectory(vendor/benchmark)
+    add_subdirectory(vendor/benchmark SYSTEM)
 elseif("${Novapp_benchmark_DEPENDENCY_POLICY}" STREQUAL "INSTALLED")
     find_package(benchmark REQUIRED)
 endif()
@@ -109,7 +109,7 @@ set_property(
     PROPERTY STRINGS "${Novapp_DEPENDENCY_POLICIES}"
 )
 if("${Novapp_GTest_DEPENDENCY_POLICY}" STREQUAL "EMBEDDED")
-    add_subdirectory(vendor/googletest)
+    add_subdirectory(vendor/googletest SYSTEM)
 elseif("${Novapp_GTest_DEPENDENCY_POLICY}" STREQUAL "INSTALLED")
     find_package(GTest REQUIRED CONFIG)
 endif()
@@ -122,7 +122,7 @@ set(Novapp_inih_DEPENDENCY_POLICY
 )
 set_property(CACHE Novapp_inih_DEPENDENCY_POLICY PROPERTY STRINGS "EMBEDDED")
 if("${Novapp_inih_DEPENDENCY_POLICY}" STREQUAL "EMBEDDED")
-    add_subdirectory(vendor/inih)
+    add_subdirectory(vendor/inih SYSTEM)
 elseif("${Novapp_inih_DEPENDENCY_POLICY}" STREQUAL "INSTALLED")
     find_package(inih REQUIRED CONFIG)
 endif()
@@ -138,7 +138,7 @@ set_property(
     PROPERTY STRINGS "${Novapp_DEPENDENCY_POLICIES}"
 )
 if("${Novapp_Kokkos_DEPENDENCY_POLICY}" STREQUAL "EMBEDDED")
-    add_subdirectory(vendor/kokkos)
+    add_subdirectory(vendor/kokkos SYSTEM)
 elseif("${Novapp_Kokkos_DEPENDENCY_POLICY}" STREQUAL "INSTALLED")
     find_package(Kokkos 4...<5 REQUIRED CONFIG)
 endif()
