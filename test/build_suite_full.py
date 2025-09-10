@@ -32,6 +32,7 @@ def build_suite(sources: pathlib.Path, setups: typing.List[typing.Dict]):
                 [
                     "cmake",
                     "-DBUILD_TESTING=OFF",
+                    "-DNovapp_BUILD_BENCHMARKING=OFF",
                     f"-DNovapp_EOS={cmake_options['eos']}",
                     f"-DNovapp_GEOM={cmake_options['geom']}",
                     f"-DNovapp_GRAVITY={cmake_options['gravity']}",

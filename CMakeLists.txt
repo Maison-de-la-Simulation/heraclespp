@@ -8,6 +8,8 @@ project(Nova++ LANGUAGES CXX)
 
 set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_NO_CYCLES ON)
 
+option(Novapp_BUILD_BENCHMARKING "Build the benchmarking tree." OFF)
+
 set(Novapp_EOS
     ""
     CACHE STRING
@@ -155,4 +157,6 @@ if("${BUILD_TESTING}")
     add_subdirectory(tests)
 endif()
 
-add_subdirectory(benchmarks)
+if("${Novapp_BUILD_BENCHMARKING}")
+    add_subdirectory(benchmarks)
+endif()
