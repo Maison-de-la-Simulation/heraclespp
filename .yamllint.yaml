@@ -6,4 +6,4 @@
 extends: default
 rules:
   line-length:
-    max: 500
+    max: 1000

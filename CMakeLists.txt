@@ -8,6 +8,8 @@ project(Nova++ LANGUAGES CXX)
 
 set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_NO_CYCLES ON)
 
+option(Novapp_BUILD_BENCHMARKING "Build the benchmarking tree." OFF)
+
 set(Novapp_EOS
     ""
     CACHE STRING
@@ -77,6 +79,22 @@ include(CTest)
 
 set(Novapp_DEPENDENCY_POLICIES "EMBEDDED" "INSTALLED")
 
+# benchmark dependency
+set(Novapp_benchmark_DEPENDENCY_POLICY
+    "EMBEDDED"
+    CACHE STRING
+    "Policy to find the `benchmark` package. Options: ${Novapp_DEPENDENCY_POLICIES}"
+)
+set_property(
+    CACHE Novapp_benchmark_DEPENDENCY_POLICY
+    PROPERTY STRINGS "${Novapp_DEPENDENCY_POLICIES}"
+)
+if("${Novapp_benchmark_DEPENDENCY_POLICY}" STREQUAL "EMBEDDED")
+    add_subdirectory(vendor/benchmark)
+elseif("${Novapp_benchmark_DEPENDENCY_POLICY}" STREQUAL "INSTALLED")
+    find_package(benchmark REQUIRED)
+endif()
+
 # Doxygen dependency
 find_package(Doxygen)
 
@@ -137,4 +155,8 @@ endif()
 
 if("${BUILD_TESTING}")
     add_subdirectory(tests)
+endif()
+
+if("${Novapp_BUILD_BENCHMARKING}")
+    add_subdirectory(benchmarks)
 endif()
