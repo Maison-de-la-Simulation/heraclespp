@@ -25,17 +25,8 @@ add_subdirectory(user_step)
 add_subdirectory(utils)
 add_subdirectory(moving_grid)
 
-add_library(
-    libnova++
-    boundary.cpp
-    boundary_distribute.cpp
-    broadcast.cpp
-    initialization_interface.cpp
-    mpi_scope_guard.cpp
-    shift_criterion_interface.cpp
-)
+add_library(libnova++)
 target_compile_features(libnova++ PUBLIC cxx_std_17)
-target_include_directories(libnova++ PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(
     libnova++
     PRIVATE MPI::MPI_CXX
@@ -50,6 +41,26 @@ target_link_libraries(
         units
         user_step
         utils
+)
+target_sources(
+    libnova++
+    PRIVATE
+        boundary.cpp
+        boundary_distribute.cpp
+        broadcast.cpp
+        initialization_interface.cpp
+        mpi_scope_guard.cpp
+        shift_criterion_interface.cpp
+    PUBLIC
+        FILE_SET HEADERS
+            FILES
+                boundary_distribute.hpp
+                boundary_factory.hpp
+                boundary.hpp
+                broadcast.hpp
+                initialization_interface.hpp
+                mpi_scope_guard.hpp
+                shift_criterion_interface.hpp
 )
 
 add_executable(nova++ main.cpp)
