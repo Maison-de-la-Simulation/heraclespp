@@ -4,6 +4,8 @@
 
 FROM ubuntu:noble@sha256:1e622c5f073b4f6bfad6632f2616c7f59ef256e96fe78bf6a595d1dc4376ac02
 
+ARG LLVM_VERSION=21
+
 ENV BASH_ENV=/etc/profile
 SHELL ["/bin/bash", "-c"]
 
@@ -24,7 +26,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
  && wget --output-document=/usr/share/keyrings/cuda-archive-keyring.asc https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/3bf863cc.pub \
  && wget --output-document=/usr/share/keyrings/rocm-archive-keyring.asc https://repo.radeon.com/rocm/rocm.gpg.key \
  && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/pdidev-archive-keyring.gpg] https://repo.pdi.dev/ubuntu noble main" > /etc/apt/sources.list.d/pdi.list \
- && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/apt.llvm.org.asc] http://apt.llvm.org/noble/ llvm-toolchain-noble-20 main" > /etc/apt/sources.list.d/llvm.list \
+ && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/apt.llvm.org.asc] http://apt.llvm.org/noble/ llvm-toolchain-noble-${LLVM_VERSION} main" > /etc/apt/sources.list.d/llvm.list \
  && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/cuda-archive-keyring.asc] https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64 /" > /etc/apt/sources.list.d/cuda.list \
  && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/rocm-archive-keyring.asc] https://repo.radeon.com/rocm/apt/6.3.4 noble main" > /etc/apt/sources.list.d/rocm.list \
  && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/rocm-archive-keyring.asc] https://repo.radeon.com/amdgpu/6.3.4/ubuntu noble main" > /etc/apt/sources.list.d/amdgpu.list \
@@ -33,8 +35,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
  && apt-get --yes update \
  && apt-get --yes --no-install-recommends install \
     build-essential \
-    clang-format-20 \
-    clang-tidy-20 \
+    clang-format-${LLVM_VERSION} \
+    clang-tidy-${LLVM_VERSION} \
     cmake \
     doxygen \
     git \
