@@ -2,11 +2,17 @@
 #
 # SPDX-License-Identifier: MIT
 
-add_library(analysis integration.cpp internal_energy.cpp)
+add_library(analysis)
 target_compile_features(analysis INTERFACE cxx_std_20)
-target_include_directories(analysis PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(
     analysis
     PRIVATE MPI::MPI_CXX
     PUBLIC hydro Kokkos::kokkos mesh utils
+)
+target_sources(
+    analysis
+    PRIVATE integration.cpp internal_energy.cpp
+    PUBLIC
+        FILE_SET HEADERS
+            FILES integration.hpp internal_energy.hpp temperature.hpp
 )

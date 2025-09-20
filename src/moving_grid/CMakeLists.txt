@@ -2,7 +2,11 @@
 #
 # SPDX-License-Identifier: MIT
 
-add_library(moving_grid moving_grid.cpp)
+add_library(moving_grid)
 target_compile_features(moving_grid PUBLIC cxx_std_17)
-target_include_directories(moving_grid INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(moving_grid PRIVATE Kokkos::kokkos mesh PUBLIC utils)
+target_sources(
+    moving_grid
+    PRIVATE moving_grid.cpp
+    INTERFACE FILE_SET HEADERS FILES moving_grid.hpp
+)

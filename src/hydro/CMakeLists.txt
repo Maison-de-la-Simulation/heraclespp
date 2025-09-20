@@ -2,11 +2,30 @@
 #
 # SPDX-License-Identifier: MIT
 
-add_library(hydro face_reconstruction.cpp)
+add_library(hydro)
 target_compile_features(hydro PUBLIC cxx_std_20)
-target_include_directories(hydro INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(
     hydro
     PUBLIC Kokkos::kokkos mesh utils
     INTERFACE MPI::MPI_CXX
+)
+target_sources(
+    hydro
+    PRIVATE face_reconstruction.cpp
+    INTERFACE
+        FILE_SET HEADERS
+            FILES
+                array_conversion.hpp
+                concepts.hpp
+                euler_equations.hpp
+                extrapolation_time.hpp
+                face_reconstruction.hpp
+                godunov_scheme.hpp
+                hydro_reconstruction.hpp
+                limited_linear_reconstruction.hpp
+                pressure_fix.hpp
+                riemann_solver.hpp
+                slope_limiters.hpp
+                source_terms.hpp
+                time_step.hpp
 )
