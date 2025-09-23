@@ -2,10 +2,14 @@
 #
 # SPDX-License-Identifier: MIT
 
-add_library(io io.cpp config.yaml.cpp)
-target_include_directories(io INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+add_library(io)
 target_link_libraries(
     io
     PRIVATE mesh MPI::MPI_CXX PDI::PDI_C
     PUBLIC hdf5::hdf5 utils
+)
+target_sources(
+    io
+    PRIVATE io.cpp config.yaml.cpp
+    INTERFACE FILE_SET HEADERS FILES config.yaml.hpp io_hdf5.hpp io.hpp
 )
