@@ -40,7 +40,7 @@ jobs:
             c_compiler: 'clang'
             cxx_compiler: 'clang++'
         cxx_version: ['20', '23']
-        os: [macos-14, macos-15]
+        os: [macos-14, macos-15, macos-26]
     runs-on: ${{matrix.os}}
     env:
       CXXFLAGS: -Werror=all -Werror=extra -Werror=pedantic -pedantic-errors
