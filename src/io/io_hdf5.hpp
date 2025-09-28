@@ -67,7 +67,7 @@ void check_extent_dset(
     }
     std::array<hsize_t, N> dset_extent {};
     ::H5Sget_simple_extent_dims(*dspace, dset_extent.data(), nullptr);
-    if (!std::equal(dset_extent.cbegin(), dset_extent.cend(), expected_extents.cbegin())) {
+    if (!std::ranges::equal(dset_extent, expected_extents)) {
         throw std::runtime_error("Nova++ error: Extents do not match");
     }
 }
