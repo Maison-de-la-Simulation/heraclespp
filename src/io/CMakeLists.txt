@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 add_library(io)
+target_compile_features(io PUBLIC cxx_std_20)
 target_link_libraries(
     io
     PRIVATE mesh MPI::MPI_CXX PDI::PDI_C

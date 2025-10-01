@@ -78,20 +78,24 @@ void sync_device(DualViews&... views)
 }
 
 template <class View0, class... Views>
-    requires(Kokkos::is_view_v<View0> || Kokkos::is_dual_view_v<View0>)
+    requires(
+            (Kokkos::is_view_v<View0> || Kokkos::is_dual_view_v<View0>)
+            && ((Kokkos::is_view_v<Views> || Kokkos::is_dual_view_v<Views>) && ...))
 bool equal_extents(std::size_t const i, View0 const& view0, Views const&... views) noexcept
 {
     return ((view0.extent(i) == views.extent(i)) && ...);
 }
 
 template <class View0, class... Views>
-    requires(Kokkos::is_view_v<View0> || Kokkos::is_dual_view_v<View0>)
+    requires(
+            (Kokkos::is_view_v<View0> || Kokkos::is_dual_view_v<View0>)
+            && ((Kokkos::is_view_v<Views> || Kokkos::is_dual_view_v<Views>) && ...))
 bool equal_extents(
         std::initializer_list<std::size_t> idx,
         View0 const& view0,
         Views const&... views) noexcept
 {
-    return std::all_of(idx.begin(), idx.end(), [&](std::size_t const i) -> bool {
+    return std::ranges::all_of(idx, [&](std::size_t const i) -> bool {
         return equal_extents(i, view0, views...);
     });
 }
