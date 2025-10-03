@@ -56,13 +56,13 @@ public:
 };
 
 template <concepts::EulerEoS EoS, concepts::GravityField Gravity>
-class ExtrapolationTimeReconstruction : public IExtrapolationReconstruction<Gravity>
+class HancockExtrapolationReconstruction : public IExtrapolationReconstruction<Gravity>
 {
 private:
     EoS m_eos;
 
 public:
-    explicit ExtrapolationTimeReconstruction(EoS const& eos)
+    explicit HancockExtrapolationReconstruction(EoS const& eos)
         : m_eos(eos)
     {
     }
