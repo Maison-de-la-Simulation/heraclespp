@@ -150,7 +150,7 @@ public:
 
         Kokkos::parallel_for(
         m_label,
-        Kokkos::MDRangePolicy<int, Kokkos::Rank<3>>(begin, end),
+        Kokkos::MDRangePolicy<Kokkos::IndexType<int>, Kokkos::Rank<3>>(begin, end),
         KOKKOS_LAMBDA(int i, int j, int k)
         {
             double const x0 = units::kb * param_setup.T / (mu * units::mp * units::G * param_setup.M);

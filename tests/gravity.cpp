@@ -116,7 +116,7 @@ void TestGravityUniformGravity()
     {
         auto const result_d = novapp::view_device(result);
         Kokkos::parallel_for(
-                Kokkos::MDRangePolicy<Kokkos::Rank<3>, int>({0, 0, 0}, {nx, ny, nz}),
+                Kokkos::MDRangePolicy<Kokkos::IndexType<int>, Kokkos::Rank<3>>({0, 0, 0}, {nx, ny, nz}),
                 KOKKOS_LAMBDA(int i, int j, int k) {
                     result_d(i, j, k, 0) = gravity(i, j, k, 0);
                     result_d(i, j, k, 1) = gravity(i, j, k, 1);
