@@ -201,7 +201,7 @@ public:
             int const ishift_min = grid.Nx_local_ng[0] - m_param_setup.cell_shift;
             Kokkos::parallel_reduce(
                 "shift criterion",
-                Kokkos::MDRangePolicy<Kokkos::Rank<3>>(
+                Kokkos::MDRangePolicy<Kokkos::IndexType<int>, Kokkos::Rank<3>>(
                 {ishift_min, grid.Nghost[1], grid.Nghost[2]},
                 {grid.Nghost[0] + grid.Nx_local_ng[0],
                 grid.Nghost[1] + grid.Nx_local_ng[1],

@@ -150,13 +150,13 @@ std::array<Kokkos::Array<int, 3>, 2> cell_range(Range const& range)
     return std::array<Kokkos::Array<int, 3>, 2> {begin, end};
 }
 
-Kokkos::MDRangePolicy<Kokkos::Rank<3, Kokkos::Iterate::Left, Kokkos::Iterate::Left>> cell_mdrange(
-        Range const& range)
+Kokkos::MDRangePolicy<
+        Kokkos::IndexType<int>,
+        Kokkos::Rank<3, Kokkos::Iterate::Left, Kokkos::Iterate::Left>>
+cell_mdrange(Range const& range)
 {
     auto const [begin, end] = cell_range(range);
-    return Kokkos::MDRangePolicy<
-            int,
-            Kokkos::Rank<3, Kokkos::Iterate::Left, Kokkos::Iterate::Left>>(begin, end);
+    return {begin, end};
 }
 
 } // namespace novapp

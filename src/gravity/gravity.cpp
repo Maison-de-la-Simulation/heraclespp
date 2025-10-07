@@ -91,7 +91,7 @@ InternalMassGravity make_internal_mass_gravity(
     {
         Kokkos::parallel_reduce(
             "integration_shell",
-            Kokkos::MDRangePolicy<int, Kokkos::Rank<2>>
+            Kokkos::MDRangePolicy<Kokkos::IndexType<int>, Kokkos::Rank<2>>
             ({0, 0},
             {grid.Nx_local_ng[1], grid.Nx_local_ng[2]}),
             KOKKOS_LAMBDA(int j, int k, double& local_sum_mass, double& local_sum_dv)
