@@ -300,7 +300,7 @@ void main(int argc, char** argv)
             = factory_face_reconstruction(param.reconstruction_type);
 
     std::unique_ptr<IExtrapolationReconstruction<Gravity>> time_reconstruction
-            = std::make_unique<ExtrapolationTimeReconstruction<EOS, Gravity>>(eos);
+            = std::make_unique<HancockExtrapolationReconstruction<EOS, Gravity>>(eos);
 
     std::unique_ptr<IHydroReconstruction<Gravity>> reconstruction
         = std::make_unique<MUSCLHancockHydroReconstruction<EOS, Gravity>>(std::move(face_reconstruction),
