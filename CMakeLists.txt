@@ -79,40 +79,8 @@ include(CTest)
 
 set(Novapp_DEPENDENCY_POLICIES "EMBEDDED" "INSTALLED")
 
-# benchmark dependency
-set(Novapp_benchmark_DEPENDENCY_POLICY
-    "EMBEDDED"
-    CACHE STRING
-    "Policy to find the `benchmark` package. Options: ${Novapp_DEPENDENCY_POLICIES}"
-)
-set_property(
-    CACHE Novapp_benchmark_DEPENDENCY_POLICY
-    PROPERTY STRINGS "${Novapp_DEPENDENCY_POLICIES}"
-)
-if("${Novapp_benchmark_DEPENDENCY_POLICY}" STREQUAL "EMBEDDED")
-    add_subdirectory(vendor/benchmark SYSTEM)
-elseif("${Novapp_benchmark_DEPENDENCY_POLICY}" STREQUAL "INSTALLED")
-    find_package(benchmark REQUIRED)
-endif()
-
 # Doxygen dependency
 find_package(Doxygen)
-
-# GTest dependency
-set(Novapp_GTest_DEPENDENCY_POLICY
-    "EMBEDDED"
-    CACHE STRING
-    "Policy to find the `GTest` package. Options: ${Novapp_DEPENDENCY_POLICIES}"
-)
-set_property(
-    CACHE Novapp_GTest_DEPENDENCY_POLICY
-    PROPERTY STRINGS "${Novapp_DEPENDENCY_POLICIES}"
-)
-if("${Novapp_GTest_DEPENDENCY_POLICY}" STREQUAL "EMBEDDED")
-    add_subdirectory(vendor/googletest SYSTEM)
-elseif("${Novapp_GTest_DEPENDENCY_POLICY}" STREQUAL "INSTALLED")
-    find_package(GTest REQUIRED CONFIG)
-endif()
 
 # inih dependency
 set(Novapp_inih_DEPENDENCY_POLICY

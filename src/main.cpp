@@ -28,7 +28,6 @@
 
 #include <Kokkos_Core.hpp>
 #include <array_conversion.hpp>
-#include <config.yaml.hpp>
 #include <eos.hpp>
 #include <extrapolation_reconstruction.hpp>
 #include <face_reconstruction.hpp>
@@ -42,13 +41,10 @@
 #include <hydro_reconstruction.hpp>
 #include <integration.hpp>
 #include <internal_energy.hpp>
-#include <io.hpp>
 #include <kokkos_shortcut.hpp>
 #include <moving_grid.hpp>
 #include <ndim.hpp>
 #include <nova_params.hpp>
-#include <paraconf.h>
-#include <pdi.h>
 #include <pressure_fix.hpp>
 #include <print_info.hpp>
 #include <range.hpp>
@@ -118,31 +114,7 @@ void main(int argc, char** argv)
     Kokkos::ScopeGuard const kokkos_guard(argc, argv);
 
     INIReader const reader(argv[1]);
-
-    std::filesystem::path pdi_config_path;
-    for(int iarg = 2; iarg < argc; ++iarg)
-    {
-        std::string_view const arg(argv[iarg]);
-        std::string_view const option_name("--pdi-config=");
-        if (arg.starts_with(option_name))
-        {
-            std::string_view option_value = arg;
-            option_value.remove_prefix(option_name.size());
-            pdi_config_path = option_value;
-        }
-    }
     // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-
-    PC_tree_t conf;
-    if (!pdi_config_path.empty())
-    {
-        conf = PC_parse_path(pdi_config_path.c_str());
-    }
-    else
-    {
-        conf = PC_parse_string(io_config);
-    }
-    PDI_init(conf);
 
     Param const param(reader);
     ParamSetup const param_setup(reader);
@@ -178,8 +150,6 @@ void main(int argc, char** argv)
 
 
     EOS const eos(param.gamma, param.mu);
-
-    write_pdi_init(grid, param);
 
     std::string bc_choice_dir;
     std::array<std::string, nfaces> bc_choice_faces;
@@ -218,15 +188,10 @@ void main(int argc, char** argv)
     KV_double_3d const E_new("E_new",       grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
     KV_double_4d const fx_new("fx_new",    grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], param.nfx);
 
-    int output_id = -1;
-    int time_output_id = -1;
-    int iter_output_id = -1;
-    std::vector<std::pair<int, double>> outputs_record;
     int const iter_ini = 0;
     double t = param.t_ini;
     int iter = iter_ini;
     bool should_exit = false;
-    std::chrono::hours const time_save(param.time_job);
 
     KDV_double_1d x_glob("x_glob", grid.Nx_glob_ng[0]+2*grid.Nghost[0]+1);
     KDV_double_1d y_glob("y_glob", grid.Nx_glob_ng[1]+2*grid.Nghost[1]+1);
@@ -234,24 +199,6 @@ void main(int argc, char** argv)
 
     std::unique_ptr<Gravity> g;
 
-    if(param.restart) // complete restart with a file from the code
-    {
-        read_pdi(param.restart_file, output_id, iter_output_id, time_output_id, iter, t, rho, u, P, fx, x_glob, y_glob, z_glob); // read data into host view
-        sync_device(x_glob, y_glob, z_glob);
-        grid.set_grid(x_glob.view_device(), y_glob.view_device(), z_glob.view_device());
-
-        sync_device(rho, u, P, fx);
-        g = std::make_unique<Gravity>(make_gravity(param, grid, rho.view_device()));
-
-        if(grid.mpi_rank==0)
-        {
-            std::cout << std::setw(81) << std::setfill('*') << '\n';
-            std::cout << "restarting from file " << param.restart_file << '\n';
-            std::cout << "at time " << t << " ( ~ "<<100*t/param.t_end<<"%)"
-                    << ", with iteration  "<< iter << "\n\n";
-        }
-    }
-    else
     {
         std::unique_ptr<IGridType> grid_type;
         if (param.grid_type == "UserDefined")
@@ -340,23 +287,6 @@ void main(int argc, char** argv)
 
     modify_device(rho, u, P, fx, rhou, E);
 
-    XmlWriter const xml_writer(param.directory, param.prefix, param.nfx);
-
-    if (!param.restart && (param.iter_output_frequency > 0 || param.time_output_frequency > 0))
-    {
-        ++iter_output_id;
-
-        temperature(grid.range.all_ghosts(), eos, rho.view_device(), P.view_device(), T.view_device());
-        modify_device(T);
-
-        outputs_record.emplace_back(iter, t);
-        ++output_id;
-        xml_writer(grid, output_id, outputs_record, x_glob, y_glob, z_glob);
-        write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), grid, rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
-        print_simulation_status(std::cout, iter, t, param.t_end, output_id);
-        std::cout << std::flush;
-    }
-
     double const initial_mass = integrate(grid.range.no_ghosts(), grid, rho.view_device());
 
     Kokkos::fence("Nova++: before main time loop");
@@ -369,61 +299,19 @@ void main(int argc, char** argv)
     {
         double dt = param.cfl * time_step(grid.range.all_ghosts(), eos, grid, rho.view_device(), u.view_device(), P.view_device());
 
-        bool make_output = false;
-        if (param.iter_output_frequency > 0)
-        {
-            int const next_output = iter_ini + (iter_output_id + 1) * param.iter_output_frequency;
-            if ((iter + 1) >= next_output)
-            {
-                make_output = true;
-                ++iter_output_id;
-            }
-        }
-        if (param.time_output_frequency > 0)
-        {
-            double const next_output = param.time_first_output + (time_output_id + 1) * param.time_output_frequency;
-            if ((t + dt) >= next_output)
-            {
-                dt = next_output - t;
-                if (dt <= 0)
-                {
-                    throw std::runtime_error("Error: the time step is negative");
-                }
-                make_output = true;
-                ++time_output_id;
-            }
-        }
-
         if ((t + dt) >= param.t_end)
         {
             dt = param.t_end - t;
-            make_output = true;
             should_exit = true;
         }
         if ((iter + 1) >= param.max_iter)
         {
-            make_output = true;
             should_exit = true;
-        }
-
-        {
-            // if time save > duration simulation
-            bool save_and_exit = (std::chrono::steady_clock::now() - start) >= time_save;
-            MPI_Bcast(&save_and_exit, 1, MPI_CXX_BOOL, 0, grid.comm_cart);
-            if (save_and_exit)
-            {
-                make_output = true;
-                should_exit = true;
-            }
         }
 
         double const min_internal_energy = minimum_internal_energy(grid.range.no_ghosts(), grid, rho.view_device(), rhou.view_device(), E.view_device());
         if (Kokkos::isnan(min_internal_energy) || min_internal_energy < 0)
         {
-            temperature(grid.range.all_ghosts(), eos, rho.view_device(), P.view_device(), T.view_device());
-            modify_device(T);
-            ++output_id;
-            write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), grid, rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
             std::stringstream ss;
             ss << "Time = " << t << ", iteration = " << iter;
             ss << ": detected invalid volumic internal energy";
@@ -501,19 +389,6 @@ void main(int argc, char** argv)
 
         t += dt;
         ++iter;
-
-        if(make_output)
-        {
-            temperature(grid.range.all_ghosts(), eos, rho.view_device(), P.view_device(), T.view_device());
-            modify_device(T);
-
-            outputs_record.emplace_back(iter, t);
-            ++output_id;
-            xml_writer(grid, output_id, outputs_record, x_glob, y_glob, z_glob);
-            write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), grid, rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
-            print_simulation_status(std::cout, iter, t, param.t_end, output_id);
-            std::cout << std::flush;
-        }
     }
 
     Kokkos::fence("Nova++: after main time loop");
@@ -539,9 +414,6 @@ void main(int argc, char** argv)
         std::cout << "Initial mass = " << initial_mass << " and change in mass = " << mass_change << '\n';
         std::cout << "--- End ---\n";
     }
-
-    PDI_finalize();
-    PC_tree_destroy(&conf);
 }
 
 } // namespace
