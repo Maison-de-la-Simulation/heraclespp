@@ -4,6 +4,7 @@
 
 #include <gtest/gtest.h>
 
+#include <Kokkos_Array.hpp>
 #include <PerfectGas.hpp>
 #include <euler_equations.hpp>
 

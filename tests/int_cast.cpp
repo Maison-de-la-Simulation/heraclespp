@@ -3,11 +3,12 @@
 //
 // SPDX-License-Identifier: MIT
 
+#include <limits>
+#include <stdexcept>
+
 #include <gtest/gtest.h>
 
 #include <int_cast.hpp>
-#include <limits>
-#include <stdexcept>
 
 TEST(IntCast, UnsignedToInt) {
   ASSERT_EQ(novapp::int_cast<int>(0U), 0);

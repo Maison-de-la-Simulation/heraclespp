@@ -4,7 +4,6 @@
 
 #include <gtest/gtest.h>
 
-#include <Kokkos_Core.hpp>
 #include <grid_type.hpp>
 #include <kokkos_shortcut.hpp>
 

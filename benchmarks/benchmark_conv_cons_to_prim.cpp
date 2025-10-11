@@ -2,6 +2,8 @@
 //
 // SPDX-License-Identifier: MIT
 
+#include <cstddef>
+
 #include <benchmark/benchmark.h>
 
 #include <Kokkos_Core.hpp>
