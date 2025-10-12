@@ -37,6 +37,9 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     build-essential \
     clang-format-${LLVM_VERSION} \
     clang-tidy-${LLVM_VERSION} \
+    llvm-${LLVM_VERSION}-dev \
+    libclang-${LLVM_VERSION}-dev \
+    clang-${LLVM_VERSION} \
     cmake \
     doxygen \
     git \
@@ -44,6 +47,11 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     pkg-config \
     python3-pip \
     python3-venv \
+ && git clone --branch clang_${LLVM_VERSION} --depth 1 https://github.com/include-what-you-use/include-what-you-use.git \
+ && cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_PREFIX_PATH=/usr/lib/llvm-${LLVM_VERSION} -B build-iwyu -S include-what-you-use \
+ && cmake --build build-iwyu \
+ && cmake --install build-iwyu \
+ && rm --force --recursive build-iwyu include-what-you-use \
  && apt-get --yes --no-install-recommends install \
     cuda-minimal-build-12-8 \
     libhdf5-openmpi-dev \
