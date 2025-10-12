@@ -2,8 +2,12 @@
 //
 // SPDX-License-Identifier: MIT
 
+#include <array>
+#include <cstddef>
+
 #include <benchmark/benchmark.h>
 
+#include <Kokkos_Core.hpp>
 #include <PerfectGas.hpp>
 #include <grid.hpp>
 #include <grid_type.hpp>

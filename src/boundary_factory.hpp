@@ -14,10 +14,20 @@
 
 #include <concepts.hpp>
 
-#include "boundary.hpp"
-
 namespace novapp
 {
+
+template <concepts::GravityField Gravity>
+class IBoundaryCondition;
+
+template <concepts::GravityField Gravity>
+class NullGradient;
+
+template <concepts::GravityField Gravity>
+class PeriodicCondition;
+
+template <concepts::GravityField Gravity>
+class ReflexiveCondition;
 
 template<concepts::GravityField Gravity>
 std::unique_ptr<IBoundaryCondition<Gravity>> factory_boundary_construction(

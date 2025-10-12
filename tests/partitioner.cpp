@@ -4,12 +4,15 @@
 
 #include <algorithm>
 #include <array>
+#include <compare>
 #include <iterator>
 #include <set>
 #include <type_traits>
+#include <version>
 
 #include <gtest/gtest.h>
 
+#include <Kokkos_Array.hpp>
 #include <range.hpp>
 
 class Partitioner

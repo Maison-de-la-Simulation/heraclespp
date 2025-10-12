@@ -20,10 +20,11 @@
 #include <ndim.hpp>
 #include <nova_params.hpp>
 
-#include "boundary.hpp"
-
 namespace novapp
 {
+
+template <concepts::GravityField Gravity>
+class IBoundaryCondition;
 
 class DistributedBoundaryCondition
 {

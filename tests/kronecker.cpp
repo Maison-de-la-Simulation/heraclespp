@@ -4,6 +4,7 @@
 
 #include <gtest/gtest.h>
 
+#include <Kokkos_Array.hpp>
 #include <kronecker.hpp>
 
 TEST(Kronecker, Kronecker)

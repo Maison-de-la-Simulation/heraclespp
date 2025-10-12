@@ -17,11 +17,13 @@
 
 #include "array_conversion.hpp"
 #include "concepts.hpp"
-#include "extrapolation_reconstruction.hpp"
 #include "face_reconstruction.hpp"
 
 namespace novapp
 {
+
+template <concepts::GravityField Gravity>
+class IExtrapolationReconstruction;
 
 class Grid;
 class Range;

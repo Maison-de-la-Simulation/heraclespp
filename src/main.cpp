@@ -10,6 +10,7 @@
 
 #include <array>
 #include <chrono>
+#include <compare>
 #include <cstdlib>
 #include <exception>
 #include <filesystem>
