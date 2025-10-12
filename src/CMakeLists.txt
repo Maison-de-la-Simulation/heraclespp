@@ -47,6 +47,7 @@ target_sources(
     PRIVATE
         boundary.cpp
         boundary_distribute.cpp
+        boundary_factory.cpp
         broadcast.cpp
         initialization_interface.cpp
         mpi_scope_guard.cpp
