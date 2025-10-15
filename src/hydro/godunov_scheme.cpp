@@ -2,8 +2,4 @@
 //
 // SPDX-License-Identifier: MIT
 
-//!
-//! @file godunov_scheme.hpp
-//!
-
 #include "godunov_scheme.hpp"

@@ -2,8 +2,4 @@
 //
 // SPDX-License-Identifier: MIT
 
-//!
-//! @file face_reconstruction.hpp
-//!
-
 #include "limited_linear_reconstruction.hpp"

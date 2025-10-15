@@ -64,7 +64,7 @@ target_sources(
                 shift_criterion_interface.hpp
 )
 
-add_executable(nova++ main.cpp)
+add_executable(nova++ main.cpp setups/${Novapp_SETUP}/setup.cpp)
 target_compile_definitions(
     nova++
     PUBLIC MY_SETUP="${Novapp_SETUP}" NOVAPP_GRAVITY_${Novapp_GRAVITY}

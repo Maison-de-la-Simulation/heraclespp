@@ -2,8 +2,4 @@
 //
 // SPDX-License-Identifier: MIT
 
-//!
-//! @file hydro_reconstruction.hpp
-//!
-
 #include "hydro_reconstruction.hpp"

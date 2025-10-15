@@ -2,8 +2,4 @@
 //
 // SPDX-License-Identifier: MIT
 
-//!
-//! @file euler_equations.hpp
-//!
-
 #include "euler_equations.hpp"
