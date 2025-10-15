@@ -19,6 +19,7 @@ on:
       - '**.cmake.in'
       - 'docker/**'
       - 'vendor/**'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -310,6 +311,37 @@ jobs:
           merge-multiple: true
       - run: |
           cmake -DBUILD_TESTING=ON -DNovapp_BUILD_BENCHMARKING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake --build build
+
+  include-what-you-use:
+    runs-on: ubuntu-latest
+    if: ${{github.event_name == 'workflow_dispatch'}}
+    container:
+      image: ghcr.io/maison-de-la-simulation/heraclespp:main
+    needs:
+      - env-common
+      - env-serial
+    env:
+      benchmark_ROOT: ${{github.workspace}}/opt/benchmark
+      GTest_ROOT: ${{github.workspace}}/opt/gtest
+      inih_ROOT: ${{github.workspace}}/opt/inih
+      Kokkos_ROOT: ${{github.workspace}}/opt/kokkos-serial
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
+        with:
+          path: opt
+          merge-multiple: true
+      - run: |
+          git clone https://gist.github.com/c033bea32c51395c85fb5a4d74d8183b.git iwyu
+          mv iwyu/iwyu-kokkos.json .
+          rm -rf iwyu
+      - run: |
+          git clone https://gist.github.com/a2c433405ae2b1f8a7a99def76a22149.git iwyu
+          mv iwyu/iwyu-heraclespp.json .
+          rm -rf iwyu
+      - run: |
+          cmake -DBUILD_TESTING=ON -DCMAKE_CXX_COMPILER=clang++-21 -DCMAKE_CXX_INCLUDE_WHAT_YOU_USE="include-what-you-use;-Xiwyu;--verbose=3;-Xiwyu;--mapping=$PWD/iwyu-heraclespp.json;-Xiwyu;--mapping=$PWD/iwyu-kokkos.json;" -DNovapp_BUILD_BENCHMARKING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
           cmake --build build
 
   clang-tidy:
