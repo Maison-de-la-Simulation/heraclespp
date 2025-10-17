@@ -18,7 +18,7 @@ on:
       - '**.cmake'
       - '**.cmake.in'
       - 'docker/**'
-      - 'vendor/**'
+      - 'vendor/inih/**'
   workflow_dispatch:
 
 permissions:
@@ -60,19 +60,29 @@ jobs:
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
         with:
-          submodules: true
+          repository: google/googletest
+          ref: v1.17.0
+          path: googletest
       - run: |
-          cmake -B build-gtest -S vendor/googletest
-          cmake --build build-gtest
-          cmake --install build-gtest --prefix opt/gtest
+          cmake -B googletest/build -S googletest
+          cmake --build googletest/build
+          cmake --install googletest/build --prefix opt/gtest
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        with:
+          path: heraclespp
       - run: |
-          cmake -B build-inih -S vendor/inih
-          cmake --build build-inih
-          cmake --install build-inih --prefix opt/inih
+          cmake -B heraclespp/vendor/inih/build -S heraclespp/vendor/inih
+          cmake --build heraclespp/vendor/inih/build
+          cmake --install heraclespp/vendor/inih/build --prefix opt/inih
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        with:
+          repository: google/benchmark
+          ref: v1.9.4
+          path: benchmark
       - run: |
-          cmake -DBENCHMARK_ENABLE_TESTING=OFF -B build-benchmark -S vendor/benchmark
-          cmake --build build-benchmark
-          cmake --install build-benchmark --prefix opt/benchmark
+          cmake -D BENCHMARK_ENABLE_TESTING=OFF -B benchmark/build -S benchmark
+          cmake --build benchmark/build
+          cmake --install benchmark/build --prefix opt/benchmark
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: env-common
@@ -84,16 +94,17 @@ jobs:
     container:
       image: ghcr.io/maison-de-la-simulation/heraclespp:main
     env:
-      CXX: ${{github.workspace}}/vendor/kokkos/bin/nvcc_wrapper
       NVCC_WRAPPER_DEFAULT_COMPILER: g++-13
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
         with:
-          submodules: true
+          repository: kokkos/kokkos
+          ref: 4.7.01
+          path: kokkos
       - run: |
-          cmake -DCMAKE_CXX_EXTENSIONS=OFF -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_CUDA=ON -DKokkos_ARCH_AMPERE80=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_COMPILER_WARNINGS=ON -B build -S vendor/kokkos
-          cmake --build build
-          cmake --install build --prefix opt/kokkos-cuda
+          cmake -DCMAKE_CXX_EXTENSIONS=OFF -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_CUDA=ON -DKokkos_ARCH_AMPERE80=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_COMPILER_WARNINGS=ON -B kokkos/build -S kokkos
+          cmake --build kokkos/build
+          cmake --install kokkos/build --prefix opt/kokkos-cuda
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: env-cuda
@@ -109,11 +120,13 @@ jobs:
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
         with:
-          submodules: true
+          repository: kokkos/kokkos
+          ref: 4.7.01
+          path: kokkos
       - run: |
-          cmake -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_HIP=ON -DKokkos_ENABLE_ROCTHRUST=OFF -DKokkos_ARCH_AMD_GFX90A=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_COMPILER_WARNINGS=ON -B build -S vendor/kokkos
-          cmake --build build
-          cmake --install build --prefix opt/kokkos-hip
+          cmake -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_HIP=ON -DKokkos_ENABLE_ROCTHRUST=OFF -DKokkos_ARCH_AMD_GFX90A=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_COMPILER_WARNINGS=ON -B kokkos/build -S kokkos
+          cmake --build kokkos/build
+          cmake --install kokkos/build --prefix opt/kokkos-hip
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: env-hip
@@ -127,11 +140,13 @@ jobs:
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
         with:
-          submodules: true
+          repository: kokkos/kokkos
+          ref: 4.7.01
+          path: kokkos
       - run: |
-          cmake -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_DEBUG=ON -DKokkos_ENABLE_DEBUG_DUALVIEW_MODIFY_CHECK=ON -DKokkos_ENABLE_DEBUG_BOUNDS_CHECK=ON -DKokkos_ENABLE_COMPILER_WARNINGS=ON -B build -S vendor/kokkos
-          cmake --build build
-          cmake --install build --prefix opt/kokkos-serial
+          cmake -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_DEBUG=ON -DKokkos_ENABLE_DEBUG_DUALVIEW_MODIFY_CHECK=ON -DKokkos_ENABLE_DEBUG_BOUNDS_CHECK=ON -DKokkos_ENABLE_COMPILER_WARNINGS=ON -B kokkos/build -S kokkos
+          cmake --build kokkos/build
+          cmake --install kokkos/build --prefix opt/kokkos-serial
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: env-serial
@@ -270,7 +285,6 @@ jobs:
       - env-common
       - env-cuda
     env:
-      CXX: ${{github.workspace}}/vendor/kokkos/bin/nvcc_wrapper
       CXXFLAGS: -Werror=all -Werror=extra -Werror=all-warnings
       benchmark_ROOT: ${{github.workspace}}/opt/benchmark
       GTest_ROOT: ${{github.workspace}}/opt/gtest
@@ -279,13 +293,12 @@ jobs:
       NVCC_WRAPPER_DEFAULT_COMPILER: g++-13
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
-        with:
-          submodules: true
       - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
         with:
           path: opt
           merge-multiple: true
       - run: |
+          chmod +x ${Kokkos_ROOT}/bin/*
           cmake -DBUILD_TESTING=ON -DCMAKE_CXX_EXTENSIONS=OFF -DNovapp_BUILD_BENCHMARKING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
           cmake --build build
 

@@ -17,7 +17,7 @@ on:
       - '**/CMakeLists.txt'
       - '**.cmake'
       - '**.cmake.in'
-      - 'vendor/**'
+      - 'vendor/inih/**'
 
 permissions:
   contents: read
