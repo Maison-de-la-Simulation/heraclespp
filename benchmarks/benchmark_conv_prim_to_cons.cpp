@@ -26,7 +26,7 @@ void set_constant_cells_processed(benchmark::State& state, std::size_t const cel
     state.counters["cells_per_second"] = benchmark::Counter(static_cast<double>(cells), benchmark::Counter::kIsIterationInvariantRate);
 }
 
-void ConsToPrim(benchmark::State& state)
+void PrimToCons(benchmark::State& state)
 {
     int const nx = novapp::int_cast<int>(state.range());
     int const ny = nx;
@@ -58,4 +58,4 @@ void ConsToPrim(benchmark::State& state)
 
 } // namespace
 
-BENCHMARK(ConsToPrim)->DenseRange(8, 63, 8)->DenseRange(64, 320, 32);
+BENCHMARK(PrimToCons)->DenseRange(8, 63, 8)->DenseRange(64, 320, 32);
