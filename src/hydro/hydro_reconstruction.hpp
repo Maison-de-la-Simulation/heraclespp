@@ -122,14 +122,20 @@ public:
         {
             for (int iside = 0; iside < 2; ++iside)
             {
-                conv_prim_to_cons(
-                        range,
-                        m_eos,
-                        Kokkos::subview(rho_rec, ALL, ALL, ALL, iside, idim),
-                        Kokkos::subview(m_u_rec, ALL, ALL, ALL, iside, idim, ALL),
-                        Kokkos::subview(m_P_rec, ALL, ALL, ALL, iside, idim),
-                        Kokkos::subview(rhou_rec, ALL, ALL, ALL, iside, idim, ALL),
-                        Kokkos::subview(E_rec, ALL, ALL, ALL, iside, idim));
+                KV_cdouble_3d const rho_f = Kokkos::subview(rho_rec, ALL, ALL, ALL, iside, idim);
+                Kokkos::Array<KV_cdouble_3d, ndim> u_f;
+                for (int iv = 0; iv < ndim; ++iv)
+                {
+                    u_f[iv] = Kokkos::subview(m_u_rec, ALL, ALL, ALL, iside, idim, iv);
+                }
+                KV_cdouble_3d const P_f = Kokkos::subview(m_P_rec, ALL, ALL, ALL, iside, idim);
+                Kokkos::Array<KV_double_3d, ndim> rhou_f;
+                for (int iv = 0; iv < ndim; ++iv)
+                {
+                    rhou_f[iv] = Kokkos::subview(rhou_rec, ALL, ALL, ALL, iside, idim, iv);
+                }
+                KV_double_3d const E_f = Kokkos::subview(E_rec, ALL, ALL, ALL, iside, idim);
+                conv_prim_to_cons(range, m_eos, rho_f, u_f, P_f, rhou_f, E_f);
             }
         }
 
