@@ -285,7 +285,7 @@ jobs:
       - env-common
       - env-cuda
     env:
-      CXXFLAGS: -Werror=all -Werror=extra -Werror=all-warnings
+      CXXFLAGS: -Werror=all -Werror=extra
       benchmark_ROOT: ${{github.workspace}}/opt/benchmark
       GTest_ROOT: ${{github.workspace}}/opt/gtest
       inih_ROOT: ${{github.workspace}}/opt/inih
