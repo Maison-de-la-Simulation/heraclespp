@@ -405,10 +405,20 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/maison-de-la-simulation/heraclespp:main
+    needs:
+      - env-common
+      - env-serial
+    env:
+      benchmark_ROOT: ${{github.workspace}}/opt/benchmark
+      GTest_ROOT: ${{github.workspace}}/opt/gtest
+      inih_ROOT: ${{github.workspace}}/opt/inih
+      Kokkos_ROOT: ${{github.workspace}}/opt/kokkos-serial
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
         with:
-          submodules: true
+          path: opt
+          merge-multiple: true
       - run: |
-          cmake -DBENCHMARK_ENABLE_TESTING=OFF -DDOXYGEN_WARN_AS_ERROR=YES -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -B build
+          cmake -DBUILD_TESTING=OFF -DDOXYGEN_WARN_AS_ERROR=YES -DNovapp_BUILD_BENCHMARKING=OFF -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
           cmake --build build --target doxygen
