@@ -78,10 +78,21 @@ endif()
 include(CTest)
 
 set(Novapp_DEPENDENCY_POLICIES "EMBEDDED" "INSTALLED")
+set(Novapp_DEFAULT_DEPENDENCY_POLICY "EMBEDDED")
+if(DEFINED ENV{NOVAPP_DEFAULT_DEPENDENCY_POLICY})
+    set(Novapp_DEFAULT_DEPENDENCY_POLICY
+        "$ENV{NOVAPP_DEFAULT_DEPENDENCY_POLICY}"
+    )
+endif()
+if(DEFINED CACHE{Novapp_DEFAULT_DEPENDENCY_POLICY})
+    set(Novapp_DEFAULT_DEPENDENCY_POLICY
+        "$CACHE{Novapp_DEFAULT_DEPENDENCY_POLICY}"
+    )
+endif()
 
 # benchmark dependency
 set(Novapp_benchmark_DEPENDENCY_POLICY
-    "EMBEDDED"
+    "${Novapp_DEFAULT_DEPENDENCY_POLICY}"
     CACHE STRING
     "Policy to find the `benchmark` package. Options: ${Novapp_DEPENDENCY_POLICIES}"
 )
@@ -100,7 +111,7 @@ find_package(Doxygen)
 
 # GTest dependency
 set(Novapp_GTest_DEPENDENCY_POLICY
-    "EMBEDDED"
+    "${Novapp_DEFAULT_DEPENDENCY_POLICY}"
     CACHE STRING
     "Policy to find the `GTest` package. Options: ${Novapp_DEPENDENCY_POLICIES}"
 )
@@ -116,11 +127,14 @@ endif()
 
 # inih dependency
 set(Novapp_inih_DEPENDENCY_POLICY
-    "EMBEDDED"
+    "${Novapp_DEFAULT_DEPENDENCY_POLICY}"
     CACHE STRING
     "Policy to find the `inih` package. Options: ${Novapp_DEPENDENCY_POLICIES}"
 )
-set_property(CACHE Novapp_inih_DEPENDENCY_POLICY PROPERTY STRINGS "EMBEDDED")
+set_property(
+    CACHE Novapp_inih_DEPENDENCY_POLICY
+    PROPERTY STRINGS "${Novapp_DEPENDENCY_POLICIES}"
+)
 if("${Novapp_inih_DEPENDENCY_POLICY}" STREQUAL "EMBEDDED")
     add_subdirectory(vendor/inih SYSTEM)
 elseif("${Novapp_inih_DEPENDENCY_POLICY}" STREQUAL "INSTALLED")
@@ -129,7 +143,7 @@ endif()
 
 # Kokkos dependency
 set(Novapp_Kokkos_DEPENDENCY_POLICY
-    "EMBEDDED"
+    "${Novapp_DEFAULT_DEPENDENCY_POLICY}"
     CACHE STRING
     "Policy to find the `Kokkos` package. Options: ${Novapp_DEPENDENCY_POLICIES}"
 )
