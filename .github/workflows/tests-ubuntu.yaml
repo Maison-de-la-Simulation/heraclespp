@@ -64,14 +64,18 @@ jobs:
           ref: v1.17.0
           path: googletest
       - run: |
-          cmake -B googletest/build -S googletest
+          cmake \
+            -B googletest/build \
+            -S googletest
           cmake --build googletest/build
           cmake --install googletest/build --prefix opt/gtest
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
         with:
           path: heraclespp
       - run: |
-          cmake -B heraclespp/vendor/inih/build -S heraclespp/vendor/inih
+          cmake \
+            -B heraclespp/vendor/inih/build \
+            -S heraclespp/vendor/inih
           cmake --build heraclespp/vendor/inih/build
           cmake --install heraclespp/vendor/inih/build --prefix opt/inih
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
@@ -80,7 +84,10 @@ jobs:
           ref: v1.9.4
           path: benchmark
       - run: |
-          cmake -D BENCHMARK_ENABLE_TESTING=OFF -B benchmark/build -S benchmark
+          cmake \
+            -D BENCHMARK_ENABLE_TESTING=OFF \
+            -B benchmark/build \
+            -S benchmark
           cmake --build benchmark/build
           cmake --install benchmark/build --prefix opt/benchmark
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
@@ -102,7 +109,16 @@ jobs:
           ref: 4.7.01
           path: kokkos
       - run: |
-          cmake -DCMAKE_CXX_EXTENSIONS=OFF -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_CUDA=ON -DKokkos_ARCH_AMPERE80=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_COMPILER_WARNINGS=ON -B kokkos/build -S kokkos
+          cmake \
+            -D CMAKE_CXX_EXTENSIONS=OFF \
+            -D Kokkos_ARCH_AMPERE80=ON \
+            -D Kokkos_ENABLE_COMPILER_WARNINGS=ON \
+            -D Kokkos_ENABLE_CUDA=ON \
+            -D Kokkos_ENABLE_DEPRECATED_CODE_4=OFF \
+            -D Kokkos_ENABLE_DEPRECATION_WARNINGS=OFF \
+            -D Kokkos_ENABLE_SERIAL=ON \
+            -B kokkos/build \
+            -S kokkos
           cmake --build kokkos/build
           cmake --install kokkos/build --prefix opt/kokkos-cuda
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
@@ -124,7 +140,16 @@ jobs:
           ref: 4.7.01
           path: kokkos
       - run: |
-          cmake -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_HIP=ON -DKokkos_ENABLE_ROCTHRUST=OFF -DKokkos_ARCH_AMD_GFX90A=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_COMPILER_WARNINGS=ON -B kokkos/build -S kokkos
+          cmake \
+            -D Kokkos_ARCH_AMD_GFX90A=ON \
+            -D Kokkos_ENABLE_COMPILER_WARNINGS=ON \
+            -D Kokkos_ENABLE_DEPRECATED_CODE_4=OFF \
+            -D Kokkos_ENABLE_DEPRECATION_WARNINGS=OFF \
+            -D Kokkos_ENABLE_HIP=ON \
+            -D Kokkos_ENABLE_ROCTHRUST=OFF \
+            -D Kokkos_ENABLE_SERIAL=ON \
+            -B kokkos/build \
+            -S kokkos
           cmake --build kokkos/build
           cmake --install kokkos/build --prefix opt/kokkos-hip
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
@@ -144,7 +169,16 @@ jobs:
           ref: 4.7.01
           path: kokkos
       - run: |
-          cmake -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF -DKokkos_ENABLE_DEPRECATION_WARNINGS=OFF -DKokkos_ENABLE_DEBUG=ON -DKokkos_ENABLE_DEBUG_DUALVIEW_MODIFY_CHECK=ON -DKokkos_ENABLE_DEBUG_BOUNDS_CHECK=ON -DKokkos_ENABLE_COMPILER_WARNINGS=ON -B kokkos/build -S kokkos
+          cmake \
+            -D Kokkos_ENABLE_COMPILER_WARNINGS=ON \
+            -D Kokkos_ENABLE_DEBUG=ON \
+            -D Kokkos_ENABLE_DEBUG_BOUNDS_CHECK=ON \
+            -D Kokkos_ENABLE_DEBUG_DUALVIEW_MODIFY_CHECK=ON \
+            -D Kokkos_ENABLE_DEPRECATED_CODE_4=OFF \
+            -D Kokkos_ENABLE_DEPRECATION_WARNINGS=OFF \
+            -D Kokkos_ENABLE_SERIAL=ON \
+            -B kokkos/build \
+            -S kokkos
           cmake --build kokkos/build
           cmake --install kokkos/build --prefix opt/kokkos-serial
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
@@ -198,7 +232,20 @@ jobs:
           path: opt
           merge-multiple: true
       - run: |
-          cmake -DBUILD_TESTING=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DNovapp_BUILD_BENCHMARKING=ON -DNovapp_NDIM=1 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake \
+            -D BUILD_TESTING=ON \
+            -D CMAKE_COMPILE_WARNING_AS_ERROR=ON \
+            -D Novapp_BUILD_BENCHMARKING=ON \
+            -D Novapp_EOS=PerfectGas \
+            -D Novapp_GEOM=Cartesian \
+            -D Novapp_GRAVITY=Uniform \
+            -D Novapp_NDIM=1 \
+            -D Novapp_SETUP=advection_sinus \
+            -D Novapp_benchmark_DEPENDENCY_POLICY=INSTALLED \
+            -D Novapp_GTest_DEPENDENCY_POLICY=INSTALLED \
+            -D Novapp_inih_DEPENDENCY_POLICY=INSTALLED \
+            -D Novapp_Kokkos_DEPENDENCY_POLICY=INSTALLED \
+            -B build
           cmake --build build
           ctest --test-dir build --output-on-failure --timeout 5 --output-junit tests.xml
           ./build/benchmarks/benchmarks --benchmark_dry_run=true
@@ -234,7 +281,20 @@ jobs:
           path: opt
           merge-multiple: true
       - run: |
-          cmake -DBUILD_TESTING=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DNovapp_BUILD_BENCHMARKING=ON -DNovapp_NDIM=2 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake \
+            -D BUILD_TESTING=ON \
+            -D CMAKE_COMPILE_WARNING_AS_ERROR=ON \
+            -D Novapp_BUILD_BENCHMARKING=ON \
+            -D Novapp_EOS=PerfectGas \
+            -D Novapp_GEOM=Cartesian \
+            -D Novapp_GRAVITY=Uniform \
+            -D Novapp_NDIM=2 \
+            -D Novapp_SETUP=advection_sinus \
+            -D Novapp_benchmark_DEPENDENCY_POLICY=INSTALLED \
+            -D Novapp_GTest_DEPENDENCY_POLICY=INSTALLED \
+            -D Novapp_inih_DEPENDENCY_POLICY=INSTALLED \
+            -D Novapp_Kokkos_DEPENDENCY_POLICY=INSTALLED \
+            -B build
           cmake --build build
           ctest --test-dir build --output-on-failure --timeout 5 --output-junit tests.xml
           ./build/benchmarks/benchmarks --benchmark_dry_run=true
@@ -267,7 +327,20 @@ jobs:
           path: opt
           merge-multiple: true
       - run: |
-          cmake -DBUILD_TESTING=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DNovapp_BUILD_BENCHMARKING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake \
+            -D BUILD_TESTING=ON \
+            -D CMAKE_COMPILE_WARNING_AS_ERROR=ON \
+            -D Novapp_BUILD_BENCHMARKING=ON \
+            -D Novapp_EOS=PerfectGas \
+            -D Novapp_GEOM=Cartesian \
+            -D Novapp_GRAVITY=Uniform \
+            -D Novapp_NDIM=3 \
+            -D Novapp_SETUP=advection_sinus \
+            -D Novapp_benchmark_DEPENDENCY_POLICY=INSTALLED \
+            -D Novapp_GTest_DEPENDENCY_POLICY=INSTALLED \
+            -D Novapp_inih_DEPENDENCY_POLICY=INSTALLED \
+            -D Novapp_Kokkos_DEPENDENCY_POLICY=INSTALLED \
+            -B build
           cmake --build build
           ctest --test-dir build --output-on-failure --timeout 5 --output-junit tests.xml
           ./build/benchmarks/benchmarks --benchmark_dry_run=true
@@ -299,7 +372,20 @@ jobs:
           merge-multiple: true
       - run: |
           chmod +x ${Kokkos_ROOT}/bin/*
-          cmake -DBUILD_TESTING=ON -DCMAKE_CXX_EXTENSIONS=OFF -DNovapp_BUILD_BENCHMARKING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake \
+            -D BUILD_TESTING=ON \
+            -D CMAKE_CXX_EXTENSIONS=OFF \
+            -D Novapp_BUILD_BENCHMARKING=ON \
+            -D Novapp_EOS=PerfectGas \
+            -D Novapp_GEOM=Cartesian \
+            -D Novapp_GRAVITY=Uniform \
+            -D Novapp_NDIM=3 \
+            -D Novapp_SETUP=advection_sinus \
+            -D Novapp_benchmark_DEPENDENCY_POLICY=INSTALLED \
+            -D Novapp_GTest_DEPENDENCY_POLICY=INSTALLED \
+            -D Novapp_inih_DEPENDENCY_POLICY=INSTALLED \
+            -D Novapp_Kokkos_DEPENDENCY_POLICY=INSTALLED \
+            -B build
           cmake --build build
 
   build-hip-3d:
@@ -323,7 +409,20 @@ jobs:
           path: opt
           merge-multiple: true
       - run: |
-          cmake -DBUILD_TESTING=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DNovapp_BUILD_BENCHMARKING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake \
+            -D BUILD_TESTING=ON \
+            -D CMAKE_COMPILE_WARNING_AS_ERROR=ON \
+            -D Novapp_BUILD_BENCHMARKING=ON \
+            -D Novapp_EOS=PerfectGas \
+            -D Novapp_GEOM=Cartesian \
+            -D Novapp_GRAVITY=Uniform \
+            -D Novapp_NDIM=3 \
+            -D Novapp_SETUP=advection_sinus \
+            -D Novapp_benchmark_DEPENDENCY_POLICY=INSTALLED \
+            -D Novapp_GTest_DEPENDENCY_POLICY=INSTALLED \
+            -D Novapp_inih_DEPENDENCY_POLICY=INSTALLED \
+            -D Novapp_Kokkos_DEPENDENCY_POLICY=INSTALLED \
+            -B build
           cmake --build build
 
   include-what-you-use:
@@ -354,7 +453,21 @@ jobs:
           mv iwyu/iwyu-heraclespp.json .
           rm -rf iwyu
       - run: |
-          cmake -DBUILD_TESTING=ON -DCMAKE_CXX_COMPILER=clang++-21 -DCMAKE_CXX_INCLUDE_WHAT_YOU_USE="include-what-you-use;-Xiwyu;--verbose=3;-Xiwyu;--mapping=$PWD/iwyu-heraclespp.json;-Xiwyu;--mapping=$PWD/iwyu-kokkos.json;" -DNovapp_BUILD_BENCHMARKING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake \
+            -D BUILD_TESTING=ON \
+            -D CMAKE_CXX_COMPILER=clang++-21 \
+            -D CMAKE_CXX_INCLUDE_WHAT_YOU_USE="include-what-you-use;-Xiwyu;--verbose=3;-Xiwyu;--mapping=$PWD/iwyu-heraclespp.json;-Xiwyu;--mapping=$PWD/iwyu-kokkos.json;" \
+            -D Novapp_BUILD_BENCHMARKING=ON \
+            -D Novapp_EOS=PerfectGas \
+            -D Novapp_GEOM=Cartesian \
+            -D Novapp_GRAVITY=Uniform \
+            -D Novapp_NDIM=3 \
+            -D Novapp_SETUP=advection_sinus \
+            -D Novapp_benchmark_DEPENDENCY_POLICY=INSTALLED \
+            -D Novapp_GTest_DEPENDENCY_POLICY=INSTALLED \
+            -D Novapp_inih_DEPENDENCY_POLICY=INSTALLED \
+            -D Novapp_Kokkos_DEPENDENCY_POLICY=INSTALLED \
+            -B build
           cmake --build build
 
   clang-tidy:
@@ -376,7 +489,21 @@ jobs:
           path: opt
           merge-multiple: true
       - run: |
-          cmake -DBUILD_TESTING=ON -DCMAKE_CXX_COMPILER=clang++-21 -DCMAKE_CXX_CLANG_TIDY="clang-tidy-21;-header-filter=${{github.workspace}}/src/.*;-warnings-as-errors=*" -DNovapp_BUILD_BENCHMARKING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake \
+            -D BUILD_TESTING=ON \
+            -D CMAKE_CXX_COMPILER=clang++-21 \
+            -D CMAKE_CXX_CLANG_TIDY="clang-tidy-21;-header-filter=${{github.workspace}}/src/.*;-warnings-as-errors=*" \
+            -D Novapp_BUILD_BENCHMARKING=ON \
+            -D Novapp_EOS=PerfectGas \
+            -D Novapp_GEOM=Cartesian \
+            -D Novapp_GRAVITY=Uniform \
+            -D Novapp_NDIM=3 \
+            -D Novapp_SETUP=advection_sinus \
+            -D Novapp_benchmark_DEPENDENCY_POLICY=INSTALLED \
+            -D Novapp_GTest_DEPENDENCY_POLICY=INSTALLED \
+            -D Novapp_inih_DEPENDENCY_POLICY=INSTALLED \
+            -D Novapp_Kokkos_DEPENDENCY_POLICY=INSTALLED \
+            -B build
           cmake --build build
 
   link-what-you-use:
@@ -398,7 +525,21 @@ jobs:
           path: opt
           merge-multiple: true
       - run: |
-          cmake -DBUILD_TESTING=ON -DCMAKE_CXX_COMPILER=clang++-21 -DCMAKE_LINK_WHAT_YOU_USE=ON -DNovapp_BUILD_BENCHMARKING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake \
+            -D BUILD_TESTING=ON \
+            -D CMAKE_CXX_COMPILER=clang++-21 \
+            -D CMAKE_LINK_WHAT_YOU_USE=ON \
+            -D Novapp_BUILD_BENCHMARKING=ON \
+            -D Novapp_EOS=PerfectGas \
+            -D Novapp_GEOM=Cartesian \
+            -D Novapp_GRAVITY=Uniform \
+            -D Novapp_NDIM=3 \
+            -D Novapp_SETUP=advection_sinus \
+            -D Novapp_benchmark_DEPENDENCY_POLICY=INSTALLED \
+            -D Novapp_GTest_DEPENDENCY_POLICY=INSTALLED \
+            -D Novapp_inih_DEPENDENCY_POLICY=INSTALLED \
+            -D Novapp_Kokkos_DEPENDENCY_POLICY=INSTALLED \
+            -B build
           cmake --build build
 
   doxygen:
@@ -420,5 +561,18 @@ jobs:
           path: opt
           merge-multiple: true
       - run: |
-          cmake -DBUILD_TESTING=OFF -DDOXYGEN_WARN_AS_ERROR=YES -DNovapp_BUILD_BENCHMARKING=OFF -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake \
+            -D BUILD_TESTING=OFF \
+            -D DOXYGEN_WARN_AS_ERROR=YES \
+            -D Novapp_BUILD_BENCHMARKING=OFF \
+            -D Novapp_EOS=PerfectGas \
+            -D Novapp_GEOM=Cartesian \
+            -D Novapp_GRAVITY=Uniform \
+            -D Novapp_NDIM=3 \
+            -D Novapp_SETUP=advection_sinus \
+            -D Novapp_benchmark_DEPENDENCY_POLICY=INSTALLED \
+            -D Novapp_GTest_DEPENDENCY_POLICY=INSTALLED \
+            -D Novapp_inih_DEPENDENCY_POLICY=INSTALLED \
+            -D Novapp_Kokkos_DEPENDENCY_POLICY=INSTALLED \
+            -B build
           cmake --build build --target doxygen
