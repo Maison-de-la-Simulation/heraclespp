@@ -2,16 +2,20 @@
 #
 # SPDX-License-Identifier: MIT
 
-FROM ubuntu:noble@sha256:1e622c5f073b4f6bfad6632f2616c7f59ef256e96fe78bf6a595d1dc4376ac02
+FROM ubuntu:noble@sha256:66460d557b25769b102175144d538d88219c077c678a49af4afca6fbfc1b5252
 
+ARG AMDGPU_VERSION=6.4.4
+ARG CUDA_MAJOR_VERSION=12
+ARG CUDA_MINOR_VERSION=9
 ARG LLVM_VERSION=21
+ARG ROCM_VERSION=6.4.4
 
 ENV BASH_ENV=/etc/profile
 SHELL ["/bin/bash", "-c"]
 
 ENV PYTHONUNBUFFERED=1
 ENV PATH=/opt/nova-venv/bin:${PATH:+:${PATH}}
-ENV PATH=/usr/local/cuda-12.8/bin${PATH:+:${PATH}}
+ENV PATH=/usr/local/cuda/bin${PATH:+:${PATH}}
 
 RUN export DEBIAN_FRONTEND=noninteractive \
  && apt-get --yes update \
@@ -28,8 +32,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
  && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/pdidev-archive-keyring.gpg] https://repo.pdi.dev/ubuntu noble main" > /etc/apt/sources.list.d/pdi.list \
  && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/apt.llvm.org.asc] http://apt.llvm.org/noble/ llvm-toolchain-noble-${LLVM_VERSION} main" > /etc/apt/sources.list.d/llvm.list \
  && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/cuda-archive-keyring.asc] https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64 /" > /etc/apt/sources.list.d/cuda.list \
- && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/rocm-archive-keyring.asc] https://repo.radeon.com/rocm/apt/6.3.4 noble main" > /etc/apt/sources.list.d/rocm.list \
- && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/rocm-archive-keyring.asc] https://repo.radeon.com/amdgpu/6.3.4/ubuntu noble main" > /etc/apt/sources.list.d/amdgpu.list \
+ && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/rocm-archive-keyring.asc] https://repo.radeon.com/rocm/apt/${ROCM_VERSION} noble main" > /etc/apt/sources.list.d/rocm.list \
+ && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/rocm-archive-keyring.asc] https://repo.radeon.com/amdgpu/${AMDGPU_VERSION}/ubuntu noble main" > /etc/apt/sources.list.d/amdgpu.list \
  && wget --output-document=/etc/apt/preferences.d/cuda-repository-pin-600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-ubuntu2404.pin \
  && echo -e "Package: *\nPin: release o=repo.radeon.com\nPin-Priority: 600" > /etc/apt/preferences.d/rocm-pin-600 \
  && apt-get --yes update \
@@ -53,7 +57,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
  && cmake --install build-iwyu \
  && rm --force --recursive build-iwyu include-what-you-use \
  && apt-get --yes --no-install-recommends install \
-    cuda-minimal-build-12-8 \
+    cuda-minimal-build-${CUDA_MAJOR_VERSION}-${CUDA_MINOR_VERSION} \
     libhdf5-openmpi-dev \
     libopenmpi-dev \
     libpdi-dev \
