@@ -161,7 +161,7 @@ jobs:
       - env-common
       - env-serial
     env:
-      CXXFLAGS: -Werror=all -Werror=extra -Werror=pedantic -pedantic-errors
+      CXXFLAGS: -Wall -Wextra -Wpedantic -pedantic-errors
       benchmark_ROOT: ${{github.workspace}}/opt/benchmark
       GTest_ROOT: ${{github.workspace}}/opt/gtest
       inih_ROOT: ${{github.workspace}}/opt/inih
@@ -184,7 +184,7 @@ jobs:
       - env-serial
     env:
       CMAKE_BUILD_TYPE: Debug
-      CXXFLAGS: -Werror=all -Werror=extra -Werror=pedantic -pedantic-errors -Werror=old-style-cast -Werror=extra-semi
+      CXXFLAGS: -Wall -Wextra -Wpedantic -pedantic-errors -Wold-style-cast -Wextra-semi
       benchmark_ROOT: ${{github.workspace}}/opt/benchmark
       GTest_ROOT: ${{github.workspace}}/opt/gtest
       inih_ROOT: ${{github.workspace}}/opt/inih
@@ -198,7 +198,7 @@ jobs:
           path: opt
           merge-multiple: true
       - run: |
-          cmake -DBUILD_TESTING=ON -DNovapp_BUILD_BENCHMARKING=ON -DNovapp_NDIM=1 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake -DBUILD_TESTING=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DNovapp_BUILD_BENCHMARKING=ON -DNovapp_NDIM=1 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
           cmake --build build
           ctest --test-dir build --output-on-failure --timeout 5 --output-junit tests.xml
           ./build/benchmarks/benchmarks --benchmark_dry_run=true
@@ -220,7 +220,7 @@ jobs:
       - env-serial
     env:
       CMAKE_BUILD_TYPE: Debug
-      CXXFLAGS: -Werror=all -Werror=extra -Werror=pedantic -pedantic-errors -Werror=old-style-cast -Werror=extra-semi
+      CXXFLAGS: -Wall -Wextra -Wpedantic -pedantic-errors -Wold-style-cast -Wextra-semi
       benchmark_ROOT: ${{github.workspace}}/opt/benchmark
       GTest_ROOT: ${{github.workspace}}/opt/gtest
       inih_ROOT: ${{github.workspace}}/opt/inih
@@ -234,7 +234,7 @@ jobs:
           path: opt
           merge-multiple: true
       - run: |
-          cmake -DBUILD_TESTING=ON -DNovapp_BUILD_BENCHMARKING=ON -DNovapp_NDIM=2 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake -DBUILD_TESTING=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DNovapp_BUILD_BENCHMARKING=ON -DNovapp_NDIM=2 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
           cmake --build build
           ctest --test-dir build --output-on-failure --timeout 5 --output-junit tests.xml
           ./build/benchmarks/benchmarks --benchmark_dry_run=true
@@ -253,7 +253,7 @@ jobs:
       - env-serial
     env:
       CMAKE_BUILD_TYPE: Debug
-      CXXFLAGS: -Werror=all -Werror=extra -Werror=pedantic -pedantic-errors -Werror=old-style-cast -Werror=extra-semi
+      CXXFLAGS: -Wall -Wextra -Wpedantic -pedantic-errors -Wold-style-cast -Wextra-semi
       benchmark_ROOT: ${{github.workspace}}/opt/benchmark
       GTest_ROOT: ${{github.workspace}}/opt/gtest
       inih_ROOT: ${{github.workspace}}/opt/inih
@@ -267,7 +267,7 @@ jobs:
           path: opt
           merge-multiple: true
       - run: |
-          cmake -DBUILD_TESTING=ON -DNovapp_BUILD_BENCHMARKING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake -DBUILD_TESTING=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DNovapp_BUILD_BENCHMARKING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
           cmake --build build
           ctest --test-dir build --output-on-failure --timeout 5 --output-junit tests.xml
           ./build/benchmarks/benchmarks --benchmark_dry_run=true
@@ -311,7 +311,7 @@ jobs:
       - env-hip
     env:
       CXX: hipcc
-      CXXFLAGS: -Werror=all -Werror=extra -Werror=pedantic -pedantic-errors -Werror=old-style-cast -Werror=extra-semi
+      CXXFLAGS: -Wall -Wextra -Wpedantic -pedantic-errors -Wold-style-cast -Wextra-semi
       benchmark_ROOT: ${{github.workspace}}/opt/benchmark
       GTest_ROOT: ${{github.workspace}}/opt/gtest
       inih_ROOT: ${{github.workspace}}/opt/inih
@@ -323,7 +323,7 @@ jobs:
           path: opt
           merge-multiple: true
       - run: |
-          cmake -DBUILD_TESTING=ON -DNovapp_BUILD_BENCHMARKING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
+          cmake -DBUILD_TESTING=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DNovapp_BUILD_BENCHMARKING=ON -DNovapp_NDIM=3 -DNovapp_SETUP=advection_sinus -DNovapp_EOS=PerfectGas -DNovapp_GEOM=Cartesian -DNovapp_GRAVITY=Uniform -DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED -DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED -DNovapp_inih_DEPENDENCY_POLICY=INSTALLED -DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED -B build
           cmake --build build
 
   include-what-you-use:
