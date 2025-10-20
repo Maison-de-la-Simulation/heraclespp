@@ -6,10 +6,13 @@
 
 #include <mpi.h>
 
+#include <array>
 #include <cassert>
+#include <cstddef>
 #include <numeric>
 #include <random>
 #include <string>
+#include <utility>
 
 #include <inih/INIReader.hpp>
 
@@ -19,10 +22,10 @@
 #include <range.hpp>
 #include <units.hpp>
 
-#include "default_boundary_setup.hpp"
-#include "default_grid_setup.hpp"
-#include "default_shift_criterion.hpp"
-#include "default_user_step.hpp"
+#include "default_boundary_setup.hpp" // IWYU pragma: keep
+#include "default_grid_setup.hpp" // IWYU pragma: keep
+#include "default_shift_criterion.hpp" // IWYU pragma: keep
+#include "default_user_step.hpp" // IWYU pragma: keep
 #include "initialization_interface.hpp"
 #include "kokkos_shortcut.hpp"
 #include "ndim.hpp"

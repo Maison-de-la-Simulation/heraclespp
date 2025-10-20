@@ -4,8 +4,16 @@
 
 #pragma once
 
+#include <mpi.h>
+
+#include <array>
 #include <cassert>
+#include <cstddef>
+#include <iomanip>
+#include <iostream>
+#include <stdexcept>
 #include <string>
+#include <utility>
 
 #include <inih/INIReader.hpp>
 
@@ -15,13 +23,12 @@
 #include <hdf5.h>
 #include <io_hdf5.hpp>
 #include <pdi.h>
-#include <range.hpp>
 #include <shift_criterion_interface.hpp>
 #include <units.hpp>
 
 #include "broadcast.hpp"
-#include "default_boundary_setup.hpp"
-#include "default_user_step.hpp"
+#include "default_boundary_setup.hpp" // IWYU pragma: keep
+#include "default_user_step.hpp" // IWYU pragma: keep
 #include "eos.hpp"
 #include "initialization_interface.hpp"
 #include "kokkos_shortcut.hpp"
