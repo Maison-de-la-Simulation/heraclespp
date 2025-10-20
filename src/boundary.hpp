@@ -8,12 +8,15 @@
 
 #pragma once
 
+#include <cassert>
 #include <string>
 #include <string_view>
 
 #include <concepts.hpp>
 #include <kokkos_shortcut.hpp>
-#include <ndim.hpp>
+#if !defined(NDEBUG)
+#    include <ndim.hpp>
+#endif
 
 namespace novapp
 {
