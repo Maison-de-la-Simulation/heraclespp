@@ -83,7 +83,7 @@ public:
         auto const& param_setup = m_param_setup;
         double const mu = m_eos.mean_molecular_weight();
         std::cout <<"Scale = " << units::kb * m_param_setup.T
-            / (mu * units::mp * m_param_setup.gx) << std::endl;
+            / (mu * units::mp * m_param_setup.gx) << '\n';
 
         Kokkos::parallel_for(
             "stratified_atm_init",

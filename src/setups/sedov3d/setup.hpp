@@ -84,7 +84,6 @@ public:
         int const ny_2 = param_setup.ny / 2;
         int const nz_2 = param_setup.nz / 2;
 
-
         if (geom == Geometry::Geom_cartesian)
         {
             throw std::runtime_error("No Sedov 3D in Cartesian implemented");

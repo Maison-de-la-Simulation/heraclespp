@@ -8,7 +8,6 @@
 
 #include <array>
 #include <cassert>
-#include <cstddef>
 #include <numeric>
 #include <random>
 #include <string>
@@ -81,12 +80,11 @@ public:
         assert(u.extent_int(3) == ndim);
         assert(fx.extent_int(3) == 1);
 
-        int const mpi_rank = grid.mpi_rank;
-        MPI_Comm const comm_cart = grid.comm_cart;
-
         std::array<double, 4> data_to_broadcast;
 
-        if (mpi_rank == 0)
+        int const bcast_root = 0;
+
+        if (grid.mpi_rank == bcast_root)
         {
             std::random_device rd;
             std::mt19937 const gen(rd());
@@ -98,23 +96,17 @@ public:
             }
         }
 
-        MPI_Bcast(data_to_broadcast.data(), 4, MPI_DOUBLE, 0, comm_cart);
+        MPI_Bcast(data_to_broadcast.data(), 4, MPI_DOUBLE, bcast_root, grid.comm_cart);
 
         double const ak = data_to_broadcast[0];
         double const bk = data_to_broadcast[1];
         double const ck = data_to_broadcast[2];
         double const dk = data_to_broadcast[3];
 
-        /* std::cout << "[MPI process "<< mpi_rank <<"] ak = " << ak << std::endl;
-        std::cout << "[MPI process "<< mpi_rank <<"] bk = " << bk << std::endl;
-        std::cout << "[MPI process "<< mpi_rank <<"] ck = " << ck << std::endl;
-        std::cout << "[MPI process "<< mpi_rank <<"] dk = " << dk << std::endl; */
-
-        Kokkos::Array<int, 5> kx;
-        std::iota(kx.data(), kx.data() + 5, 0);
-        Kokkos::Array<int, 5> ky;
-        std::iota(ky.data(), ky.data() + 5, 0);
-        //------
+        Kokkos::Array<int, 5> kx_array;
+        std::iota(Kokkos::begin(kx_array), Kokkos::end(kx_array), 0);
+        Kokkos::Array<int, 5> ky_array;
+        std::iota(Kokkos::begin(ky_array), Kokkos::end(ky_array), 0);
 
         double const L = 10;
         double const gamma = 5. / 3;
@@ -143,17 +135,17 @@ public:
                 double const Y = 2 * units::pi * y / L;
                 double h = 0;
 
-                for (std::size_t ik = 0; ik < Kokkos::Array<int, 5>::size(); ++ik)
+                for (int const kx : kx_array)
                 {
-                    for (std::size_t jk = 0; jk < Kokkos::Array<int, 5>::size(); ++jk)
+                    for (int const ky : ky_array)
                     {
-                        double const K = kx[ik] * kx[ik] + ky[jk] * ky[jk];
+                        double const K = kx * kx + ky * ky;
                         if (K >= 8 && K <= 16)
                         {
-                            h += (ak * Kokkos::cos(kx[ik] * X) * Kokkos::cos(ky[jk] * Y)
-                        + bk * Kokkos::cos(kx[ik] * X) * Kokkos::sin(ky[jk] * Y)
-                        + ck * Kokkos::sin(kx[ik] * X) * Kokkos::cos(ky[jk] * Y)
-                        + dk * Kokkos::sin(kx[ik] * X) * Kokkos::sin(ky[jk] * Y));
+                            h += (ak * Kokkos::cos(kx * X) * Kokkos::cos(ky * Y)
+                        + bk * Kokkos::cos(kx * X) * Kokkos::sin(ky * Y)
+                        + ck * Kokkos::sin(kx * X) * Kokkos::cos(ky * Y)
+                        + dk * Kokkos::sin(kx * X) * Kokkos::sin(ky * Y));
                         }
                     }
                 }
@@ -167,8 +159,7 @@ public:
 
                     fx(i, j, k, 0) = 1;
                 }
-
-                if(z < h)
+                else
                 {
                     rho(i, j, k) = param_setup.rho1 * Kokkos::pow(1 - (gamma - 1) / gamma
                                 * (param_setup.rho1 * Kokkos::fabs(gravity(i, j, k, 2)) * z) / P0, 1. / (gamma - 1)) * units::density;

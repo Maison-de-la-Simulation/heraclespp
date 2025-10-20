@@ -21,9 +21,6 @@
 #include "eos.hpp"
 #include "initialization_interface.hpp"
 #include "kokkos_shortcut.hpp"
-#if !defined(NDEBUG)
-#    include "ndim.hpp"
-#endif
 
 namespace novapp
 {

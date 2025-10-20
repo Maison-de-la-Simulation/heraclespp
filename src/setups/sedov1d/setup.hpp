@@ -74,7 +74,7 @@ public:
 
         int const mpi_rank = grid.mpi_rank;
 
-        double alpha;
+        double alpha = -1;
 
         if (geom == Geometry::Geom_cartesian)
         {
