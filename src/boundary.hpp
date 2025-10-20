@@ -13,6 +13,7 @@
 
 #include <concepts.hpp>
 #include <kokkos_shortcut.hpp>
+#include <ndim.hpp>
 
 namespace novapp
 {
@@ -99,6 +100,9 @@ public:
                  KV_double_3d const& E,
                  KV_double_4d const& fx) const final
     {
+        assert(equal_extents({0, 1, 2}, rho, rhou, E, fx));
+        assert(rhou.extent_int(3) == ndim);
+
         null_gradient_condition(this->bc_idim(), this->bc_iface(), m_label, grid, rho, rhou, E, fx);
     }
 };
@@ -117,6 +121,9 @@ public:
             [[maybe_unused]] KV_double_3d const& E,
             [[maybe_unused]] KV_double_4d const& fx) const final
     {
+        assert(equal_extents({0, 1, 2}, rho, rhou, E, fx));
+        assert(rhou.extent_int(3) == ndim);
+
         // do nothing
     }
 };
@@ -141,6 +148,9 @@ public:
                  KV_double_3d const& E,
                  KV_double_4d const& fx) const final
     {
+        assert(equal_extents({0, 1, 2}, rho, rhou, E, fx));
+        assert(rhou.extent_int(3) == ndim);
+
         reflexive_condition(this->bc_idim(), this->bc_iface(), m_label, grid, rho, rhou, E, fx);
     }
 };

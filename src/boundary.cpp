@@ -40,13 +40,6 @@ void null_gradient_condition(int m_bc_idim, int m_bc_iface,
                              KV_double_3d const& E,
                              KV_double_4d const& fx)
 {
-    assert(rho.extent(0) == rhou.extent(0));
-    assert(rhou.extent(0) == E.extent(0));
-    assert(rho.extent(1) == rhou.extent(1));
-    assert(rhou.extent(1) == E.extent(1));
-    assert(rho.extent(2) == rhou.extent(2));
-    assert(rhou.extent(2) == E.extent(2));
-
     Kokkos::Array<int, 3> begin {0, 0, 0};
     Kokkos::Array<int, 3> end {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)};
     int const nfx = fx.extent_int(3);
