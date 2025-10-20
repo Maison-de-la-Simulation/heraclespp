@@ -73,8 +73,6 @@ public:
     double compute_P_from_T(double const rho, double const T) const noexcept
     {
         double const T4 = T * T * T * T;
-        //std::cout<<"Pg = "<<rho * units::kb * T / (m_mmw * units::mp)
-        //<<" Pr = "<<units::ar * T4 / 3<<std::endl;
         return rho * units::kb * T / (m_mmw * units::mp) + units::ar * T4 / 3;
     }
 

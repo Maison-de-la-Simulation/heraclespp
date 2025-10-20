@@ -96,7 +96,7 @@ public:
 
                     P(i, j, k) = P0 + 12.5 * r * r;
                 }
-                else if ((r >= 0.2) && (r < 0.4))
+                else if (r < 0.4)
                 {
                     double const u_theta = 2 - 5 * r;
                     u(i, j, k, 0) = - u_theta * Kokkos::sin(theta);
@@ -111,7 +111,7 @@ public:
                     u(i, j, k, idim) = param_setup.u0;
                     }
 
-                    P(i, j, k) = P0 - 2 + 4 * Kokkos::log(2);
+                    P(i, j, k) = P0 - 2 + 4 * Kokkos::numbers::ln2;
                 }
             });
     }

@@ -79,11 +79,7 @@ public:
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                if (xc(i) <= 0.3)
-                {
-                    rho(i, j, k) = param_setup.rho0;
-                }
-                else if (xc(i) >= 0.7)
+                if ((xc(i) <= 0.3) || (xc(i) >= 0.7))
                 {
                     rho(i, j, k) = param_setup.rho0;
                 }

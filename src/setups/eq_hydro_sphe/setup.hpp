@@ -80,7 +80,7 @@ public:
         double const mu = m_eos.mean_molecular_weight();
 
         std::cout <<"Scale = " << units::kb * m_param_setup.T
-                / (mu * units::mp * units::G * m_param_setup.M)<< "\n";
+                / (mu * units::mp * units::G * m_param_setup.M)<< '\n';
 
         Kokkos::parallel_for(
         "eq_hydro_init",
