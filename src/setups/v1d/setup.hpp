@@ -185,10 +185,10 @@ public:
     [[nodiscard]] bool execute(
         [[maybe_unused]] Range const& range,
         Grid const& grid,
-        KV_double_3d const& rho,
-        KV_double_4d const& rhou,
-        [[maybe_unused]] KV_double_3d const& E,
-        [[maybe_unused]] KV_double_4d const& fx) const override
+        KV_cdouble_3d const& rho,
+        KV_cdouble_4d const& rhou,
+        [[maybe_unused]] KV_cdouble_3d const& E,
+        [[maybe_unused]] KV_cdouble_4d const& fx) const override
     {
         assert(equal_extents({0, 1, 2}, rho, rhou, E, fx));
         assert(rhou.extent_int(3) == ndim);

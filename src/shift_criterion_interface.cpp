@@ -6,7 +6,12 @@
 //! @file shift_criterion_interface.cpp
 //!
 
+#include <cassert>
+
 #include <kokkos_shortcut.hpp>
+#if !defined(NDEBUG)
+#    include <ndim.hpp>
+#endif
 
 #include "shift_criterion_interface.hpp"
 
@@ -26,13 +31,16 @@ IShiftCriterion& IShiftCriterion::operator=(IShiftCriterion const& /*rhs*/) = de
 IShiftCriterion& IShiftCriterion::operator=(IShiftCriterion&& /*rhs*/) noexcept = default;
 
 bool NoShiftGrid::execute(
-    [[maybe_unused]] Range const& range,
-    [[maybe_unused]] Grid const& grid,
-    [[maybe_unused]] KV_double_3d const& rho,
-    [[maybe_unused]] KV_double_4d const& rhou,
-    [[maybe_unused]] KV_double_3d const& E,
-    [[maybe_unused]] KV_double_4d const& fx) const
+    Range const& /*range*/,
+    Grid const& /*grid*/,
+    [[maybe_unused]] KV_cdouble_3d const& rho,
+    [[maybe_unused]] KV_cdouble_4d const& rhou,
+    [[maybe_unused]] KV_cdouble_3d const& E,
+    [[maybe_unused]] KV_cdouble_4d const& fx) const
 {
+    assert(equal_extents({0, 1, 2}, rho, rhou, E, fx));
+    assert(rhou.extent_int(3) == ndim);
+
     return false;
 }
 
