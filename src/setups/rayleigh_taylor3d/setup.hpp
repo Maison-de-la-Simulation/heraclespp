@@ -79,6 +79,7 @@ public:
     {
         assert(equal_extents({0, 1, 2}, rho, u, P, fx));
         assert(u.extent_int(3) == ndim);
+        assert(fx.extent_int(3) == 1);
 
         int const mpi_rank = grid.mpi_rank;
         MPI_Comm const comm_cart = grid.comm_cart;

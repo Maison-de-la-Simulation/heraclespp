@@ -77,7 +77,8 @@ public:
         KV_double_4d const& fx) const final
     {
         assert(equal_extents({0, 1, 2}, rho, u, P, fx));
-        assert(u.extent_int(3) == ndim);
+        assert(u.extent_int(3) == 2);
+        assert(fx.extent_int(3) == 1);
 
         double const P0 = (10. / 7 + 1. / 4);
 

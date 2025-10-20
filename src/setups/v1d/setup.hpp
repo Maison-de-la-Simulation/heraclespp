@@ -190,6 +190,9 @@ public:
         [[maybe_unused]] KV_double_3d const& E,
         [[maybe_unused]] KV_double_4d const& fx) const override
     {
+        assert(equal_extents({0, 1, 2}, rho, rhou, E, fx));
+        assert(rhou.extent_int(3) == ndim);
+
         bool exit_bool = grid.Nx_local_ng[0] < m_param_setup.cell_shift;
         std::array const root_coords {grid.mpi_dims_cart[0] - 1, 0, 0};
         int root = -1;
