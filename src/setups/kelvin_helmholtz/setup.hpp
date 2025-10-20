@@ -10,16 +10,16 @@
 #include <inih/INIReader.hpp>
 
 #include <Kokkos_Core.hpp>
-#include <grid.hpp>
-#include <range.hpp>
 #include <PerfectGas.hpp>
+#include <grid.hpp>
+#include <kokkos_shortcut.hpp>
+#include <range.hpp>
 
 #include "default_boundary_setup.hpp" // IWYU pragma: keep
 #include "default_grid_setup.hpp" // IWYU pragma: keep
 #include "default_shift_criterion.hpp" // IWYU pragma: keep
 #include "default_user_step.hpp" // IWYU pragma: keep
 #include "initialization_interface.hpp"
-#include "kokkos_shortcut.hpp"
 
 namespace novapp
 {

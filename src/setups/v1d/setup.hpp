@@ -18,24 +18,24 @@
 #include <inih/INIReader.hpp>
 
 #include <Kokkos_Core.hpp>
+#include <eos.hpp>
 #include <grid.hpp>
 #include <grid_type.hpp>
 #include <hdf5.h>
 #include <io_hdf5.hpp>
+#include <kokkos_shortcut.hpp>
+#include <nova_params.hpp>
 #include <pdi.h>
-#include <shift_criterion_interface.hpp>
 #include <units.hpp>
+#if !defined(NDEBUG)
+#    include <ndim.hpp>
+#endif
 
+#include "shift_criterion_interface.hpp"
 #include "broadcast.hpp"
 #include "default_boundary_setup.hpp" // IWYU pragma: keep
 #include "default_user_step.hpp" // IWYU pragma: keep
-#include "eos.hpp"
 #include "initialization_interface.hpp"
-#include "kokkos_shortcut.hpp"
-#if !defined(NDEBUG)
-#    include "ndim.hpp"
-#endif
-#include "nova_params.hpp"
 
 namespace novapp
 {
