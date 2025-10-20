@@ -4,9 +4,11 @@
 
 #pragma once
 
+#include <array>
 #include <cassert>
 #include <iostream>
 #include <string>
+#include <utility>
 
 #include <inih/INIReader.hpp>
 
@@ -16,9 +18,9 @@
 #include <units.hpp>
 
 #include "boundary.hpp"
-#include "default_grid_setup.hpp"
-#include "default_shift_criterion.hpp"
-#include "default_user_step.hpp"
+#include "default_grid_setup.hpp" // IWYU pragma: keep
+#include "default_shift_criterion.hpp" // IWYU pragma: keep
+#include "default_user_step.hpp" // IWYU pragma: keep
 #include "eos.hpp"
 #include "initialization_interface.hpp"
 #include "kokkos_shortcut.hpp"
