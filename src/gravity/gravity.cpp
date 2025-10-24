@@ -135,19 +135,19 @@ InternalMassGravity make_internal_mass_gravity(
 
     Kokkos::parallel_scan(
         "mass_mid_cell",
-        Kokkos::RangePolicy<int>(grid.Nghost[0], grid.Nx_local_ng[0] + 2 * grid.Nghost[0]),
+        Kokkos::RangePolicy<int>(grid.Nghost[0], grid.Nx_local_ng[0] + (2 * grid.Nghost[0])),
         KOKKOS_LAMBDA(int i, double& partial_sum, bool is_final)
         {
             int const offset  = i - nghost[0];
             double const x3 = x(i) * x(i) * x(i);
             if (i == nghost[0])
             {
-                partial_sum += central_mass + 4. / 3 * units::pi * (xc(i) * xc(i) * xc(i) - x3) * rho_mean(offset);
+                partial_sum += central_mass + (4. / 3 * units::pi * (xc(i) * xc(i) * xc(i) - x3) * rho_mean(offset));
             }
             else
             {
-                partial_sum +=  4. / 3 * units::pi * (x3 - xc(i-1) * xc(i-1) * xc(i-1)) * rho_mean(offset-1)
-                    + 4. / 3 * units::pi * (xc(i) * xc(i) * xc(i) - x3) * rho_mean(offset);
+                partial_sum +=  (4. / 3 * units::pi * (x3 - xc(i-1) * xc(i-1) * xc(i-1)) * rho_mean(offset-1))
+                    + (4. / 3 * units::pi * (xc(i) * xc(i) * xc(i) - x3) * rho_mean(offset));
             }
             if (is_final)
             {

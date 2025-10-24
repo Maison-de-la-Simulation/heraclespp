@@ -88,7 +88,7 @@ void DistributedBoundaryCondition::ghost_sync(
                Kokkos::make_pair(0, views[0].extent_int(1)),
                Kokkos::make_pair(0, views[0].extent_int(2))};
 
-    KRange[bc_idim].first = bc_iface == 0 ? ng : views[0].extent_int(bc_idim) - 2 * ng;
+    KRange[bc_idim].first = bc_iface == 0 ? ng : views[0].extent_int(bc_idim) - (2 * ng);
     KRange[bc_idim].second = KRange[bc_idim].first + ng;
 
     for (std::size_t i = 0; i < views.size(); ++i)

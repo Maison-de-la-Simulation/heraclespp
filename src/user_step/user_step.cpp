@@ -59,9 +59,9 @@ void HeatNickelStep::execute(
 
     double const fac_decay = 1. / (m_ni56 * (tau_co56 - tau_ni56)); // Decay factor
 
-    double epsilon = (Q_ni56_tot * (tau_co56 / tau_ni56 - 1) - Q_co56_tot)
-                    * Kokkos::exp(- t / tau_ni56)
-                    + Q_co56_tot *  Kokkos::exp(- t / tau_co56); // Total energy rate created
+    double epsilon = ((Q_ni56_tot * (tau_co56 / tau_ni56 - 1) - Q_co56_tot)
+                    * Kokkos::exp(- t / tau_ni56))
+                    + (Q_co56_tot *  Kokkos::exp(- t / tau_co56)); // Total energy rate created
     epsilon *= fac_decay;
 
     Kokkos::parallel_for(

@@ -183,9 +183,9 @@ void pressure_fix(
                             sum += cons.rhou[idr] * cons.rhou[idr] / cons.rho;
                         }
 
-                        double const de_tot = alpha * de_god + (1 - alpha) * de_pf;
+                        double const de_tot = (alpha * de_god) + ((1 - alpha) * de_pf);
 
-                        E_new(i, j, k) = evol + de_tot + 1. / 2 * sum;
+                        E_new(i, j, k) = evol + de_tot + (1. / 2 * sum);
                     }
                 }
             }

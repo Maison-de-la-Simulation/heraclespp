@@ -30,7 +30,7 @@ void compute_regular_mesh_1d(
     int const iend = x.extent_int(0);
     for (int i = istart; i < iend; ++i)
     {
-        x(i) = xmin + (i - ng) * dx;
+        x(i) = xmin + ((i - ng) * dx);
     }
 }
 

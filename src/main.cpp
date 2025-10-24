@@ -189,10 +189,10 @@ void main(int argc, char** argv)
         bc_choice_dir = reader.Get("Boundary Condition", std::string("BC").append(bc_dir(idim)), param.bc_choice);
         for (int iface = 0; iface < 2; ++iface)
         {
-            bc_choice_faces[idim * 2 + iface] = reader.Get("Boundary Condition",
+            bc_choice_faces[(idim * 2) + iface] = reader.Get("Boundary Condition",
                                                        std::string("BC").append(bc_dir(idim)).append(bc_face(iface)),
                                                        bc_choice_dir);
-            if(bc_choice_faces[idim * 2 + iface].empty() )
+            if(bc_choice_faces[(idim * 2) + iface].empty() )
             {
                 throw std::runtime_error(std::string("boundary condition not fully defined for dimension ").append(bc_dir(idim)));
             }
@@ -229,9 +229,9 @@ void main(int argc, char** argv)
     bool should_exit = false;
     std::chrono::hours const time_save(param.time_job);
 
-    KDV_double_1d x_glob("x_glob", grid.Nx_glob_ng[0]+2*grid.Nghost[0]+1);
-    KDV_double_1d y_glob("y_glob", grid.Nx_glob_ng[1]+2*grid.Nghost[1]+1);
-    KDV_double_1d z_glob("z_glob", grid.Nx_glob_ng[2]+2*grid.Nghost[2]+1);
+    KDV_double_1d x_glob("x_glob", grid.Nx_glob_ng[0]+(2*grid.Nghost[0])+1);
+    KDV_double_1d y_glob("y_glob", grid.Nx_glob_ng[1]+(2*grid.Nghost[1])+1);
+    KDV_double_1d z_glob("z_glob", grid.Nx_glob_ng[2]+(2*grid.Nghost[2])+1);
 
     std::unique_ptr<Gravity> g;
 
@@ -283,14 +283,14 @@ void main(int argc, char** argv)
     {
         for(int iface = 0; iface < 2; ++iface)
         {
-            if (bc_choice_faces[idim * 2 + iface] == "UserDefined")
+            if (bc_choice_faces[(idim * 2) + iface] == "UserDefined")
             {
-                bcs_array[idim * 2 + iface] = std::make_unique<BoundarySetup<Gravity>>(idim, iface, eos, param_setup);
+                bcs_array[(idim * 2) + iface] = std::make_unique<BoundarySetup<Gravity>>(idim, iface, eos, param_setup);
             }
             else
             {
-                bcs_array[idim * 2 + iface] = factory_boundary_construction<Gravity>(
-                    bc_choice_faces[idim * 2 + iface], idim, iface);
+                bcs_array[(idim * 2) + iface] = factory_boundary_construction<Gravity>(
+                    bc_choice_faces[(idim * 2) + iface], idim, iface);
             }
         }
     }
@@ -373,7 +373,7 @@ void main(int argc, char** argv)
         bool make_output = false;
         if (param.iter_output_frequency > 0)
         {
-            int const next_output = iter_ini + (iter_output_id + 1) * param.iter_output_frequency;
+            int const next_output = iter_ini + ((iter_output_id + 1) * param.iter_output_frequency);
             if ((iter + 1) >= next_output)
             {
                 make_output = true;
@@ -382,7 +382,7 @@ void main(int argc, char** argv)
         }
         if (param.time_output_frequency > 0)
         {
-            double const next_output = param.time_first_output + (time_output_id + 1) * param.time_output_frequency;
+            double const next_output = param.time_first_output + ((time_output_id + 1) * param.time_output_frequency);
             if ((t + dt) >= next_output)
             {
                 dt = next_output - t;
@@ -467,7 +467,7 @@ void main(int argc, char** argv)
             {
                 shift_criterion = std::make_unique<NoShiftGrid>(); // grid shift deactivated
 
-                bcs_array[0 * 2 + 1] = factory_boundary_construction<Gravity>(
+                bcs_array[(0 * 2) + 1] = factory_boundary_construction<Gravity>(
                                 "NullGradient", 0, 1);
                 DistributedBoundaryCondition const bcs(grid, param);
                 bcs(bcs_array, grid, *g, rho_new, rhou_new, E_new, fx_new); // change BC
