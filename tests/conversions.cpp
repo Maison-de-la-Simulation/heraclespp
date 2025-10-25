@@ -19,15 +19,19 @@
 TEST(Conversions, PrimToCons)
 {
     int const n = 10;
+    double const rho0 = 2.;
+    double const u0 = -1.;
+    double const P0 = 10.;
+
     novapp::Range const range({0, 0, 0}, {n, n, n}, 0);
     novapp::thermodynamics::PerfectGas const eos(2, 1);
     novapp::EulerPrim prim;
-    prim.rho = 2;
+    prim.rho = rho0;
     for (int idim = 0; idim < novapp::ndim; ++idim)
     {
-        prim.u[idim] = -1;
+        prim.u[idim] = u0;
     }
-    prim.P = 10;
+    prim.P = P0;
     novapp::KV_double_3d const rho_view("rho", n, n, n);
     novapp::KV_double_4d const u_view("u", n, n, n, novapp::ndim);
     novapp::KV_double_3d const P_view("P", n, n, n);
@@ -76,15 +80,19 @@ TEST(Conversions, PrimToCons)
 TEST(Conversions, ConsToPrim)
 {
     int const n = 10;
+    double const rho0 = 2.;
+    double const rhou0 = -2.;
+    double const E0 = 10.;
+
     novapp::Range const range({0, 0, 0}, {n, n, n}, 0);
     novapp::thermodynamics::PerfectGas const eos(2, 1);
     novapp::EulerCons cons;
-    cons.rho = 2;
+    cons.rho = rho0;
     for (int idim = 0; idim < novapp::ndim; ++idim)
     {
-        cons.rhou[idim] = -2;
+        cons.rhou[idim] = rhou0;
     }
-    cons.E = 10;
+    cons.E = E0;
     novapp::KV_double_3d const rho_view("rho", n, n, n);
     novapp::KV_double_4d const rhou_view("rhou", n, n, n, novapp::ndim);
     novapp::KV_double_3d const E_view("E", n, n, n);

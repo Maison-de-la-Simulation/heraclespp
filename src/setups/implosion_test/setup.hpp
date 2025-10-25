@@ -77,6 +77,8 @@ public:
         auto const yc = grid.y_center;
         auto const& param_setup = m_param_setup;
 
+        double const y0 = 0.15;
+
         Kokkos::parallel_for(
             "implosion_test_init",
             cell_mdrange(range),
@@ -85,7 +87,7 @@ public:
                 double const x = xc(i);
                 double const y = yc(j);
 
-                if (x + y >  0.15)
+                if (x + y > y0)
                 {
                     rho(i, j, k) = param_setup.rho0;
                     P(i, j, k) = param_setup.P0;

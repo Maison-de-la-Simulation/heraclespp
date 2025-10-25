@@ -19,22 +19,34 @@ TEST(BroadcastScalar, Case1d)
     if (novapp::ndim != 1) {
         GTEST_SKIP();
     }
-    novapp::Range const rng({0, 0, 0}, {10, 11, 12}, 1);
-    novapp::KDV_double_3d array("array", 12, 11, 12);
-    Kokkos::deep_copy(array.view_device(), 0.);
+
+    int const nx = 10;
+    int const ny = 11;
+    int const nz = 12;
+    int const ng = 1;
+    double const outer_value = 0.;
+    double const inner_value = 5.5;
+
+    int const nx_wg = nx + (2 * ng);
+    int const ny_wg = ny;
+    int const nz_wg = nz;
+
+    novapp::Range const rng({0, 0, 0}, {nx, ny, nz}, ng);
+    novapp::KDV_double_3d array("array", nx_wg, ny_wg, nz_wg);
+    Kokkos::deep_copy(array.view_device(), outer_value);
     array.modify_device();
-    novapp::broadcast(rng.no_ghosts(), 5.5, array.view_device());
+    novapp::broadcast(rng.no_ghosts(), inner_value, array.view_device());
     array.modify_device();
     array.sync_host();
     {
         auto const array_h = novapp::view_host(array);
-        for (int i = 0; i < 12; ++i) {
-            for (int j = 0; j < 11; ++j) {
-                for (int k = 0; k < 12; ++k) {
-                    if ((i == 0 || i == 11)) {
-                        EXPECT_DOUBLE_EQ(array_h(i, j, k), 0.);
+        for (int i = 0; i < nx_wg; ++i) {
+            for (int j = 0; j < ny_wg; ++j) {
+                for (int k = 0; k < nz_wg; ++k) {
+                    if ((i == 0 || i == nx_wg - 1)) {
+                        EXPECT_DOUBLE_EQ(array_h(i, j, k), outer_value);
                     } else {
-                        EXPECT_DOUBLE_EQ(array_h(i, j, k), 5.5);
+                        EXPECT_DOUBLE_EQ(array_h(i, j, k), inner_value);
                     }
                 }
             }
@@ -47,22 +59,34 @@ TEST(BroadcastScalar, Case2d)
     if (novapp::ndim != 2) {
         GTEST_SKIP();
     }
-    novapp::Range const rng({0, 0, 0}, {10, 11, 12}, 1);
-    novapp::KDV_double_3d array("array", 12, 13, 12);
-    Kokkos::deep_copy(array.view_device(), 0.);
+
+    int const nx = 10;
+    int const ny = 11;
+    int const nz = 12;
+    int const ng = 1;
+    double const outer_value = 0.;
+    double const inner_value = 5.5;
+
+    int const nx_wg = nx + (2 * ng);
+    int const ny_wg = ny + (2 * ng);
+    int const nz_wg = nz;
+
+    novapp::Range const rng({0, 0, 0}, {nx, ny, nz}, ng);
+    novapp::KDV_double_3d array("array", nx_wg, ny_wg, nz_wg);
+    Kokkos::deep_copy(array.view_device(), outer_value);
     array.modify_device();
-    novapp::broadcast(rng.no_ghosts(), 5.5, array.view_device());
+    novapp::broadcast(rng.no_ghosts(), inner_value, array.view_device());
     array.modify_device();
     array.sync_host();
     {
         auto const array_h = novapp::view_host(array);
-        for (int i = 0; i < 12; ++i) {
-            for (int j = 0; j < 13; ++j) {
-                for (int k = 0; k < 12; ++k) {
-                    if ((i == 0 || i == 11) || (j == 0 || j == 12)) {
-                        EXPECT_DOUBLE_EQ(array_h(i, j, k), 0.);
+        for (int i = 0; i < nx_wg; ++i) {
+            for (int j = 0; j < ny_wg; ++j) {
+                for (int k = 0; k < nz_wg; ++k) {
+                    if ((i == 0 || i == nx_wg - 1) || (j == 0 || j == ny_wg - 1)) {
+                        EXPECT_DOUBLE_EQ(array_h(i, j, k), outer_value);
                     } else {
-                        EXPECT_DOUBLE_EQ(array_h(i, j, k), 5.5);
+                        EXPECT_DOUBLE_EQ(array_h(i, j, k), inner_value);
                     }
                 }
             }
@@ -75,22 +99,35 @@ TEST(BroadcastScalar, Case3d)
     if (novapp::ndim != 3) {
         GTEST_SKIP();
     }
-    novapp::Range const rng({0, 0, 0}, {10, 11, 12}, 1);
-    novapp::KDV_double_3d array("array", 12, 13, 14);
-    Kokkos::deep_copy(array.view_device(), 0.);
+
+    int const nx = 10;
+    int const ny = 11;
+    int const nz = 12;
+    int const ng = 1;
+    double const outer_value = 0.;
+    double const inner_value = 5.5;
+
+    int const nx_wg = nx + (2 * ng);
+    int const ny_wg = ny + (2 * ng);
+    int const nz_wg = nz + (2 * ng);
+
+    novapp::Range const rng({0, 0, 0}, {nx, ny, nz}, ng);
+    novapp::KDV_double_3d array("array", nx_wg, ny_wg, nz_wg);
+    Kokkos::deep_copy(array.view_device(), outer_value);
     array.modify_device();
-    novapp::broadcast(rng.no_ghosts(), 5.5, array.view_device());
+    novapp::broadcast(rng.no_ghosts(), inner_value, array.view_device());
     array.modify_device();
     array.sync_host();
     {
         auto const array_h = novapp::view_host(array);
-        for (int i = 0; i < 12; ++i) {
-            for (int j = 0; j < 13; ++j) {
-                for (int k = 0; k < 14; ++k) {
-                    if ((i == 0 || i == 11) || (j == 0 || j == 12) || (k == 0 || k == 13)) {
-                        EXPECT_DOUBLE_EQ(array_h(i, j, k), 0.);
+        for (int i = 0; i < nx_wg; ++i) {
+            for (int j = 0; j < ny_wg; ++j) {
+                for (int k = 0; k < nz_wg; ++k) {
+                    if ((i == 0 || i == nx_wg - 1) || (j == 0 || j == ny_wg - 1)
+                        || (k == 0 || k == nz_wg - 1)) {
+                        EXPECT_DOUBLE_EQ(array_h(i, j, k), outer_value);
                     } else {
-                        EXPECT_DOUBLE_EQ(array_h(i, j, k), 5.5);
+                        EXPECT_DOUBLE_EQ(array_h(i, j, k), inner_value);
                     }
                 }
             }
@@ -103,24 +140,36 @@ TEST(BroadcastArray, Case1d)
     if (novapp::ndim != 1) {
         GTEST_SKIP();
     }
-    novapp::Range const rng({0, 0, 0}, {10, 11, 12}, 1);
-    novapp::KDV_double_3d array("array", 12, 11, 12);
-    Kokkos::deep_copy(array.view_device(), 0.);
+
+    int const nx = 10;
+    int const ny = 11;
+    int const nz = 12;
+    int const ng = 1;
+    double const outer_value = 0.;
+    double const inner_value = 5.5;
+
+    int const nx_wg = nx + (2 * ng);
+    int const ny_wg = ny;
+    int const nz_wg = nz;
+
+    novapp::Range const rng({0, 0, 0}, {nx, ny, nz}, ng);
+    novapp::KDV_double_3d array("array", nx_wg, ny_wg, nz_wg);
+    Kokkos::deep_copy(array.view_device(), outer_value);
     array.modify_device();
-    novapp::KV_double_1d const arr("arr", 10);
-    Kokkos::deep_copy(arr, 5.5);
+    novapp::KV_double_1d const arr("arr", nx);
+    Kokkos::deep_copy(arr, inner_value);
     novapp::broadcast(rng.no_ghosts(), arr, array.view_device());
     array.modify_device();
     array.sync_host();
     {
         auto const array_h = novapp::view_host(array);
-        for (int i = 0; i < 12; ++i) {
-            for (int j = 0; j < 11; ++j) {
-                for (int k = 0; k < 12; ++k) {
-                    if ((i == 0 || i == 11)) {
-                        EXPECT_DOUBLE_EQ(array_h(i, j, k), 0.);
+        for (int i = 0; i < nx_wg; ++i) {
+            for (int j = 0; j < ny_wg; ++j) {
+                for (int k = 0; k < nz_wg; ++k) {
+                    if ((i == 0 || i == nx_wg - 1)) {
+                        EXPECT_DOUBLE_EQ(array_h(i, j, k), outer_value);
                     } else {
-                        EXPECT_DOUBLE_EQ(array_h(i, j, k), 5.5);
+                        EXPECT_DOUBLE_EQ(array_h(i, j, k), inner_value);
                     }
                 }
             }
@@ -133,24 +182,36 @@ TEST(BroadcastArray, Case2d)
     if (novapp::ndim != 2) {
         GTEST_SKIP();
     }
-    novapp::Range const rng({0, 0, 0}, {10, 11, 12}, 1);
-    novapp::KDV_double_3d array("array", 12, 13, 12);
-    Kokkos::deep_copy(array.view_device(), 0.);
+
+    int const nx = 10;
+    int const ny = 11;
+    int const nz = 12;
+    int const ng = 1;
+    double const outer_value = 0.;
+    double const inner_value = 5.5;
+
+    int const nx_wg = nx + (2 * ng);
+    int const ny_wg = ny + (2 * ng);
+    int const nz_wg = nz;
+
+    novapp::Range const rng({0, 0, 0}, {nx, ny, nz}, ng);
+    novapp::KDV_double_3d array("array", nx_wg, ny_wg, nz_wg);
+    Kokkos::deep_copy(array.view_device(), outer_value);
     array.modify_device();
-    novapp::KV_double_1d const arr("arr", 10);
-    Kokkos::deep_copy(arr, 5.5);
+    novapp::KV_double_1d const arr("arr", nx);
+    Kokkos::deep_copy(arr, inner_value);
     novapp::broadcast(rng.no_ghosts(), arr, array.view_device());
     array.modify_device();
     array.sync_host();
     {
         auto const array_h = novapp::view_host(array);
-        for (int i = 0; i < 12; ++i) {
-            for (int j = 0; j < 13; ++j) {
-                for (int k = 0; k < 12; ++k) {
-                    if ((i == 0 || i == 11) || (j == 0 || j == 12)) {
-                        EXPECT_DOUBLE_EQ(array_h(i, j, k), 0.);
+        for (int i = 0; i < nx_wg; ++i) {
+            for (int j = 0; j < ny_wg; ++j) {
+                for (int k = 0; k < nz_wg; ++k) {
+                    if ((i == 0 || i == nx_wg - 1) || (j == 0 || j == ny_wg - 1)) {
+                        EXPECT_DOUBLE_EQ(array_h(i, j, k), outer_value);
                     } else {
-                        EXPECT_DOUBLE_EQ(array_h(i, j, k), 5.5);
+                        EXPECT_DOUBLE_EQ(array_h(i, j, k), inner_value);
                     }
                 }
             }
@@ -163,24 +224,37 @@ TEST(BroadcastArray, Case3d)
     if (novapp::ndim != 3) {
         GTEST_SKIP();
     }
-    novapp::Range const rng({0, 0, 0}, {10, 11, 12}, 1);
-    novapp::KDV_double_3d array("array", 12, 13, 14);
-    Kokkos::deep_copy(array.view_device(), 0.);
+
+    int const nx = 10;
+    int const ny = 11;
+    int const nz = 12;
+    int const ng = 1;
+    double const outer_value = 0.;
+    double const inner_value = 5.5;
+
+    int const nx_wg = nx + (2 * ng);
+    int const ny_wg = ny + (2 * ng);
+    int const nz_wg = nz + (2 * ng);
+
+    novapp::Range const rng({0, 0, 0}, {nx, ny, nz}, ng);
+    novapp::KDV_double_3d array("array", nx_wg, ny_wg, nz_wg);
+    Kokkos::deep_copy(array.view_device(), outer_value);
     array.modify_device();
     novapp::KV_double_1d const arr("arr", 10);
-    Kokkos::deep_copy(arr, 5.5);
+    Kokkos::deep_copy(arr, inner_value);
     novapp::broadcast(rng.no_ghosts(), arr, array.view_device());
     array.modify_device();
     array.sync_host();
     {
         auto const array_h = novapp::view_host(array);
-        for (int i = 0; i < 12; ++i) {
-            for (int j = 0; j < 13; ++j) {
-                for (int k = 0; k < 14; ++k) {
-                    if ((i == 0 || i == 11) || (j == 0 || j == 12) || (k == 0 || k == 13)) {
-                        EXPECT_DOUBLE_EQ(array_h(i, j, k), 0.);
+        for (int i = 0; i < nx_wg; ++i) {
+            for (int j = 0; j < ny_wg; ++j) {
+                for (int k = 0; k < nz_wg; ++k) {
+                    if ((i == 0 || i == nx_wg - 1) || (j == 0 || j == ny_wg - 1)
+                        || (k == 0 || k == nz_wg - 1)) {
+                        EXPECT_DOUBLE_EQ(array_h(i, j, k), outer_value);
                     } else {
-                        EXPECT_DOUBLE_EQ(array_h(i, j, k), 5.5);
+                        EXPECT_DOUBLE_EQ(array_h(i, j, k), inner_value);
                     }
                 }
             }

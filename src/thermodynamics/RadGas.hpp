@@ -79,12 +79,14 @@ public:
     [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
     double compute_T_from_P(double const rho, double const P) const noexcept
     {
+        int static constexpr max_itr = 100;
+        double static constexpr tol_newton = 1E-6;
+
         double const C1 = rho * units::kb / (m_mmw * units::mp);
         double const Tg = P / C1;
         double const Tr = Kokkos::pow(3 * P / units::ar, 1. / 4);
         double const T0 = Tr > Tg ? Tr : Tg;
         double T = T0;
-        int static constexpr max_itr = 100;
         int itr = 0;
         double delta_T = 0;
         for (int i = 0; i < max_itr; ++i)
@@ -95,12 +97,12 @@ public:
             delta_T = -f / df;
             T += delta_T;
             itr = i;
-            if (Kokkos::abs(delta_T) <= 1E-6)
+            if (Kokkos::abs(delta_T) <= tol_newton)
             {
                 break;
             }
         }
-        if (Kokkos::isnan(delta_T) || (itr == max_itr && Kokkos::abs(delta_T) > 1E-6))
+        if (Kokkos::isnan(delta_T) || (itr == max_itr && Kokkos::abs(delta_T) > tol_newton))
         {
             Kokkos::printf("P No convergence in temperature : %d %f\n", itr, Kokkos::abs(delta_T));
         }
@@ -110,13 +112,15 @@ public:
     [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
     double compute_T_from_evol(double const rho, double const evol) const noexcept
     {
+        int static constexpr max_itr = 100;
+        double static constexpr tol_newton = 1E-6;
+
         // evol = rho * eint
         double const C1 = rho * units::kb / (m_mmw * units::mp * m_gamma_m1);
         double const Tg = evol / C1;
         double const Tr = Kokkos::pow(evol / units::ar, 1. / 4);
         double const T0 = Tr > Tg ? Tr : Tg;
         double T = T0;
-        int static constexpr max_itr = 100;
         int itr = 0;
         double delta_T = 0;
         for (int i = 0; i < max_itr; ++i)
@@ -127,12 +131,12 @@ public:
             delta_T = -f / df;
             T += delta_T;
             itr = i;
-            if (Kokkos::abs(delta_T) <= 1E-6 || Kokkos::isnan(delta_T))
+            if (Kokkos::abs(delta_T) <= tol_newton || Kokkos::isnan(delta_T))
             {
                 break;
             }
         }
-        if (Kokkos::isnan(delta_T) || (itr == max_itr && Kokkos::abs(delta_T) > 1E-6))
+        if (Kokkos::isnan(delta_T) || (itr == max_itr && Kokkos::abs(delta_T) > tol_newton))
         {
             Kokkos::printf("evol No convergence in temperature : %d %f\n", itr, Kokkos::abs(delta_T));
         }

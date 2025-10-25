@@ -74,12 +74,15 @@ public:
         auto const xc = grid.x_center;
         auto const& param_setup = m_param_setup;
 
+        double const x1b = 0.3;
+        double const x1e = 0.7;
+
         Kokkos::parallel_for(
             "advection_gap_init",
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                if ((xc(i) <= 0.3) || (xc(i) >= 0.7))
+                if ((xc(i) <= x1b) || (xc(i) >= x1e))
                 {
                     rho(i, j, k) = param_setup.rho0;
                 }

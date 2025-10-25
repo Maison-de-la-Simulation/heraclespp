@@ -246,10 +246,11 @@ void main(int argc, char** argv)
 
         if(grid.mpi_rank==0)
         {
-            std::cout << std::setw(81) << std::setfill('*') << '\n';
+            static constexpr int fill_width = 81;
+            std::cout << std::setw(fill_width) << std::setfill('*') << '\n';
             std::cout << "restarting from file " << param.restart_file << '\n';
-            std::cout << "at time " << t << " ( ~ "<<100*t/param.t_end<<"%)"
-                    << ", with iteration  "<< iter << "\n\n";
+            std::cout << "at time " << t << " ( ~ " << 100. * t / param.t_end << "%)"
+                      << ", with iteration  "<< iter << "\n\n";
         }
     }
     else

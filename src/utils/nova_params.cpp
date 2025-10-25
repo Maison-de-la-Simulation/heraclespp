@@ -15,6 +15,7 @@ namespace novapp
 Param::Param(INIReader const& reader)
     : reader(reader)
 {
+    // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
     problem = reader.Get("Problem", "type", "ShockTube");
     restart = reader.GetBoolean("Problem", "restart", false);
     restart_file = reader.Get("Problem", "restart_file", "None");
@@ -70,6 +71,7 @@ Param::Param(INIReader const& reader)
 
     pressure_fix = reader.Get("Pressure fix", "pressure_fix", "Off");
     eps_pf = reader.GetReal("Pressure fix", "eps_pf", 0.000001);
+    // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 }
 
 Param::Param(Param const& rhs) = default;

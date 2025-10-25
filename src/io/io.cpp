@@ -64,23 +64,66 @@ bool span_is_contiguous(Views const&... views)
 }
 
 std::string get_output_filename(std::string const& prefix, std::size_t const num) {
+    static constexpr int fill_width = 8;
+
     std::ostringstream output_filename;
     output_filename << prefix;
     output_filename << '_';
-    output_filename << std::setw(8);
+    output_filename << std::setw(fill_width);
     output_filename << std::setfill('0');
     output_filename << num;
     output_filename << ".h5";
     return output_filename.str();
 }
 
-std::string_view indent(int const width) noexcept
+class indent_fn
 {
-    assert(width > 0);
-    assert(width <= 20);
-    static constexpr std::string_view spaces("                    ");
-    return spaces.substr(0, width);
-}
+private:
+    std::size_t m_indent_level = 0;
+
+    std::size_t m_max_level;
+
+    std::size_t m_indent_width;
+
+    std::vector<char> m_max_spaces;
+
+    [[nodiscard]] std::string_view to_string_view() const
+    {
+        return std::string_view(m_max_spaces.data(), m_max_spaces.size())
+                .substr(0, m_indent_width * m_indent_level);
+    }
+
+public:
+    explicit indent_fn(std::size_t const indent_width = 2, std::size_t const max_level = 10)
+        : m_max_level(max_level)
+        , m_indent_width(indent_width)
+        , m_max_spaces(indent_width * max_level, ' ')
+    {
+    }
+
+    indent_fn& push()
+    {
+        if (m_indent_level == m_max_level) {
+            throw std::runtime_error("Level out of bound");
+        }
+        ++m_indent_level;
+        return *this;
+    }
+
+    indent_fn& pop()
+    {
+        if (m_indent_level == 0) {
+            throw std::runtime_error("Level out of bound");
+        }
+        --m_indent_level;
+        return *this;
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, indent_fn const& indent)
+    {
+        return os << indent.to_string_view();
+    }
+};
 
 } // namespace
 
@@ -94,13 +137,14 @@ void print_simulation_status(
         double const time_out,
         int const output_id)
 {
+    static constexpr int fill_width = 81;
     int mpi_rank = 0;
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
     if (mpi_rank == 0) {
         std::stringstream ss;
-        ss << std::setfill('*') << std::setw(81) << '\n';
+        ss << std::setfill('*') << std::setw(fill_width) << '\n';
         ss << "current iteration " << iter << " : \n";
-        ss << "current time = " << current << " ( ~ " << 100 * current / time_out << "%)\n";
+        ss << "current time = " << current << " ( ~ " << 100. * current / time_out << "%)\n";
         ss << "file number  = " << output_id << "\n\n";
         os << ss.str();
     }
@@ -309,13 +353,17 @@ void XmlWriter::operator()(
         return;
     }
 
-    std::ofstream xdmfFile(m_directory + "/" + m_prefix + ".xmf", std::ofstream::trunc);
+    indent_fn indent;
 
-    xdmfFile << "<?xml version=\"1.0\"?>\n";
-    xdmfFile << "<!DOCTYPE Xdmf SYSTEM \"Xdmf.dtd\" []>\n";
-    xdmfFile << "<Xdmf Version=\"2.0\">\n";
-    xdmfFile << indent(2) << "<Domain>\n";
-    xdmfFile << indent(4) << "<Grid";
+    std::ofstream xdmfFile(m_directory + '/' + m_prefix + ".xmf", std::ofstream::trunc);
+
+    xdmfFile << indent << "<?xml version=\"1.0\"?>\n";
+    xdmfFile << indent << "<!DOCTYPE Xdmf SYSTEM \"Xdmf.dtd\" []>\n";
+    xdmfFile << indent << "<Xdmf Version=\"2.0\">\n";
+    indent.push();
+    xdmfFile << indent << "<Domain>\n";
+    indent.push();
+    xdmfFile << indent << "<Grid";
     xdmfFile << " Name=" << '"' << "TimeSeries" << '"';
     xdmfFile << " GridType=" << '"' << "Collection" << '"';
     xdmfFile << " CollectionType=" << '"' << "Temporal" << '"';
@@ -328,16 +376,19 @@ void XmlWriter::operator()(
     std::size_t const first_output_id = output_id + 1 - outputs_record.size();
     for (std::size_t i = 0; i < outputs_record.size(); ++i)
     {
-        xdmfFile << indent(6) << "<Grid";
+        indent.push();
+        xdmfFile << indent << "<Grid";
         xdmfFile << " Name=" << '"' << "output" << '"';
         xdmfFile << " GridType=" << '"' << "Uniform" << '"';
         xdmfFile << ">\n";
-        xdmfFile << indent(8) << "<Time";
+
+        indent.push();
+        xdmfFile << indent << "<Time";
         xdmfFile << " Value=" << '"' << outputs_record[i].second << '"';
         xdmfFile << "/>\n";
 
         // topology CoRectMesh
-        xdmfFile << indent(8) << "<Topology";
+        xdmfFile << indent << "<Topology";
         xdmfFile << " TopologyType=" << '"' << "3DRectMesh" << '"';
         xdmfFile << " Dimensions=" << '"';
         for (int idim = 2; idim >= 0; --idim)
@@ -348,7 +399,7 @@ void XmlWriter::operator()(
         xdmfFile << "/>\n";
 
         // geometry
-        xdmfFile << indent(8) << "<Geometry";
+        xdmfFile << indent << "<Geometry";
         xdmfFile << " GeometryType=" << '"' << "VXVYVZ" << '"';
         xdmfFile << ">\n";
 
@@ -357,27 +408,31 @@ void XmlWriter::operator()(
         std::array const axes_labels {"x_ng", "y_ng", "z_ng"};
         for (int idim = 0; idim < 3; ++idim)
         {
-            xdmfFile << indent(10) << "<DataItem";
+            indent.push();
+            xdmfFile << indent << "<DataItem";
             xdmfFile << " NumberType=" << '"' << "Float" << '"';
             xdmfFile << " Precision=" << '"' << precision << '"';
             xdmfFile << " Dimensions=" << '"' << axes_arrays[idim].extent_int(0) - (2 * grid.Nghost[idim]) << '"';
             xdmfFile << " Format=" << '"' << "HDF" << '"';
             xdmfFile << ">\n";
-            xdmfFile << indent(12) << output_filename << ":/" << axes_labels[idim]
-                     << '\n';
-            xdmfFile << indent(10) << "</DataItem>\n";
+            indent.push();
+            xdmfFile << indent << output_filename << ":/" << axes_labels[idim] << '\n';
+            indent.pop();
+            xdmfFile << indent << "</DataItem>\n";
+            indent.pop();
         }
 
-        xdmfFile << indent(8) << "</Geometry>\n";
+        xdmfFile << indent << "</Geometry>\n";
 
         for (std::string const& var_name : m_var_names)
         {
-            xdmfFile << indent(8) << "<Attribute";
+            xdmfFile << indent << "<Attribute";
             xdmfFile << " Center=" << '"' << "Cell" << '"';
             xdmfFile << " Name=" << '"' << var_name << '"';
             xdmfFile << " AttributeType=" << '"' << "Scalar" << '"';
             xdmfFile << ">\n";
-            xdmfFile << indent(10) << "<DataItem";
+            indent.push();
+            xdmfFile << indent << "<DataItem";
             xdmfFile << " NumberType=" << '"' << "Float" << '"';
             xdmfFile << " Precision=" << '"' << precision << '"';
 
@@ -390,20 +445,26 @@ void XmlWriter::operator()(
 
             xdmfFile << " Format=" << '"' << "HDF" << '"';
             xdmfFile << ">\n";
-            xdmfFile << indent(12) << output_filename << ":/" << var_name
-                     << '\n';
-            xdmfFile << indent(10) << "</DataItem>\n";
-            xdmfFile << indent(8) << "</Attribute>\n";
+            indent.push();
+            xdmfFile << indent << output_filename << ":/" << var_name << '\n';
+            indent.pop();
+            xdmfFile << indent << "</DataItem>\n";
+            indent.pop();
+            xdmfFile << indent << "</Attribute>\n";
         }
 
+        indent.pop();
         // finalize grid file for the current time step
-        xdmfFile << indent(6) << "</Grid>\n";
+        xdmfFile << indent << "</Grid>\n";
+        indent.pop();
     }
 
     // finalize Xdmf wrapper file
-    xdmfFile << indent(4) << "</Grid>\n";
-    xdmfFile << indent(2) << "</Domain>\n";
-    xdmfFile << "</Xdmf>\n";
+    xdmfFile << indent << "</Grid>\n";
+    indent.pop();
+    xdmfFile << indent << "</Domain>\n";
+    indent.pop();
+    xdmfFile << indent << "</Xdmf>\n";
 }
 
 } // namespace novapp

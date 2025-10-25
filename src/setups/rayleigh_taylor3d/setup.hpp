@@ -119,6 +119,9 @@ public:
         auto const& gravity = m_gravity;
         auto const& param_setup = m_param_setup;
 
+        int const Kmin = 8;
+        int const Kmax = 16;
+
         Kokkos::parallel_for(
             "Rayleigh_Taylor_3D_init",
             cell_mdrange(range),
@@ -139,8 +142,8 @@ public:
                 {
                     for (int const ky : ky_array)
                     {
-                        double const K = (kx * kx) + (ky * ky);
-                        if (K >= 8 && K <= 16)
+                        int const K = (kx * kx) + (ky * ky);
+                        if (K >= Kmin && K <= Kmax)
                         {
                             h += ((ak * Kokkos::cos(kx * X) * Kokkos::cos(ky * Y))
                         + (bk * Kokkos::cos(kx * X) * Kokkos::sin(ky * Y))

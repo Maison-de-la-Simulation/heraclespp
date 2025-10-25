@@ -47,7 +47,7 @@ double compute_ek(EulerCons const& cons) noexcept
     {
         norm_rhou += cons.rhou[idim] * cons.rhou[idim];
     }
-    return 0.5 * norm_rhou / cons.rho;
+    return norm_rhou / cons.rho / 2;
 }
 
 KOKKOS_FORCEINLINE_FUNCTION
@@ -58,7 +58,7 @@ double compute_ek(EulerPrim const& prim) noexcept
     {
         norm_u += prim.u[idim] * prim.u[idim];
     }
-    return 0.5 * prim.rho * norm_u;
+    return prim.rho * norm_u / 2;
 }
 
 KOKKOS_FORCEINLINE_FUNCTION

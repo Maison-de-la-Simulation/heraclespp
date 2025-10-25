@@ -90,6 +90,8 @@ public:
         auto const& eos = m_eos;
         auto const& param_setup = m_param_setup;
 
+        double const rmin = 0.025;
+
         Kokkos::parallel_for(
         "Sedov_2D_init",
         cell_mdrange(range),
@@ -105,7 +107,7 @@ public:
                 u(i, j, k, idim) = param_setup.u0;
             }
 
-            if (r < 0.025)
+            if (r < rmin)
             {
                 double const evol = param_setup.E1 / dv(i, j, k);
                 P(i, j, k) = eos.compute_P_from_evol(rho(i, j, k), evol);
