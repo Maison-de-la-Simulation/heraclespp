@@ -59,7 +59,7 @@ public:
     {
         // evol = rho * eint
         double const T4 = T * T * T * T;
-        return rho * units::kb * T / (m_mmw * units::mp * m_gamma_m1) + units::ar * T4;
+        return (rho * units::kb * T / (m_mmw * units::mp * m_gamma_m1)) + (units::ar * T4);
     }
 
     [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
@@ -73,7 +73,7 @@ public:
     double compute_P_from_T(double const rho, double const T) const noexcept
     {
         double const T4 = T * T * T * T;
-        return rho * units::kb * T / (m_mmw * units::mp) + units::ar * T4 / 3;
+        return (rho * units::kb * T / (m_mmw * units::mp)) + (units::ar * T4 / 3);
     }
 
     [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
@@ -90,8 +90,8 @@ public:
         for (int i = 0; i < max_itr; ++i)
         {
             double const T3 = T * T * T;
-            double const f = units::ar * T3 * T / 3 + C1 * T - P;
-            double const df = 4 * units::ar * T3 / 3 + C1;
+            double const f = (units::ar * T3 * T / 3) + (C1 * T) - P;
+            double const df = (4 * units::ar * T3 / 3) + C1;
             delta_T = -f / df;
             T += delta_T;
             itr = i;
@@ -122,8 +122,8 @@ public:
         for (int i = 0; i < max_itr; ++i)
         {
             double const T3 = T * T * T;
-            double const f = units::ar * T3 * T + C1 * T - evol;
-            double const df = 4 * units::ar * T3 + C1;
+            double const f = (units::ar * T3 * T) + (C1 * T) - evol;
+            double const df = (4 * units::ar * T3) + C1;
             delta_T = -f / df;
             T += delta_T;
             itr = i;
@@ -147,8 +147,8 @@ public:
         double const T4 = T * T * T * T;
         double const Pr = units::ar * T4 / 3;
         double const alpha = Pr / Pg;
-        double const num = m_gamma / (m_gamma - 1) + 20 * alpha + 16 * alpha * alpha;
-        double const den = 1. / (m_gamma - 1) + 12 * alpha;
+        double const num = (m_gamma / (m_gamma - 1)) + (20 * alpha) + (16 * alpha * alpha);
+        double const den = (1. / (m_gamma - 1)) + (12 * alpha);
         double const gamma_eff = num / den;
         return Kokkos::sqrt(gamma_eff * Pg / rho);
     }

@@ -77,7 +77,7 @@ public:
         assert(u.extent_int(3) == 2);
         assert(fx.extent_int(3) == 1);
 
-        double const P0 = (10. / 7 + 1. / 4);
+        double const P0 = ((10. / 7) + (1. / 4));
 
         auto const xc = grid.x_center;
         auto const yc = grid.y_center;
@@ -93,8 +93,8 @@ public:
                 double const y = yc(j);
                 double const h = 0.01 * Kokkos::cos(4 * Kokkos::numbers::pi * x);
 
-                rho(i, j, k) = param_setup.rho1 + (param_setup.rho0 - param_setup.rho1) / 2
-                                * (1 + Kokkos::tanh((y - h) / 0.005));
+                rho(i, j, k) = param_setup.rho1 + ((param_setup.rho0 - param_setup.rho1) / 2
+                                * (1 + Kokkos::tanh((y - h) / 0.005)));
 
                 fx(i, j, k, 0) = (param_setup.fx0 - param_setup.fx1) / 2
                                 * (1 + Kokkos::tanh((y - h) / 0.005));
@@ -102,7 +102,7 @@ public:
                 u(i, j, k, 0) = param_setup.u;
                 u(i, j, k, 1) = param_setup.u;
 
-                P(i, j, k) = P0 - param_setup.rho0 * Kokkos::fabs(gravity(i, j, k, 1)) * y;
+                P(i, j, k) = P0 - (param_setup.rho0 * Kokkos::fabs(gravity(i, j, k, 1)) * y);
             });
     }
 };

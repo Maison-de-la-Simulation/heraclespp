@@ -42,7 +42,7 @@ void shift_grid(
         }
         // Define the new value for the last interface. We keep the same ratio between the dX (i.e. it will preserve a uniform and a log grid)
         double const r = (x_h(n - 2) - x_h(n - 3)) / (x_h(n - 3) - x_h(n - 4));
-        x_h(n - 1) = x_h(n - 2) + (x_h(n - 2) - x_h(n - 3)) * r;
+        x_h(n - 1) = x_h(n - 2) + ((x_h(n - 2) - x_h(n - 3)) * r);
         x_glob.modify_host();
     }
     x_glob.sync_device();

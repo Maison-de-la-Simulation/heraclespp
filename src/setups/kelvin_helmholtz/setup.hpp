@@ -83,7 +83,7 @@ public:
                 double const x = xc(i);
                 double const y = yc(j);
 
-                rho(i, j, k)  = 1 + drho_rho * (Kokkos::tanh((y - y1) / a) - Kokkos::tanh((y - y2) / a));
+                rho(i, j, k)  = 1 + (drho_rho * (Kokkos::tanh((y - y1) / a) - Kokkos::tanh((y - y2) / a)));
 
                 u(i, j, k, 0) = 1 * (Kokkos::tanh((y - y1) / a) - Kokkos::tanh((y - y2) / a));
 

@@ -97,7 +97,7 @@ public:
         {
             double const x = x_grid(i);
             double const y = y_grid(j);
-            double const r = Kokkos::sqrt(x * x + y * y);
+            double const r = Kokkos::sqrt((x * x) + (y * y));
 
             rho(i, j, k) = param_setup.rho0;
             for (int idim = 0; idim < ndim; ++idim)

@@ -74,7 +74,7 @@ public:
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                rho(i, j, k) = 1 + 0.1 * Kokkos::sin(2 * Kokkos::numbers::pi * xc(i));
+                rho(i, j, k) = 1 + (0.1 * Kokkos::sin(2 * Kokkos::numbers::pi * xc(i)));
 
                 for (int idim = 0; idim < ndim; ++idim)
                 {

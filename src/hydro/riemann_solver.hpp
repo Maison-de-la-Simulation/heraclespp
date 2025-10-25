@@ -156,11 +156,11 @@ public:
             {
                 flux.rhou[idim] = rho_star * ustar * prim_state.u[idim];
             }
-            flux.rhou[locdim] = rho_star * ustar * ustar + pstar;
+            flux.rhou[locdim] = (rho_star * ustar * ustar) + pstar;
 
-            double const E_star = (S - un) / (S - ustar) * cons_state.E
-                            + (ustar - un) / (S - ustar)
-                            * (ustar * cons_state.rho * (S - un) + prim_state.P);
+            double const E_star = ((S - un) / (S - ustar) * cons_state.E)
+                            + ((ustar - un) / (S - ustar)
+                            * (ustar * cons_state.rho * (S - un) + prim_state.P));
             flux.E = FluxHLLC(flux_state.E, cons_state.E, E_star, S);
         }
         return flux;
@@ -173,7 +173,7 @@ public:
             double const Ustar,
             double const ws) noexcept
     {
-        return F + ws * (Ustar - U);
+        return F + (ws * (Ustar - U));
     }
 };
 
@@ -198,10 +198,10 @@ public:
 
         // Low Mach correction
         double const a = 1.1 * Kokkos::fmax(primL.rho * cL, primR.rho * cR);
-        double const ustar = (primL.u[locdim] + primR.u[locdim]) / 2 - 1 / (2 * a) * (primR.P - primL.P);
+        double const ustar = ((primL.u[locdim] + primR.u[locdim]) / 2) - (1 / (2 * a) * (primR.P - primL.P));
         double const Ma = Kokkos::fabs(ustar) / Kokkos::fmin(cL, cR);
         double const theta = Kokkos::fmin(1, Ma);
-        double const Pstar = (primL.P + primR.P) / 2 - (theta * a) / 2 * (primR.u[locdim] - primL.u[locdim]);
+        double const Pstar = ((primL.P + primR.P) / 2) - ((theta * a) / 2 * (primR.u[locdim] - primL.u[locdim]));
 
         EulerCons cons_state;
         if (ustar > 0)
@@ -220,7 +220,7 @@ public:
             flux.rhou[idim] = ustar * cons_state.rhou[idim];
         }
         flux.rhou[locdim] += Pstar;
-        flux.E = ustar * cons_state.E + Pstar * ustar;
+        flux.E = (ustar * cons_state.E) + (Pstar * ustar);
         return flux;
     }
 };

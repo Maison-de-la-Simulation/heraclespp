@@ -138,7 +138,7 @@ void Grid::MPI_Decomp()
             cmin[i] += Nx_glob_ng[i]%mpi_dims_cart[i];
         }
 
-        Nx_local_wg[i] = Nx_local_ng[i] + 2*Nghost[i];
+        Nx_local_wg[i] = Nx_local_ng[i] + (2*Nghost[i]);
         cmax[i] = cmin[i] + Nx_local_ng[i];
     }
 

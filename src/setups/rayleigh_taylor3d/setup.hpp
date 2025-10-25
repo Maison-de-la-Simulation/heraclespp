@@ -139,21 +139,21 @@ public:
                 {
                     for (int const ky : ky_array)
                     {
-                        double const K = kx * kx + ky * ky;
+                        double const K = (kx * kx) + (ky * ky);
                         if (K >= 8 && K <= 16)
                         {
-                            h += (ak * Kokkos::cos(kx * X) * Kokkos::cos(ky * Y)
-                        + bk * Kokkos::cos(kx * X) * Kokkos::sin(ky * Y)
-                        + ck * Kokkos::sin(kx * X) * Kokkos::cos(ky * Y)
-                        + dk * Kokkos::sin(kx * X) * Kokkos::sin(ky * Y));
+                            h += ((ak * Kokkos::cos(kx * X) * Kokkos::cos(ky * Y))
+                        + (bk * Kokkos::cos(kx * X) * Kokkos::sin(ky * Y))
+                        + (ck * Kokkos::sin(kx * X) * Kokkos::cos(ky * Y))
+                        + (dk * Kokkos::sin(kx * X) * Kokkos::sin(ky * Y)));
                         }
                     }
                 }
 
                 if(z >= h)
                 {
-                    rho(i, j, k) = param_setup.rho0 * Kokkos::pow(1 - (gamma - 1) / gamma
-                                * (param_setup.rho0 * Kokkos::fabs(gravity(i, j, k, 2)) * z) / P0, 1. / (gamma - 1)) * units::density;
+                    rho(i, j, k) = param_setup.rho0 * Kokkos::pow(1 - ((gamma - 1) / gamma
+                                * (param_setup.rho0 * Kokkos::fabs(gravity(i, j, k, 2)) * z) / P0), 1. / (gamma - 1)) * units::density;
 
                     P(i, j, k) = P0 * Kokkos::pow(rho(i, j, k) / param_setup.rho0, gamma) * units::pressure;
 
@@ -161,8 +161,8 @@ public:
                 }
                 else
                 {
-                    rho(i, j, k) = param_setup.rho1 * Kokkos::pow(1 - (gamma - 1) / gamma
-                                * (param_setup.rho1 * Kokkos::fabs(gravity(i, j, k, 2)) * z) / P0, 1. / (gamma - 1)) * units::density;
+                    rho(i, j, k) = param_setup.rho1 * Kokkos::pow(1 - ((gamma - 1) / gamma
+                                * (param_setup.rho1 * Kokkos::fabs(gravity(i, j, k, 2)) * z) / P0), 1. / (gamma - 1)) * units::density;
 
                     P(i, j, k) = P0 * Kokkos::pow(rho(i, j, k) / param_setup.rho1, gamma) * units::pressure;
 
