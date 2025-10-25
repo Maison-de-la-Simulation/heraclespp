@@ -10,6 +10,7 @@
 TEST(GridType, ComputeRegularMesh1d)
 {
     int const hw = 1;
+
     novapp::KVH_double_1d const x("x", 3 + (2 * hw));
     novapp::compute_regular_mesh_1d(x, hw, -1., 1.);
     EXPECT_DOUBLE_EQ(x(0), -2.);

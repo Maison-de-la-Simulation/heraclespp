@@ -36,11 +36,14 @@ TYPED_TEST_SUITE(RiemannSolverFixture, RiemannSolvers, );
 
 TYPED_TEST(RiemannSolverFixture, Consistency)
 {
-    novapp::thermodynamics::PerfectGas const eos(1.4, 1.);
-    novapp::EulerPrim prim;
-    prim.rho = 2.;
-    prim.u = {3.};
-    prim.P = 10.;
+    double const gamma = 1.4;
+    double const mmw = 1.;
+    double const rho0 = 2.;
+    double const u0 = 3.;
+    double const P0 = 10.;
+
+    novapp::thermodynamics::PerfectGas const eos(gamma, mmw);
+    novapp::EulerPrim const prim {.rho = rho0, .u = {u0}, .P = P0};
     novapp::EulerCons const cons = to_cons(prim, eos);
     novapp::EulerFlux const numerical_flux = this->m_riemann_solver(cons, cons, 0, eos);
     novapp::EulerFlux const physical_flux = compute_flux(cons, 0, eos);
@@ -51,15 +54,18 @@ TYPED_TEST(RiemannSolverFixture, Consistency)
 
 TYPED_TEST(RiemannSolverFixture, Symmetry)
 {
-    novapp::thermodynamics::PerfectGas const eos(1.4, 1.);
-    novapp::EulerPrim prim_left;
-    prim_left.rho = 2.;
-    prim_left.u = {3.};
-    prim_left.P = 10.;
-    novapp::EulerPrim prim_right;
-    prim_right.rho = 3.;
-    prim_right.u = {-6.};
-    prim_right.P = 5.5;
+    double const gamma = 1.4;
+    double const mmw = 1.;
+    double const rho_left = 2.;
+    double const u_left = 3.;
+    double const P_left = 10.;
+    double const rho_right = 3.;
+    double const u_right = -6.;
+    double const P_right = 5.5;
+
+    novapp::thermodynamics::PerfectGas const eos(gamma, mmw);
+    novapp::EulerPrim const prim_left {.rho = rho_left, .u = {u_left}, .P = P_left};
+    novapp::EulerPrim const prim_right {.rho = rho_right, .u = {u_right}, .P = P_right};
     novapp::EulerCons cons_left = to_cons(prim_left, eos);
     novapp::EulerCons cons_right = to_cons(prim_right, eos);
     novapp::EulerFlux const flux1 = this->m_riemann_solver(cons_left, cons_right, 0, eos);

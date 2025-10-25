@@ -37,6 +37,8 @@ void pressure_fix(
     auto const ds = grid.ds;
     auto const dv = grid.dv;
 
+    double const eps2 = eps / 10;
+
     Kokkos::parallel_for(
         "pressure_fix",
         cell_mdrange(range),
@@ -77,7 +79,7 @@ void pressure_fix(
                 double einR = 0;
                 double alpha = (evol * evol) / (ekin * ekin * eps * eps);
 
-                if (evol < (eps / 10) * ekin)
+                if (evol < eps2 * ekin)
                 {
                     alpha = 0;
                 }

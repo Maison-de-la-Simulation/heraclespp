@@ -10,6 +10,7 @@ TEST(NullSlopeLimiter, Zero)
 {
     double const diffR = 68.9;
     double const diffL = 37.65;
+
     novapp::Constant const slope;
     EXPECT_EQ(slope(diffR, diffL), 0.);
 }
@@ -41,6 +42,7 @@ TYPED_TEST(SlopeLimiterFixture, NullOnOppositeSign)
 {
     double const diffR = 68.9;
     double const diffL = 37.65;
+
     EXPECT_DOUBLE_EQ(this->m_slope_limiter(+diffR, -diffL), 0.);
     EXPECT_DOUBLE_EQ(this->m_slope_limiter(-diffR, +diffL), 0.);
 }
@@ -48,6 +50,7 @@ TYPED_TEST(SlopeLimiterFixture, NullOnOppositeSign)
 TYPED_TEST(SlopeLimiterFixture, Identity)
 {
     double const diff = 68.9;
+
     EXPECT_DOUBLE_EQ(this->m_slope_limiter(+diff, +diff), +diff);
     EXPECT_DOUBLE_EQ(this->m_slope_limiter(-diff, -diff), -diff);
 }
@@ -56,6 +59,7 @@ TYPED_TEST(SlopeLimiterFixture, Symmetry)
 {
     double const diffR = 2.;
     double const diffL = 1.;
+
     EXPECT_DOUBLE_EQ(this->m_slope_limiter(+diffR, +diffL), this->m_slope_limiter(+diffL, +diffR));
     EXPECT_DOUBLE_EQ(this->m_slope_limiter(-diffR, -diffL), this->m_slope_limiter(-diffL, -diffR));
 }

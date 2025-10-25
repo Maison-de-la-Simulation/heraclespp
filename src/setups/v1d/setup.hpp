@@ -98,7 +98,8 @@ public:
 
         if (grid.mpi_rank == 0)
         {
-            std::cout << std::setw(81) << std::setfill('*') << '\n';
+            static constexpr int fill_width = 81;
+            std::cout << std::setw(fill_width) << std::setfill('*') << '\n';
             std::cout << "reading from file " << m_param_setup.init_filename << '\n';
         }
 

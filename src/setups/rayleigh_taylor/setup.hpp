@@ -84,6 +84,8 @@ public:
         auto const& gravity = m_gravity;
         auto const& param_setup = m_param_setup;
 
+        double const width = 0.005;
+
         Kokkos::parallel_for(
             "Rayleigh_Taylor_2D_init",
             cell_mdrange(range),
@@ -94,10 +96,10 @@ public:
                 double const h = 0.01 * Kokkos::cos(4 * Kokkos::numbers::pi * x);
 
                 rho(i, j, k) = param_setup.rho1 + ((param_setup.rho0 - param_setup.rho1) / 2
-                                * (1 + Kokkos::tanh((y - h) / 0.005)));
+                                * (1 + Kokkos::tanh((y - h) / width)));
 
                 fx(i, j, k, 0) = (param_setup.fx0 - param_setup.fx1) / 2
-                                * (1 + Kokkos::tanh((y - h) / 0.005));
+                                * (1 + Kokkos::tanh((y - h) / width));
 
                 u(i, j, k, 0) = param_setup.u;
                 u(i, j, k, 1) = param_setup.u;

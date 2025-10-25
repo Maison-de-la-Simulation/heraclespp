@@ -109,6 +109,7 @@ TYPED_TEST(EquationOfStateFixture, Accessors)
     using eos_t = typename TestFixture::eos_type;
     double const gamma = 1.4;
     double const mmw = 1;
+
     eos_t const eos(gamma, mmw);
     EXPECT_DOUBLE_EQ(eos.adiabatic_index(), gamma);
     EXPECT_DOUBLE_EQ(eos.mean_molecular_weight(), mmw);

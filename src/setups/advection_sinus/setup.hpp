@@ -69,12 +69,15 @@ public:
         auto const xc = grid.x_center;
         auto const& param_setup = m_param_setup;
 
+        double const rho0 = 1.;
+        double const drho0 = 1E-1;
+
         Kokkos::parallel_for(
             "advection_sinus_init",
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                rho(i, j, k) = 1 + (0.1 * Kokkos::sin(2 * Kokkos::numbers::pi * xc(i)));
+                rho(i, j, k) = rho0 + (drho0 * Kokkos::sin(2 * Kokkos::numbers::pi * xc(i)));
 
                 for (int idim = 0; idim < ndim; ++idim)
                 {

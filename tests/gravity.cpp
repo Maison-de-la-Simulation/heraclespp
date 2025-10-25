@@ -23,12 +23,14 @@ namespace {
 
 void TestGravityInternalGravity()
 {
-    // The target function does no t work in 1D and 2D
+    // The target function does not work in 1D and 2D
     if constexpr (novapp::ndim != 3)
     {
         GTEST_SKIP() << "Skipping test for ndim != 3";
     }
 
+    int const nx = 15;
+    int const Ng = 2;
     double const xmin = 1E3;
     double const xmax = 1E4;
     double const ymin = 0.7853981633974483;
@@ -36,13 +38,13 @@ void TestGravityInternalGravity()
     double const zmin = 0.7853981633974483;
     double const zmax = 2.356194490192345;
     double const M_star = 2E30;
+    double const rho_value = 1E10;
 
     std::array<int, 3> Nx_glob_ng {0, 0, 0};
     for (int idim = 0; idim < novapp::ndim; ++idim) {
-        Nx_glob_ng[idim] = 15;
+        Nx_glob_ng[idim] = nx;
     }
     std::array<int, 3> const mpi_dims_cart {0, 0, 0};
-    int const Ng = 2;
 
     novapp::Grid grid(Nx_glob_ng, mpi_dims_cart, Ng);
     std::unique_ptr const grid_type = std::make_unique<
@@ -56,7 +58,6 @@ void TestGravityInternalGravity()
     novapp::sync_device(x_glob, y_glob, z_glob);
     grid.set_grid(x_glob.view_device(), y_glob.view_device(), z_glob.view_device());
 
-    double const rho_value = 1E10;
     novapp::KV_double_3d const rho("rho", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
     Kokkos::deep_copy(rho, rho_value);
 
@@ -99,6 +100,7 @@ void TestGravityUniformGravity()
     double const gx = 1.4;
     double const gy = 1.9;
     double const gz = 3.7;
+
     novapp::KDV_double_1d g("g", 3);
     {
         auto const g_h = novapp::view_host(g);
