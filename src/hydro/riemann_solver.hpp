@@ -54,10 +54,10 @@ public:
         EulerFlux const fluxR = compute_flux(primR, locdim, eos);
 
         EulerFlux flux;
-        flux.rho = FluxHLL(consL.rho, consR.rho, fluxL.rho, fluxR.rho, neg_wsL, pos_wsR);
+        flux.rho = flux_hll(consL.rho, consR.rho, fluxL.rho, fluxR.rho, neg_wsL, pos_wsR);
         for (int idim = 0; idim < ndim; ++idim)
         {
-            flux.rhou[idim] = FluxHLL(
+            flux.rhou[idim] = flux_hll(
                 consL.rhou[idim],
                 consR.rhou[idim],
                 fluxL.rhou[idim],
@@ -65,12 +65,12 @@ public:
                 neg_wsL,
                 pos_wsR);
         }
-        flux.E = FluxHLL(consL.E, consR.E, fluxL.E, fluxR.E, neg_wsL, pos_wsR);
+        flux.E = flux_hll(consL.E, consR.E, fluxL.E, fluxR.E, neg_wsL, pos_wsR);
         return flux;
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
-    static double FluxHLL(
+    static double flux_hll(
             double const UL,
             double const UR,
             double const FL,
@@ -150,7 +150,7 @@ public:
         else
         {
             double const rho_star = cons_state.rho * (S - un) / (S - ustar);
-            flux.rho = FluxHLLC(flux_state.rho, cons_state.rho, rho_star, S);
+            flux.rho = flux_hllc(flux_state.rho, cons_state.rho, rho_star, S);
 
             for (int idim = 0; idim < ndim; ++idim)
             {
@@ -161,13 +161,13 @@ public:
             double const E_star = ((S - un) / (S - ustar) * cons_state.E)
                             + ((ustar - un) / (S - ustar)
                             * (ustar * cons_state.rho * (S - un) + prim_state.P));
-            flux.E = FluxHLLC(flux_state.E, cons_state.E, E_star, S);
+            flux.E = flux_hllc(flux_state.E, cons_state.E, E_star, S);
         }
         return flux;
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
-    static double FluxHLLC(
+    static double flux_hllc(
             double const F,
             double const U,
             double const Ustar,

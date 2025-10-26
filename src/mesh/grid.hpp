@@ -72,7 +72,7 @@ public:
     void set_grid(KV_double_1d const& x_glob, KV_double_1d const& y_glob, KV_double_1d const& z_glob);
 
 private:
-    void MPI_Decomp();
+    void mpi_decomposition();
 };
 
 } // namespace novapp

@@ -103,13 +103,13 @@ public:
                 u(i, j, k, idim) = param_setup.u0;
             }
 
-            double const T = eos.compute_T_from_evol(rho(i, j, k), param_setup.E0 / dv_beg);
-            P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), T);
+            double const T = eos.compute_temp_from_evol(rho(i, j, k), param_setup.E0 / dv_beg);
+            P(i, j, k) = eos.compute_pres_from_temp(rho(i, j, k), T);
 
             if(mpi_rank == 0 && i == 2)
             {
-                double const T_perturb = eos.compute_T_from_evol(rho(i, j, k), alpha * param_setup.E1 / dv_beg);
-                P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), T_perturb);
+                double const T_perturb = eos.compute_temp_from_evol(rho(i, j, k), alpha * param_setup.E1 / dv_beg);
+                P(i, j, k) = eos.compute_pres_from_temp(rho(i, j, k), T_perturb);
             }
         });
     }

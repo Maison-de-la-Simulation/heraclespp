@@ -14,7 +14,7 @@
 
 namespace novapp {
 
-class raii_h5_hid
+class RaiiH5Hid
 {
 private:
     hid_t m_id;
@@ -22,27 +22,27 @@ private:
     std::function<herr_t(hid_t)> m_close;
 
 public:
-    raii_h5_hid(hid_t id, herr_t (*f)(hid_t)) : m_id(id), m_close(f)
+    RaiiH5Hid(hid_t id, herr_t (*f)(hid_t)) : m_id(id), m_close(f)
     {
         if (m_id < 0 || !m_close) {
             throw std::runtime_error("Nova++ error: creating h5 id failed");
         }
     }
 
-    raii_h5_hid(const raii_h5_hid&) = delete;
+    RaiiH5Hid(const RaiiH5Hid&) = delete;
 
-    raii_h5_hid(raii_h5_hid&&) = delete;
+    RaiiH5Hid(RaiiH5Hid&&) = delete;
 
-    ~raii_h5_hid() noexcept
+    ~RaiiH5Hid() noexcept
     {
         if (m_id >= 0 && m_close) {
             m_close(m_id);
         }
     }
 
-    raii_h5_hid& operator=(const raii_h5_hid&) = delete;
+    RaiiH5Hid& operator=(const RaiiH5Hid&) = delete;
 
-    raii_h5_hid& operator=(raii_h5_hid&&) = delete;
+    RaiiH5Hid& operator=(RaiiH5Hid&&) = delete;
 
     hid_t operator*() const noexcept
     {
@@ -55,12 +55,12 @@ public:
 /// @param[in] expected_extents Expected extents of \p dset_path
 template <std::size_t N>
 void check_extent_dset(
-        raii_h5_hid const& file_id,
+        RaiiH5Hid const& file_id,
         char const* const dset_path,
         std::array<std::size_t, N> const& expected_extents)
 {
-    raii_h5_hid const dset_id(::H5Dopen(*file_id, dset_path, H5P_DEFAULT), ::H5Dclose);
-    raii_h5_hid const dspace(::H5Dget_space(*dset_id), ::H5Sclose);
+    RaiiH5Hid const dset_id(::H5Dopen(*file_id, dset_path, H5P_DEFAULT), ::H5Dclose);
+    RaiiH5Hid const dspace(::H5Dget_space(*dset_id), ::H5Sclose);
     int const ndims = ::H5Sget_simple_extent_ndims(*dspace);
     if (ndims != N) {
         throw std::runtime_error("Nova++ error: Expecting a 1d dataset");

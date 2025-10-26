@@ -47,40 +47,40 @@ public:
     }
 
     [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
-    double compute_evol_from_P(double const rho, double const P) const noexcept
+    double compute_evol_from_pres(double const rho, double const P) const noexcept
     {
         // evol = rho * eint
-        return compute_evol_from_T(rho, compute_T_from_P(rho, P));
+        return compute_evol_from_temp(rho, compute_temp_from_pres(rho, P));
     }
 
     [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
-    double compute_evol_from_T(double const rho, double const T) const noexcept
+    double compute_evol_from_temp(double const rho, double const T) const noexcept
     {
         // evol = rho * eint
         return rho * units::kb * T / (m_mmw * units::mp * m_gamma_m1);
     }
 
     [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
-    double compute_P_from_evol(double const rho, double const evol) const noexcept
+    double compute_pres_from_evol(double const rho, double const evol) const noexcept
     {
         // evol = rho * eint
-        return compute_P_from_T(rho, compute_T_from_evol(rho, evol));
+        return compute_pres_from_temp(rho, compute_temp_from_evol(rho, evol));
     }
 
     [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
-    double compute_P_from_T(double const rho, double const T) const noexcept
+    double compute_pres_from_temp(double const rho, double const T) const noexcept
     {
         return rho * units::kb * T / (m_mmw * units::mp);
     }
 
     [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
-    double compute_T_from_P(double const rho, double const P) const noexcept
+    double compute_temp_from_pres(double const rho, double const P) const noexcept
     {
         return P * m_mmw * units::mp / (rho * units::kb);
     }
 
     [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
-    double compute_T_from_evol(double const rho, double const evol) const noexcept
+    double compute_temp_from_evol(double const rho, double const evol) const noexcept
     {
         // evol = rho * eint
         return evol * m_mmw * units::mp * m_gamma_m1 / (rho * units::kb);

@@ -23,16 +23,16 @@ private:
     int m_block;
 
 public:
-    class iterator;
+    class Iterator;
 
     Partitioner(int size, int block) noexcept;
 
-    [[nodiscard]] iterator begin() const noexcept;
+    [[nodiscard]] Iterator begin() const noexcept;
 
-    [[nodiscard]] iterator end() const noexcept;
+    [[nodiscard]] Iterator end() const noexcept;
 };
 
-class Partitioner::iterator
+class Partitioner::Iterator
 {
 private:
     int m_front;
@@ -46,9 +46,9 @@ public:
     using value_type = std::array<int, 2>;
     using difference_type = std::make_signed_t<int>;
 
-    iterator() = default;
+    Iterator() = default;
 
-    explicit iterator(int const begin, int const end, int const block) noexcept
+    explicit Iterator(int const begin, int const end, int const block) noexcept
         : m_front(begin)
         , m_end(end)
         , m_block(std::min(block, end - begin))
@@ -60,7 +60,7 @@ public:
         return std::array<int, 2> {m_front, m_front + m_block};
     }
 
-    iterator& operator++() noexcept
+    Iterator& operator++() noexcept
     {
         m_front += m_block;
         if (m_front + m_block > m_end)
@@ -70,40 +70,40 @@ public:
         return *this;
     }
 
-    friend bool operator==(iterator const& lhs, iterator const& rhs)
+    friend bool operator==(Iterator const& lhs, Iterator const& rhs)
     {
         return lhs.m_front == rhs.m_front;
     }
 
 #if !defined(__cpp_lib_three_way_comparison)
-    friend bool operator!=(iterator const& lhs, iterator const& rhs)
+    friend bool operator!=(Iterator const& lhs, Iterator const& rhs)
     {
         return lhs.m_front != rhs.m_front;
     }
 #endif
 
 #if defined(__cpp_lib_three_way_comparison)
-    friend std::strong_ordering operator<=>(iterator const& lhs, iterator const& rhs)
+    friend std::strong_ordering operator<=>(Iterator const& lhs, Iterator const& rhs)
     {
         return lhs.m_front <=> rhs.m_front;
     }
 #else
-    friend bool operator>(iterator const& lhs, iterator const& rhs)
+    friend bool operator>(Iterator const& lhs, Iterator const& rhs)
     {
         return lhs.m_front > rhs.m_front;
     }
 
-    friend bool operator<(iterator const& lhs, iterator const& rhs)
+    friend bool operator<(Iterator const& lhs, Iterator const& rhs)
     {
         return lhs.m_front < rhs.m_front;
     }
 
-    friend bool operator>=(iterator const& lhs, iterator const& rhs)
+    friend bool operator>=(Iterator const& lhs, Iterator const& rhs)
     {
         return lhs.m_front >= rhs.m_front;
     }
 
-    friend bool operator<=(iterator const& lhs, iterator const& rhs)
+    friend bool operator<=(Iterator const& lhs, Iterator const& rhs)
     {
         return lhs.m_front <= rhs.m_front;
     }
@@ -114,14 +114,14 @@ Partitioner::Partitioner(int const size, int const block) noexcept : m_dom {0, s
 {
 }
 
-Partitioner::iterator Partitioner::begin() const noexcept
+Partitioner::Iterator Partitioner::begin() const noexcept
 {
-    return iterator(m_dom[0], m_dom[1], m_block);
+    return Iterator(m_dom[0], m_dom[1], m_block);
 }
 
-Partitioner::iterator Partitioner::end() const noexcept
+Partitioner::Iterator Partitioner::end() const noexcept
 {
-    return iterator(m_dom[1], m_dom[1], m_block);
+    return Iterator(m_dom[1], m_dom[1], m_block);
 }
 
 TEST(Partitionner, SomeTest)

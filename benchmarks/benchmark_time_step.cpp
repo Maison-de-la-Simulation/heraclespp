@@ -29,7 +29,7 @@ void set_constant_cells_processed(benchmark::State& state, std::size_t const cel
     state.counters["cells_per_second"] = benchmark::Counter(static_cast<double>(cells), benchmark::Counter::kIsIterationInvariantRate);
 }
 
-void TimeStep(benchmark::State& state)
+void time_step(benchmark::State& state)
 {
     int const nx = novapp::int_cast<int>(state.range());
     int const ny = nx;
@@ -83,4 +83,4 @@ void TimeStep(benchmark::State& state)
 
 } // namespace
 
-BENCHMARK(TimeStep)->DenseRange(8, 63, 8)->DenseRange(64, 320, 32);
+BENCHMARK(time_step)->DenseRange(8, 63, 8)->DenseRange(64, 320, 32);

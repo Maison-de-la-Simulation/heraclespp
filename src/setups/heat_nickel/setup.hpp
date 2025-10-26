@@ -81,7 +81,7 @@ public:
             {
                 rho(i, j, k) = param_setup.rho0 * units::density;
 
-                P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), param_setup.T0) * units::pressure;
+                P(i, j, k) = eos.compute_pres_from_temp(rho(i, j, k), param_setup.T0) * units::pressure;
 
                 for (int idim = 0; idim < ndim; ++idim)
                 {

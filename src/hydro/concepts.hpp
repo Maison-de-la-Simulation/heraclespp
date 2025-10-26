@@ -25,8 +25,8 @@ concept SlopeLimiter = requires(Limiter const limiter, double const s) {
 
 template <class EoS>
 concept EulerEoS = requires(EoS const eos, double const x) {
-    { eos.compute_evol_from_P(x, x) } noexcept -> std::same_as<double>;
-    { eos.compute_P_from_evol(x, x) } noexcept -> std::same_as<double>;
+    { eos.compute_evol_from_pres(x, x) } noexcept -> std::same_as<double>;
+    { eos.compute_pres_from_evol(x, x) } noexcept -> std::same_as<double>;
     { eos.compute_speed_of_sound(x, x) } noexcept -> std::same_as<double>;
 };
 

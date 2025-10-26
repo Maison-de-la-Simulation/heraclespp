@@ -83,7 +83,7 @@ EulerFlux compute_flux(
     KOKKOS_ASSERT(locdim < ndim)
     EulerFlux flux;
     double const E
-            = compute_ek(prim) + eos.compute_evol_from_P(prim.rho, prim.P);
+            = compute_ek(prim) + eos.compute_evol_from_pres(prim.rho, prim.P);
     flux.rho = prim.rho * prim.u[locdim];
     for (int idim = 0; idim < ndim; ++idim)
     {
@@ -110,7 +110,7 @@ EulerFlux compute_flux(
     KOKKOS_ASSERT(locdim < ndim)
     EulerFlux flux;
     double const evol = compute_evol(cons);
-    double const P = eos.compute_P_from_evol(cons.rho, evol);
+    double const P = eos.compute_pres_from_evol(cons.rho, evol);
     double const u = cons.rhou[locdim] / cons.rho;
     flux.rho = u * cons.rho;
     for (int idim = 0; idim < ndim; ++idim)
@@ -135,7 +135,7 @@ EulerPrim to_prim(
     {
         prim.u[idim] = cons.rhou[idim] / cons.rho;
     }
-    prim.P = eos.compute_P_from_evol(cons.rho, evol);
+    prim.P = eos.compute_pres_from_evol(cons.rho, evol);
     return prim;
 }
 
@@ -149,7 +149,7 @@ EulerCons to_cons(EulerPrim const& prim, EoS const& eos) noexcept
     {
         cons.rhou[idim] = prim.rho * prim.u[idim];
     }
-    cons.E = eos.compute_evol_from_P(prim.rho, prim.P)
+    cons.E = eos.compute_evol_from_pres(prim.rho, prim.P)
                 + compute_ek(prim);
     return cons;
 }

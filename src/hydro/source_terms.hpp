@@ -17,7 +17,7 @@ namespace novapp
 // Pressure term (e_{r}): 2 * P_{rr} / r
 // Pressure term (e_{th}): cot(th) * P_{th th} / r
 KOKKOS_FORCEINLINE_FUNCTION
-double source_grad_P(
+double source_grad_pres(
     double dtodv,
     double PL,
     double PR,
