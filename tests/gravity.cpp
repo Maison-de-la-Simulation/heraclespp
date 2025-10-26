@@ -20,7 +20,7 @@
 
 namespace {
 
-void TestGravityInternalGravity()
+void test_gravity_internal_gravity()
 {
     // The target function does not work in 1D and 2D
     if constexpr (novapp::ndim != 3)
@@ -88,12 +88,12 @@ void TestGravityInternalGravity()
 
 TEST(Gravity, InternalGravity)
 {
-    TestGravityInternalGravity();
+    test_gravity_internal_gravity();
 }
 
 namespace {
 
-void TestGravityUniformGravity()
+void test_gravity_uniform_gravity()
 {
     double const gx = 1.4;
     double const gy = 1.9;
@@ -143,5 +143,5 @@ void TestGravityUniformGravity()
 
 TEST(Gravity, UniformGravity)
 {
-    TestGravityUniformGravity();
+    test_gravity_uniform_gravity();
 }

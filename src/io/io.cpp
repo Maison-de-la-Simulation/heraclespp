@@ -34,13 +34,13 @@
 namespace {
 
 void write_string_attribute(
-        novapp::raii_h5_hid const& file_id,
+        novapp::RaiiH5Hid const& file_id,
         char const* const attribute_name,
         std::string_view const attribute_value)
 {
-    novapp::raii_h5_hid const space_id(::H5Screate(H5S_SCALAR), ::H5Sclose);
+    novapp::RaiiH5Hid const space_id(::H5Screate(H5S_SCALAR), ::H5Sclose);
 
-    novapp::raii_h5_hid const type_id(::H5Tcopy(H5T_C_S1), ::H5Tclose);
+    novapp::RaiiH5Hid const type_id(::H5Tcopy(H5T_C_S1), ::H5Tclose);
     if (::H5Tset_size(*type_id, attribute_value.size()) < 0) {
         throw std::runtime_error("Nova++ error: defining the size of the datatype failed");
     }
@@ -48,7 +48,7 @@ void write_string_attribute(
         throw std::runtime_error("Nova++ error: defining utf-8 character set failed");
     }
 
-    novapp::raii_h5_hid const attr_id(
+    novapp::RaiiH5Hid const attr_id(
             ::H5Acreate2(*file_id, attribute_name, *type_id, *space_id, H5P_DEFAULT, H5P_DEFAULT),
             ::H5Aclose);
 
@@ -76,7 +76,7 @@ std::string get_output_filename(std::string const& prefix, std::size_t const num
     return output_filename.str();
 }
 
-class indent_fn
+class IndentFn
 {
 private:
     std::size_t m_indent_level = 0;
@@ -94,14 +94,14 @@ private:
     }
 
 public:
-    explicit indent_fn(std::size_t const indent_width = 2, std::size_t const max_level = 10)
+    explicit IndentFn(std::size_t const indent_width = 2, std::size_t const max_level = 10)
         : m_max_level(max_level)
         , m_indent_width(indent_width)
         , m_max_spaces(indent_width * max_level, ' ')
     {
     }
 
-    indent_fn& push()
+    IndentFn& push()
     {
         if (m_indent_level == m_max_level) {
             throw std::runtime_error("Level out of bound");
@@ -110,7 +110,7 @@ public:
         return *this;
     }
 
-    indent_fn& pop()
+    IndentFn& pop()
     {
         if (m_indent_level == 0) {
             throw std::runtime_error("Level out of bound");
@@ -119,7 +119,7 @@ public:
         return *this;
     }
 
-    friend std::ostream& operator<<(std::ostream& os, indent_fn const& indent)
+    friend std::ostream& operator<<(std::ostream& os, IndentFn const& indent)
     {
         return os << indent.to_string_view();
     }
@@ -247,7 +247,7 @@ void write_pdi(
     // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     if (grid.mpi_rank == 0)
     {
-        raii_h5_hid const file_id(::H5Fopen((directory + '/' + output_filename).c_str(), H5F_ACC_RDWR, H5P_DEFAULT), H5Fclose);
+        RaiiH5Hid const file_id(::H5Fopen((directory + '/' + output_filename).c_str(), H5F_ACC_RDWR, H5P_DEFAULT), H5Fclose);
         write_string_attribute(file_id, "git_build_string", git_build_string);
         write_string_attribute(file_id, "git_branch", git_branch);
         write_string_attribute(file_id, "compile_date", compile_date);
@@ -272,7 +272,7 @@ void read_pdi(
 {
     assert(span_is_contiguous(rho, u, P, fx));
 
-    raii_h5_hid const file_id(::H5Fopen(restart_file.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT), ::H5Fclose);
+    RaiiH5Hid const file_id(::H5Fopen(restart_file.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT), ::H5Fclose);
     // check_extent_dset(file_id, "/rho", std::array {rho.extent(2), rho.extent(1), rho.extent(0)});
     // check_extent_dset(file_id, "/u_x", std::array {u.extent(2), u.extent(1), u.extent(0)});
     // if (ndim > 1)
@@ -353,7 +353,7 @@ void XmlWriter::operator()(
         return;
     }
 
-    indent_fn indent;
+    IndentFn indent;
 
     std::ofstream xdmfFile(m_directory + '/' + m_prefix + ".xmf", std::ofstream::trunc);
 

@@ -103,7 +103,7 @@ public:
                 if (r(i) == 1 && j == ny_2  && k == nz_2)
                 {
                     double const evol = param_setup.E1 / dv(i, j, k);
-                    P(i, j, k) = eos.compute_P_from_evol(rho(i, j, k), evol);
+                    P(i, j, k) = eos.compute_pres_from_evol(rho(i, j, k), evol);
                 }
                 else
                 {

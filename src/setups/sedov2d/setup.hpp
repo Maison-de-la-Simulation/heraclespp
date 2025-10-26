@@ -110,12 +110,12 @@ public:
             if (r < rmin)
             {
                 double const evol = param_setup.E1 / dv(i, j, k);
-                P(i, j, k) = eos.compute_P_from_evol(rho(i, j, k), evol);
+                P(i, j, k) = eos.compute_pres_from_evol(rho(i, j, k), evol);
             }
             else
             {
                 double const evol = param_setup.E0 / dv(i, j, k);
-                P(i, j, k) = eos.compute_P_from_evol(rho(i, j, k), evol);
+                P(i, j, k) = eos.compute_pres_from_evol(rho(i, j, k), evol);
             }
         });
     }

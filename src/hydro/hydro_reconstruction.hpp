@@ -66,7 +66,7 @@ class MUSCLHancockHydroReconstruction : public IHydroReconstruction<Gravity>
     std::unique_ptr<IFaceReconstruction> m_face_reconstruction;
     std::unique_ptr<IExtrapolationReconstruction<Gravity>> m_hancock_reconstruction;
     EoS m_eos;
-    KV_double_5d m_P_rec;
+    KV_double_5d m_p_rec;
     KV_double_6d m_u_rec;
 
 public:
@@ -79,7 +79,7 @@ public:
         : m_face_reconstruction(std::move(face_reconstruction))
         , m_hancock_reconstruction(std::move(hancock_reconstruction))
         , m_eos(eos)
-        , m_P_rec(std::move(P_rec))
+        , m_p_rec(std::move(P_rec))
         , m_u_rec(std::move(u_rec))
     {
     }
@@ -107,7 +107,7 @@ public:
                     Kokkos::subview(u, ALL, ALL, ALL, idim),
                     Kokkos::subview(m_u_rec, ALL, ALL, ALL, ALL, ALL, idim));
         }
-        m_face_reconstruction->execute(range, grid, P, m_P_rec);
+        m_face_reconstruction->execute(range, grid, P, m_p_rec);
         int const nfx = fx.extent_int(3);
         for (int ifx = 0; ifx < nfx; ++ifx)
         {
@@ -128,7 +128,7 @@ public:
                 {
                     u_f[iv] = Kokkos::subview(m_u_rec, ALL, ALL, ALL, iside, idim, iv);
                 }
-                KV_cdouble_3d const P_f = Kokkos::subview(m_P_rec, ALL, ALL, ALL, iside, idim);
+                KV_cdouble_3d const P_f = Kokkos::subview(m_p_rec, ALL, ALL, ALL, iside, idim);
                 Kokkos::Array<KV_double_3d, ndim> rhou_f;
                 for (int iv = 0; iv < ndim; ++iv)
                 {
@@ -139,7 +139,7 @@ public:
             }
         }
 
-        m_hancock_reconstruction->execute(range, grid, gravity, dt, m_u_rec, m_P_rec, rho_rec, rhou_rec, E_rec, fx_rec);
+        m_hancock_reconstruction->execute(range, grid, gravity, dt, m_u_rec, m_p_rec, rho_rec, rhou_rec, E_rec, fx_rec);
     }
 };
 

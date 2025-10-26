@@ -29,7 +29,7 @@ void temperature(
         cell_mdrange(range),
         KOKKOS_LAMBDA(int i, int j, int k)
         {
-            T(i, j, k) = eos.compute_T_from_P(rho(i, j, k), P(i, j, k));
+            T(i, j, k) = eos.compute_temp_from_pres(rho(i, j, k), P(i, j, k));
         });
 }
 

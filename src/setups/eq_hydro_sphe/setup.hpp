@@ -96,7 +96,7 @@ public:
                 u(i, j, k, idim) = param_setup.u0;
             }
 
-            P(i, j, k) = eos.compute_P_from_T(rho(i, j, k), param_setup.T);
+            P(i, j, k) = eos.compute_pres_from_temp(rho(i, j, k), param_setup.T);
         });
     }
 };
@@ -161,7 +161,7 @@ public:
                 rhou(i, j, k, n) = param_setup.rho0 * param_setup.u0;
             }
 
-            E(i, j, k) = eos.compute_evol_from_T(rho(i, j, k), param_setup.T);
+            E(i, j, k) = eos.compute_evol_from_temp(rho(i, j, k), param_setup.T);
         });
     }
 };

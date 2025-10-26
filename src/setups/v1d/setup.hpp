@@ -90,7 +90,7 @@ public:
 
         std::size_t const extent = grid.Nx_glob_ng[0];
 
-        raii_h5_hid const file_id(::H5Fopen(m_param_setup.init_filename.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT), ::H5Fclose);
+        RaiiH5Hid const file_id(::H5Fopen(m_param_setup.init_filename.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT), ::H5Fclose);
         check_extent_dset(file_id, "/rho_1d", std::array {extent});
         check_extent_dset(file_id, "/u_1d", std::array {extent});
         check_extent_dset(file_id, "/P_1d", std::array {extent});
@@ -153,7 +153,7 @@ public:
     {
         std::string const init_file = m_param.reader.Get("problem", "init_file", "");
 
-        raii_h5_hid const file_id(::H5Fopen(init_file.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT), ::H5Fclose);
+        RaiiH5Hid const file_id(::H5Fopen(init_file.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT), ::H5Fclose);
         check_extent_dset(file_id, "/x", std::array {x_glob.extent(0)});
 
         int const filename_size = init_file.size();

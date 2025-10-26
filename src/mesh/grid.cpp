@@ -69,7 +69,7 @@ Grid::Grid(std::array<int, 3> const& nx_glob_ng, std::array<int, 3> const& mpi_d
         Nghost[idim] = Ng;
     }
 
-    MPI_Decomp();
+    mpi_decomposition();
 
     x = KV_double_1d("x", Nx_local_wg[0]+1);
     y = KV_double_1d("y", Nx_local_wg[1]+1);
@@ -104,7 +104,7 @@ This routine distribute the cpu over the various direction in an optimum way
 mpi_dims_cart  : Number of cpu along each direction, output
           mpi_size = mpi_dims_cart[0] * mpi_dims_cart[1] * mpi_dims_cart[2]
 */
-void Grid::MPI_Decomp()
+void Grid::mpi_decomposition()
 {
     int world_size = -1;
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);

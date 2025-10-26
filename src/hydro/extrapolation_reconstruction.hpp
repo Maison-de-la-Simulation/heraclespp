@@ -167,9 +167,9 @@ public:
                             if (idim == 0)
                             {
                                 // Pressure term (e_{r}): 2 * P_{rr} / r
-                                rhou_rec(i, j, k, 0, ipos, idim) += source_grad_P(dtodv, primL.P, primR.P,
+                                rhou_rec(i, j, k, 0, ipos, idim) += source_grad_pres(dtodv, primL.P, primR.P,
                                                                     ds(i, j, k, idim), ds(i_p, j_p, k_p, idim));
-                                rhou_rec(i, j, k, 1, ipos, idim) += source_grad_P(dtodv, primL.P, primR.P,
+                                rhou_rec(i, j, k, 1, ipos, idim) += source_grad_pres(dtodv, primL.P, primR.P,
                                                                     ds(i, j, k, idim), ds(i_p, j_p, k_p, idim));
 
                                 if (ndim == 2 || ndim == 3)
@@ -208,9 +208,9 @@ public:
                             if (idim == 1)
                             {
                                 // Pressure term (e_{th}): cot(th) * P_{th th} / r
-                                rhou_rec(i, j, k, 0, ipos, idim) += source_grad_P(dtodv, primL.P, primR.P,
+                                rhou_rec(i, j, k, 0, ipos, idim) += source_grad_pres(dtodv, primL.P, primR.P,
                                                                     ds(i, j, k, idim), ds(i_p, j_p, k_p, idim));
-                                rhou_rec(i, j, k, 1, ipos, idim) += source_grad_P(dtodv, primL.P, primR.P,
+                                rhou_rec(i, j, k, 1, ipos, idim) += source_grad_pres(dtodv, primL.P, primR.P,
                                                                     ds(i, j, k, idim), ds(i_p, j_p, k_p, idim));
 
                                 if (ndim == 3)

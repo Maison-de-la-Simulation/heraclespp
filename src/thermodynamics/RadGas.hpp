@@ -48,14 +48,14 @@ public:
     }
 
     [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
-    double compute_evol_from_P(double const rho, double const P) const noexcept
+    double compute_evol_from_pres(double const rho, double const P) const noexcept
     {
         // evol = rho * eint
-        return compute_evol_from_T(rho, compute_T_from_P(rho, P));
+        return compute_evol_from_temp(rho, compute_temp_from_pres(rho, P));
     }
 
     [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
-    double compute_evol_from_T(double const rho, double const T) const noexcept
+    double compute_evol_from_temp(double const rho, double const T) const noexcept
     {
         // evol = rho * eint
         double const T4 = T * T * T * T;
@@ -63,21 +63,21 @@ public:
     }
 
     [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
-    double compute_P_from_evol(double const rho, double const evol) const noexcept
+    double compute_pres_from_evol(double const rho, double const evol) const noexcept
     {
         // evol = rho * eint
-        return compute_P_from_T(rho, compute_T_from_evol(rho, evol));
+        return compute_pres_from_temp(rho, compute_temp_from_evol(rho, evol));
     }
 
     [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
-    double compute_P_from_T(double const rho, double const T) const noexcept
+    double compute_pres_from_temp(double const rho, double const T) const noexcept
     {
         double const T4 = T * T * T * T;
         return (rho * units::kb * T / (m_mmw * units::mp)) + (units::ar * T4 / 3);
     }
 
     [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
-    double compute_T_from_P(double const rho, double const P) const noexcept
+    double compute_temp_from_pres(double const rho, double const P) const noexcept
     {
         int static constexpr max_itr = 100;
         double static constexpr tol_newton = 1E-6;
@@ -110,7 +110,7 @@ public:
     }
 
     [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
-    double compute_T_from_evol(double const rho, double const evol) const noexcept
+    double compute_temp_from_evol(double const rho, double const evol) const noexcept
     {
         int static constexpr max_itr = 100;
         double static constexpr tol_newton = 1E-6;
@@ -146,7 +146,7 @@ public:
     [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION
     double compute_speed_of_sound(double const rho, double const P) const noexcept
     {
-        double const T = compute_T_from_P(rho, P);
+        double const T = compute_temp_from_pres(rho, P);
         double const Pg = rho * units::kb * T / (m_mmw * units::mp);
         double const T4 = T * T * T * T;
         double const Pr = units::ar * T4 / 3;
