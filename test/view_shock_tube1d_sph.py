@@ -3,15 +3,10 @@
 # SPDX-License-Identifier: MIT
 
 # Test the shock tube problem and compare
+
 import sys
 import matplotlib.pyplot as plt
 import h5py
-
-print("********************************")
-print("    Shock tube spherical 1D")
-print("********************************")
-
-file = sys.argv[1]
 
 
 def read_file(filename):
@@ -32,32 +27,39 @@ def read_file(filename):
     return rho, u, P, e, xc, x, gamma, t
 
 
-# ------------------------------------------------------------------------------
+def main():
+    print("********************************")
+    print("    Shock tube spherical 1D")
+    print("********************************")
 
-rho, u, P, e, xc, x, gamma, t = read_file(file)
+    file = sys.argv[1]
 
-# ------------------------------------------------------------------------------
+    rho, u, P, e, xc, _, _, t = read_file(file)
 
-plt.figure(figsize=(12, 6))
-plt.suptitle(f"Shock tube t = {t:.1f} s")
-plt.subplot(221)
-plt.plot(xc, rho)
-plt.xlabel("Position")
-plt.ylabel("Density ($kg.m^{-3}$)")
+    plt.figure(figsize=(12, 6))
+    plt.suptitle(f"Shock tube t = {t:.1f} s")
+    plt.subplot(221)
+    plt.plot(xc, rho)
+    plt.xlabel("Position")
+    plt.ylabel("Density ($kg.m^{-3}$)")
 
-plt.subplot(222)
-plt.plot(xc, u)
-plt.xlabel("Position")
-plt.ylabel("Velocity ($m.s^{-1}$)")
+    plt.subplot(222)
+    plt.plot(xc, u)
+    plt.xlabel("Position")
+    plt.ylabel("Velocity ($m.s^{-1}$)")
 
-plt.subplot(223)
-plt.plot(xc, P)
-plt.xlabel("Position")
-plt.ylabel("Pressure ($kg.m^{-1}.s^{-2}$)")
+    plt.subplot(223)
+    plt.plot(xc, P)
+    plt.xlabel("Position")
+    plt.ylabel("Pressure ($kg.m^{-1}.s^{-2}$)")
 
-plt.subplot(224)
-plt.plot(xc, e)
-plt.xlabel("Position")
-plt.ylabel("Internal energy ($m^{2}.s^{-2}$)")
+    plt.subplot(224)
+    plt.plot(xc, e)
+    plt.xlabel("Position")
+    plt.ylabel("Internal energy ($m^{2}.s^{-2}$)")
 
-plt.show()
+    plt.show()
+
+
+if __name__ == "__main__":
+    main()
