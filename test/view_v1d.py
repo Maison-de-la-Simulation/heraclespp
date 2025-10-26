@@ -10,15 +10,6 @@ import h5py
 import matplotlib.pyplot as plt
 import numpy as np
 
-print("********************************")
-print("             V1D")
-print("********************************")
-
-filename = sys.argv[1]
-ndim = input("Dimension of the simulation (1 or 3): ")
-
-# ------------------------------------------
-
 
 def read_start_file(filename):
     with h5py.File(str(filename), "r") as f:
@@ -126,113 +117,123 @@ def conversion_si_to_cgs(rho, u, P):
     return rho_cgs, u_cgs, P_cgs
 
 
-# ------------------------------------------
+def main():
+    print("********************************")
+    print("             V1D")
+    print("********************************")
 
-rho0, u0, P0, x0, t0 = read_start_file("../src/setups/v1d/v1d_1d_start.h5")
-rhof, uf, Pf, Tf, xf, tf = read_file_1d_r("../src/setups/v1d/v1d_1e5.h5")
-Nif, Hf, Hef, Of, Sif = read_file_1d_r_element("../src/setups/v1d/v1d_1e5.h5")
+    filename = sys.argv[1]
+    ndim = input("Dimension of the simulation (1 or 3): ")
 
-gamma = fgamma(filename)
-iteration = fiter(filename)
-rho, u, P, T, x, t = read_file_1d_r(filename)
-Ni, H, He, O, Si = read_file_1d_r_element(filename)
+    rho0, u0, P0, x0, t0 = read_start_file("../src/setups/v1d/v1d_1d_start.h5")
+    rhof, uf, Pf, Tf, xf, tf = read_file_1d_r("../src/setups/v1d/v1d_1e5.h5")
+    Nif, Hf, Hef, Of, Sif = read_file_1d_r_element("../src/setups/v1d/v1d_1e5.h5")
 
-if ndim == 3:
-    rho, u, P, T = read_3d_file_in_1d_angular_mean(filename)
-    Ni, H, He, O, Si = read_3d_file_element_in_1d_angular_mean(filename)
+    gamma = fgamma(filename)
+    iteration = fiter(filename)
+    rho, u, P, T, x, t = read_file_1d_r(filename)
+    Ni, H, He, O, Si = read_file_1d_r_element(filename)
 
-tday = t / 3600 / 24
+    if ndim == 3:
+        rho, u, P, T = read_3d_file_in_1d_angular_mean(filename)
+        Ni, H, He, O, Si = read_3d_file_element_in_1d_angular_mean(filename)
 
-print("    ")
-print(f"Final time = {t:.3e} s or {tday} days")
-print(f"Iteration number = {iteration:3e}")
-print("    ")
+    tday = t / 3600 / 24
 
-# cgs units --------------------------------
+    print("    ")
+    print(f"Final time = {t:.3e} s or {tday} days")
+    print(f"Iteration number = {iteration:3e}")
+    print("    ")
 
-xcf_cm = make_xc(xf)
-xc_cm = make_xc(x)
-xc0_cm = make_xc(x0)
+    # cgs units --------------------------------
 
-rho0_cgs, u0_cgs, P0_cgs = conversion_si_to_cgs(rho0, u0, P0)
-rho_cgs, u_cgs, P_cgs = conversion_si_to_cgs(rho, u, P)
-rhof_cgs, uf_cgs, Pf_cgs = conversion_si_to_cgs(rhof, uf, Pf)
+    xcf_cm = make_xc(xf)
+    xc_cm = make_xc(x)
+    xc0_cm = make_xc(x0)
 
-# ------------------------------------------
+    rho0_cgs, u0_cgs, P0_cgs = conversion_si_to_cgs(rho0, u0, P0)
+    rho_cgs, u_cgs, P_cgs = conversion_si_to_cgs(rho, u, P)
+    rhof_cgs, uf_cgs, Pf_cgs = conversion_si_to_cgs(rhof, uf, Pf)
 
-plt.figure(figsize=(12, 8))
-plt.suptitle(f"Loglog graph for v1d 1e5, t = {t:.1e} s ({tday:1f} jours)")
-plt.subplot(221)
-plt.plot(xc0_cm, rho0_cgs, "--", label=f"$t_0$= {t0:.1e} s")
-plt.plot(xcf_cm, rhof_cgs, "--", color="red", label=f"$t_f$ = {tf:.1e} s")
-plt.plot(xc_cm, rho_cgs, color="green", label=f"$t$ = {t:.1e} s")
-plt.xlabel("rc (cm)")
-plt.ylabel("Density ($g.cm^{-3}$)")
-plt.xscale("log")
-plt.yscale("log")
-plt.grid()
-plt.legend()
+    # ------------------------------------------
 
-plt.subplot(222)
-plt.plot(xc0_cm, u0_cgs, "--", label=f"$t_i$= {t0:.1e} s")
-plt.plot(xcf_cm, uf_cgs, "--", color="red", label=f"$t_f$ = {tf:.1e} s")
-plt.plot(xc_cm, u_cgs, color="green", label=f"$t$ = {t:.1e} s")
-plt.xlabel("rc (cm)")
-plt.ylabel("Velocity ($cm.s^{-1}$)")
-plt.xscale("log")  # ; plt.yscale('log')
-plt.grid()
-plt.legend()
+    plt.figure(figsize=(12, 8))
+    plt.suptitle(f"Loglog graph for v1d 1e5, t = {t:.1e} s ({tday:1f} jours)")
+    plt.subplot(221)
+    plt.plot(xc0_cm, rho0_cgs, "--", label=f"$t_0$= {t0:.1e} s")
+    plt.plot(xcf_cm, rhof_cgs, "--", color="red", label=f"$t_f$ = {tf:.1e} s")
+    plt.plot(xc_cm, rho_cgs, color="green", label=f"$t$ = {t:.1e} s")
+    plt.xlabel("rc (cm)")
+    plt.ylabel("Density ($g.cm^{-3}$)")
+    plt.xscale("log")
+    plt.yscale("log")
+    plt.grid()
+    plt.legend()
 
-plt.subplot(223)
-plt.plot(xc0_cm, P0_cgs, "--", label=f"$t_i$= {t0:.1e} s")
-plt.plot(xcf_cm, Pf_cgs, "--", color="red", label=f"$t_f$ = {tf:.1e} s")
-plt.plot(xc_cm, P_cgs, color="green", label=f"$t$ = {t:.1e} s")
-plt.xlabel("rc (cm)")
-plt.ylabel("Pressure ($g.cm^{-1}.s^{-2}$)")
-plt.xscale("log")
-plt.yscale("log")
-plt.grid()
-plt.legend()
+    plt.subplot(222)
+    plt.plot(xc0_cm, u0_cgs, "--", label=f"$t_i$= {t0:.1e} s")
+    plt.plot(xcf_cm, uf_cgs, "--", color="red", label=f"$t_f$ = {tf:.1e} s")
+    plt.plot(xc_cm, u_cgs, color="green", label=f"$t$ = {t:.1e} s")
+    plt.xlabel("rc (cm)")
+    plt.ylabel("Velocity ($cm.s^{-1}$)")
+    plt.xscale("log")  # ; plt.yscale('log')
+    plt.grid()
+    plt.legend()
 
-plt.subplot(224)
-# plt.plot(xc0_cm, T0, "--", label=f"$t_i$= {t0:.1e} s")
-plt.plot(xcf_cm, Tf, "--", color="red", label=f"$t_f$ = {tf:.1e} s")
-plt.plot(xc_cm, T, color="green", label=f"$t$ = {t:.1e} s")
-plt.xlabel("rc (cm)")
-plt.ylabel("Temperature ($K$)")
-plt.xscale("log")
-plt.yscale("log")
-plt.grid()
-plt.legend()
+    plt.subplot(223)
+    plt.plot(xc0_cm, P0_cgs, "--", label=f"$t_i$= {t0:.1e} s")
+    plt.plot(xcf_cm, Pf_cgs, "--", color="red", label=f"$t_f$ = {tf:.1e} s")
+    plt.plot(xc_cm, P_cgs, color="green", label=f"$t$ = {t:.1e} s")
+    plt.xlabel("rc (cm)")
+    plt.ylabel("Pressure ($g.cm^{-1}.s^{-2}$)")
+    plt.xscale("log")
+    plt.yscale("log")
+    plt.grid()
+    plt.legend()
 
-plt.figure(figsize=(10, 8))
-plt.title(f"Loglog passive scalar graph for v1d 1e5, t = {t:.1e} s ({tday:1f} jours)")
-plt.plot(xc_cm, Ni, c="brown", label="Ni56")
-plt.plot(xcf_cm, Nif, "--", c="brown", label="Ni56 V1D")
-plt.plot(xc_cm, H, c="deepskyblue", label="H")
-plt.plot(xcf_cm, Hf, "--", c="deepskyblue", label="H V1D")
-plt.plot(xc_cm, He, c="seagreen", label="He")
-plt.plot(xcf_cm, Hef, "--", c="seagreen", label="He V1D")
-plt.plot(xc_cm, O, c="darkorange", label="O")
-plt.plot(xcf_cm, Of, "--", color="darkorange", label="O V1D")
-plt.plot(xc_cm, Si, color="violet", label="Si")
-plt.plot(xcf_cm, Sif, "--", color="violet", label="Si V1D")
-plt.xscale("log")
-plt.yscale("log")
-plt.xlabel("rc (cm)")
-plt.ylabel("Concentration")
-plt.grid()
-plt.legend()
-plt.ylim(10 ** (-27), 10)
+    plt.subplot(224)
+    # plt.plot(xc0_cm, T0, "--", label=f"$t_i$= {t0:.1e} s")
+    plt.plot(xcf_cm, Tf, "--", color="red", label=f"$t_f$ = {tf:.1e} s")
+    plt.plot(xc_cm, T, color="green", label=f"$t$ = {t:.1e} s")
+    plt.xlabel("rc (cm)")
+    plt.ylabel("Temperature ($K$)")
+    plt.xscale("log")
+    plt.yscale("log")
+    plt.grid()
+    plt.legend()
 
-# plt.figure(figsize=(10,8))
-# plt.plot(xc_cm, ei / ec)
-# plt.xlabel('rc (cm)'); plt.ylabel('ei / ec')
-# plt.xscale('log'); plt.yscale('log')
-# plt.grid()
+    plt.figure(figsize=(10, 8))
+    plt.title(f"Loglog passive scalar graph for v1d 1e5, t = {t:.1e} s ({tday:1f} jours)")
+    plt.plot(xc_cm, Ni, c="brown", label="Ni56")
+    plt.plot(xcf_cm, Nif, "--", c="brown", label="Ni56 V1D")
+    plt.plot(xc_cm, H, c="deepskyblue", label="H")
+    plt.plot(xcf_cm, Hf, "--", c="deepskyblue", label="H V1D")
+    plt.plot(xc_cm, He, c="seagreen", label="He")
+    plt.plot(xcf_cm, Hef, "--", c="seagreen", label="He V1D")
+    plt.plot(xc_cm, O, c="darkorange", label="O")
+    plt.plot(xcf_cm, Of, "--", color="darkorange", label="O V1D")
+    plt.plot(xc_cm, Si, color="violet", label="Si")
+    plt.plot(xcf_cm, Sif, "--", color="violet", label="Si V1D")
+    plt.xscale("log")
+    plt.yscale("log")
+    plt.xlabel("rc (cm)")
+    plt.ylabel("Concentration")
+    plt.grid()
+    plt.legend()
+    plt.ylim(10 ** (-27), 10)
 
-# plt.figure(figsize=(12,8))
-# plt.imshow(rho_r_th, origin='lower')
-# plt.colorbar()
+    # plt.figure(figsize=(10,8))
+    # plt.plot(xc_cm, ei / ec)
+    # plt.xlabel('rc (cm)'); plt.ylabel('ei / ec')
+    # plt.xscale('log'); plt.yscale('log')
+    # plt.grid()
 
-plt.show()
+    # plt.figure(figsize=(12,8))
+    # plt.imshow(rho_r_th, origin='lower')
+    # plt.colorbar()
+
+    plt.show()
+
+
+if __name__ == "__main__":
+    main()

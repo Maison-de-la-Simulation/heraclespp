@@ -39,4 +39,4 @@ jobs:
           pipx install pylint
       - name: Analysing the code with pylint
         run: |
-          pylint  --disable=R0801,R0912,R0913,R0914,R0915,R0917,W0621,C0103,C0114,C0116,E1101,E0401 --max-line-length 100 $(git ls-files '*.py')
+          pylint  --disable=R0801,R0912,R0913,R0914,R0915,R0917,C0103,C0114,C0116,E1101,E0401 --max-line-length 100 $(git ls-files '*.py')

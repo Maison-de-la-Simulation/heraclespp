@@ -3,18 +3,13 @@
 # SPDX-License-Identifier: MIT
 
 # Test the shock tube problem and compare
+
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import h5py
 
 from exact_shock_tube import CI, ExactShockTube
-
-print("********************************")
-print("    Shock tube 1D Cartesian")
-print("********************************")
-
-file = sys.argv[1]
 
 
 def read_file(filename):
@@ -64,45 +59,52 @@ def analytical_result(x, gamma, t):
     return rho0, u0, P0, e0, rho_exact, u_exact, P_exact, e_exact, x_exact
 
 
-# ------------------------------------------------------------------------------
+def main():
+    print("********************************")
+    print("    Shock tube 1D Cartesian")
+    print("********************************")
 
-rho, u, P, e, xc, x, gamma, t = read_file(file)
-rho0, u0, P0, e0, rho_exact, u_exact, P_exact, e_exact, x_exact = analytical_result(x, gamma, t)
+    file = sys.argv[1]
 
-# ------------------------------------------------------------------------------
+    rho, u, P, e, xc, x, gamma, t = read_file(file)
+    rho0, u0, P0, e0, rho_exact, u_exact, P_exact, e_exact, x_exact = analytical_result(x, gamma, t)
 
-plt.figure(figsize=(12, 6))
-plt.suptitle(f"Shock tube t = {t:.1f} s")
-plt.subplot(221)
-plt.plot(x_exact, rho0, "--", label="$t_0$")
-plt.plot(x_exact, rho_exact, label="Exact")
-plt.plot(xc, rho, label="Solver")
-plt.xlabel("Position")
-plt.ylabel("Density ($kg.m^{-3}$)")
-plt.legend(frameon=False)
+    plt.figure(figsize=(12, 6))
+    plt.suptitle(f"Shock tube t = {t:.1f} s")
+    plt.subplot(221)
+    plt.plot(x_exact, rho0, "--", label="$t_0$")
+    plt.plot(x_exact, rho_exact, label="Exact")
+    plt.plot(xc, rho, label="Solver")
+    plt.xlabel("Position")
+    plt.ylabel("Density ($kg.m^{-3}$)")
+    plt.legend(frameon=False)
 
-plt.subplot(222)
-plt.plot(x_exact, u0, "--", label="$t_0$")
-plt.plot(x_exact, u_exact, label="Exact")
-plt.plot(xc, u, label="Solver")
-plt.xlabel("Position")
-plt.ylabel("Velocity ($m.s^{-1}$)")
-plt.legend(frameon=False)
+    plt.subplot(222)
+    plt.plot(x_exact, u0, "--", label="$t_0$")
+    plt.plot(x_exact, u_exact, label="Exact")
+    plt.plot(xc, u, label="Solver")
+    plt.xlabel("Position")
+    plt.ylabel("Velocity ($m.s^{-1}$)")
+    plt.legend(frameon=False)
 
-plt.subplot(223)
-plt.plot(x_exact, P0, "--", label="$t_0$")
-plt.plot(x_exact, P_exact, label="Exact")
-plt.plot(xc, P, label="Solver")
-plt.xlabel("Position")
-plt.ylabel("Pressure ($kg.m^{-1}.s^{-2}$)")
-plt.legend(frameon=False)
+    plt.subplot(223)
+    plt.plot(x_exact, P0, "--", label="$t_0$")
+    plt.plot(x_exact, P_exact, label="Exact")
+    plt.plot(xc, P, label="Solver")
+    plt.xlabel("Position")
+    plt.ylabel("Pressure ($kg.m^{-1}.s^{-2}$)")
+    plt.legend(frameon=False)
 
-plt.subplot(224)
-plt.plot(x_exact, e0, "--", label="$t_0$")
-plt.plot(x_exact, e_exact, label="Exact")
-plt.plot(xc, e, label="Solver")
-plt.xlabel("Position")
-plt.ylabel("Internal energy ($m^{2}.s^{-2}$)")
-plt.legend(frameon=False)
+    plt.subplot(224)
+    plt.plot(x_exact, e0, "--", label="$t_0$")
+    plt.plot(x_exact, e_exact, label="Exact")
+    plt.plot(xc, e, label="Solver")
+    plt.xlabel("Position")
+    plt.ylabel("Internal energy ($m^{2}.s^{-2}$)")
+    plt.legend(frameon=False)
 
-plt.show()
+    plt.show()
+
+
+if __name__ == "__main__":
+    main()
