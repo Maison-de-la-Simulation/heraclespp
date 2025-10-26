@@ -23,7 +23,6 @@ def main():
         u_1d = f["ux"][0, 0, :]
         P_1d = f["P"][0, 0, :]
         x = f["x_ng"][()]
-        y = f["y_ng"][()]
         z = f["z_ng"][()]
         t = f["current_time"][()]
         gamma = f["gamma"][()]

@@ -44,7 +44,7 @@ def main():
 
     g = G * M / xc**2
     g2 = G * M
-    g0 = G * M / xc[0] ** 2
+    g0 = g[0]
 
     x0 = kb * T / (mu * mp * g2) * np.ones(len(rho))
     P0 = rho0 * kb * T / (mu * mp)  # kg.m^{-1}.s^{-2}

@@ -34,7 +34,7 @@ def main():
 
     file = sys.argv[1]
 
-    rho, u, P, e, xc, x, gamma, t = read_file(file)
+    rho, u, P, e, xc, _, _, t = read_file(file)
 
     plt.figure(figsize=(12, 6))
     plt.suptitle(f"Shock tube t = {t:.1f} s")

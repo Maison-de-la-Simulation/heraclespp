@@ -37,10 +37,8 @@ def main():
         u_1d = f["ux"][ind_ph, ind_th, :]  # u(r)
         P_1d = f["P"][ind_ph, ind_th, :]  # P(r)
         rho_r_th = f["rho"][ind_ph, :, :]  # rho(r, theta)
-        rho_r_ph = f["rho"][:, ind_th, :]  # rho(r, phi)
         x = f["x_ng"][()]
         y = f["y_ng"][()]
-        z = f["z_ng"][()]
         t = f["current_time"][()]
         iteration = f["iter"][()]
         gamma = f["gamma"][()]
@@ -57,8 +55,6 @@ def main():
     rc = (r[:-1] + r[1:]) / 2
     th = y[:]
     thc = (th[:-1] + th[1:]) / 2
-    ph = z[:]
-    phc = (ph[:-1] + ph[1:]) / 2
 
     # Analytical result 1d ------------------------
 
@@ -102,12 +98,12 @@ def main():
 
     # Distance from the explosion -------------------
 
-    # explosion coordinates
-    x0 = 1 * np.sin(np.pi / 2) * np.cos(np.pi / 2)
-    y0 = 1 * np.sin(np.pi / 2) * np.sin(np.pi / 2)
-    z0 = 1 * np.cos(np.pi / 2)
+    # # explosion coordinates
+    # x0 = 1 * np.sin(np.pi / 2) * np.cos(np.pi / 2)
+    # y0 = 1 * np.sin(np.pi / 2) * np.sin(np.pi / 2)
+    # z0 = 1 * np.cos(np.pi / 2)
 
-    rdist = np.zeros(P_3d.shape)
+    # rdist = np.zeros(P_3d.shape)
 
     # for i in range(nr):
     #     print(i)

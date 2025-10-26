@@ -129,7 +129,6 @@ def main():
     rhof, uf, Pf, Tf, xf, tf = read_file_1d_r("../src/setups/v1d/v1d_1e5.h5")
     Nif, Hf, Hef, Of, Sif = read_file_1d_r_element("../src/setups/v1d/v1d_1e5.h5")
 
-    gamma = fgamma(filename)
     iteration = fiter(filename)
     rho, u, P, T, x, t = read_file_1d_r(filename)
     Ni, H, He, O, Si = read_file_1d_r_element(filename)

@@ -19,9 +19,6 @@ def main():
 
     with h5py.File(str(filename), "r") as f:
         rho = f["rho"][0, :, :]
-        u = f["ux"][0, :, :]
-        P = f["P"][0, :, :]
-        Py = f["P"][0, :, 0]
         x = f["x_ng"][()]
         y = f["y_ng"][()]
         fx = f["fx0"][0, :, :]
