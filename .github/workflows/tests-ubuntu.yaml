@@ -93,7 +93,7 @@ jobs:
             -S benchmark
           cmake --build benchmark/build
           cmake --install benchmark/build --prefix opt/benchmark
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4  # v5.0.0
         with:
           name: env-common
           path: opt
@@ -124,7 +124,7 @@ jobs:
             -S kokkos
           cmake --build kokkos/build
           cmake --install kokkos/build --prefix opt/kokkos-cuda
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4  # v5.0.0
         with:
           name: env-cuda
           path: opt
@@ -155,7 +155,7 @@ jobs:
             -S kokkos
           cmake --build kokkos/build
           cmake --install kokkos/build --prefix opt/kokkos-hip
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4  # v5.0.0
         with:
           name: env-hip
           path: opt
@@ -184,7 +184,7 @@ jobs:
             -S kokkos
           cmake --build kokkos/build
           cmake --install kokkos/build --prefix opt/kokkos-serial
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4  # v5.0.0
         with:
           name: env-serial
           path: opt
