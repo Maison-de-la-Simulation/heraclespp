@@ -116,8 +116,8 @@ private:
 
 public:
     BoundarySetup(int idim, int iface,
-        [[maybe_unused]] EOS const& eos,
-        [[maybe_unused]] ParamSetup const& param_setup)
+        EOS const& eos,
+        ParamSetup const& param_setup)
         : IBoundaryCondition<Gravity>(idim, iface)
         , m_label(std::string("UserDefined").append(bc_dir(idim)).append(bc_face(iface)))
         , m_eos(eos)
@@ -126,7 +126,7 @@ public:
     }
 
     void execute(Grid const& grid,
-                 [[maybe_unused]] Gravity const& gravity,
+                 Gravity const& gravity,
                  KV_double_3d const& rho,
                  KV_double_4d const& rhou,
                  KV_double_3d const& E,

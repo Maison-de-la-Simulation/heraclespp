@@ -25,7 +25,7 @@ class Range;
 class ParamSetup
 {
 public:
-    explicit ParamSetup([[maybe_unused]] INIReader const& reader)
+    explicit ParamSetup(INIReader const& /*reader*/)
     {
     }
 };
@@ -35,19 +35,19 @@ class InitializationSetup : public IInitializationProblem
 {
 public:
     InitializationSetup(
-        [[maybe_unused]] EOS const& eos,
-        [[maybe_unused]] ParamSetup const& param_set_up,
-        [[maybe_unused]] Gravity const& gravity)
+        EOS const& /*eos*/,
+        ParamSetup const& /*param_set_up*/,
+        Gravity const& /*gravity*/)
     {
     }
 
     void execute(
-        [[maybe_unused]] Range const& range,
-        [[maybe_unused]] Grid const& grid,
-        [[maybe_unused]] KV_double_3d const& rho,
-        [[maybe_unused]] KV_double_4d const& u,
-        [[maybe_unused]] KV_double_3d const& P,
-        [[maybe_unused]] KV_double_4d const& fx) const final
+        Range const& /*range*/,
+        Grid const& /*grid*/,
+        KV_double_3d const& /*rho*/,
+        KV_double_4d const& /*u*/,
+        KV_double_3d const& /*P*/,
+        KV_double_4d const& /*fx*/) const final
     {
         throw std::runtime_error("Setup not implemented");
     }

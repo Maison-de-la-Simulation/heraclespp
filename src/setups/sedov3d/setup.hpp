@@ -57,7 +57,7 @@ public:
     InitializationSetup(
         EOS const& eos,
         ParamSetup const& param_set_up,
-        [[maybe_unused]] Gravity const& gravity)
+        Gravity const& /*gravity*/)
         : m_eos(eos)
         , m_param_setup(param_set_up)
     {

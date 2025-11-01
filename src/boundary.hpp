@@ -97,7 +97,7 @@ public:
     }
 
     void execute(Grid const& grid,
-                 [[maybe_unused]] Gravity const& gravity,
+                 Gravity const& /*gravity*/,
                  KV_double_3d const& rho,
                  KV_double_4d const& rhou,
                  KV_double_3d const& E,
@@ -117,8 +117,8 @@ public:
     PeriodicCondition(int idim, int iface) : IBoundaryCondition<Gravity>(idim, iface) {}
 
     void execute(
-            [[maybe_unused]] Grid const& grid,
-            [[maybe_unused]] Gravity const& gravity,
+            Grid const& /*grid*/,
+            Gravity const& /*gravity*/,
             [[maybe_unused]] KV_double_3d const& rho,
             [[maybe_unused]] KV_double_4d const& rhou,
             [[maybe_unused]] KV_double_3d const& E,
@@ -145,7 +145,7 @@ public:
     }
 
     void execute(Grid const& grid,
-                 [[maybe_unused]] Gravity const& gravity,
+                 Gravity const& /*gravity*/,
                  KV_double_3d const& rho,
                  KV_double_4d const& rhou,
                  KV_double_3d const& E,

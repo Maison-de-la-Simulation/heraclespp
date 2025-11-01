@@ -59,16 +59,14 @@ template <class Gravity>
 class InitializationSetup : public IInitializationProblem
 {
 private:
-    EOS m_eos;
     ParamSetup m_param_setup;
 
 public:
     InitializationSetup(
-        EOS const& eos,
+        EOS const& /*eos*/,
         ParamSetup param_set_up,
-        [[maybe_unused]] Gravity const& gravity)
-        : m_eos(eos)
-        , m_param_setup(std::move(param_set_up))
+        Gravity const& /*gravity*/)
+        : m_param_setup(std::move(param_set_up))
     {
     }
 
@@ -184,7 +182,7 @@ public:
     }
 
     [[nodiscard]] bool execute(
-        [[maybe_unused]] Range const& range,
+        Range const& /*range*/,
         Grid const& grid,
         KV_cdouble_3d const& rho,
         KV_cdouble_4d const& rhou,
