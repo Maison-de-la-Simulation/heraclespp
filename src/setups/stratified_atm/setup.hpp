@@ -34,13 +34,13 @@ class ParamSetup
 public:
     double rho0;
     double u0;
-    double T;
+    double T0;
     double gx;
 
     explicit ParamSetup(INIReader const& reader)
         : rho0(reader.GetReal("Initialisation", "rho0", 1.0))
         , u0(reader.GetReal("Initialisation", "u0", 1.0))
-        , T(reader.GetReal("Perfect Gas", "temperature", 1.0))
+        , T0(reader.GetReal("Initialisation", "T0", 1.0))
         , gx(reader.GetReal("Gravity", "gx", 1.0))
     {
     }
@@ -82,7 +82,7 @@ public:
         auto const& gravity = m_gravity;
         auto const& param_setup = m_param_setup;
         double const mu = m_eos.mean_molecular_weight();
-        std::cout <<"Scale = " << units::kb * m_param_setup.T
+        std::cout <<"Scale = " << units::kb * m_param_setup.T0
             / (mu * units::mp * m_param_setup.gx) << '\n';
 
         Kokkos::parallel_for(
@@ -90,7 +90,7 @@ public:
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                double const x0 = units::kb * param_setup.T
+                double const x0 = units::kb * param_setup.T0
                         / (mu * units::mp * Kokkos::fabs(gravity(i, j, k, 0)));
 
                 rho(i, j, k) = param_setup.rho0 * Kokkos::exp(- xc(i) / x0);
@@ -100,7 +100,7 @@ public:
                     u(i, j, k, idim) = param_setup.u0;
                 }
 
-                P(i, j, k) = eos.compute_pres_from_temp(rho(i, j, k), param_setup.T);
+                P(i, j, k) = eos.compute_pres_from_temp(rho(i, j, k), param_setup.T0);
             });
     }
 };
@@ -158,7 +158,7 @@ public:
             {
                 double const gravity_x = gravity(i, j, k, 0);
 
-                double const x0 = units::kb * param_setup.T * units::Kelvin
+                double const x0 = units::kb * param_setup.T0 * units::Kelvin
                         / (mu * units::mp * Kokkos::fabs(gravity_x));
 
                 rho(i, j, k) = param_setup.rho0 * Kokkos::exp(- xc(i) / x0);
@@ -168,7 +168,7 @@ public:
                     rhou(i, j, k, n) = param_setup.rho0 * param_setup.u0;
                 }
 
-                E(i, j, k) = eos.compute_evol_from_temp(rho(i, j, k), param_setup.T);
+                E(i, j, k) = eos.compute_evol_from_temp(rho(i, j, k), param_setup.T0);
             });
     }
 };
