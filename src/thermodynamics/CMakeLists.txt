@@ -7,6 +7,6 @@ target_compile_features(thermodynamics PUBLIC cxx_std_17)
 target_link_libraries(thermodynamics PUBLIC Kokkos::kokkos units)
 target_sources(
     thermodynamics
-    PRIVATE PerfectGas.cpp RadGas.cpp
-    INTERFACE FILE_SET HEADERS FILES PerfectGas.hpp RadGas.hpp
+    PRIVATE perfect_gas.cpp rad_gas.cpp
+    INTERFACE FILE_SET HEADERS FILES perfect_gas.hpp rad_gas.hpp
 )

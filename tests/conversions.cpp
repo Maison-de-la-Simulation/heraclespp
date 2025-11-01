@@ -7,11 +7,11 @@
 #include <gtest/gtest.h>
 
 #include <Kokkos_Core.hpp>
-#include <PerfectGas.hpp>
 #include <array_conversion.hpp>
 #include <euler_equations.hpp>
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
+#include <perfect_gas.hpp>
 #include <range.hpp>
 
 #include "utils_dual_view.hpp"

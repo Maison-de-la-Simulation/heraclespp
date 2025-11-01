@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 //!
-//! @file RadGas.hpp
+//! @file rad_gas.hpp
 //!
 
 #pragma once

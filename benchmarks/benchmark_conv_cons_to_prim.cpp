@@ -7,11 +7,11 @@
 #include <benchmark/benchmark.h>
 
 #include <Kokkos_Core.hpp>
-#include <PerfectGas.hpp>
 #include <array_conversion.hpp>
 #include <int_cast.hpp>
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
+#include <perfect_gas.hpp>
 #include <range.hpp>
 
 namespace {
