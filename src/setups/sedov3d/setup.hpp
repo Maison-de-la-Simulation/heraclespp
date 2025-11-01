@@ -33,15 +33,11 @@ public:
     double rho0;
     double P0;
     double E1;
-    double ny;
-    double nz;
 
     explicit ParamSetup(INIReader const& reader)
         : rho0(reader.GetReal("Initialisation", "rho0", 1.0))
         , P0(reader.GetReal("Initialisation", "P0", 1.0))
         , E1(reader.GetReal("Initialisation", "E1", 1.0))
-        , ny(reader.GetReal("Grid", "Ny_glob", 1.0))
-        , nz(reader.GetReal("Grid", "Nz_glob", 1.0))
     {
     }
 };
@@ -81,8 +77,8 @@ public:
         auto const theta = grid.y;
         auto const phi = grid.z;
         auto const& dv = grid.dv;
-        int const ny_2 = param_setup.ny / 2;
-        int const nz_2 = param_setup.nz / 2;
+        int const ny_2 = grid.Nx_glob_ng[1] / 2;
+        int const nz_2 = grid.Nx_glob_ng[2] / 2;
 
         if (geom == Geometry::Geom_cartesian)
         {
