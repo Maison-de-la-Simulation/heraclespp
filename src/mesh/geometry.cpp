@@ -32,9 +32,9 @@ IComputeGeom& IComputeGeom::operator=(IComputeGeom&& /*rhs*/) noexcept = default
 
 void Cartesian::execute(
     Range const& range,
-    [[maybe_unused]] KV_cdouble_1d const& x,
-    [[maybe_unused]] KV_cdouble_1d const& y,
-    [[maybe_unused]] KV_cdouble_1d const& z,
+    KV_cdouble_1d const& /*x*/,
+    KV_cdouble_1d const& /*y*/,
+    KV_cdouble_1d const& /*z*/,
     KV_cdouble_1d const& dx,
     KV_cdouble_1d const& dy,
     KV_cdouble_1d const& dz,
@@ -70,7 +70,7 @@ void Spherical::execute(
     Range const& range,
     KV_cdouble_1d const& x,
     KV_cdouble_1d const& y,
-    [[maybe_unused]] KV_cdouble_1d const& z,
+    KV_cdouble_1d const& /*z*/,
     KV_cdouble_1d const& dx,
     KV_cdouble_1d const& dy,
     KV_cdouble_1d const& dz,

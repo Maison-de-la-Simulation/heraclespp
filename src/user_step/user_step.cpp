@@ -32,12 +32,12 @@ IUserStep& IUserStep::operator=(IUserStep&& /*rhs*/) noexcept = default;
 
 
 void NoUserStep::execute(
-        [[maybe_unused]] Range const &range,
-        [[maybe_unused]] double const t,
-        [[maybe_unused]] double const dt,
-        [[maybe_unused]] KV_double_3d const& rho,
-        [[maybe_unused]] KV_double_3d const& E,
-        [[maybe_unused]] KV_double_4d const& fx) const
+        Range const& /*range*/,
+        double const /*t*/,
+        double const /*dt*/,
+        KV_double_3d const& /*rho*/,
+        KV_double_3d const& /*E*/,
+        KV_double_4d const& /*fx*/) const
 {
 }
 

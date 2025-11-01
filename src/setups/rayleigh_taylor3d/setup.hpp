@@ -53,17 +53,15 @@ template <class Gravity>
 class InitializationSetup : public IInitializationProblem
 {
 private:
-    thermodynamics::PerfectGas m_eos;
     ParamSetup m_param_setup;
     Gravity m_gravity;
 
 public:
     InitializationSetup(
-        thermodynamics::PerfectGas const& eos,
+        thermodynamics::PerfectGas const& /*eos*/,
         ParamSetup const& param_set_up,
         Gravity gravity)
-        : m_eos(eos)
-        , m_param_setup(param_set_up)
+        : m_param_setup(param_set_up)
         , m_gravity(std::move(gravity))
     {
     }

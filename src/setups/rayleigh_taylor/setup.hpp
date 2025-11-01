@@ -50,17 +50,15 @@ template <class Gravity>
 class InitializationSetup : public IInitializationProblem
 {
 private:
-    EOS m_eos;
     ParamSetup m_param_setup;
     Gravity m_gravity;
 
 public:
     InitializationSetup(
-        EOS const& eos,
+        EOS const& /*eos*/,
         ParamSetup const& param_set_up,
         Gravity gravity)
-        : m_eos(eos)
-        , m_param_setup(param_set_up)
+        : m_param_setup(param_set_up)
         , m_gravity(std::move(gravity))
     {
     }

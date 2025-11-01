@@ -56,7 +56,7 @@ public:
     InitializationSetup(
         EOS const& eos,
         ParamSetup const& param_setup,
-        [[maybe_unused]] Gravity const& gravity)
+        Gravity const& /*gravity*/)
         : m_eos(eos)
         , m_param_setup(param_setup)
     {
@@ -122,7 +122,7 @@ public:
     }
 
     void execute(Grid const& grid,
-                 [[maybe_unused]] Gravity const& gravity,
+                 Gravity const& /*gravity*/,
                  KV_double_3d const& rho,
                  KV_double_4d const& rhou,
                  KV_double_3d const& E,

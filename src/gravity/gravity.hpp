@@ -35,11 +35,7 @@ public :
     UniformGravity& operator=(UniformGravity&& rhs) noexcept = default;
 
     KOKKOS_FORCEINLINE_FUNCTION
-    double operator()(
-            [[maybe_unused]] int i,
-            [[maybe_unused]] int j,
-            [[maybe_unused]] int k,
-            int dir) const noexcept
+    double operator()(int /*i*/, int /*j*/, int /*k*/, int dir) const noexcept
     {
         return m_g(dir);
     }
@@ -66,11 +62,7 @@ public :
     PointMassGravity& operator=(PointMassGravity&& rhs) noexcept = default;
 
     KOKKOS_FORCEINLINE_FUNCTION
-    double operator()(
-            int i,
-            [[maybe_unused]] int j,
-            [[maybe_unused]] int k,
-            int dir) const noexcept
+    double operator()(int i, int /*j*/, int /*k*/, int dir) const noexcept
     {
         if (dir == 0)
         {
@@ -103,11 +95,7 @@ public :
     InternalMassGravity& operator=(InternalMassGravity&& rhs) noexcept = default;
 
     KOKKOS_FORCEINLINE_FUNCTION
-    double operator()(
-            int i,
-            [[maybe_unused]] int j,
-            [[maybe_unused]] int k,
-            int dir) const noexcept
+    double operator()(int i, int /*j*/, int /*k*/, int dir) const noexcept
     {
         if (dir == 0)
         {
