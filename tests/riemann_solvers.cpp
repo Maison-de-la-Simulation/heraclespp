@@ -7,8 +7,8 @@
 #include <gtest/gtest.h>
 
 #include <Kokkos_Array.hpp>
-#include <PerfectGas.hpp>
 #include <euler_equations.hpp>
+#include <perfect_gas.hpp>
 #include <riemann_solver.hpp>
 
 template <class RiemannSolver>

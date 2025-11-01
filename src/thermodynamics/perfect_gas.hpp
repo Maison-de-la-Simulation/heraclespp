@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 //!
-//! @file PerfectGas.hpp
+//! @file perfect_gas.hpp
 //!
 
 #pragma once

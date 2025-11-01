@@ -6,12 +6,12 @@
 
 #include <Kokkos_MathematicalFunctions.hpp>
 
-#include "PerfectGas.hpp"
+#include "rad_gas.hpp"
 
 namespace novapp::thermodynamics
 {
 
-PerfectGas::PerfectGas(double const gamma, double const mmw)
+RadGas::RadGas(double const gamma, double const mmw)
     : m_gamma(gamma)
     , m_gamma_m1(gamma - 1)
     , m_mmw(mmw)

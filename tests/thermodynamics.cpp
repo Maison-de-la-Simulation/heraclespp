@@ -9,8 +9,8 @@
 
 #include <gtest/gtest.h>
 
-#include <PerfectGas.hpp>
-#include <RadGas.hpp>
+#include <perfect_gas.hpp>
+#include <rad_gas.hpp>
 
 template <class EoS>
 class EquationOfStateFixture : public ::testing::Test

@@ -16,10 +16,10 @@
 #include <inih/INIReader.hpp>
 
 #include <Kokkos_Core.hpp>
-#include <PerfectGas.hpp>
 #include <grid.hpp>
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
+#include <perfect_gas.hpp>
 #include <range.hpp>
 #include <units.hpp>
 
