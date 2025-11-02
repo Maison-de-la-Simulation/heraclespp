@@ -32,12 +32,12 @@ IComputeGeom& IComputeGeom::operator=(IComputeGeom&& /*rhs*/) noexcept = default
 
 void Cartesian::execute(
     Range const& range,
-    KV_cdouble_1d const& /*x*/,
-    KV_cdouble_1d const& /*y*/,
-    KV_cdouble_1d const& /*z*/,
-    KV_cdouble_1d const& dx,
-    KV_cdouble_1d const& dy,
-    KV_cdouble_1d const& dz,
+    KV_cdouble_1d const& /*x0*/,
+    KV_cdouble_1d const& /*x1*/,
+    KV_cdouble_1d const& /*x2*/,
+    KV_cdouble_1d const& dx0,
+    KV_cdouble_1d const& dx1,
+    KV_cdouble_1d const& dx2,
     KV_double_4d const& ds,
     KV_double_3d const& dv) const
 {
@@ -49,9 +49,9 @@ void Cartesian::execute(
             Kokkos::Array<double, 3> dx_inter;
             for (int idim = 0; idim < 3; ++idim)
             {
-                dx_inter[0] = dx(i);
-                dx_inter[1] = dy(j);
-                dx_inter[2] = dz(k);
+                dx_inter[0] = dx0(i);
+                dx_inter[1] = dx1(j);
+                dx_inter[2] = dx2(k);
                 dx_inter[idim] = 1;
                 ds(i, j, k, idim) = dx_inter[0] * dx_inter[1] * dx_inter[2];
             }
@@ -62,18 +62,18 @@ void Cartesian::execute(
         cell_mdrange(range),
         KOKKOS_LAMBDA(int i, int j, int k)
         {
-            dv(i, j, k) = dx(i) * dy(j) * dz(k);
+            dv(i, j, k) = dx0(i) * dx1(j) * dx2(k);
         });
 }
 
 void Spherical::execute(
     Range const& range,
-    KV_cdouble_1d const& x,
-    KV_cdouble_1d const& y,
-    KV_cdouble_1d const& /*z*/,
-    KV_cdouble_1d const& dx,
-    KV_cdouble_1d const& dy,
-    KV_cdouble_1d const& dz,
+    KV_cdouble_1d const& x0,
+    KV_cdouble_1d const& x1,
+    KV_cdouble_1d const& /*x2*/,
+    KV_cdouble_1d const& dx0,
+    KV_cdouble_1d const& dx1,
+    KV_cdouble_1d const& dx2,
     KV_double_4d const& ds,
     KV_double_3d const& dv) const
 {
@@ -86,7 +86,7 @@ void Spherical::execute(
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                ds(i, j, k, 0) = 4 * Kokkos::numbers::pi * x(i) * x(i);
+                ds(i, j, k, 0) = 4 * Kokkos::numbers::pi * x0(i) * x0(i);
             });
 
         Kokkos::parallel_for(
@@ -94,8 +94,8 @@ void Spherical::execute(
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                dv(i, j, k) = (4 * Kokkos::numbers::pi * (x(i+1) * x(i+1) * x(i+1)
-                            - (x(i) * x(i) * x(i)))) / 3;
+                dv(i, j, k) = (4 * Kokkos::numbers::pi * (x0(i+1) * x0(i+1) * x0(i+1)
+                            - (x0(i) * x0(i) * x0(i)))) / 3;
             });
     }
 
@@ -107,10 +107,10 @@ void Spherical::execute(
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                double const dcos = Kokkos::cos(y(j)) - Kokkos::cos(y(j+1));
-                ds(i, j, k, 0) = 2 * Kokkos::numbers::pi * x(i) * x(i) * dcos;              //r = cst
-                ds(i, j, k, 1) = (2 * Kokkos::numbers::pi / 2) * (x(i+1) * x(i+1) - (x(i) * x(i)))
-                                * Kokkos::sin(y(j)); // theta = cst
+                double const dcos = Kokkos::cos(x1(j)) - Kokkos::cos(x1(j+1));
+                ds(i, j, k, 0) = 2 * Kokkos::numbers::pi * x0(i) * x0(i) * dcos;              //r = cst
+                ds(i, j, k, 1) = (2 * Kokkos::numbers::pi / 2) * (x0(i+1) * x0(i+1) - (x0(i) * x0(i)))
+                                * Kokkos::sin(x1(j)); // theta = cst
             });
 
         Kokkos::parallel_for(
@@ -118,9 +118,9 @@ void Spherical::execute(
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                double const dcos = Kokkos::cos(y(j)) - Kokkos::cos(y(j+1));
-                dv(i, j, k) = (2 * Kokkos::numbers::pi / 3) * (x(i+1) * x(i+1) * x(i+1)
-                                - (x(i) * x(i) * x(i))) * dcos;
+                double const dcos = Kokkos::cos(x1(j)) - Kokkos::cos(x1(j+1));
+                dv(i, j, k) = (2 * Kokkos::numbers::pi / 3) * (x0(i+1) * x0(i+1) * x0(i+1)
+                                - (x0(i) * x0(i) * x0(i))) * dcos;
             });
     }
 
@@ -131,11 +131,11 @@ void Spherical::execute(
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                double const dcos = Kokkos::cos(y(j)) - Kokkos::cos(y(j+1));
-                ds(i, j, k, 0) = x(i) * x(i) * dcos * dz(k);              //r = cst
-                ds(i, j, k, 1) = (1. / 2) * (x(i+1) * x(i+1) - (x(i) * x(i)))
-                                * Kokkos::sin(y(j)) * dz(k); // theta = cst
-                ds(i, j, k, 2) = x(i) * dx(i) * dy(j);                     //phi = cst
+                double const dcos = Kokkos::cos(x1(j)) - Kokkos::cos(x1(j+1));
+                ds(i, j, k, 0) = x0(i) * x0(i) * dcos * dx2(k);              //r = cst
+                ds(i, j, k, 1) = (1. / 2) * (x0(i+1) * x0(i+1) - (x0(i) * x0(i)))
+                                * Kokkos::sin(x1(j)) * dx2(k); // theta = cst
+                ds(i, j, k, 2) = x0(i) * dx0(i) * dx1(j);                     //phi = cst
             });
 
         Kokkos::parallel_for(
@@ -143,9 +143,9 @@ void Spherical::execute(
             cell_mdrange(range),
             KOKKOS_LAMBDA(int i, int j, int k)
             {
-                double const dcos = Kokkos::cos(y(j)) - Kokkos::cos(y(j+1));
-                dv(i, j, k) = (1. / 3) * (x(i+1) * x(i+1) * x(i+1)
-                                - (x(i) * x(i) * x(i))) * dcos * dz(k);
+                double const dcos = Kokkos::cos(x1(j)) - Kokkos::cos(x1(j+1));
+                dv(i, j, k) = (1. / 3) * (x0(i+1) * x0(i+1) * x0(i+1)
+                                - (x0(i) * x0(i) * x0(i))) * dcos * dx2(k);
             });
     }
 }

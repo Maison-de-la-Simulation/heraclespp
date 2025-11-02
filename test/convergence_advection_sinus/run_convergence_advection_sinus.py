@@ -29,7 +29,7 @@ def run_convergence_test(sources: pathlib.Path):
             setup_config_path = test_dir_name.joinpath(base_setup_config_path.name)
             config = configparser.ConfigParser(inline_comment_prefixes="#")
             config.read(base_setup_config_path)
-            config["Grid"]["Nx_glob"] = str(nx_glob)
+            config["Grid"]["Nx0_glob"] = str(nx_glob)
             config["Output"]["directory"] = str(directory)
             config["Output"]["prefix"] = prefix
             with open(setup_config_path, mode="w", encoding="utf-8") as configfile:

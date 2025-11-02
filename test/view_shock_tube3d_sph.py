@@ -20,10 +20,10 @@ def main():
     with h5py.File(str(filename), "r") as f:
         rho_1d = f["rho"][0, 0, :]  # rho(r)
         rho2 = f["rho"][:, 0, :]  # rho(r, phi)
-        u_1d = f["ux"][0, 0, :]
+        u_1d = f["ux0"][0, 0, :]
         P_1d = f["P"][0, 0, :]
-        x = f["x_ng"][()]
-        z = f["z_ng"][()]
+        x = f["x0_ng"][()]
+        z = f["x2_ng"][()]
         t = f["current_time"][()]
         gamma = f["gamma"][()]
 

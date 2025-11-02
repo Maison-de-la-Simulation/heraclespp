@@ -89,11 +89,11 @@ Range::Range(std::array<int, 3> const& Cmin, std::array<int, 3> const& Cmax, int
 }
 
 Range::Range(
-        std::array<int, 2> const& rng_x,
-        std::array<int, 2> const& rng_y,
-        std::array<int, 2> const& rng_z,
+        std::array<int, 2> const& rng_x0,
+        std::array<int, 2> const& rng_x1,
+        std::array<int, 2> const& rng_x2,
         int const Nghost)
-    : Range({rng_x[0], rng_y[0], rng_z[0]}, {rng_x[1], rng_y[1], rng_z[1]}, Nghost)
+    : Range({rng_x0[0], rng_x1[0], rng_x2[0]}, {rng_x0[1], rng_x1[1], rng_x2[1]}, Nghost)
 {
 }
 

@@ -71,17 +71,17 @@ Grid::Grid(std::array<int, 3> const& nx_glob_ng, std::array<int, 3> const& mpi_d
 
     mpi_decomposition();
 
-    x = KV_double_1d("x", Nx_local_wg[0]+1);
-    y = KV_double_1d("y", Nx_local_wg[1]+1);
-    z = KV_double_1d("z", Nx_local_wg[2]+1);
+    x0 = KV_double_1d("x0", Nx_local_wg[0]+1);
+    x1 = KV_double_1d("x1", Nx_local_wg[1]+1);
+    x2 = KV_double_1d("x2", Nx_local_wg[2]+1);
 
-    x_center = KV_double_1d("x_center", Nx_local_wg[0]);
-    y_center = KV_double_1d("y_center", Nx_local_wg[1]);
-    z_center = KV_double_1d("z_center", Nx_local_wg[2]);
+    x0_center = KV_double_1d("x0_center", Nx_local_wg[0]);
+    x1_center = KV_double_1d("x1_center", Nx_local_wg[1]);
+    x2_center = KV_double_1d("x2_center", Nx_local_wg[2]);
 
-    dx = KV_double_1d("dx", Nx_local_wg[0]);
-    dy = KV_double_1d("dy", Nx_local_wg[1]);
-    dz = KV_double_1d("dz", Nx_local_wg[2]);
+    dx0 = KV_double_1d("dx0", Nx_local_wg[0]);
+    dx1 = KV_double_1d("dx1", Nx_local_wg[1]);
+    dx2 = KV_double_1d("dx2", Nx_local_wg[2]);
 
     ds = KV_double_4d("ds", Nx_local_wg[0],
                             Nx_local_wg[1],
@@ -154,28 +154,28 @@ void Grid::mpi_decomposition()
     MPI_Cart_sub(comm_cart, remain_dims.data(), &comm_cart_horizontal);
 }
 
-void Grid::set_grid(KV_double_1d const& x_glob, KV_double_1d const& y_glob, KV_double_1d const& z_glob)
+void Grid::set_grid(KV_double_1d const& x0_glob, KV_double_1d const& x1_glob, KV_double_1d const& x2_glob)
 {
     // Filling x, y, z
-    Kokkos::deep_copy(x, Kokkos::subview(x_glob, Kokkos::pair<int, int>(range.Corner_min[0], range.Corner_min[0]+Nx_local_wg[0]+1)));
-    Kokkos::deep_copy(y, Kokkos::subview(y_glob, Kokkos::pair<int, int>(range.Corner_min[1], range.Corner_min[1]+Nx_local_wg[1]+1)));
-    Kokkos::deep_copy(z, Kokkos::subview(z_glob, Kokkos::pair<int, int>(range.Corner_min[2], range.Corner_min[2]+Nx_local_wg[2]+1)));
+    Kokkos::deep_copy(x0, Kokkos::subview(x0_glob, Kokkos::pair<int, int>(range.Corner_min[0], range.Corner_min[0]+Nx_local_wg[0]+1)));
+    Kokkos::deep_copy(x1, Kokkos::subview(x1_glob, Kokkos::pair<int, int>(range.Corner_min[1], range.Corner_min[1]+Nx_local_wg[1]+1)));
+    Kokkos::deep_copy(x2, Kokkos::subview(x2_glob, Kokkos::pair<int, int>(range.Corner_min[2], range.Corner_min[2]+Nx_local_wg[2]+1)));
 
     // Filling dx, dy, dz
-    compute_cell_size(x, dx);
-    compute_cell_size(y, dy);
-    compute_cell_size(z, dz);
+    compute_cell_size(x0, dx0);
+    compute_cell_size(x1, dx1);
+    compute_cell_size(x2, dx2);
 
     // Filling x_center, y_center, z_center
-    compute_cell_center(x, x_center);
-    compute_cell_center(y, y_center);
-    compute_cell_center(z, z_center);
+    compute_cell_center(x0, x0_center);
+    compute_cell_center(x1, x1_center);
+    compute_cell_center(x2, x2_center);
 
     std::unique_ptr<IComputeGeom> grid_geometry
             = factory_grid_geometry();
 
     // Filling ds, dv
-    grid_geometry->execute(range.all_ghosts(), x, y, z, dx, dy, dz, ds, dv);
+    grid_geometry->execute(range.all_ghosts(), x0, x1, x2, dx0, dx1, dx2, ds, dv);
 }
 
 void Grid::print_grid(std::ostream& os) const

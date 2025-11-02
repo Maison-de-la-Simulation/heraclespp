@@ -19,8 +19,8 @@ def main():
 
     with h5py.File(str(filename), "r") as f:
         rho = f["rho"][0, :, :]
-        x = f["x_ng"][()]
-        y = f["y_ng"][()]
+        x = f["x0_ng"][()]
+        y = f["x1_ng"][()]
         fx = f["fx0"][0, :, :]
         t = f["current_time"][()]
         iteration = f["iter"][()]

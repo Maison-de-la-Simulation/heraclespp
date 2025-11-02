@@ -16,7 +16,7 @@ def read_start_file(filename):
         rho = f["rho_1d"][()]
         u = f["u_1d"][()]
         P = f["P_1d"][()]
-        x = f["x_ng"][()]
+        x = f["x0_ng"][()]
         t = f["current_time"][()]
     return rho, u, P, x, t
 
@@ -24,10 +24,10 @@ def read_start_file(filename):
 def read_file_1d_r(filename):
     with h5py.File(str(filename), "r") as f:
         rho = f["rho"][0, 0, :]
-        u = f["ux"][0, 0, :]
+        u = f["ux0"][0, 0, :]
         P = f["P"][0, 0, :]
         T = f["T"][0, 0, :]
-        x = f["x_ng"][()]
+        x = f["x0_ng"][()]
         t = f["current_time"][()]
     return rho, u, P, T, x, t
 
@@ -45,7 +45,7 @@ def read_file_1d_r_element(filename):
 def read_3d_file_in_1d_angular_mean(filename):
     with h5py.File(str(filename), "r") as f:
         rho_file = f["rho"][:, :, :]
-        u_file = f["ux"][:, :, :]
+        u_file = f["ux0"][:, :, :]
         P_file = f["P"][:, :, :]
         T_file = f["E"][:, :, :]
     rho = np.mean(rho_file, axis=(0, 1))

@@ -47,9 +47,9 @@ public:
 
         auto const& slope_limiter = m_slope_limiter;
 
-        KV_cdouble_1d const dx = grid.dx;
-        KV_cdouble_1d const dy = grid.dy;
-        KV_cdouble_1d const dz = grid.dz;
+        KV_cdouble_1d const dx0 = grid.dx0;
+        KV_cdouble_1d const dx1 = grid.dx1;
+        KV_cdouble_1d const dx2 = grid.dx2;
 
         Kokkos::parallel_for(
             "face_reconstruction",
@@ -60,15 +60,15 @@ public:
                 {
                     auto const [i_m, j_m, k_m] = lindex(idim, i, j, k); // i - 1
                     auto const [i_p, j_p, k_p] = rindex(idim, i, j, k); // i + 1
-                    double const dl = (kron(idim,0) * dx(i))
-                                    + (kron(idim,1) * dy(j))
-                                    + (kron(idim,2) * dz(k));
-                    double const dl_m = (kron(idim,0) * dx(i_m))
-                                      + (kron(idim,1) * dy(j_m))
-                                      + (kron(idim,2) * dz(k_m));
-                    double const dl_p = (kron(idim,0) * dx(i_p))
-                                      + (kron(idim,1) * dy(j_p))
-                                      + (kron(idim,2) * dz(k_p));
+                    double const dl = (kron(idim,0) * dx0(i))
+                                    + (kron(idim,1) * dx1(j))
+                                    + (kron(idim,2) * dx2(k));
+                    double const dl_m = (kron(idim,0) * dx0(i_m))
+                                      + (kron(idim,1) * dx1(j_m))
+                                      + (kron(idim,2) * dx2(k_m));
+                    double const dl_p = (kron(idim,0) * dx0(i_p))
+                                      + (kron(idim,1) * dx1(j_p))
+                                      + (kron(idim,2) * dx2(k_p));
 
                     double const slope = slope_limiter(
                         (var(i_p, j_p, k_p) - var(i, j, k)) / ((dl + dl_p) / 2),

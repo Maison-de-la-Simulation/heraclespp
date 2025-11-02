@@ -45,11 +45,11 @@ template <concepts::EulerEoS EoS>
     assert(equal_extents({0, 1, 2}, rho, u, P));
     assert(u.extent(3) == ndim);
 
-    auto const& dx = grid.dx;
-    auto const& dy = grid.dy;
-    auto const& dz = grid.dz;
-    auto const& x_center = grid.x_center;
-    auto const& y_center = grid.y_center;
+    auto const& dx0 = grid.dx0;
+    auto const& dx1 = grid.dx1;
+    auto const& dx2 = grid.dx2;
+    auto const& x0_center = grid.x0_center;
+    auto const& x1_center = grid.x1_center;
 
     double inverse_dt = 0;
 
@@ -59,17 +59,17 @@ template <concepts::EulerEoS EoS>
         KOKKOS_LAMBDA(int i, int j, int k, double& local_inverse_dt)
         {
             double const sound = eos.compute_speed_of_sound(rho(i, j, k), P(i, j, k));
-            Kokkos::Array<double, 3> dx_geom {dx(i), dy(j), dz(k)};
+            Kokkos::Array<double, 3> dx_geom {dx0(i), dx1(j), dx2(k)};
             if (geom == Geometry::Geom_spherical)
             {
                 if (ndim == 2)
                 {
-                    dx_geom[1] *= x_center(i);
+                    dx_geom[1] *= x0_center(i);
                 }
                 if (ndim == 3)
                 {
-                    dx_geom[1] *= x_center(i);
-                    dx_geom[2] *= x_center(i) * Kokkos::sin(y_center(j));
+                    dx_geom[1] *= x0_center(i);
+                    dx_geom[2] *= x0_center(i) * Kokkos::sin(x1_center(j));
                 }
             }
 

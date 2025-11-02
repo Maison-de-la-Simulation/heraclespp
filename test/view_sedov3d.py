@@ -34,11 +34,11 @@ def main():
     with h5py.File(str(filename), "r") as f:
         # print(f.keys())
         rho_1d = f["rho"][ind_ph, ind_th, :]  # rho(r)
-        u_1d = f["ux"][ind_ph, ind_th, :]  # u(r)
+        u_1d = f["ux0"][ind_ph, ind_th, :]  # u(r)
         P_1d = f["P"][ind_ph, ind_th, :]  # P(r)
         rho_r_th = f["rho"][ind_ph, :, :]  # rho(r, theta)
-        x = f["x_ng"][()]
-        y = f["y_ng"][()]
+        x = f["x0_ng"][()]
+        y = f["x1_ng"][()]
         t = f["current_time"][()]
         iteration = f["iter"][()]
         gamma = f["gamma"][()]

@@ -23,9 +23,9 @@ void shift_grid(
         KV_double_4d const& rhou_new,
         KV_double_3d const& E_new,
         KV_double_4d const& fx_new,
-        KDV_double_1d& x_glob,
-        KDV_double_1d& y_glob,
-        KDV_double_1d& z_glob,
+        KDV_double_1d& x0_glob,
+        KDV_double_1d& x1_glob,
+        KDV_double_1d& x2_glob,
         Grid& grid);
 
 } // namespace novapp

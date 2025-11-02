@@ -111,9 +111,9 @@ public:
         // double hrms = 3E-4 * L;
         // double H = Kokkos::sqrt((1. / 4) * (ak * ak + bk * bk + ck * ck + dk * dk)) / hrms;
 
-        auto const x_d = grid.x;
-        auto const y_d = grid.y;
-        auto const z_d = grid.z;
+        auto const x_d = grid.x0;
+        auto const y_d = grid.x1;
+        auto const z_d = grid.x2;
         auto const& gravity = m_gravity;
         auto const& param_setup = m_param_setup;
 

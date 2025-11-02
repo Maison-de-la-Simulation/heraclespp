@@ -84,8 +84,8 @@ public:
 
         auto const& eos = m_eos;
         int const nfx = fx_rec.extent_int(5);
-        auto const x = grid.x;
-        auto const y = grid.y;
+        auto const x0 = grid.x0;
+        auto const x1 = grid.x1;
         auto const ds = grid.ds;
         auto const dv = grid.dv;
 
@@ -181,10 +181,10 @@ public:
                                                                     primL.u[1], primR.u[1], ds(i, j, k, idim), ds(i_p, j_p, k_p, idim));
 
                                     // Velocity term (e_{th}): rho * u_{th} * u_{r} / r
-                                    rhou_rec(i, j, k, 0, ipos, 1) -= source_grad_u_idir_r(dtodv, x(i), x(i+1), primL.rho, primR.rho,
+                                    rhou_rec(i, j, k, 0, ipos, 1) -= source_grad_u_idir_r(dtodv, x0(i), x0(i+1), primL.rho, primR.rho,
                                                                     primL.u[0], primR.u[0], primL.u[1], primR.u[1],
                                                                     ds(i, j, k, idim), ds(i_p, j_p, k_p, idim));
-                                    rhou_rec(i, j, k, 1, ipos, 1) -= source_grad_u_idir_r(dtodv, x(i), x(i+1), primL.rho, primR.rho,
+                                    rhou_rec(i, j, k, 1, ipos, 1) -= source_grad_u_idir_r(dtodv, x0(i), x0(i+1), primL.rho, primR.rho,
                                                                     primL.u[0], primR.u[0], primL.u[1], primR.u[1],
                                                                     ds(i, j, k, idim), ds(i_p, j_p, k_p, idim));
                                 }
@@ -197,10 +197,10 @@ public:
                                                                         primL.u[2], primR.u[2], ds(i, j, k, idim), ds(i_p, j_p, k_p, idim));
 
                                     // Velocity term (e_{phi}): rho * u_{phi} * u_{r} / r
-                                    rhou_rec(i, j, k, 0, ipos, 2) -= source_grad_u_idir_r(dtodv, x(i), x(i+1), primL.rho, primR.rho,
+                                    rhou_rec(i, j, k, 0, ipos, 2) -= source_grad_u_idir_r(dtodv, x0(i), x0(i+1), primL.rho, primR.rho,
                                                                     primL.u[0], primR.u[0], primL.u[2], primR.u[2],
                                                                     ds(i, j, k, idim), ds(i_p, j_p, k_p, idim));
-                                    rhou_rec(i, j, k, 1, ipos, 2) -= source_grad_u_idir_r(dtodv, x(i), x(i+1), primL.rho, primR.rho,
+                                    rhou_rec(i, j, k, 1, ipos, 2) -= source_grad_u_idir_r(dtodv, x0(i), x0(i+1), primL.rho, primR.rho,
                                                                     primL.u[0], primR.u[0], primL.u[2], primR.u[2],
                                                                     ds(i, j, k, idim), ds(i_p, j_p, k_p, idim));
                                 }
@@ -216,19 +216,19 @@ public:
                                 if (ndim == 3)
                                 {
                                     // Velocity term (e_{th}): cot(th) * rho * u_{phi} * u_{phi} / r
-                                    rhou_rec(i, j, k, 0, ipos, idim) += source_grad_u_th(dtodv, y(j), y(j+1),
+                                    rhou_rec(i, j, k, 0, ipos, idim) += source_grad_u_th(dtodv, x1(j), x1(j+1),
                                                                         primL.rho, primR.rho, primL.u[2], primR.u[2],
                                                                         ds(i, j, k, idim), ds(i_p, j_p, k_p, idim));
-                                    rhou_rec(i, j, k, 1, ipos, idim) += source_grad_u_th(dtodv, y(j), y(j+1),
+                                    rhou_rec(i, j, k, 1, ipos, idim) += source_grad_u_th(dtodv, x1(j), x1(j+1),
                                                                         primL.rho, primR.rho, primL.u[2], primR.u[2],
                                                                         ds(i, j, k, idim), ds(i_p, j_p, k_p, idim));
 
                                     // Velocity term (e_{phi}): cot(th) * rho * u_{phi} * u_{th} / r
-                                    rhou_rec(i, j, k, 0, ipos, 2) -= source_grad_u_phi(dtodv, y(j), y(j+1),
+                                    rhou_rec(i, j, k, 0, ipos, 2) -= source_grad_u_phi(dtodv, x1(j), x1(j+1),
                                                                     primL.rho, primR.rho, primL.u[1], primR.u[1],
                                                                     primL.u[2], primR.u[2],
                                                                     ds(i, j, k, idim), ds(i_p, j_p, k_p, idim));
-                                    rhou_rec(i, j, k, 1, ipos, 2) -= source_grad_u_phi(dtodv, y(j), y(j+1),
+                                    rhou_rec(i, j, k, 1, ipos, 2) -= source_grad_u_phi(dtodv, x1(j), x1(j+1),
                                                                     primL.rho, primR.rho, primL.u[1], primR.u[1],
                                                                     primL.u[2], primR.u[2],
                                                                     ds(i, j, k, idim), ds(i_p, j_p, k_p, idim));

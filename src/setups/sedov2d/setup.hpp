@@ -80,8 +80,8 @@ public:
             throw std::runtime_error("No Sedov 2D in spherical geometry implemented");
         }
 
-        auto const x_grid = grid.x;
-        auto const y_grid = grid.y;
+        auto const x_grid = grid.x0;
+        auto const y_grid = grid.x1;
         auto const& dv = grid.dv;
         auto const& eos = m_eos;
         auto const& param_setup = m_param_setup;

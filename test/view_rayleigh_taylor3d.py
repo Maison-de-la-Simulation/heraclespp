@@ -21,8 +21,8 @@ def main():
         # print(f.keys())
         fx = f["fx"][0, :, 0, :]
         rho = f["rho"][:, 0, :]
-        x = f["x_ng"][()]
-        z = f["z_ng"][()]
+        x = f["x0_ng"][()]
+        z = f["x2_ng"][()]
         t = f["current_time"][()]
         iteration = f["iter"][()]
 

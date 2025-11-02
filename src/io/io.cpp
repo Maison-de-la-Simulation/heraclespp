@@ -188,9 +188,9 @@ void write_pdi(
     KDV_double_4d& u,
     KDV_double_3d& P,
     KDV_double_3d& E,
-    KDV_double_1d& x,
-    KDV_double_1d& y,
-    KDV_double_1d& z,
+    KDV_double_1d& x0,
+    KDV_double_1d& x1,
+    KDV_double_1d& x2,
     KDV_double_4d& fx,
     KDV_double_3d& T)
 {
@@ -198,7 +198,7 @@ void write_pdi(
     int const directory_size = int_cast<int>(directory.size());
     std::string const output_filename = get_output_filename(prefix, output_id);
     int const output_filename_size = int_cast<int>(output_filename.size());
-    sync_host(rho, u, P, E, fx, T, x, y, z);
+    sync_host(rho, u, P, E, fx, T, x0, x1, x2);
     // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     PDI_multi_expose(
         "write_replicated_data",
@@ -213,9 +213,9 @@ void write_pdi(
         "iter", &iter, PDI_OUT,
         "current_time", &t, PDI_OUT,
         "gamma", &gamma, PDI_OUT,
-        "x", x.view_host().data(), PDI_OUT,
-        "y", y.view_host().data(), PDI_OUT,
-        "z", z.view_host().data(), PDI_OUT,
+        "x0", x0.view_host().data(), PDI_OUT,
+        "x1", x1.view_host().data(), PDI_OUT,
+        "x2", x2.view_host().data(), PDI_OUT,
         nullptr);
     // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
@@ -266,31 +266,31 @@ void read_pdi(
     KDV_double_4d& u,
     KDV_double_3d& P,
     KDV_double_4d& fx,
-    KDV_double_1d& x_glob,
-    KDV_double_1d& y_glob,
-    KDV_double_1d& z_glob)
+    KDV_double_1d& x0_glob,
+    KDV_double_1d& x1_glob,
+    KDV_double_1d& x2_glob)
 {
     assert(span_is_contiguous(rho, u, P, fx));
 
     RaiiH5Hid const file_id(::H5Fopen(restart_file.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT), ::H5Fclose);
     // check_extent_dset(file_id, "/rho", std::array {rho.extent(2), rho.extent(1), rho.extent(0)});
-    // check_extent_dset(file_id, "/u_x", std::array {u.extent(2), u.extent(1), u.extent(0)});
+    // check_extent_dset(file_id, "/u_x0", std::array {u.extent(2), u.extent(1), u.extent(0)});
     // if (ndim > 1)
     // {
-    //     check_extent_dset(file_id, "/u_y", std::array {u.extent(2), u.extent(1), u.extent(0)});
+    //     check_extent_dset(file_id, "/u_x1", std::array {u.extent(2), u.extent(1), u.extent(0)});
     // }
     // if (ndim > 2)
     // {
-    //     check_extent_dset(file_id, "/u_z", std::array {u.extent(2), u.extent(1), u.extent(0)});
+    //     check_extent_dset(file_id, "/u_x2", std::array {u.extent(2), u.extent(1), u.extent(0)});
     // }
     // check_extent_dset(file_id, "/P", std::array {P.extent(2), P.extent(1), P.extent(0)});
     // if (fx.extent(3) > 0)
     // {
     //     check_extent_dset(file_id, "/fx", std::array {fx.extent(3), fx.extent(2), fx.extent(1), fx.extent(0)});
     // }
-    check_extent_dset(file_id, "/x", std::array {x_glob.extent(0)});
-    check_extent_dset(file_id, "/y", std::array {y_glob.extent(0)});
-    check_extent_dset(file_id, "/z", std::array {z_glob.extent(0)});
+    check_extent_dset(file_id, "/x0", std::array {x0_glob.extent(0)});
+    check_extent_dset(file_id, "/x1", std::array {x1_glob.extent(0)});
+    check_extent_dset(file_id, "/x2", std::array {x2_glob.extent(0)});
 
     int const filename_size = int_cast<int>(restart_file.size());
     // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
@@ -307,9 +307,9 @@ void read_pdi(
         "rho", rho.view_host().data(), PDI_INOUT,
         "u", u.view_host().data(), PDI_INOUT,
         "P", P.view_host().data(), PDI_INOUT,
-        "x", x_glob.view_host().data(), PDI_INOUT,
-        "y", y_glob.view_host().data(), PDI_INOUT,
-        "z", z_glob.view_host().data(), PDI_INOUT,
+        "x0", x0_glob.view_host().data(), PDI_INOUT,
+        "x1", x1_glob.view_host().data(), PDI_INOUT,
+        "x2", x2_glob.view_host().data(), PDI_INOUT,
         nullptr);
     for(int ifx=0; ifx<fx.extent_int(3); ++ifx)
     {
@@ -322,7 +322,7 @@ void read_pdi(
             nullptr);
     }
     // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
-    modify_host(rho, u, P, fx, x_glob, y_glob, z_glob);
+    modify_host(rho, u, P, fx, x0_glob, x1_glob, x2_glob);
 }
 
 XmlWriter::XmlWriter(std::string directory, std::string prefix, int const nfx)
@@ -333,7 +333,7 @@ XmlWriter::XmlWriter(std::string directory, std::string prefix, int const nfx)
     for (int ifx = 0; ifx < nfx; ++ifx) {
         m_var_names.emplace_back("fx" + std::to_string(ifx));
     }
-    std::array<std::string_view, 3> const velocity {"ux", "uy", "uz"};
+    std::array<std::string_view, 3> const velocity {"ux0", "ux1", "ux2"};
     for (int idim = 0; idim < ndim; ++idim) {
         m_var_names.emplace_back(velocity[idim]);
     }
@@ -343,11 +343,11 @@ void XmlWriter::operator()(
         Grid const& grid,
         int const output_id,
         std::vector<std::pair<int, double>> const& outputs_record,
-        KDV_double_1d& x,
-        KDV_double_1d& y,
-        KDV_double_1d& z) const
+        KDV_double_1d& x0,
+        KDV_double_1d& x1,
+        KDV_double_1d& x2) const
 {
-    sync_host(x, y, z);
+    sync_host(x0, x1, x2);
     if (grid.mpi_rank != 0)
     {
         return;
@@ -404,8 +404,8 @@ void XmlWriter::operator()(
         xdmfFile << ">\n";
 
         std::string const output_filename = get_output_filename(m_prefix, first_output_id + i);
-        std::array const axes_arrays {x.view_host(), y.view_host(), z.view_host()};
-        std::array const axes_labels {"x_ng", "y_ng", "z_ng"};
+        std::array const axes_arrays {x0.view_host(), x1.view_host(), x2.view_host()};
+        std::array const axes_labels {"x0_ng", "x1_ng", "x2_ng"};
         for (int idim = 0; idim < 3; ++idim)
         {
             indent.push();

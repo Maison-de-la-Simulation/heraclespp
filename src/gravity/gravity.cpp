@@ -26,15 +26,15 @@ namespace novapp
 
 UniformGravity::UniformGravity(KV_cdouble_1d g) : m_g(std::move(g)) {}
 
-UniformGravity make_uniform_gravity(double const gx, double const gy, double const gz)
+UniformGravity make_uniform_gravity(double const gx0, double const gx1, double const gx2)
 {
     KDV_double_1d g_array_dv("g_array", 3);
     {
         // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
         auto const g_array_h = g_array_dv.view_host();
-        g_array_h(0) = gx;
-        g_array_h(1) = gy;
-        g_array_h(2) = gz;
+        g_array_h(0) = gx0;
+        g_array_h(1) = gx1;
+        g_array_h(2) = gx2;
     }
     g_array_dv.modify_host();
     g_array_dv.sync_device();
@@ -49,14 +49,14 @@ PointMassGravity make_point_mass_gravity(
 {
     KV_double_1d const g_array("g_array", grid.Nx_local_wg[0]);
 
-    KV_cdouble_1d const xc = grid.x_center;
+    KV_cdouble_1d const x0c = grid.x0_center;
 
     Kokkos::parallel_for(
         "point_mass_gravity",
         Kokkos::RangePolicy<int>(0, grid.Nx_local_wg[0]),
         KOKKOS_LAMBDA(int i)
         {
-            g_array(i) = - units::G * central_mass / (xc(i) * xc(i));
+            g_array(i) = - units::G * central_mass / (x0c(i) * x0c(i));
         });
     return PointMassGravity(g_array);
 }
@@ -78,8 +78,8 @@ InternalMassGravity make_internal_mass_gravity(
     KDV_double_1d rho_mean_dv("rho_mean_array", grid.Nx_local_ng[0] + grid.Nghost[0]); // sum (rho * dv) / (sum dv)
 
     KV_double_1d const M_r("M_r_array", grid.Nx_local_wg[0]); // total mass at r
-    auto const x = grid.x;
-    auto const xc = grid.x_center;
+    auto const x0 = grid.x0;
+    auto const x0c = grid.x0_center;
     auto const dv = grid.dv;
 
     Kokkos::Array<int, 3> nghost;
@@ -140,15 +140,15 @@ InternalMassGravity make_internal_mass_gravity(
         {
             double const vol_s3 = 4 * units::pi / 3;
             int const offset  = i - nghost[0];
-            double const x3 = x(i) * x(i) * x(i);
+            double const x3 = x0(i) * x0(i) * x0(i);
             if (i == nghost[0])
             {
-                partial_sum += central_mass + (vol_s3 * (xc(i) * xc(i) * xc(i) - x3) * rho_mean(offset));
+                partial_sum += central_mass + (vol_s3 * (x0c(i) * x0c(i) * x0c(i) - x3) * rho_mean(offset));
             }
             else
             {
-                partial_sum +=  (vol_s3 * (x3 - xc(i-1) * xc(i-1) * xc(i-1)) * rho_mean(offset-1))
-                    + (vol_s3 * (xc(i) * xc(i) * xc(i) - x3) * rho_mean(offset));
+                partial_sum +=  (vol_s3 * (x3 - x0c(i-1) * x0c(i-1) * x0c(i-1)) * rho_mean(offset-1))
+                    + (vol_s3 * (x0c(i) * x0c(i) * x0c(i) - x3) * rho_mean(offset));
             }
             if (is_final)
             {
@@ -161,7 +161,7 @@ InternalMassGravity make_internal_mass_gravity(
         Kokkos::RangePolicy<int>(0, grid.Nx_local_wg[0]),
         KOKKOS_LAMBDA(int i)
         {
-            g_array_dv(i) = - units::G * M_r(i) / (xc(i) * xc(i));
+            g_array_dv(i) = - units::G * M_r(i) / (x0c(i) * x0c(i));
         });
 
     return InternalMassGravity(g_array_dv);

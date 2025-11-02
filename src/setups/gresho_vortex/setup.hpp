@@ -70,8 +70,8 @@ public:
         assert(u.extent_int(3) == 2);
         assert(fx.extent_int(3) == 0);
 
-        auto const xc = grid.x_center;
-        auto const yc = grid.y_center;
+        auto const xc = grid.x0_center;
+        auto const yc = grid.x1_center;
         auto const& eos = m_eos;
         auto const& param_setup = m_param_setup;
 
