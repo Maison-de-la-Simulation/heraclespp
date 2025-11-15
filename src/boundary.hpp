@@ -18,8 +18,7 @@
 #    include <ndim.hpp>
 #endif
 
-namespace novapp
-{
+namespace novapp {
 
 class Grid;
 
@@ -27,21 +26,25 @@ std::string_view bc_dir(int i) noexcept;
 
 std::string_view bc_face(int i) noexcept;
 
-void null_gradient_condition(int m_bc_idim, int m_bc_iface,
-                             std::string const& m_label,
-                             Grid const& grid,
-                             KV_double_3d const& rho,
-                             KV_double_4d const& rhou,
-                             KV_double_3d const& E,
-                             KV_double_4d const& fx);
+void null_gradient_condition(
+        int m_bc_idim,
+        int m_bc_iface,
+        std::string const& m_label,
+        Grid const& grid,
+        KV_double_3d const& rho,
+        KV_double_4d const& rhou,
+        KV_double_3d const& E,
+        KV_double_4d const& fx);
 
-void reflexive_condition(int m_bc_idim, int m_bc_iface,
-                         std::string const& m_label,
-                         Grid const& grid,
-                         KV_double_3d const& rho,
-                         KV_double_4d const& rhou,
-                         KV_double_3d const& E,
-                         KV_double_4d const& fx);
+void reflexive_condition(
+        int m_bc_idim,
+        int m_bc_iface,
+        std::string const& m_label,
+        Grid const& grid,
+        KV_double_3d const& rho,
+        KV_double_4d const& rhou,
+        KV_double_3d const& E,
+        KV_double_4d const& fx);
 
 template <concepts::GravityField Gravity>
 class IBoundaryCondition
@@ -75,12 +78,14 @@ public:
 
     IBoundaryCondition& operator=(IBoundaryCondition&& rhs) noexcept = default;
 
-    virtual void execute(Grid const& grid,
-                         Gravity const& gravity,
-                         KV_double_3d const& rho,
-                         KV_double_4d const& rhou,
-                         KV_double_3d const& E,
-                         KV_double_4d const& fx) const = 0;
+    virtual void execute(
+            Grid const& grid,
+            Gravity const& gravity,
+            KV_double_3d const& rho,
+            KV_double_4d const& rhou,
+            KV_double_3d const& E,
+            KV_double_4d const& fx) const
+            = 0;
 };
 
 template <concepts::GravityField Gravity>
@@ -96,12 +101,13 @@ public:
     {
     }
 
-    void execute(Grid const& grid,
-                 Gravity const& /*gravity*/,
-                 KV_double_3d const& rho,
-                 KV_double_4d const& rhou,
-                 KV_double_3d const& E,
-                 KV_double_4d const& fx) const final
+    void execute(
+            Grid const& grid,
+            Gravity const& /*gravity*/,
+            KV_double_3d const& rho,
+            KV_double_4d const& rhou,
+            KV_double_3d const& E,
+            KV_double_4d const& fx) const final
     {
         assert(equal_extents({0, 1, 2}, rho, rhou, E, fx));
         assert(rhou.extent_int(3) == ndim);
@@ -144,12 +150,13 @@ public:
     {
     }
 
-    void execute(Grid const& grid,
-                 Gravity const& /*gravity*/,
-                 KV_double_3d const& rho,
-                 KV_double_4d const& rhou,
-                 KV_double_3d const& E,
-                 KV_double_4d const& fx) const final
+    void execute(
+            Grid const& grid,
+            Gravity const& /*gravity*/,
+            KV_double_3d const& rho,
+            KV_double_4d const& rhou,
+            KV_double_3d const& E,
+            KV_double_4d const& fx) const final
     {
         assert(equal_extents({0, 1, 2}, rho, rhou, E, fx));
         assert(rhou.extent_int(3) == ndim);

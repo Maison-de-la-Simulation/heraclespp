@@ -12,8 +12,7 @@
 #include <Kokkos_Macros.hpp>
 #include <Kokkos_MathematicalFunctions.hpp>
 
-namespace novapp
-{
+namespace novapp {
 
 //! The null slope limiter.
 class Constant
@@ -37,8 +36,7 @@ public:
     KOKKOS_FORCEINLINE_FUNCTION
     double operator()(double const diffR, double const diffL) const noexcept
     {
-        if (diffL * diffR > 0)
-        {
+        if (diffL * diffR > 0) {
             double const ratio = diffR / diffL;
             return (1. / 2) * (diffR + diffL) * (4 * ratio) / ((ratio + 1) * (ratio + 1));
         }
@@ -58,8 +56,7 @@ public:
     KOKKOS_FORCEINLINE_FUNCTION
     double operator()(double const diffR, double const diffL) const noexcept
     {
-        if (diffL * diffR > 0)
-        {
+        if (diffL * diffR > 0) {
             double const ratio = diffR / diffL;
             double const minmod = 2 * Kokkos::fmin(1., ratio) / (1 + ratio);
             return minmod * (diffL + diffR) / 2;
@@ -80,8 +77,7 @@ public:
     KOKKOS_FORCEINLINE_FUNCTION
     double operator()(double const diffR, double const diffL) const noexcept
     {
-        if (diffL * diffR > 0)
-        {
+        if (diffL * diffR > 0) {
             double const ratio = diffR / diffL;
             return (1. / 2) * (diffR + diffL) * (2 * ratio) / (ratio * ratio + 1);
         }

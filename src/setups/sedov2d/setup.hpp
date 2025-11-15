@@ -24,8 +24,7 @@
 #include "default_user_step.hpp" // IWYU pragma: keep
 #include "initialization_interface.hpp"
 
-namespace novapp
-{
+namespace novapp {
 
 class ParamSetup
 {
@@ -54,29 +53,21 @@ private:
     ParamSetup m_param_setup;
 
 public:
-    InitializationSetup(
-        EOS const& eos,
-        ParamSetup const& param_set_up,
-        Gravity const& /*gravity*/)
-        : m_eos(eos)
-        , m_param_setup(param_set_up)
-    {
-    }
+    InitializationSetup(EOS const& eos, ParamSetup const& param_set_up, Gravity const& /*gravity*/) : m_eos(eos), m_param_setup(param_set_up) {}
 
     void execute(
-        Range const& range,
-        Grid const& grid,
-        KV_double_3d const& rho,
-        KV_double_4d const& u,
-        KV_double_3d const& P,
-        [[maybe_unused]] KV_double_4d const& fx) const final
+            Range const& range,
+            Grid const& grid,
+            KV_double_3d const& rho,
+            KV_double_4d const& u,
+            KV_double_3d const& P,
+            [[maybe_unused]] KV_double_4d const& fx) const final
     {
         assert(equal_extents({0, 1, 2}, rho, u, P, fx));
         assert(u.extent_int(3) == ndim);
         assert(fx.extent_int(3) == 0);
 
-        if (geom == Geometry::Geom_spherical)
-        {
+        if (geom == Geometry::Geom_spherical) {
             throw std::runtime_error("No Sedov 2D in spherical geometry implemented");
         }
 
@@ -89,31 +80,26 @@ public:
         double const rmin = 0.025;
 
         Kokkos::parallel_for(
-        "Sedov_2D_init",
-        cell_mdrange(range),
-        KOKKOS_LAMBDA(int i, int j, int k)
-        {
-            double const x = x_grid(i);
-            double const y = y_grid(j);
-            double const r = Kokkos::sqrt((x * x) + (y * y));
+                "Sedov_2D_init",
+                cell_mdrange(range),
+                KOKKOS_LAMBDA(int i, int j, int k) {
+                    double const x = x_grid(i);
+                    double const y = y_grid(j);
+                    double const r = Kokkos::sqrt((x * x) + (y * y));
 
-            rho(i, j, k) = param_setup.rho0;
-            for (int idim = 0; idim < ndim; ++idim)
-            {
-                u(i, j, k, idim) = param_setup.u0;
-            }
+                    rho(i, j, k) = param_setup.rho0;
+                    for (int idim = 0; idim < ndim; ++idim) {
+                        u(i, j, k, idim) = param_setup.u0;
+                    }
 
-            if (r < rmin)
-            {
-                double const evol = param_setup.E1 / dv(i, j, k);
-                P(i, j, k) = eos.compute_pres_from_evol(rho(i, j, k), evol);
-            }
-            else
-            {
-                double const evol = param_setup.E0 / dv(i, j, k);
-                P(i, j, k) = eos.compute_pres_from_evol(rho(i, j, k), evol);
-            }
-        });
+                    if (r < rmin) {
+                        double const evol = param_setup.E1 / dv(i, j, k);
+                        P(i, j, k) = eos.compute_pres_from_evol(rho(i, j, k), evol);
+                    } else {
+                        double const evol = param_setup.E0 / dv(i, j, k);
+                        P(i, j, k) = eos.compute_pres_from_evol(rho(i, j, k), evol);
+                    }
+                });
     }
 };
 

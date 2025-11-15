@@ -18,17 +18,16 @@
 
 #include "range.hpp"
 
-namespace novapp
-{
+namespace novapp {
 
 class Grid
 {
 public:
     int Ng;
-    std::array<int, 3> Nghost;    // Number of ghost cells in each direction (default is 2)
-    std::array<int, 3> Nx_glob_ng;    // Total number of cells in each directions (excluding ghost)
-    std::array<int, 3> Nx_local_ng;    // Number of cells on the local MPI process (excluding ghost)
-    std::array<int, 3> Nx_local_wg;    // Number of cells on the local MPI process (including ghost)
+    std::array<int, 3> Nghost; // Number of ghost cells in each direction (default is 2)
+    std::array<int, 3> Nx_glob_ng; // Total number of cells in each directions (excluding ghost)
+    std::array<int, 3> Nx_local_ng; // Number of cells on the local MPI process (excluding ghost)
+    std::array<int, 3> Nx_local_wg; // Number of cells on the local MPI process (including ghost)
 
     MPI_Comm comm_cart;
     MPI_Comm comm_cart_horizontal;
@@ -38,7 +37,7 @@ public:
     std::array<int, 3> mpi_dims_cart;
 
     Range range;
-    std::array<std::array<bool, 2>,3> is_border;
+    std::array<std::array<bool, 2>, 3> is_border;
 
     KV_double_1d x0;
     KV_double_1d x1;

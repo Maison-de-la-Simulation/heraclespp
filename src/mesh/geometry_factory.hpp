@@ -10,8 +10,7 @@
 
 #include <memory>
 
-namespace novapp
-{
+namespace novapp {
 
 class IComputeGeom;
 

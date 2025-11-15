@@ -14,8 +14,7 @@
 #include "limited_linear_reconstruction.hpp"
 #include "slope_limiters.hpp"
 
-namespace novapp
-{
+namespace novapp {
 
 IFaceReconstruction::IFaceReconstruction() = default;
 
@@ -31,23 +30,19 @@ IFaceReconstruction& IFaceReconstruction::operator=(IFaceReconstruction&& /*rhs*
 
 std::unique_ptr<IFaceReconstruction> factory_face_reconstruction(std::string const& slope)
 {
-    if (slope == "Constant")
-    {
+    if (slope == "Constant") {
         return std::make_unique<LimitedLinearReconstruction<Constant>>(Constant());
     }
 
-    if (slope == "VanLeer")
-    {
+    if (slope == "VanLeer") {
         return std::make_unique<LimitedLinearReconstruction<VanLeer>>(VanLeer());
     }
 
-    if (slope == "Minmod")
-    {
+    if (slope == "Minmod") {
         return std::make_unique<LimitedLinearReconstruction<Minmod>>(Minmod());
     }
 
-    if (slope == "VanAlbada")
-    {
+    if (slope == "VanAlbada") {
         return std::make_unique<LimitedLinearReconstruction<VanAlbada>>(VanAlbada());
     }
 

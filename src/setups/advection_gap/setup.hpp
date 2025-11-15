@@ -22,8 +22,7 @@
 #include "default_user_step.hpp" // IWYU pragma: keep
 #include "initialization_interface.hpp"
 
-namespace novapp
-{
+namespace novapp {
 
 class ParamSetup
 {
@@ -49,21 +48,15 @@ private:
     ParamSetup m_param_setup;
 
 public:
-    InitializationSetup(
-        EOS const& /*eos*/,
-        ParamSetup const& param_set_up,
-        Gravity const& /*gravity*/)
-        : m_param_setup(param_set_up)
-    {
-    }
+    InitializationSetup(EOS const& /*eos*/, ParamSetup const& param_set_up, Gravity const& /*gravity*/) : m_param_setup(param_set_up) {}
 
     void execute(
-        Range const& range,
-        Grid const& grid,
-        KV_double_3d const& rho,
-        KV_double_4d const& u,
-        KV_double_3d const& P,
-        [[maybe_unused]] KV_double_4d const& fx) const final
+            Range const& range,
+            Grid const& grid,
+            KV_double_3d const& rho,
+            KV_double_4d const& u,
+            KV_double_3d const& P,
+            [[maybe_unused]] KV_double_4d const& fx) const final
     {
         assert(equal_extents({0, 1, 2}, rho, u, P, fx));
         assert(u.extent_int(3) == ndim);
@@ -76,26 +69,21 @@ public:
         double const x1e = 0.7;
 
         Kokkos::parallel_for(
-            "advection_gap_init",
-            cell_mdrange(range),
-            KOKKOS_LAMBDA(int i, int j, int k)
-            {
-                if ((xc(i) <= x1b) || (xc(i) >= x1e))
-                {
-                    rho(i, j, k) = param_setup.rho0;
-                }
-                else
-                {
-                    rho(i, j, k) = param_setup.rho1;
-                }
+                "advection_gap_init",
+                cell_mdrange(range),
+                KOKKOS_LAMBDA(int i, int j, int k) {
+                    if ((xc(i) <= x1b) || (xc(i) >= x1e)) {
+                        rho(i, j, k) = param_setup.rho0;
+                    } else {
+                        rho(i, j, k) = param_setup.rho1;
+                    }
 
-                for (int idim = 0; idim < ndim; ++idim)
-                {
-                    u(i, j, k, idim) = param_setup.u0;
-                }
+                    for (int idim = 0; idim < ndim; ++idim) {
+                        u(i, j, k, idim) = param_setup.u0;
+                    }
 
-                P(i, j, k) = param_setup.P0;
-            });
+                    P(i, j, k) = param_setup.P0;
+                });
     }
 };
 

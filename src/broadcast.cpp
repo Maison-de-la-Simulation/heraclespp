@@ -17,10 +17,7 @@ namespace novapp {
 void broadcast(Range const& range, double const in, KV_double_3d const& out)
 {
     assert(range.NgEff == 0);
-    Kokkos::parallel_for(
-            "broadcast 0d->3d",
-            cell_mdrange(range),
-            KOKKOS_LAMBDA(const int i, const int j, const int k) { out(i, j, k) = in; });
+    Kokkos::parallel_for("broadcast 0d->3d", cell_mdrange(range), KOKKOS_LAMBDA(int const i, int const j, int const k) { out(i, j, k) = in; });
 }
 
 void broadcast(Range const& range, double const in, KV_double_4d const& out)
@@ -39,9 +36,7 @@ void broadcast(Range const& range, KV_cdouble_1d const& in, KV_double_3d const& 
     Kokkos::parallel_for(
             "broadcast 1d->3d",
             cell_mdrange(range),
-            KOKKOS_LAMBDA(const int i, const int j, const int k) {
-                out(i, j, k) = in(i - ghost_x);
-            });
+            KOKKOS_LAMBDA(int const i, int const j, int const k) { out(i, j, k) = in(i - ghost_x); });
 }
 
 void broadcast(Range const& range, KV_cdouble_1d const& in, KV_double_4d const& out)

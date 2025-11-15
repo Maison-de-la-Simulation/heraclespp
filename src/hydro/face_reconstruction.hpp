@@ -13,8 +13,7 @@
 
 #include <kokkos_shortcut.hpp>
 
-namespace novapp
-{
+namespace novapp {
 
 class Grid;
 class Range;
@@ -38,12 +37,7 @@ public:
     //! @param[in] grid provides grid information
     //! @param[in] var cell values
     //! @param[out] var_rec reconstructed values at interfaces
-    virtual void execute(
-        Range const& range,
-        Grid const& grid,
-        KV_cdouble_3d const& var,
-        KV_double_5d const& var_rec) const
-        = 0;
+    virtual void execute(Range const& range, Grid const& grid, KV_cdouble_3d const& var, KV_double_5d const& var_rec) const = 0;
 };
 
 std::unique_ptr<IFaceReconstruction> factory_face_reconstruction(std::string const& slope);

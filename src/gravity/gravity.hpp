@@ -11,26 +11,25 @@
 #include <Kokkos_Core.hpp>
 #include <kokkos_shortcut.hpp>
 
-namespace novapp
-{
+namespace novapp {
 
 class Grid;
 
 class UniformGravity
 {
-private :
+private:
     KV_cdouble_1d m_g;
 
-public :
+public:
     explicit UniformGravity(KV_cdouble_1d g);
 
-    UniformGravity(const UniformGravity& rhs) = default;
+    UniformGravity(UniformGravity const& rhs) = default;
 
     UniformGravity(UniformGravity&& rhs) noexcept = default;
 
     ~UniformGravity() noexcept = default;
 
-    UniformGravity& operator=(const UniformGravity& rhs) = default;
+    UniformGravity& operator=(UniformGravity const& rhs) = default;
 
     UniformGravity& operator=(UniformGravity&& rhs) noexcept = default;
 
@@ -45,69 +44,62 @@ UniformGravity make_uniform_gravity(double gx0, double gx1, double gx2);
 
 class PointMassGravity
 {
-private :
+private:
     KV_cdouble_1d m_g;
 
-public :
+public:
     explicit PointMassGravity(KV_cdouble_1d g);
 
-    PointMassGravity(const PointMassGravity& rhs) = default;
+    PointMassGravity(PointMassGravity const& rhs) = default;
 
     PointMassGravity(PointMassGravity&& rhs) noexcept = default;
 
     ~PointMassGravity() noexcept = default;
 
-    PointMassGravity& operator=(const PointMassGravity& rhs) = default;
+    PointMassGravity& operator=(PointMassGravity const& rhs) = default;
 
     PointMassGravity& operator=(PointMassGravity&& rhs) noexcept = default;
 
     KOKKOS_FORCEINLINE_FUNCTION
     double operator()(int i, int /*j*/, int /*k*/, int dir) const noexcept
     {
-        if (dir == 0)
-        {
+        if (dir == 0) {
             return m_g(i);
         }
         return 0;
     }
 };
 
-PointMassGravity make_point_mass_gravity(
-    double central_mass,
-    Grid const& grid);
+PointMassGravity make_point_mass_gravity(double central_mass, Grid const& grid);
 
 class InternalMassGravity
 {
-private :
+private:
     KV_cdouble_1d m_g;
 
-public :
+public:
     explicit InternalMassGravity(KV_cdouble_1d g);
 
-    InternalMassGravity(const InternalMassGravity& rhs) = default;
+    InternalMassGravity(InternalMassGravity const& rhs) = default;
 
     InternalMassGravity(InternalMassGravity&& rhs) noexcept = default;
 
     ~InternalMassGravity() noexcept = default;
 
-    InternalMassGravity& operator=(const InternalMassGravity& rhs) = default;
+    InternalMassGravity& operator=(InternalMassGravity const& rhs) = default;
 
     InternalMassGravity& operator=(InternalMassGravity&& rhs) noexcept = default;
 
     KOKKOS_FORCEINLINE_FUNCTION
     double operator()(int i, int /*j*/, int /*k*/, int dir) const noexcept
     {
-        if (dir == 0)
-        {
+        if (dir == 0) {
             return m_g(i);
         }
         return 0;
     }
 };
 
-InternalMassGravity make_internal_mass_gravity(
-    double central_mass,
-    Grid const& grid,
-    KV_cdouble_3d const& rho);
+InternalMassGravity make_internal_mass_gravity(double central_mass, Grid const& grid, KV_cdouble_3d const& rho);
 
 } // namespace novapp

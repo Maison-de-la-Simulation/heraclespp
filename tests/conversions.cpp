@@ -27,8 +27,7 @@ TEST(Conversions, PrimToCons)
     novapp::thermodynamics::PerfectGas const eos(2, 1);
     novapp::EulerPrim prim;
     prim.rho = rho0;
-    for (int idim = 0; idim < novapp::ndim; ++idim)
-    {
+    for (int idim = 0; idim < novapp::ndim; ++idim) {
         prim.u[idim] = u0;
     }
     prim.P = P0;
@@ -37,22 +36,14 @@ TEST(Conversions, PrimToCons)
     novapp::KV_double_3d const P_view("P", n, n, n);
 
     Kokkos::deep_copy(rho_view, prim.rho);
-    for (int idim = 0; idim < novapp::ndim; ++idim)
-    {
+    for (int idim = 0; idim < novapp::ndim; ++idim) {
         Kokkos::deep_copy(u_view, prim.u[idim]);
     }
     Kokkos::deep_copy(P_view, prim.P);
 
     novapp::KDV_double_4d rhou_view("rhou", n, n, n, novapp::ndim);
     novapp::KDV_double_3d E_view("E", n, n, n);
-    conv_prim_to_cons(
-            range.all_ghosts(),
-            eos,
-            rho_view,
-            u_view,
-            P_view,
-            rhou_view.view_device(),
-            E_view.view_device());
+    conv_prim_to_cons(range.all_ghosts(), eos, rho_view, u_view, P_view, rhou_view.view_device(), E_view.view_device());
     rhou_view.modify_device();
     E_view.modify_device();
     rhou_view.sync_host();
@@ -61,14 +52,10 @@ TEST(Conversions, PrimToCons)
     novapp::KDV_double_4d::t_host const rhou_host = novapp::view_host(rhou_view);
     novapp::KDV_double_3d::t_host const E_host = novapp::view_host(E_view);
     novapp::EulerCons const cons = to_cons(prim, eos);
-    for (int k = 0; k < n; ++k)
-    {
-        for (int j = 0; j < n; ++j)
-        {
-            for (int i = 0; i < n; ++i)
-            {
-                for (int idim = 0; idim < novapp::ndim; ++idim)
-                {
+    for (int k = 0; k < n; ++k) {
+        for (int j = 0; j < n; ++j) {
+            for (int i = 0; i < n; ++i) {
+                for (int idim = 0; idim < novapp::ndim; ++idim) {
                     EXPECT_DOUBLE_EQ(rhou_host(i, j, k, idim), cons.rhou[idim]);
                 }
                 EXPECT_DOUBLE_EQ(E_host(i, j, k), cons.E);
@@ -88,8 +75,7 @@ TEST(Conversions, ConsToPrim)
     novapp::thermodynamics::PerfectGas const eos(2, 1);
     novapp::EulerCons cons;
     cons.rho = rho0;
-    for (int idim = 0; idim < novapp::ndim; ++idim)
-    {
+    for (int idim = 0; idim < novapp::ndim; ++idim) {
         cons.rhou[idim] = rhou0;
     }
     cons.E = E0;
@@ -98,22 +84,14 @@ TEST(Conversions, ConsToPrim)
     novapp::KV_double_3d const E_view("E", n, n, n);
 
     Kokkos::deep_copy(rho_view, cons.rho);
-    for (int idim = 0; idim < novapp::ndim; ++idim)
-    {
+    for (int idim = 0; idim < novapp::ndim; ++idim) {
         Kokkos::deep_copy(rhou_view, cons.rhou[idim]);
     }
     Kokkos::deep_copy(E_view, cons.E);
 
     novapp::KDV_double_4d u_view("u", n, n, n, novapp::ndim);
     novapp::KDV_double_3d P_view("P", n, n, n);
-    conv_cons_to_prim(
-            range.all_ghosts(),
-            eos,
-            rho_view,
-            rhou_view,
-            E_view,
-            u_view.view_device(),
-            P_view.view_device());
+    conv_cons_to_prim(range.all_ghosts(), eos, rho_view, rhou_view, E_view, u_view.view_device(), P_view.view_device());
     u_view.modify_device();
     P_view.modify_device();
     u_view.sync_host();
@@ -122,14 +100,10 @@ TEST(Conversions, ConsToPrim)
     novapp::KDV_double_4d::t_host const u_host = novapp::view_host(u_view);
     novapp::KDV_double_3d::t_host const P_host = novapp::view_host(P_view);
     novapp::EulerPrim const prim = to_prim(cons, eos);
-    for (int k = 0; k < n; ++k)
-    {
-        for (int j = 0; j < n; ++j)
-        {
-            for (int i = 0; i < n; ++i)
-            {
-                for (int idim = 0; idim < novapp::ndim; ++idim)
-                {
+    for (int k = 0; k < n; ++k) {
+        for (int j = 0; j < n; ++j) {
+            for (int i = 0; i < n; ++i) {
+                for (int idim = 0; idim < novapp::ndim; ++idim) {
                     EXPECT_DOUBLE_EQ(u_host(i, j, k, idim), prim.u[idim]);
                 }
                 EXPECT_DOUBLE_EQ(P_host(i, j, k), prim.P);

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: MIT
 
-# pragma once
+#pragma once
 
 #include <stdexcept>
 
@@ -16,8 +16,7 @@
 
 class INIReader;
 
-namespace novapp
-{
+namespace novapp {
 
 class Grid;
 class Range;
@@ -25,29 +24,22 @@ class Range;
 class ParamSetup
 {
 public:
-    explicit ParamSetup(INIReader const& /*reader*/)
-    {
-    }
+    explicit ParamSetup(INIReader const& /*reader*/) {}
 };
 
 template <class Gravity>
 class InitializationSetup : public IInitializationProblem
 {
 public:
-    InitializationSetup(
-        EOS const& /*eos*/,
-        ParamSetup const& /*param_set_up*/,
-        Gravity const& /*gravity*/)
-    {
-    }
+    InitializationSetup(EOS const& /*eos*/, ParamSetup const& /*param_set_up*/, Gravity const& /*gravity*/) {}
 
     void execute(
-        Range const& /*range*/,
-        Grid const& /*grid*/,
-        KV_double_3d const& /*rho*/,
-        KV_double_4d const& /*u*/,
-        KV_double_3d const& /*P*/,
-        KV_double_4d const& /*fx*/) const final
+            Range const& /*range*/,
+            Grid const& /*grid*/,
+            KV_double_3d const& /*rho*/,
+            KV_double_4d const& /*u*/,
+            KV_double_3d const& /*P*/,
+            KV_double_4d const& /*fx*/) const final
     {
         throw std::runtime_error("Setup not implemented");
     }

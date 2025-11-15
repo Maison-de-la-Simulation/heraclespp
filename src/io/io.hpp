@@ -16,55 +16,49 @@
 
 #include <kokkos_shortcut.hpp>
 
-namespace novapp
-{
+namespace novapp {
 
 class Grid;
 class Param;
 
-void print_simulation_status(
-    std::ostream& os,
-    int iter,
-    double current,
-    double time_out,
-    int output_id);
+void print_simulation_status(std::ostream& os, int iter, double current, double time_out, int output_id);
 
 void write_pdi_init(Grid const& grid, Param const& param);
 
 void write_pdi(
-    std::string const& directory,
-    std::string const& prefix,
-    int output_id,
-    int iter_output_id,
-    int time_output_id,
-    int iter,
-    double t,
-    double gamma,
-    Grid const& grid,
-    KDV_double_3d& rho,
-    KDV_double_4d& u,
-    KDV_double_3d& P,
-    KDV_double_3d& E,
-    KDV_double_1d& x0,
-    KDV_double_1d& x1,
-    KDV_double_1d& x2,
-    KDV_double_4d& fx,
-    KDV_double_3d& T);
+        std::string const& directory,
+        std::string const& prefix,
+        int output_id,
+        int iter_output_id,
+        int time_output_id,
+        int iter,
+        double t,
+        double gamma,
+        Grid const& grid,
+        KDV_double_3d& rho,
+        KDV_double_4d& u,
+        KDV_double_3d& P,
+        KDV_double_3d& E,
+        KDV_double_1d& x0,
+        KDV_double_1d& x1,
+        KDV_double_1d& x2,
+        KDV_double_4d& fx,
+        KDV_double_3d& T);
 
 void read_pdi(
-    std::string const& restart_file,
-    int& output_id,
-    int& iter_output_id,
-    int& time_output_id,
-    int& iter,
-    double& t,
-    KDV_double_3d& rho,
-    KDV_double_4d& u,
-    KDV_double_3d& P,
-    KDV_double_4d& fx,
-    KDV_double_1d& x0_glob,
-    KDV_double_1d& x1_glob,
-    KDV_double_1d& x2_glob);
+        std::string const& restart_file,
+        int& output_id,
+        int& iter_output_id,
+        int& time_output_id,
+        int& iter,
+        double& t,
+        KDV_double_3d& rho,
+        KDV_double_4d& u,
+        KDV_double_3d& P,
+        KDV_double_4d& fx,
+        KDV_double_1d& x0_glob,
+        KDV_double_1d& x1_glob,
+        KDV_double_1d& x2_glob);
 
 class XmlWriter
 {

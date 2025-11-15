@@ -9,8 +9,7 @@
 #include <kokkos_shortcut.hpp>
 #include <user_step.hpp>
 
-namespace novapp
-{
+namespace novapp {
 
 class Range;
 
@@ -18,12 +17,12 @@ class UserStep : public IUserStep
 {
 public:
     void execute(
-        Range const& /*range*/,
-        double const /*t*/,
-        double const /*dt*/,
-        KV_double_3d const& /*rho*/,
-        KV_double_3d const& /*E*/,
-        KV_double_4d const& /*fx*/) const final
+            Range const& /*range*/,
+            double const /*t*/,
+            double const /*dt*/,
+            KV_double_3d const& /*rho*/,
+            KV_double_3d const& /*E*/,
+            KV_double_4d const& /*fx*/) const final
     {
         throw std::runtime_error("User step not implemented");
     }

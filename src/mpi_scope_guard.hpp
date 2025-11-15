@@ -9,8 +9,7 @@
 
 #pragma once
 
-namespace novapp
-{
+namespace novapp {
 
 class MpiScopeGuard
 {

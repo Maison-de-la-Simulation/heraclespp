@@ -11,8 +11,7 @@
 
 #include <Kokkos_MathematicalConstants.hpp>
 
-namespace novapp::units
-{
+namespace novapp::units {
 
 // code units in SI : kg / meter / second
 constexpr double unit_M = 1.0; // Mass : kilogram

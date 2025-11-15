@@ -23,8 +23,7 @@
 #include "default_user_step.hpp" // IWYU pragma: keep
 #include "initialization_interface.hpp"
 
-namespace novapp
-{
+namespace novapp {
 
 class ParamSetup
 {
@@ -51,22 +50,15 @@ private:
     ParamSetup m_param_setup;
 
 public:
-    InitializationSetup(
-        EOS const& eos,
-        ParamSetup const& param_set_up,
-        Gravity const& /*gravity*/)
-        : m_eos(eos)
-        , m_param_setup(param_set_up)
-    {
-    }
+    InitializationSetup(EOS const& eos, ParamSetup const& param_set_up, Gravity const& /*gravity*/) : m_eos(eos), m_param_setup(param_set_up) {}
 
     void execute(
-        Range const& range,
-        Grid const& grid,
-        KV_double_3d const& rho,
-        KV_double_4d const& u,
-        KV_double_3d const& P,
-        [[maybe_unused]] KV_double_4d const& fx) const final
+            Range const& range,
+            Grid const& grid,
+            KV_double_3d const& rho,
+            KV_double_4d const& u,
+            KV_double_3d const& P,
+            [[maybe_unused]] KV_double_4d const& fx) const final
     {
         assert(equal_extents({0, 1, 2}, rho, u, P, fx));
         assert(u.extent_int(3) == ndim);
@@ -76,13 +68,11 @@ public:
 
         double alpha = -1;
 
-        if (geom == Geometry::Geom_cartesian)
-        {
+        if (geom == Geometry::Geom_cartesian) {
             alpha = 0.5;
         }
 
-        if (geom == Geometry::Geom_spherical)
-        {
+        if (geom == Geometry::Geom_spherical) {
             alpha = 1;
         }
 
@@ -91,27 +81,24 @@ public:
         auto const dv = grid.dv;
 
         Kokkos::parallel_for(
-        "Sedov_1D_init",
-        cell_mdrange(range),
-        KOKKOS_LAMBDA(int i, int j, int k)
-        {
-            double const dv_beg = dv(2, 0, 0);
-            rho(i, j, k) = param_setup.rho0;
+                "Sedov_1D_init",
+                cell_mdrange(range),
+                KOKKOS_LAMBDA(int i, int j, int k) {
+                    double const dv_beg = dv(2, 0, 0);
+                    rho(i, j, k) = param_setup.rho0;
 
-            for (int idim = 0; idim < ndim; ++idim)
-            {
-                u(i, j, k, idim) = param_setup.u0;
-            }
+                    for (int idim = 0; idim < ndim; ++idim) {
+                        u(i, j, k, idim) = param_setup.u0;
+                    }
 
-            double const T = eos.compute_temp_from_evol(rho(i, j, k), param_setup.E0 / dv_beg);
-            P(i, j, k) = eos.compute_pres_from_temp(rho(i, j, k), T);
+                    double const T = eos.compute_temp_from_evol(rho(i, j, k), param_setup.E0 / dv_beg);
+                    P(i, j, k) = eos.compute_pres_from_temp(rho(i, j, k), T);
 
-            if(mpi_rank == 0 && i == 2)
-            {
-                double const T_perturb = eos.compute_temp_from_evol(rho(i, j, k), alpha * param_setup.E1 / dv_beg);
-                P(i, j, k) = eos.compute_pres_from_temp(rho(i, j, k), T_perturb);
-            }
-        });
+                    if (mpi_rank == 0 && i == 2) {
+                        double const T_perturb = eos.compute_temp_from_evol(rho(i, j, k), alpha * param_setup.E1 / dv_beg);
+                        P(i, j, k) = eos.compute_pres_from_temp(rho(i, j, k), T_perturb);
+                    }
+                });
     }
 };
 

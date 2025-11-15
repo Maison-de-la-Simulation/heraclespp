@@ -15,8 +15,7 @@
 
 #include "user_step.hpp"
 
-namespace novapp
-{
+namespace novapp {
 
 IUserStep::IUserStep() = default;
 
@@ -30,7 +29,6 @@ IUserStep& IUserStep::operator=(IUserStep const& /*rhs*/) = default;
 
 IUserStep& IUserStep::operator=(IUserStep&& /*rhs*/) noexcept = default;
 
-
 void NoUserStep::execute(
         Range const& /*range*/,
         double const /*t*/,
@@ -41,14 +39,13 @@ void NoUserStep::execute(
 {
 }
 
-
 void HeatNickelStep::execute(
-    Range const &range,
-    double const t,
-    double const dt,
-    KV_double_3d const& rho,
-    KV_double_3d const& E,
-    KV_double_4d const& fx) const
+        Range const& range,
+        double const t,
+        double const dt,
+        KV_double_3d const& rho,
+        KV_double_3d const& E,
+        KV_double_4d const& fx) const
 {
     double const tau_ni56 = 8.8 * units::day; // s
     double const tau_co56 = 111.3 * units::day;
@@ -59,19 +56,17 @@ void HeatNickelStep::execute(
 
     double const fac_decay = 1. / (m_ni56 * (tau_co56 - tau_ni56)); // Decay factor
 
-    double epsilon = ((Q_ni56_tot * (tau_co56 / tau_ni56 - 1) - Q_co56_tot)
-                    * Kokkos::exp(- t / tau_ni56))
-                    + (Q_co56_tot *  Kokkos::exp(- t / tau_co56)); // Total energy rate created
+    double epsilon = ((Q_ni56_tot * (tau_co56 / tau_ni56 - 1) - Q_co56_tot) * Kokkos::exp(-t / tau_ni56))
+                     + (Q_co56_tot * Kokkos::exp(-t / tau_co56)); // Total energy rate created
     epsilon *= fac_decay;
 
     Kokkos::parallel_for(
-        "Heating_Ni56",
-        cell_mdrange(range),
-        KOKKOS_LAMBDA(int i, int j, int k)
-        {
-            double const edep = fx(i, j, k, 0) * rho(i, j, k) * epsilon;
-            E(i, j, k) += edep * dt;
-        });
+            "Heating_Ni56",
+            cell_mdrange(range),
+            KOKKOS_LAMBDA(int i, int j, int k) {
+                double const edep = fx(i, j, k, 0) * rho(i, j, k) * epsilon;
+                E(i, j, k) += edep * dt;
+            });
 }
 
 } // namespace novapp

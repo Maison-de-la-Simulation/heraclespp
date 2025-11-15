@@ -13,18 +13,15 @@
 #include "geometry.hpp"
 #include "geometry_factory.hpp"
 
-namespace novapp
-{
+namespace novapp {
 
 std::unique_ptr<IComputeGeom> factory_grid_geometry()
 {
-    if (geom == Geometry::Geom_cartesian)
-    {
+    if (geom == Geometry::Geom_cartesian) {
         return std::make_unique<Cartesian>();
     }
 
-    if (geom == Geometry::Geom_spherical)
-    {
+    if (geom == Geometry::Geom_spherical) {
         return std::make_unique<Spherical>();
     }
 

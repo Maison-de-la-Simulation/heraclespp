@@ -6,8 +6,7 @@
 
 #include "mpi_scope_guard.hpp"
 
-namespace novapp
-{
+namespace novapp {
 
 MpiScopeGuard::MpiScopeGuard() noexcept
 {
