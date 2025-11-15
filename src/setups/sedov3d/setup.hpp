@@ -73,9 +73,7 @@ public:
 
         auto const& eos = m_eos;
         auto const& param_setup = m_param_setup;
-        auto const r = grid.x;
-        auto const theta = grid.y;
-        auto const phi = grid.z;
+        auto const r = grid.x0;
         auto const& dv = grid.dv;
         int const ny_2 = grid.Nx_glob_ng[1] / 2;
         int const nz_2 = grid.Nx_glob_ng[2] / 2;

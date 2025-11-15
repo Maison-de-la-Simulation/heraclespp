@@ -23,7 +23,7 @@ data:  # this describe the data that will be send by each proc
   rho: {type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]']}
   u: {type: array, subtype: double, size: ['$ndim', '$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]']}
   P: {type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]']}
-  x: {type: array, subtype: double, size: ['$nx_glob_ng[0]+2*$n_ghost[0]+1']}
+  x0: {type: array, subtype: double, size: ['$nx_glob_ng[0]+2*$n_ghost[0]+1']}
 
 plugins:
   mpi:
@@ -32,14 +32,14 @@ plugins:
       on_event: write_replicated_data
       collision_policy: replace
       datasets:
-        x_ng: {type: array, subtype: double, size: '$nx_glob_ng[0]+1'}
+        x0_ng: {type: array, subtype: double, size: '$nx_glob_ng[0]+1'}
       when: '${mpi_rank}=0'
       write:
         nx_glob_ng:
         iter:
         current_time:
-        x:
-          dataset: x_ng
+        x0:
+          dataset: x0_ng
           memory_selection:
             size: '$nx_glob_ng[0] + 1'
             start: '$n_ghost[0]'

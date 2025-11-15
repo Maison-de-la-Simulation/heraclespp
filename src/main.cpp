@@ -91,7 +91,7 @@ Gravity make_gravity(
         [[maybe_unused]] KV_cdouble_3d const& rho)
 {
 #if defined(NOVAPP_GRAVITY_Uniform)
-    return make_uniform_gravity(param.gx, param.gy, param.gz);
+    return make_uniform_gravity(param.gx0, param.gx1, param.gx2);
 #elif defined(NOVAPP_GRAVITY_Point_mass)
     return make_point_mass_gravity(param.M, grid);
 #elif defined(NOVAPP_GRAVITY_Internal_mass)
@@ -162,9 +162,9 @@ void main(int argc, char** argv)
         print_info(std::cout, "restart", param.restart);
         print_info(std::cout, "restart_file", param.restart_file);
         print_info(std::cout, "mpi_device_aware", param.mpi_device_aware);
-        print_info(std::cout, "mpi_dims_cart_x", param.mpi_dims_cart[0]);
-        print_info(std::cout, "mpi_dims_cart_y", param.mpi_dims_cart[1]);
-        print_info(std::cout, "mpi_dims_cart_z", param.mpi_dims_cart[2]);
+        print_info(std::cout, "mpi_dims_cart_x0", param.mpi_dims_cart[0]);
+        print_info(std::cout, "mpi_dims_cart_x1", param.mpi_dims_cart[1]);
+        print_info(std::cout, "mpi_dims_cart_x2", param.mpi_dims_cart[2]);
         print_info(std::cout, "nfx", param.nfx);
         print_info(std::cout, "pressure_fix", param.pressure_fix);
         print_info(std::cout, "eps_pf", param.eps_pf);
@@ -229,17 +229,17 @@ void main(int argc, char** argv)
     bool should_exit = false;
     std::chrono::hours const time_save(param.time_job);
 
-    KDV_double_1d x_glob("x_glob", grid.Nx_glob_ng[0]+(2*grid.Nghost[0])+1);
-    KDV_double_1d y_glob("y_glob", grid.Nx_glob_ng[1]+(2*grid.Nghost[1])+1);
-    KDV_double_1d z_glob("z_glob", grid.Nx_glob_ng[2]+(2*grid.Nghost[2])+1);
+    KDV_double_1d x0_glob("x0_glob", grid.Nx_glob_ng[0]+(2*grid.Nghost[0])+1);
+    KDV_double_1d x1_glob("x1_glob", grid.Nx_glob_ng[1]+(2*grid.Nghost[1])+1);
+    KDV_double_1d x2_glob("x2_glob", grid.Nx_glob_ng[2]+(2*grid.Nghost[2])+1);
 
     std::unique_ptr<Gravity> g;
 
     if(param.restart) // complete restart with a file from the code
     {
-        read_pdi(param.restart_file, output_id, iter_output_id, time_output_id, iter, t, rho, u, P, fx, x_glob, y_glob, z_glob); // read data into host view
-        sync_device(x_glob, y_glob, z_glob);
-        grid.set_grid(x_glob.view_device(), y_glob.view_device(), z_glob.view_device());
+        read_pdi(param.restart_file, output_id, iter_output_id, time_output_id, iter, t, rho, u, P, fx, x0_glob, x1_glob, x2_glob); // read data into host view
+        sync_device(x0_glob, x1_glob, x2_glob);
+        grid.set_grid(x0_glob.view_device(), x1_glob.view_device(), x2_glob.view_device());
 
         sync_device(rho, u, P, fx);
         g = std::make_unique<Gravity>(make_gravity(param, grid, rho.view_device()));
@@ -264,10 +264,10 @@ void main(int argc, char** argv)
         {
             grid_type = factory_grid_type(param.grid_type, param);
         }
-        grid_type->execute(grid.Nghost, grid.Nx_glob_ng, x_glob.view_host(), y_glob.view_host(), z_glob.view_host());
-        modify_host(x_glob, y_glob, z_glob);
-        sync_device(x_glob, y_glob, z_glob);
-        grid.set_grid(x_glob.view_device(), y_glob.view_device(), z_glob.view_device());
+        grid_type->execute(grid.Nghost, grid.Nx_glob_ng, x0_glob.view_host(), x1_glob.view_host(), x2_glob.view_host());
+        modify_host(x0_glob, x1_glob, x2_glob);
+        sync_device(x0_glob, x1_glob, x2_glob);
+        grid.set_grid(x0_glob.view_device(), x1_glob.view_device(), x2_glob.view_device());
         g = std::make_unique<Gravity>(make_gravity(param, grid, rho.view_device()));
         if(std::is_same_v<Gravity, InternalMassGravity> && grid.mpi_rank == 0)
         {
@@ -353,8 +353,8 @@ void main(int argc, char** argv)
 
         outputs_record.emplace_back(iter, t);
         ++output_id;
-        xml_writer(grid, output_id, outputs_record, x_glob, y_glob, z_glob);
-        write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), grid, rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
+        xml_writer(grid, output_id, outputs_record, x0_glob, x1_glob, x2_glob);
+        write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), grid, rho, u, P, E, x0_glob, x1_glob, x2_glob, fx, T);
         print_simulation_status(std::cout, iter, t, param.t_end, output_id);
         std::cout << std::flush;
     }
@@ -425,7 +425,7 @@ void main(int argc, char** argv)
             temperature(grid.range.all_ghosts(), eos, rho.view_device(), P.view_device(), T.view_device());
             modify_device(T);
             ++output_id;
-            write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), grid, rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
+            write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), grid, rho, u, P, E, x0_glob, x1_glob, x2_glob, fx, T);
             std::stringstream ss;
             ss << "Time = " << t << ", iteration = " << iter;
             ss << ": detected invalid volumic internal energy";
@@ -461,8 +461,8 @@ void main(int argc, char** argv)
         // Shift the grid if necessary
         if (shift_criterion->execute(grid.range.no_ghosts(), grid, rho_new, rhou_new, E_new, fx_new))
         {
-            x_glob.sync_host();
-            auto const x_h = x_glob.view_host();
+            x0_glob.sync_host();
+            auto const x_h = x0_glob.view_host();
 
             if (x_h(grid.Nx_glob_ng[0]+grid.Nghost[0]+1) >= param.rmax_shift)
             {
@@ -482,7 +482,7 @@ void main(int argc, char** argv)
                 }
                 shift_grid(rho.view_device(), rhou.view_device(), E.view_device(), fx.view_device(),
                         rho_new, rhou_new, E_new, fx_new,
-                        x_glob, y_glob, z_glob,
+                        x0_glob, x1_glob, x2_glob,
                         grid);
                 bcs(bcs_array, grid, *g, rho_new, rhou_new, E_new, fx_new);
             }
@@ -511,8 +511,8 @@ void main(int argc, char** argv)
 
             outputs_record.emplace_back(iter, t);
             ++output_id;
-            xml_writer(grid, output_id, outputs_record, x_glob, y_glob, z_glob);
-            write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), grid, rho, u, P, E, x_glob, y_glob, z_glob, fx, T);
+            xml_writer(grid, output_id, outputs_record, x0_glob, x1_glob, x2_glob);
+            write_pdi(param.directory, param.prefix, output_id, iter_output_id, time_output_id, iter, t, eos.adiabatic_index(), grid, rho, u, P, E, x0_glob, x1_glob, x2_glob, fx, T);
             print_simulation_status(std::cout, iter, t, param.t_end, output_id);
             std::cout << std::flush;
         }

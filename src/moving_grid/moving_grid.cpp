@@ -21,9 +21,9 @@ void shift_grid(
         KV_double_4d const& rhou_new,
         KV_double_3d const& E_new,
         KV_double_4d const& fx_new,
-        KDV_double_1d& x_glob,
-        KDV_double_1d& y_glob,
-        KDV_double_1d& z_glob,
+        KDV_double_1d& x0_glob,
+        KDV_double_1d& x1_glob,
+        KDV_double_1d& x2_glob,
         Grid& grid)
 {
     // Shift of physical variables
@@ -34,19 +34,19 @@ void shift_grid(
 
     // Shift of the Grid (only the first dimension)
     {
-        x_glob.sync_host();
-        auto const x_h = x_glob.view_host();
-        int const n = x_h.extent_int(0);
+        x0_glob.sync_host();
+        auto const x0_h = x0_glob.view_host();
+        int const n = x0_h.extent_int(0);
         for (int i = 0; i < n - 1; ++i) {
-            x_h(i) = x_h(i + 1);
+            x0_h(i) = x0_h(i + 1);
         }
         // Define the new value for the last interface. We keep the same ratio between the dX (i.e. it will preserve a uniform and a log grid)
-        double const r = (x_h(n - 2) - x_h(n - 3)) / (x_h(n - 3) - x_h(n - 4));
-        x_h(n - 1) = x_h(n - 2) + ((x_h(n - 2) - x_h(n - 3)) * r);
-        x_glob.modify_host();
+        double const r = (x0_h(n - 2) - x0_h(n - 3)) / (x0_h(n - 3) - x0_h(n - 4));
+        x0_h(n - 1) = x0_h(n - 2) + ((x0_h(n - 2) - x0_h(n - 3)) * r);
+        x0_glob.modify_host();
     }
-    x_glob.sync_device();
-    grid.set_grid(x_glob.view_device(), y_glob.view_device(), z_glob.view_device());
+    x0_glob.sync_device();
+    grid.set_grid(x0_glob.view_device(), x1_glob.view_device(), x2_glob.view_device());
 
     // Boundary conditions are done in the main
 }

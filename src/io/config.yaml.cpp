@@ -37,9 +37,9 @@ data:  # this describes the data that is local to each process
   rho: {type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]']}
   P: {type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]']}
   E: {type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]']}
-  x: {type: array, subtype: double, size: ['$nx_glob_ng[0]+2*$n_ghost[0]+1']}
-  y: {type: array, subtype: double, size: ['$nx_glob_ng[1]+2*$n_ghost[1]+1']}
-  z: {type: array, subtype: double, size: ['$nx_glob_ng[2]+2*$n_ghost[2]+1']}
+  x0: {type: array, subtype: double, size: ['$nx_glob_ng[0]+2*$n_ghost[0]+1']}
+  x1: {type: array, subtype: double, size: ['$nx_glob_ng[1]+2*$n_ghost[1]+1']}
+  x2: {type: array, subtype: double, size: ['$nx_glob_ng[2]+2*$n_ghost[2]+1']}
   fx: {type: array, subtype: double, size: ['$nfx', '$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]']}
   T: {type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]']}
   u_1d: {type: array, subtype: double, size: ['$nx_local_ng[0]']}
@@ -55,9 +55,9 @@ plugins:
       collision_policy: replace
       when: '${mpi_rank}=0'
       datasets:
-        x_ng: {type: array, subtype: double, size: '$nx_glob_ng[0]+1'}
-        y_ng: {type: array, subtype: double, size: '$nx_glob_ng[1]+1'}
-        z_ng: {type: array, subtype: double, size: '$nx_glob_ng[2]+1'}
+        x0_ng: {type: array, subtype: double, size: '$nx_glob_ng[0]+1'}
+        x1_ng: {type: array, subtype: double, size: '$nx_glob_ng[1]+1'}
+        x2_ng: {type: array, subtype: double, size: '$nx_glob_ng[2]+1'}
       write:
         output_id:
         iter_output_id:
@@ -65,21 +65,21 @@ plugins:
         iter:
         current_time:
         gamma:
-        x:
-          - dataset: x
-          - dataset: x_ng
+        x0:
+          - dataset: x0
+          - dataset: x0_ng
             memory_selection:
               size: '$nx_glob_ng[0] + 1'
               start: '$n_ghost[0]'
-        y:
-          - dataset: y
-          - dataset: y_ng
+        x1:
+          - dataset: x1
+          - dataset: x1_ng
             memory_selection:
               size: '$nx_glob_ng[1] + 1'
               start: '$n_ghost[1]'
-        z:
-          - dataset: z
-          - dataset: z_ng
+        x2:
+          - dataset: x2
+          - dataset: x2_ng
             memory_selection:
               size: '$nx_glob_ng[2] + 1'
               start: '$n_ghost[2]'
@@ -88,23 +88,23 @@ plugins:
       collision_policy: write_into
       communicator: '$grid_communicator'
       datasets:  # this describes the global data (data in the final h5 file)
-        ux: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
-        uy: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
-        uz: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
+        ux0: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
+        ux1: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
+        ux2: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
         rho: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
         P: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
         E: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
         T: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
       write:
         u:
-          - dataset: ux
+          - dataset: ux0
             memory_selection:
               size: [1, '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
               start: [0, '$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']
             dataset_selection:
               size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
               start: ['$start[2]', '$start[1]', '$start[0]']
-          - dataset: uy
+          - dataset: ux1
             when: '$ndim>1'
             memory_selection:
               size: [1, '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
@@ -112,7 +112,7 @@ plugins:
             dataset_selection:
               size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
               start: ['$start[2]', '$start[1]', '$start[0]']
-          - dataset: uz
+          - dataset: ux2
             when: '$ndim>2'
             memory_selection:
               size: [1, '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
@@ -190,14 +190,14 @@ plugins:
             size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']  # size of data to be put in the final h5 file
             start: ['$start[2]', '$start[1]', '$start[0]']                   # position of the data in the global index
         u:
-          - dataset: ux
+          - dataset: ux0
             memory_selection:
               size: [1, '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
               start: [0, '$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']
             dataset_selection:
               size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
               start: ['$start[2]', '$start[1]', '$start[0]']
-          - dataset: uy
+          - dataset: ux1
             when: '$ndim>1'
             memory_selection:
               size: [1, '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
@@ -205,7 +205,7 @@ plugins:
             dataset_selection:
               size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
               start: ['$start[2]', '$start[1]', '$start[0]']
-          - dataset: uz
+          - dataset: ux2
             when: '$ndim>2'
             memory_selection:
               size: [1, '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
@@ -220,9 +220,9 @@ plugins:
           dataset_selection:
             size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
             start: ['$start[2]', '$start[1]', '$start[0]']
-        x:
-        y:
-        z:
+        x0:
+        x1:
+        x2:
     - file: ${restart_filename}
       on_event: read_fx
       communicator: '${grid_communicator}'
@@ -261,5 +261,5 @@ plugins:
       on_event: read_mesh_1d
       communicator: '${grid_communicator}'
       read:
-        x:
+        x0:
 )PDI_CONFIG";

@@ -59,7 +59,7 @@ def check_convergence_order(filenames: typing.List[str]):
     points = np.empty(len(filenames))
     for i, filename in enumerate(filenames):
         with h5py.File(filename) as f:
-            errors[i] = error(f["x_ng"], f["rho"][0, 0, :])
+            errors[i] = error(f["x0_ng"], f["rho"][0, 0, :])
             points[i] = f["nx_glob_ng"][0]
 
     dx = points[0] / points

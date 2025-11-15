@@ -31,31 +31,31 @@ void set_constant_cells_processed(benchmark::State& state, std::size_t const cel
 
 void face_reconstruction(benchmark::State& state)
 {
-    int const nx = novapp::int_cast<int>(state.range());
-    int const ny = nx;
-    int const nz = nx;
+    int const nx0 = novapp::int_cast<int>(state.range());
+    int const nx1 = nx0;
+    int const nx2 = nx0;
 
-    double const xmin = 0;
-    double const xmax = 1;
-    double const ymin = 0;
-    double const ymax = 1;
-    double const zmin = 0;
-    double const zmax = 1;
+    double const x0min = 0;
+    double const x0max = 1;
+    double const x1min = 0;
+    double const x1max = 1;
+    double const x2min = 0;
+    double const x2max = 1;
 
-    std::array<int, 3> const Nx_glob_ng {nx, ny, nz};
+    std::array<int, 3> const Nx_glob_ng {nx0, nx1, nx2};
     std::array<int, 3> const mpi_dims_cart {0, 0, 0};
     int const Ng = 1;
 
     novapp::Grid grid(Nx_glob_ng, mpi_dims_cart, Ng);
-    novapp::Regular const regular_grid(std::array {xmin, ymin, zmin}, std::array {xmax, ymax, zmax});
+    novapp::Regular const regular_grid(std::array {x0min, x1min, x2min}, std::array {x0max, x1max, x2max});
 
-    novapp::KDV_double_1d x_glob("x_glob", grid.Nx_glob_ng[0] + (2 * grid.Nghost[0]) + 1);
-    novapp::KDV_double_1d y_glob("y_glob", grid.Nx_glob_ng[1] + (2 * grid.Nghost[1]) + 1);
-    novapp::KDV_double_1d z_glob("z_glob", grid.Nx_glob_ng[2] + (2 * grid.Nghost[2]) + 1);
-    regular_grid.execute(grid.Nghost, grid.Nx_glob_ng, x_glob.view_host(), y_glob.view_host(), z_glob.view_host());
-    novapp::modify_host(x_glob, y_glob, z_glob);
-    novapp::sync_device(x_glob, y_glob, z_glob);
-    grid.set_grid(x_glob.view_device(), y_glob.view_device(), z_glob.view_device());
+    novapp::KDV_double_1d x0_glob("x0_glob", grid.Nx_glob_ng[0] + (2 * grid.Nghost[0]) + 1);
+    novapp::KDV_double_1d x1_glob("x1_glob", grid.Nx_glob_ng[1] + (2 * grid.Nghost[1]) + 1);
+    novapp::KDV_double_1d x2_glob("x2_glob", grid.Nx_glob_ng[2] + (2 * grid.Nghost[2]) + 1);
+    regular_grid.execute(grid.Nghost, grid.Nx_glob_ng, x0_glob.view_host(), x1_glob.view_host(), x2_glob.view_host());
+    novapp::modify_host(x0_glob, x1_glob, x2_glob);
+    novapp::sync_device(x0_glob, x1_glob, x2_glob);
+    grid.set_grid(x0_glob.view_device(), x1_glob.view_device(), x2_glob.view_device());
 
     novapp::KV_double_3d const rho("rho", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
     novapp::KV_double_5d const rho_rec("rho_rec", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, novapp::ndim);
@@ -72,7 +72,7 @@ void face_reconstruction(benchmark::State& state)
         Kokkos::fence();
     }
 
-    std::size_t const cells = (static_cast<std::size_t>(nx) * ny) * nz;
+    std::size_t const cells = (static_cast<std::size_t>(nx0) * nx1) * nx2;
 
     set_constant_cells_processed(state, cells);
 

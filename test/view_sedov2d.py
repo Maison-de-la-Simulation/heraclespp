@@ -20,8 +20,8 @@ def main():
     with h5py.File(str(filename), "r") as f:
         # print(f.keys())
         rho = f["rho"][0, :, :]
-        x = f["x_ng"][()]
-        y = f["y_ng"][()]
+        x = f["x0_ng"][()]
+        y = f["x1_ng"][()]
         t = f["current_time"][()]
         gamma = f["gamma"][()]
 

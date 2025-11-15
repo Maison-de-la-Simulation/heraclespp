@@ -71,11 +71,11 @@ public:
         assert(u.extent_int(3) == ndim);
         assert(fx.extent_int(3) == 0);
 
-        auto const xc = grid.x_center;
-        auto const yc = grid.y_center;
+        auto const xc = grid.x0_center;
+        auto const yc = grid.x1_center;
         auto const& param_setup = m_param_setup;
 
-        double const y0 = 0.15;
+        double const c = 0.15;
 
         Kokkos::parallel_for(
             "implosion_test_init",
@@ -85,7 +85,7 @@ public:
                 double const x = xc(i);
                 double const y = yc(j);
 
-                if (x + y > y0)
+                if (x + y > c)
                 {
                     rho(i, j, k) = param_setup.rho0;
                     P(i, j, k) = param_setup.P0;

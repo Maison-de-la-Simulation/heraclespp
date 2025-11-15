@@ -54,21 +54,21 @@ Regular::Regular(std::array<double, 3> min, std::array<double, 3> max)
 }
 
 Regular::Regular(Param const& param)
-   : m_min{param.xmin, param.ymin, param.zmin}
-   , m_max{param.xmax, param.ymax, param.zmax}
+   : m_min{param.x0min, param.x1min, param.x2min}
+   , m_max{param.x0max, param.x1max, param.x2max}
 {
 }
 
 void Regular::execute(
     std::array<int, 3> Nghost,
     std::array<int, 3> Nx_glob_ng,
-    KVH_double_1d const& x_glob,
-    KVH_double_1d const& y_glob,
-    KVH_double_1d const& z_glob) const
+    KVH_double_1d const& x0_glob,
+    KVH_double_1d const& x1_glob,
+    KVH_double_1d const& x2_glob) const
 {
-    compute_regular_mesh_1d(x_glob, Nghost[0], m_min[0], (m_max[0] - m_min[0]) / Nx_glob_ng[0]);
-    compute_regular_mesh_1d(y_glob, Nghost[1], m_min[1], (m_max[1] - m_min[1]) / Nx_glob_ng[1]);
-    compute_regular_mesh_1d(z_glob, Nghost[2], m_min[2], (m_max[2] - m_min[2]) / Nx_glob_ng[2]);
+    compute_regular_mesh_1d(x0_glob, Nghost[0], m_min[0], (m_max[0] - m_min[0]) / Nx_glob_ng[0]);
+    compute_regular_mesh_1d(x1_glob, Nghost[1], m_min[1], (m_max[1] - m_min[1]) / Nx_glob_ng[1]);
+    compute_regular_mesh_1d(x2_glob, Nghost[2], m_min[2], (m_max[2] - m_min[2]) / Nx_glob_ng[2]);
 }
 
 } // namespace novapp

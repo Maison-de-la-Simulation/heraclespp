@@ -21,23 +21,23 @@ Param::Param(INIReader const& reader)
     restart_file = reader.Get("Problem", "restart_file", "None");
     rmax_shift = reader.GetReal("Problem", "rmax_shift", 1E20);
 
-    Nx_glob_ng[0] = reader.GetInteger("Grid", "Nx_glob", 0); // Cell number
-    Nx_glob_ng[1] = reader.GetInteger("Grid", "Ny_glob", 0); // Cell number
-    Nx_glob_ng[2] = reader.GetInteger("Grid", "Nz_glob", 0); // Cell number
+    Nx_glob_ng[0] = reader.GetInteger("Grid", "Nx0_glob", 0); // Cell number
+    Nx_glob_ng[1] = reader.GetInteger("Grid", "Nx1_glob", 0); // Cell number
+    Nx_glob_ng[2] = reader.GetInteger("Grid", "Nx2_glob", 0); // Cell number
     grid_type = reader.Get("Grid", "type", "Regular");
     Ng = reader.GetInteger("Grid", "Nghost", 2);
-    xmin = reader.GetReal("Grid", "xmin", 0.0);
-    xmax = reader.GetReal("Grid", "xmax", 1.0);
-    ymin = reader.GetReal("Grid", "ymin", 0.0);
-    ymax = reader.GetReal("Grid", "ymax", 1.0);
-    zmin = reader.GetReal("Grid", "zmin", 0.0);
-    zmax = reader.GetReal("Grid", "zmax", 1.0);
+    x0min = reader.GetReal("Grid", "x0min", 0.0);
+    x0max = reader.GetReal("Grid", "x0max", 1.0);
+    x1min = reader.GetReal("Grid", "x1min", 0.0);
+    x1max = reader.GetReal("Grid", "x1max", 1.0);
+    x2min = reader.GetReal("Grid", "x2min", 0.0);
+    x2max = reader.GetReal("Grid", "x2max", 1.0);
     shift_grid = reader.Get("Grid", "shift_grid", "Off");
 
     mpi_device_aware = reader.GetBoolean("Parallelization", "mpi_device_aware", false);
-    mpi_dims_cart[0] = reader.GetInteger("Parallelization", "mpi_dims_cart_x", 0); // number of procs, default 0=>defined by MPI
-    mpi_dims_cart[1] = reader.GetInteger("Parallelization", "mpi_dims_cart_y", 0); // number of procs
-    mpi_dims_cart[2] = reader.GetInteger("Parallelization", "mpi_dims_cart_z", 0); // number of procs
+    mpi_dims_cart[0] = reader.GetInteger("Parallelization", "mpi_dims_cart_x0", 0); // number of procs, default 0=>defined by MPI
+    mpi_dims_cart[1] = reader.GetInteger("Parallelization", "mpi_dims_cart_x1", 0); // number of procs
+    mpi_dims_cart[2] = reader.GetInteger("Parallelization", "mpi_dims_cart_x2", 0); // number of procs
 
     t_ini = reader.GetReal("Run", "t_ini", 0.);
     t_end = reader.GetReal("Run", "t_end", 0.2);
@@ -54,9 +54,9 @@ Param::Param(INIReader const& reader)
     reconstruction_type = reader.Get("Hydro", "reconstruction", "VanLeer");
     riemann_solver = reader.Get("Hydro", "riemann_solver", "HLL");
 
-    gx = reader.GetReal("Gravity", "gx", 0.0);
-    gy = reader.GetReal("Gravity", "gy", 0.0);
-    gz = reader.GetReal("Gravity", "gz", 0.0);
+    gx0 = reader.GetReal("Gravity", "gx0", 0.0);
+    gx1 = reader.GetReal("Gravity", "gx1", 0.0);
+    gx2 = reader.GetReal("Gravity", "gx2", 0.0);
     M = reader.GetReal("Gravity", "M", 1.0);
 
     gamma = reader.GetReal("Perfect Gas", "gamma", 5./3);

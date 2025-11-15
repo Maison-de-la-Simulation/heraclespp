@@ -12,9 +12,9 @@ import h5py
 def read_file(filename):
     with h5py.File(filename, "r") as f:
         rho = f["rho"][0, 0, :]
-        u = f["ux"][0, 0, :]
+        u = f["ux0"][0, 0, :]
         P = f["P"][0, 0, :]
-        x = f["x_ng"][()]
+        x = f["x0_ng"][()]
         t = f["current_time"][()]
         iteration = f["iter"][()]
         gamma = f["gamma"][()]

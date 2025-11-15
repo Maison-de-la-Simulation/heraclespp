@@ -21,7 +21,7 @@ namespace novapp
 
 std::string_view bc_dir(int i) noexcept
 {
-    static constexpr std::array<std::string_view, 3> s_bc_dir {"_X", "_Y", "_Z"};
+    static constexpr std::array<std::string_view, 3> s_bc_dir {"_X0", "_X1", "_X2"};
     return s_bc_dir[i];
 }
 

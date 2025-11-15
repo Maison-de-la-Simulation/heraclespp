@@ -47,8 +47,8 @@ double source_grad_u_r(
 KOKKOS_FORCEINLINE_FUNCTION
 double source_grad_u_idir_r(
     double dtodv,
-    double x,
-    double x_p,
+    double x0,
+    double x0_p,
     double rhoL,
     double rhoR,
     double uL_r,
@@ -58,7 +58,7 @@ double source_grad_u_idir_r(
     double dS,
     double dS_p)
 {
-    return dtodv * (x_p - x) / (x_p + x)
+    return dtodv * (x0_p - x0) / (x0_p + x0)
         * (rhoR * uR_other * uR_r * dS_p + rhoL * uL_other * uL_r * dS);
 }
 
@@ -66,8 +66,8 @@ double source_grad_u_idir_r(
 KOKKOS_FORCEINLINE_FUNCTION
 double source_grad_u_th(
     double dtodv,
-    double y,
-    double y_p,
+    double x1,
+    double x1_p,
     double rhoL,
     double rhoR,
     double uL_phi,
@@ -76,7 +76,7 @@ double source_grad_u_th(
     double dS_p)
 {
     return dtodv * (rhoL * uL_phi * uL_phi + rhoR * uR_phi * uR_phi) / 2
-        * (Kokkos::cos((y + y_p) / 2) / Kokkos::sin((y + y_p) / 2))
+        * (Kokkos::cos((x1 + x1_p) / 2) / Kokkos::sin((x1 + x1_p) / 2))
         * (dS_p - dS) / 2;
 }
 
@@ -84,8 +84,8 @@ double source_grad_u_th(
 KOKKOS_FORCEINLINE_FUNCTION
 double source_grad_u_phi(
     double dtodv,
-    double y,
-    double y_p,
+    double x1,
+    double x1_p,
     double rhoL,
     double rhoR,
     double uL_th,
@@ -95,8 +95,8 @@ double source_grad_u_phi(
     double dS,
     double dS_p)
 {
-    double const sm = Kokkos::sin(y);
-    double const sp = Kokkos::sin(y_p);
+    double const sm = Kokkos::sin(x1);
+    double const sp = Kokkos::sin(x1_p);
     return dtodv * (sp - sm) / (sp + sm) * (rhoR * uR_phi * uR_th * dS_p
         + rhoL * uL_phi * uL_th * dS);
 }

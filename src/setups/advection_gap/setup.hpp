@@ -69,7 +69,7 @@ public:
         assert(u.extent_int(3) == ndim);
         assert(fx.extent_int(3) == 0);
 
-        auto const xc = grid.x_center;
+        auto const xc = grid.x0_center;
         auto const& param_setup = m_param_setup;
 
         double const x1b = 0.3;

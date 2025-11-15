@@ -145,14 +145,14 @@ public:
     void execute(
         std::array<int, 3> const Nghost,
         std::array<int, 3> const Nx_glob_ng,
-        KVH_double_1d const& x_glob,
-        KVH_double_1d const& y_glob,
-        KVH_double_1d const& z_glob) const final
+        KVH_double_1d const& x0_glob,
+        KVH_double_1d const& x1_glob,
+        KVH_double_1d const& x2_glob) const final
     {
         std::string const init_file = m_param.reader.Get("problem", "init_file", "");
 
         RaiiH5Hid const file_id(::H5Fopen(init_file.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT), ::H5Fclose);
-        check_extent_dset(file_id, "/x", std::array {x_glob.extent(0)});
+        check_extent_dset(file_id, "/x0", std::array {x0_glob.extent(0)});
 
         int const filename_size = init_file.size();
         // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
@@ -161,12 +161,12 @@ public:
             "nullptr", nullptr, PDI_OUT,
             "init_filename_size", &filename_size, PDI_OUT,
             "init_filename", init_file.data(), PDI_OUT,
-            "x", x_glob.data(), PDI_INOUT,
+            "x0", x0_glob.data(), PDI_INOUT,
             nullptr);
         // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
 
-        compute_regular_mesh_1d(y_glob, Nghost[1], m_param.ymin, (m_param.ymax - m_param.ymin) / Nx_glob_ng[1]);
-        compute_regular_mesh_1d(z_glob, Nghost[2], m_param.zmin, (m_param.zmax - m_param.zmin) / Nx_glob_ng[2]);
+        compute_regular_mesh_1d(x1_glob, Nghost[1], m_param.x1min, (m_param.x1max - m_param.x1min) / Nx_glob_ng[1]);
+        compute_regular_mesh_1d(x2_glob, Nghost[2], m_param.x2min, (m_param.x2max - m_param.x2min) / Nx_glob_ng[2]);
     }
 };
 

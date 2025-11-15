@@ -25,9 +25,9 @@ public:
     void execute(
         std::array<int, 3> /*Nghost*/,
         std::array<int, 3> /*Nx_glob_ng*/,
-        KVH_double_1d const& /*x_glob*/,
-        KVH_double_1d const& /*y_glob*/,
-        KVH_double_1d const& /*z_glob*/) const final
+        KVH_double_1d const& /*x0_glob*/,
+        KVH_double_1d const& /*x1_glob*/,
+        KVH_double_1d const& /*x2_glob*/) const final
     {
         throw std::runtime_error("Grid setup not implemented");
     }

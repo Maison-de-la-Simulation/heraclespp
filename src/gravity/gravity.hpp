@@ -41,7 +41,7 @@ public :
     }
 };
 
-UniformGravity make_uniform_gravity(double gx, double gy, double gz);
+UniformGravity make_uniform_gravity(double gx0, double gx1, double gx2);
 
 class PointMassGravity
 {

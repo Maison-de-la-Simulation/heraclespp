@@ -40,17 +40,17 @@ public:
     Range range;
     std::array<std::array<bool, 2>,3> is_border;
 
-    KV_double_1d x;
-    KV_double_1d y;
-    KV_double_1d z;
+    KV_double_1d x0;
+    KV_double_1d x1;
+    KV_double_1d x2;
 
-    KV_double_1d x_center;
-    KV_double_1d y_center;
-    KV_double_1d z_center;
+    KV_double_1d x0_center;
+    KV_double_1d x1_center;
+    KV_double_1d x2_center;
 
-    KV_double_1d dx;
-    KV_double_1d dy;
-    KV_double_1d dz;
+    KV_double_1d dx0;
+    KV_double_1d dx1;
+    KV_double_1d dx2;
 
     KV_double_4d ds;
     KV_double_3d dv;
@@ -69,7 +69,7 @@ public:
 
     void print_grid(std::ostream& os) const;
 
-    void set_grid(KV_double_1d const& x_glob, KV_double_1d const& y_glob, KV_double_1d const& z_glob);
+    void set_grid(KV_double_1d const& x0_glob, KV_double_1d const& x1_glob, KV_double_1d const& x2_glob);
 
 private:
     void mpi_decomposition();

@@ -77,8 +77,8 @@ public:
 
         double const P0 = ((10. / 7) + (1. / 4));
 
-        auto const xc = grid.x_center;
-        auto const yc = grid.y_center;
+        auto const xc = grid.x0_center;
+        auto const yc = grid.x1_center;
         auto const& gravity = m_gravity;
         auto const& param_setup = m_param_setup;
 

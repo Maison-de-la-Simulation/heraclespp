@@ -18,8 +18,8 @@ def main():
     filename = sys.argv[1]
 
     with h5py.File(str(filename), "r") as f:
-        u_x = f["ux"][0, :, :]
-        u_y = f["uy"][0, :, :]
+        u_x = f["ux0"][0, :, :]
+        u_y = f["ux1"][0, :, :]
         t = f["current_time"][()]
 
     print(f"Final time = {t:.1f} s")
