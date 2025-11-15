@@ -10,14 +10,12 @@
 
 #include <Kokkos_Core.hpp>
 
-namespace novapp
-{
+namespace novapp {
 
 KOKKOS_FORCEINLINE_FUNCTION
 constexpr int kron(int a, int b) noexcept
 {
-    if (a == b)
-    {
+    if (a == b) {
         return 1;
     }
 

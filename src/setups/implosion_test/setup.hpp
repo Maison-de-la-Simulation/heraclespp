@@ -22,8 +22,7 @@
 #include "default_user_step.hpp" // IWYU pragma: keep
 #include "initialization_interface.hpp"
 
-namespace novapp
-{
+namespace novapp {
 
 class ParamSetup
 {
@@ -51,21 +50,18 @@ private:
     ParamSetup m_param_setup;
 
 public:
-    InitializationSetup(
-        thermodynamics::PerfectGas const& /*eos*/,
-        ParamSetup const& param_set_up,
-        Gravity const& /*gravity*/)
+    InitializationSetup(thermodynamics::PerfectGas const& /*eos*/, ParamSetup const& param_set_up, Gravity const& /*gravity*/)
         : m_param_setup(param_set_up)
     {
     }
 
     void execute(
-        Range const& range,
-        Grid const& grid,
-        KV_double_3d const& rho,
-        KV_double_4d const& u,
-        KV_double_3d const& P,
-        [[maybe_unused]] KV_double_4d const& fx) const final
+            Range const& range,
+            Grid const& grid,
+            KV_double_3d const& rho,
+            KV_double_4d const& u,
+            KV_double_3d const& P,
+            [[maybe_unused]] KV_double_4d const& fx) const final
     {
         assert(equal_extents({0, 1, 2}, rho, u, P, fx));
         assert(u.extent_int(3) == ndim);
@@ -78,29 +74,24 @@ public:
         double const c = 0.15;
 
         Kokkos::parallel_for(
-            "implosion_test_init",
-            cell_mdrange(range),
-            KOKKOS_LAMBDA(int i, int j, int k)
-            {
-                double const x = xc(i);
-                double const y = yc(j);
+                "implosion_test_init",
+                cell_mdrange(range),
+                KOKKOS_LAMBDA(int i, int j, int k) {
+                    double const x = xc(i);
+                    double const y = yc(j);
 
-                if (x + y > c)
-                {
-                    rho(i, j, k) = param_setup.rho0;
-                    P(i, j, k) = param_setup.P0;
-                }
-                else
-                {
-                    rho(i, j, k) = param_setup.rho1;
-                    P(i, j, k) = param_setup.P1;
-                }
+                    if (x + y > c) {
+                        rho(i, j, k) = param_setup.rho0;
+                        P(i, j, k) = param_setup.P0;
+                    } else {
+                        rho(i, j, k) = param_setup.rho1;
+                        P(i, j, k) = param_setup.P1;
+                    }
 
-                for (int idim = 0; idim < ndim; ++idim)
-                {
-                    u(i, j, k, idim) = param_setup.u0;
-                }
-            });
+                    for (int idim = 0; idim < ndim; ++idim) {
+                        u(i, j, k, idim) = param_setup.u0;
+                    }
+                });
     }
 };
 

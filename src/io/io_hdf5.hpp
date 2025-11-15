@@ -29,7 +29,7 @@ public:
         }
     }
 
-    RaiiH5Hid(const RaiiH5Hid&) = delete;
+    RaiiH5Hid(RaiiH5Hid const&) = delete;
 
     RaiiH5Hid(RaiiH5Hid&&) = delete;
 
@@ -40,7 +40,7 @@ public:
         }
     }
 
-    RaiiH5Hid& operator=(const RaiiH5Hid&) = delete;
+    RaiiH5Hid& operator=(RaiiH5Hid const&) = delete;
 
     RaiiH5Hid& operator=(RaiiH5Hid&&) = delete;
 
@@ -54,10 +54,7 @@ public:
 /// @param[in] dset_path A c-string representing the path of a dataset inside \p file_id
 /// @param[in] expected_extents Expected extents of \p dset_path
 template <std::size_t N>
-void check_extent_dset(
-        RaiiH5Hid const& file_id,
-        char const* const dset_path,
-        std::array<std::size_t, N> const& expected_extents)
+void check_extent_dset(RaiiH5Hid const& file_id, char const* const dset_path, std::array<std::size_t, N> const& expected_extents)
 {
     RaiiH5Hid const dset_id(::H5Dopen(*file_id, dset_path, H5P_DEFAULT), ::H5Dclose);
     RaiiH5Hid const dspace(::H5Dget_space(*dset_id), ::H5Sclose);

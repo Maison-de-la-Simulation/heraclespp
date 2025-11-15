@@ -17,26 +17,19 @@
 
 #include "integration.hpp"
 
-namespace novapp
-{
+namespace novapp {
 
-double integrate(
-    Range const& range,
-    Grid const& grid,
-    KV_cdouble_3d const& var)
+double integrate(Range const& range, Grid const& grid, KV_cdouble_3d const& var)
 {
     double sum = 0;
 
     KV_cdouble_3d const dv = grid.dv;
 
     Kokkos::parallel_reduce(
-        "integration",
-        cell_mdrange(range),
-        KOKKOS_LAMBDA(int i, int j, int k, double& local_sum)
-        {
-            local_sum += var(i, j, k) * dv(i, j, k);
-        },
-        Kokkos::Sum<double>(sum));
+            "integration",
+            cell_mdrange(range),
+            KOKKOS_LAMBDA(int i, int j, int k, double& local_sum) { local_sum += var(i, j, k) * dv(i, j, k); },
+            Kokkos::Sum<double>(sum));
 
     MPI_Allreduce(MPI_IN_PLACE, &sum, 1, MPI_DOUBLE, MPI_SUM, grid.comm_cart);
 

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: MIT
 
-# pragma once
+#pragma once
 
 #include <stdexcept>
 
@@ -11,8 +11,7 @@
 
 #include "boundary.hpp"
 
-namespace novapp
-{
+namespace novapp {
 
 class Grid;
 class ParamSetup;
@@ -21,19 +20,15 @@ template <class Gravity>
 class BoundarySetup : public IBoundaryCondition<Gravity>
 {
 public:
-    BoundarySetup(int idim, int iface,
-        EOS const& /*eos*/,
-        ParamSetup const& /*param_setup*/)
-        : IBoundaryCondition<Gravity>(idim, iface)
-    {
-    }
+    BoundarySetup(int idim, int iface, EOS const& /*eos*/, ParamSetup const& /*param_setup*/) : IBoundaryCondition<Gravity>(idim, iface) {}
 
-    void execute(Grid const& /*grid*/,
-        Gravity const& /*gravity*/,
-        KV_double_3d const& /*rho*/,
-        KV_double_4d const& /*rhou*/,
-        KV_double_3d const& /*E*/,
-        KV_double_4d const& /*fx*/) const final
+    void execute(
+            Grid const& /*grid*/,
+            Gravity const& /*gravity*/,
+            KV_double_3d const& /*rho*/,
+            KV_double_4d const& /*rhou*/,
+            KV_double_3d const& /*E*/,
+            KV_double_4d const& /*fx*/) const final
     {
         throw std::runtime_error("Boundary setup not implemented");
     }

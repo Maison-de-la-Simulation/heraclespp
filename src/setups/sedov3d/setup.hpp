@@ -24,8 +24,7 @@
 #include "default_user_step.hpp" // IWYU pragma: keep
 #include "initialization_interface.hpp"
 
-namespace novapp
-{
+namespace novapp {
 
 class ParamSetup
 {
@@ -50,22 +49,15 @@ private:
     ParamSetup m_param_setup;
 
 public:
-    InitializationSetup(
-        EOS const& eos,
-        ParamSetup const& param_set_up,
-        Gravity const& /*gravity*/)
-        : m_eos(eos)
-        , m_param_setup(param_set_up)
-    {
-    }
+    InitializationSetup(EOS const& eos, ParamSetup const& param_set_up, Gravity const& /*gravity*/) : m_eos(eos), m_param_setup(param_set_up) {}
 
     void execute(
-        Range const& range,
-        Grid const& grid,
-        KV_double_3d const& rho,
-        KV_double_4d const& u,
-        KV_double_3d const& P,
-        [[maybe_unused]] KV_double_4d const& fx) const final
+            Range const& range,
+            Grid const& grid,
+            KV_double_3d const& rho,
+            KV_double_4d const& u,
+            KV_double_3d const& P,
+            [[maybe_unused]] KV_double_4d const& fx) const final
     {
         assert(equal_extents({0, 1, 2}, rho, u, P, fx));
         assert(u.extent_int(3) == ndim);
@@ -78,32 +70,26 @@ public:
         int const ny_2 = grid.Nx_glob_ng[1] / 2;
         int const nz_2 = grid.Nx_glob_ng[2] / 2;
 
-        if (geom == Geometry::Geom_cartesian)
-        {
+        if (geom == Geometry::Geom_cartesian) {
             throw std::runtime_error("No Sedov 3D in Cartesian implemented");
         }
 
         Kokkos::parallel_for(
-            "Sedov_3D_init",
-            cell_mdrange(range),
-            KOKKOS_LAMBDA(int i, int j, int k)
-            {
-                rho(i, j, k) = param_setup.rho0;
-                for (int idim = 0; idim < ndim; ++idim)
-                {
-                    u(i, j, k, idim) = 0;
-                }
+                "Sedov_3D_init",
+                cell_mdrange(range),
+                KOKKOS_LAMBDA(int i, int j, int k) {
+                    rho(i, j, k) = param_setup.rho0;
+                    for (int idim = 0; idim < ndim; ++idim) {
+                        u(i, j, k, idim) = 0;
+                    }
 
-                if (r(i) == 1 && j == ny_2  && k == nz_2)
-                {
-                    double const evol = param_setup.E1 / dv(i, j, k);
-                    P(i, j, k) = eos.compute_pres_from_evol(rho(i, j, k), evol);
-                }
-                else
-                {
-                    P(i, j, k) = param_setup.P0;
-                }
-            });
+                    if (r(i) == 1 && j == ny_2 && k == nz_2) {
+                        double const evol = param_setup.E1 / dv(i, j, k);
+                        P(i, j, k) = eos.compute_pres_from_evol(rho(i, j, k), evol);
+                    } else {
+                        P(i, j, k) = param_setup.P0;
+                    }
+                });
     }
 };
 

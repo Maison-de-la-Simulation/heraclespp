@@ -43,7 +43,7 @@ TEST(BroadcastScalar, Case1d)
         for (int i = 0; i < nx0_wg; ++i) {
             for (int j = 0; j < nx1_wg; ++j) {
                 for (int k = 0; k < nx2_wg; ++k) {
-                    if ((i == 0 || i == nx0_wg - 1)) {
+                    if (i == 0 || i == nx0_wg - 1) {
                         EXPECT_DOUBLE_EQ(array_h(i, j, k), outer_value);
                     } else {
                         EXPECT_DOUBLE_EQ(array_h(i, j, k), inner_value);
@@ -123,8 +123,7 @@ TEST(BroadcastScalar, Case3d)
         for (int i = 0; i < nx0_wg; ++i) {
             for (int j = 0; j < nx1_wg; ++j) {
                 for (int k = 0; k < nx2_wg; ++k) {
-                    if ((i == 0 || i == nx0_wg - 1) || (j == 0 || j == nx1_wg - 1)
-                        || (k == 0 || k == nx2_wg - 1)) {
+                    if ((i == 0 || i == nx0_wg - 1) || (j == 0 || j == nx1_wg - 1) || (k == 0 || k == nx2_wg - 1)) {
                         EXPECT_DOUBLE_EQ(array_h(i, j, k), outer_value);
                     } else {
                         EXPECT_DOUBLE_EQ(array_h(i, j, k), inner_value);
@@ -166,7 +165,7 @@ TEST(BroadcastArray, Case1d)
         for (int i = 0; i < nx0_wg; ++i) {
             for (int j = 0; j < nx1_wg; ++j) {
                 for (int k = 0; k < nx2_wg; ++k) {
-                    if ((i == 0 || i == nx0_wg - 1)) {
+                    if (i == 0 || i == nx0_wg - 1) {
                         EXPECT_DOUBLE_EQ(array_h(i, j, k), outer_value);
                     } else {
                         EXPECT_DOUBLE_EQ(array_h(i, j, k), inner_value);
@@ -250,8 +249,7 @@ TEST(BroadcastArray, Case3d)
         for (int i = 0; i < nx0_wg; ++i) {
             for (int j = 0; j < nx1_wg; ++j) {
                 for (int k = 0; k < nx2_wg; ++k) {
-                    if ((i == 0 || i == nx0_wg - 1) || (j == 0 || j == nx1_wg - 1)
-                        || (k == 0 || k == nx2_wg - 1)) {
+                    if ((i == 0 || i == nx0_wg - 1) || (j == 0 || j == nx1_wg - 1) || (k == 0 || k == nx2_wg - 1)) {
                         EXPECT_DOUBLE_EQ(array_h(i, j, k), outer_value);
                     } else {
                         EXPECT_DOUBLE_EQ(array_h(i, j, k), inner_value);

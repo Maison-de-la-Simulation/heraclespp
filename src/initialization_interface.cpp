@@ -8,8 +8,7 @@
 
 #include "initialization_interface.hpp"
 
-namespace novapp
-{
+namespace novapp {
 
 IInitializationProblem::IInitializationProblem() = default;
 

@@ -9,11 +9,13 @@
 
 namespace novapp {
 
-template <class R, class T> R int_cast(T t) {
-  if (std::in_range<R>(t)) {
-    return static_cast<R>(t);
-  }
-  throw std::runtime_error("Conversion cannot preserve value representation");
+template <class R, class T>
+R int_cast(T t)
+{
+    if (std::in_range<R>(t)) {
+        return static_cast<R>(t);
+    }
+    throw std::runtime_error("Conversion cannot preserve value representation");
 }
 
 } // namespace novapp

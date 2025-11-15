@@ -19,8 +19,7 @@
 #include "concepts.hpp"
 #include "face_reconstruction.hpp"
 
-namespace novapp
-{
+namespace novapp {
 
 template <concepts::GravityField Gravity>
 class IExtrapolationReconstruction;
@@ -99,39 +98,27 @@ public:
             KV_double_6d const& fx_rec) const final
     {
         m_face_reconstruction->execute(range, grid, rho, rho_rec);
-        for (int idim = 0; idim < ndim; ++idim)
-        {
-            m_face_reconstruction->execute(
-                    range,
-                    grid,
-                    Kokkos::subview(u, ALL, ALL, ALL, idim),
-                    Kokkos::subview(m_u_rec, ALL, ALL, ALL, ALL, ALL, idim));
+        for (int idim = 0; idim < ndim; ++idim) {
+            m_face_reconstruction
+                    ->execute(range, grid, Kokkos::subview(u, ALL, ALL, ALL, idim), Kokkos::subview(m_u_rec, ALL, ALL, ALL, ALL, ALL, idim));
         }
         m_face_reconstruction->execute(range, grid, P, m_p_rec);
         int const nfx = fx.extent_int(3);
-        for (int ifx = 0; ifx < nfx; ++ifx)
-        {
-            m_face_reconstruction->execute(
-                    range,
-                    grid,
-                    Kokkos::subview(fx, ALL, ALL, ALL, ifx),
-                    Kokkos::subview(fx_rec, ALL, ALL, ALL, ALL, ALL, ifx));
+        for (int ifx = 0; ifx < nfx; ++ifx) {
+            m_face_reconstruction
+                    ->execute(range, grid, Kokkos::subview(fx, ALL, ALL, ALL, ifx), Kokkos::subview(fx_rec, ALL, ALL, ALL, ALL, ALL, ifx));
         }
 
-        for (int idim = 0; idim < ndim; ++idim)
-        {
-            for (int iside = 0; iside < 2; ++iside)
-            {
+        for (int idim = 0; idim < ndim; ++idim) {
+            for (int iside = 0; iside < 2; ++iside) {
                 KV_cdouble_3d const rho_f = Kokkos::subview(rho_rec, ALL, ALL, ALL, iside, idim);
                 Kokkos::Array<KV_cdouble_3d, ndim> u_f;
-                for (int iv = 0; iv < ndim; ++iv)
-                {
+                for (int iv = 0; iv < ndim; ++iv) {
                     u_f[iv] = Kokkos::subview(m_u_rec, ALL, ALL, ALL, iside, idim, iv);
                 }
                 KV_cdouble_3d const P_f = Kokkos::subview(m_p_rec, ALL, ALL, ALL, iside, idim);
                 Kokkos::Array<KV_double_3d, ndim> rhou_f;
-                for (int iv = 0; iv < ndim; ++iv)
-                {
+                for (int iv = 0; iv < ndim; ++iv) {
                     rhou_f[iv] = Kokkos::subview(rhou_rec, ALL, ALL, ALL, iside, idim, iv);
                 }
                 KV_double_3d const E_f = Kokkos::subview(E_rec, ALL, ALL, ALL, iside, idim);

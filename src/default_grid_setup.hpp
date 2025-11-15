@@ -10,24 +10,21 @@
 #include <grid_type.hpp>
 #include <kokkos_shortcut.hpp>
 
-namespace novapp
-{
+namespace novapp {
 
 class Param;
 
 class GridSetup : public IGridType
 {
 public:
-    explicit GridSetup(Param const& /*param*/)
-    {
-    }
+    explicit GridSetup(Param const& /*param*/) {}
 
     void execute(
-        std::array<int, 3> /*Nghost*/,
-        std::array<int, 3> /*Nx_glob_ng*/,
-        KVH_double_1d const& /*x0_glob*/,
-        KVH_double_1d const& /*x1_glob*/,
-        KVH_double_1d const& /*x2_glob*/) const final
+            std::array<int, 3> /*Nghost*/,
+            std::array<int, 3> /*Nx_glob_ng*/,
+            KVH_double_1d const& /*x0_glob*/,
+            KVH_double_1d const& /*x1_glob*/,
+            KVH_double_1d const& /*x2_glob*/) const final
     {
         throw std::runtime_error("Grid setup not implemented");
     }

@@ -18,9 +18,7 @@ class Range;
 class UserShiftCriterion : public IShiftCriterion
 {
 public:
-    explicit UserShiftCriterion(ParamSetup const& /*param_setup*/)
-    {
-    }
+    explicit UserShiftCriterion(ParamSetup const& /*param_setup*/) {}
 
     [[nodiscard]] bool execute(
             Range const& /*range*/,

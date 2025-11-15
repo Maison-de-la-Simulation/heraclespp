@@ -33,10 +33,7 @@
 
 namespace {
 
-void write_string_attribute(
-        novapp::RaiiH5Hid const& file_id,
-        char const* const attribute_name,
-        std::string_view const attribute_value)
+void write_string_attribute(novapp::RaiiH5Hid const& file_id, char const* const attribute_name, std::string_view const attribute_value)
 {
     novapp::RaiiH5Hid const space_id(::H5Screate(H5S_SCALAR), ::H5Sclose);
 
@@ -48,9 +45,7 @@ void write_string_attribute(
         throw std::runtime_error("Nova++ error: defining utf-8 character set failed");
     }
 
-    novapp::RaiiH5Hid const attr_id(
-            ::H5Acreate2(*file_id, attribute_name, *type_id, *space_id, H5P_DEFAULT, H5P_DEFAULT),
-            ::H5Aclose);
+    novapp::RaiiH5Hid const attr_id(::H5Acreate2(*file_id, attribute_name, *type_id, *space_id, H5P_DEFAULT, H5P_DEFAULT), ::H5Aclose);
 
     if (::H5Awrite(*attr_id, *type_id, attribute_value.data()) < 0) {
         throw std::runtime_error("Nova++ error: writing attribute failed");
@@ -63,7 +58,8 @@ bool span_is_contiguous(Views const&... views)
     return (views.span_is_contiguous() && ...);
 }
 
-std::string get_output_filename(std::string const& prefix, std::size_t const num) {
+std::string get_output_filename(std::string const& prefix, std::size_t const num)
+{
     static constexpr int fill_width = 8;
 
     std::ostringstream output_filename;
@@ -89,8 +85,7 @@ private:
 
     [[nodiscard]] std::string_view to_string_view() const
     {
-        return std::string_view(m_max_spaces.data(), m_max_spaces.size())
-                .substr(0, m_indent_width * m_indent_level);
+        return std::string_view(m_max_spaces.data(), m_max_spaces.size()).substr(0, m_indent_width * m_indent_level);
     }
 
 public:
@@ -127,15 +122,9 @@ public:
 
 } // namespace
 
-namespace novapp
-{
+namespace novapp {
 
-void print_simulation_status(
-        std::ostream& os,
-        int const iter,
-        double const current,
-        double const time_out,
-        int const output_id)
+void print_simulation_status(std::ostream& os, int const iter, double const current, double const time_out, int const output_id)
 {
     static constexpr int fill_width = 81;
     int mpi_rank = 0;
@@ -150,49 +139,67 @@ void print_simulation_status(
     }
 }
 
-void write_pdi_init(
-    Grid const& grid,
-    Param const& param)
+void write_pdi_init(Grid const& grid, Param const& param)
 {
     int const simu_ndim = ndim;
     int const simu_nfx = param.nfx;
 
     // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     PDI_multi_expose(
-        "init_PDI",
-        "nullptr", nullptr, PDI_OUT,
-        "ndim", &simu_ndim, PDI_OUT,
-        "nfx", &simu_nfx, PDI_OUT,
-        "n_ghost", grid.Nghost.data(), PDI_OUT,
-        "nx_glob_ng", grid.Nx_glob_ng.data(), PDI_OUT,
-        "nx_local_ng", grid.Nx_local_ng.data(), PDI_OUT,
-        "nx_local_wg", grid.Nx_local_wg.data(), PDI_OUT,
-        "start", grid.range.Corner_min.data(), PDI_OUT,
-        "grid_communicator", &grid.comm_cart, PDI_OUT,
-        "mpi_rank", &grid.mpi_rank, PDI_OUT,
-        nullptr);
+            "init_PDI",
+            "nullptr",
+            nullptr,
+            PDI_OUT,
+            "ndim",
+            &simu_ndim,
+            PDI_OUT,
+            "nfx",
+            &simu_nfx,
+            PDI_OUT,
+            "n_ghost",
+            grid.Nghost.data(),
+            PDI_OUT,
+            "nx_glob_ng",
+            grid.Nx_glob_ng.data(),
+            PDI_OUT,
+            "nx_local_ng",
+            grid.Nx_local_ng.data(),
+            PDI_OUT,
+            "nx_local_wg",
+            grid.Nx_local_wg.data(),
+            PDI_OUT,
+            "start",
+            grid.range.Corner_min.data(),
+            PDI_OUT,
+            "grid_communicator",
+            &grid.comm_cart,
+            PDI_OUT,
+            "mpi_rank",
+            &grid.mpi_rank,
+            PDI_OUT,
+            nullptr);
     // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
 }
 
 void write_pdi(
-    std::string const& directory,
-    std::string const& prefix,
-    int const output_id,
-    int const iter_output_id,
-    int const time_output_id,
-    int const iter,
-    double const t,
-    double const gamma,
-    Grid const& grid,
-    KDV_double_3d& rho,
-    KDV_double_4d& u,
-    KDV_double_3d& P,
-    KDV_double_3d& E,
-    KDV_double_1d& x0,
-    KDV_double_1d& x1,
-    KDV_double_1d& x2,
-    KDV_double_4d& fx,
-    KDV_double_3d& T)
+        std::string const& directory,
+        std::string const& prefix,
+        int const output_id,
+        int const iter_output_id,
+        int const time_output_id,
+        int const iter,
+        double const t,
+        double const gamma,
+        Grid const& grid,
+        KDV_double_3d& rho,
+        KDV_double_4d& u,
+        KDV_double_3d& P,
+        KDV_double_3d& E,
+        KDV_double_1d& x0,
+        KDV_double_1d& x1,
+        KDV_double_1d& x2,
+        KDV_double_4d& fx,
+        KDV_double_3d& T)
 {
     assert(span_is_contiguous(rho, u, P, E, fx, T));
     int const directory_size = int_cast<int>(directory.size());
@@ -201,52 +208,113 @@ void write_pdi(
     sync_host(rho, u, P, E, fx, T, x0, x1, x2);
     // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     PDI_multi_expose(
-        "write_replicated_data",
-        "nullptr", nullptr, PDI_OUT,
-        "directory_size", &directory_size, PDI_OUT,
-        "directory", directory.data(), PDI_OUT,
-        "output_filename_size", &output_filename_size, PDI_OUT,
-        "output_filename", output_filename.data(), PDI_OUT,
-        "output_id", &output_id, PDI_OUT,
-        "iter_output_id", &iter_output_id, PDI_OUT,
-        "time_output_id", &time_output_id, PDI_OUT,
-        "iter", &iter, PDI_OUT,
-        "current_time", &t, PDI_OUT,
-        "gamma", &gamma, PDI_OUT,
-        "x0", x0.view_host().data(), PDI_OUT,
-        "x1", x1.view_host().data(), PDI_OUT,
-        "x2", x2.view_host().data(), PDI_OUT,
-        nullptr);
+            "write_replicated_data",
+            "nullptr",
+            nullptr,
+            PDI_OUT,
+            "directory_size",
+            &directory_size,
+            PDI_OUT,
+            "directory",
+            directory.data(),
+            PDI_OUT,
+            "output_filename_size",
+            &output_filename_size,
+            PDI_OUT,
+            "output_filename",
+            output_filename.data(),
+            PDI_OUT,
+            "output_id",
+            &output_id,
+            PDI_OUT,
+            "iter_output_id",
+            &iter_output_id,
+            PDI_OUT,
+            "time_output_id",
+            &time_output_id,
+            PDI_OUT,
+            "iter",
+            &iter,
+            PDI_OUT,
+            "current_time",
+            &t,
+            PDI_OUT,
+            "gamma",
+            &gamma,
+            PDI_OUT,
+            "x0",
+            x0.view_host().data(),
+            PDI_OUT,
+            "x1",
+            x1.view_host().data(),
+            PDI_OUT,
+            "x2",
+            x2.view_host().data(),
+            PDI_OUT,
+            nullptr);
     // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     PDI_multi_expose(
-        "write_distributed_data",
-        "nullptr", nullptr, PDI_OUT,
-        "directory_size", &directory_size, PDI_OUT,
-        "directory", directory.data(), PDI_OUT,
-        "output_filename_size", &output_filename_size, PDI_OUT,
-        "output_filename", output_filename.data(), PDI_OUT,
-        "rho", rho.view_host().data(), PDI_OUT,
-        "u", u.view_host().data(), PDI_OUT,
-        "P", P.view_host().data(), PDI_OUT,
-        "E", E.view_host().data(), PDI_OUT,
-        "T", T.view_host().data(), PDI_OUT,
-        nullptr);
-    for(int ifx=0; ifx<fx.extent_int(3); ++ifx)
-    {
-        PDI_multi_expose("write_fx",
-            "nullptr", nullptr, PDI_OUT,
-            "directory_size", &directory_size, PDI_OUT,
-            "directory", directory.data(), PDI_OUT,
-            "output_filename_size", &output_filename_size, PDI_OUT,
-            "output_filename", output_filename.data(), PDI_OUT,
-            "ifx", &ifx, PDI_OUT,
-            "fx", fx.view_host().data(), PDI_OUT,
+            "write_distributed_data",
+            "nullptr",
+            nullptr,
+            PDI_OUT,
+            "directory_size",
+            &directory_size,
+            PDI_OUT,
+            "directory",
+            directory.data(),
+            PDI_OUT,
+            "output_filename_size",
+            &output_filename_size,
+            PDI_OUT,
+            "output_filename",
+            output_filename.data(),
+            PDI_OUT,
+            "rho",
+            rho.view_host().data(),
+            PDI_OUT,
+            "u",
+            u.view_host().data(),
+            PDI_OUT,
+            "P",
+            P.view_host().data(),
+            PDI_OUT,
+            "E",
+            E.view_host().data(),
+            PDI_OUT,
+            "T",
+            T.view_host().data(),
+            PDI_OUT,
             nullptr);
+    for (int ifx = 0; ifx < fx.extent_int(3); ++ifx) {
+        PDI_multi_expose(
+                "write_fx",
+                "nullptr",
+                nullptr,
+                PDI_OUT,
+                "directory_size",
+                &directory_size,
+                PDI_OUT,
+                "directory",
+                directory.data(),
+                PDI_OUT,
+                "output_filename_size",
+                &output_filename_size,
+                PDI_OUT,
+                "output_filename",
+                output_filename.data(),
+                PDI_OUT,
+                "ifx",
+                &ifx,
+                PDI_OUT,
+                "fx",
+                fx.view_host().data(),
+                PDI_OUT,
+                nullptr);
     }
     // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
-    if (grid.mpi_rank == 0)
-    {
+    if (grid.mpi_rank == 0) {
         RaiiH5Hid const file_id(::H5Fopen((directory + '/' + output_filename).c_str(), H5F_ACC_RDWR, H5P_DEFAULT), H5Fclose);
         write_string_attribute(file_id, "git_build_string", git_build_string);
         write_string_attribute(file_id, "git_branch", git_branch);
@@ -256,19 +324,19 @@ void write_pdi(
 }
 
 void read_pdi(
-    std::string const& restart_file,
-    int& output_id,
-    int& iter_output_id,
-    int& time_output_id,
-    int& iter,
-    double& t,
-    KDV_double_3d& rho,
-    KDV_double_4d& u,
-    KDV_double_3d& P,
-    KDV_double_4d& fx,
-    KDV_double_1d& x0_glob,
-    KDV_double_1d& x1_glob,
-    KDV_double_1d& x2_glob)
+        std::string const& restart_file,
+        int& output_id,
+        int& iter_output_id,
+        int& time_output_id,
+        int& iter,
+        double& t,
+        KDV_double_3d& rho,
+        KDV_double_4d& u,
+        KDV_double_3d& P,
+        KDV_double_4d& fx,
+        KDV_double_1d& x0_glob,
+        KDV_double_1d& x1_glob,
+        KDV_double_1d& x2_glob)
 {
     assert(span_is_contiguous(rho, u, P, fx));
 
@@ -295,31 +363,69 @@ void read_pdi(
     int const filename_size = int_cast<int>(restart_file.size());
     // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     PDI_multi_expose(
-        "read_file",
-        "nullptr", nullptr, PDI_OUT,
-        "restart_filename_size", &filename_size, PDI_OUT,
-        "restart_filename", restart_file.data(), PDI_OUT,
-        "output_id", &output_id, PDI_INOUT,
-        "iter_output_id", &iter_output_id, PDI_INOUT,
-        "time_output_id", &time_output_id, PDI_INOUT,
-        "iter", &iter, PDI_INOUT,
-        "current_time", &t, PDI_INOUT,
-        "rho", rho.view_host().data(), PDI_INOUT,
-        "u", u.view_host().data(), PDI_INOUT,
-        "P", P.view_host().data(), PDI_INOUT,
-        "x0", x0_glob.view_host().data(), PDI_INOUT,
-        "x1", x1_glob.view_host().data(), PDI_INOUT,
-        "x2", x2_glob.view_host().data(), PDI_INOUT,
-        nullptr);
-    for(int ifx=0; ifx<fx.extent_int(3); ++ifx)
-    {
-        PDI_multi_expose("read_fx",
-            "nullptr", nullptr, PDI_OUT,
-            "restart_filename_size", &filename_size, PDI_OUT,
-            "restart_filename", restart_file.data(), PDI_OUT,
-            "ifx", &ifx, PDI_OUT,
-            "fx", fx.view_host().data(), PDI_INOUT,
+            "read_file",
+            "nullptr",
+            nullptr,
+            PDI_OUT,
+            "restart_filename_size",
+            &filename_size,
+            PDI_OUT,
+            "restart_filename",
+            restart_file.data(),
+            PDI_OUT,
+            "output_id",
+            &output_id,
+            PDI_INOUT,
+            "iter_output_id",
+            &iter_output_id,
+            PDI_INOUT,
+            "time_output_id",
+            &time_output_id,
+            PDI_INOUT,
+            "iter",
+            &iter,
+            PDI_INOUT,
+            "current_time",
+            &t,
+            PDI_INOUT,
+            "rho",
+            rho.view_host().data(),
+            PDI_INOUT,
+            "u",
+            u.view_host().data(),
+            PDI_INOUT,
+            "P",
+            P.view_host().data(),
+            PDI_INOUT,
+            "x0",
+            x0_glob.view_host().data(),
+            PDI_INOUT,
+            "x1",
+            x1_glob.view_host().data(),
+            PDI_INOUT,
+            "x2",
+            x2_glob.view_host().data(),
+            PDI_INOUT,
             nullptr);
+    for (int ifx = 0; ifx < fx.extent_int(3); ++ifx) {
+        PDI_multi_expose(
+                "read_fx",
+                "nullptr",
+                nullptr,
+                PDI_OUT,
+                "restart_filename_size",
+                &filename_size,
+                PDI_OUT,
+                "restart_filename",
+                restart_file.data(),
+                PDI_OUT,
+                "ifx",
+                &ifx,
+                PDI_OUT,
+                "fx",
+                fx.view_host().data(),
+                PDI_INOUT,
+                nullptr);
     }
     // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     modify_host(rho, u, P, fx, x0_glob, x1_glob, x2_glob);
@@ -348,8 +454,7 @@ void XmlWriter::operator()(
         KDV_double_1d& x2) const
 {
     sync_host(x0, x1, x2);
-    if (grid.mpi_rank != 0)
-    {
+    if (grid.mpi_rank != 0) {
         return;
     }
 
@@ -374,8 +479,7 @@ void XmlWriter::operator()(
     int const precision = sizeof(double);
 
     std::size_t const first_output_id = output_id + 1 - outputs_record.size();
-    for (std::size_t i = 0; i < outputs_record.size(); ++i)
-    {
+    for (std::size_t i = 0; i < outputs_record.size(); ++i) {
         indent.push();
         xdmfFile << indent << "<Grid";
         xdmfFile << " Name=" << '"' << "output" << '"';
@@ -391,8 +495,7 @@ void XmlWriter::operator()(
         xdmfFile << indent << "<Topology";
         xdmfFile << " TopologyType=" << '"' << "3DRectMesh" << '"';
         xdmfFile << " Dimensions=" << '"';
-        for (int idim = 2; idim >= 0; --idim)
-        {
+        for (int idim = 2; idim >= 0; --idim) {
             xdmfFile << ncells[idim] + 1;
             xdmfFile << (idim == 0 ? '"' : ' ');
         }
@@ -406,8 +509,7 @@ void XmlWriter::operator()(
         std::string const output_filename = get_output_filename(m_prefix, first_output_id + i);
         std::array const axes_arrays {x0.view_host(), x1.view_host(), x2.view_host()};
         std::array const axes_labels {"x0_ng", "x1_ng", "x2_ng"};
-        for (int idim = 0; idim < 3; ++idim)
-        {
+        for (int idim = 0; idim < 3; ++idim) {
             indent.push();
             xdmfFile << indent << "<DataItem";
             xdmfFile << " NumberType=" << '"' << "Float" << '"';
@@ -424,8 +526,7 @@ void XmlWriter::operator()(
 
         xdmfFile << indent << "</Geometry>\n";
 
-        for (std::string const& var_name : m_var_names)
-        {
+        for (std::string const& var_name : m_var_names) {
             xdmfFile << indent << "<Attribute";
             xdmfFile << " Center=" << '"' << "Cell" << '"';
             xdmfFile << " Name=" << '"' << var_name << '"';
@@ -437,8 +538,7 @@ void XmlWriter::operator()(
             xdmfFile << " Precision=" << '"' << precision << '"';
 
             xdmfFile << " Dimensions=" << '"';
-            for (int idim = 2; idim >= 0; --idim)
-            {
+            for (int idim = 2; idim >= 0; --idim) {
                 xdmfFile << ncells[idim];
                 xdmfFile << (idim == 0 ? '"' : ' ');
             }

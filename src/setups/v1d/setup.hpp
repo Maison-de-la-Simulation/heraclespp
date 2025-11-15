@@ -31,14 +31,13 @@
 #    include <ndim.hpp>
 #endif
 
-#include "shift_criterion_interface.hpp"
 #include "broadcast.hpp"
 #include "default_boundary_setup.hpp" // IWYU pragma: keep
 #include "default_user_step.hpp" // IWYU pragma: keep
 #include "initialization_interface.hpp"
+#include "shift_criterion_interface.hpp"
 
-namespace novapp
-{
+namespace novapp {
 
 class ParamSetup
 {
@@ -52,7 +51,7 @@ public:
         init_filename = reader.Get("problem", "init_file", "");
         vmax_shift = reader.GetReal("problem", "vmax_shift", 0.) * units::velocity;
         cell_shift = reader.GetInteger("problem", "cell_shift", 0);
-   }
+    }
 };
 
 template <class Gravity>
@@ -62,21 +61,10 @@ private:
     ParamSetup m_param_setup;
 
 public:
-    InitializationSetup(
-        EOS const& /*eos*/,
-        ParamSetup param_set_up,
-        Gravity const& /*gravity*/)
-        : m_param_setup(std::move(param_set_up))
-    {
-    }
+    InitializationSetup(EOS const& /*eos*/, ParamSetup param_set_up, Gravity const& /*gravity*/) : m_param_setup(std::move(param_set_up)) {}
 
-    void execute(
-        Range const& range,
-        Grid const& grid,
-        KV_double_3d const& rho,
-        KV_double_4d const& u,
-        KV_double_3d const& P,
-        KV_double_4d const& fx) const final
+    void execute(Range const& range, Grid const& grid, KV_double_3d const& rho, KV_double_4d const& u, KV_double_3d const& P, KV_double_4d const& fx)
+            const final
     {
         assert(equal_extents({0, 1, 2}, rho, u, P, fx));
         assert(u.extent_int(3) == ndim);
@@ -94,8 +82,7 @@ public:
         check_extent_dset(file_id, "/P_1d", std::array {extent});
         check_extent_dset(file_id, "/fx_1d", std::array {fx_1d.extent(1), extent});
 
-        if (grid.mpi_rank == 0)
-        {
+        if (grid.mpi_rank == 0) {
             static constexpr int fill_width = 81;
             std::cout << std::setw(fill_width) << std::setfill('*') << '\n';
             std::cout << "reading from file " << m_param_setup.init_filename << '\n';
@@ -104,28 +91,40 @@ public:
         int const filename_size = m_param_setup.init_filename.size();
         // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
         PDI_multi_expose(
-            "read_hydro_1d",
-            "nullptr", nullptr, PDI_OUT,
-            "init_filename_size", &filename_size, PDI_OUT,
-            "init_filename", m_param_setup.init_filename.data(), PDI_OUT,
-            "rho_1d", rho_1d.view_host().data(), PDI_INOUT,
-            "u_1d", u_1d.view_host().data(), PDI_INOUT,
-            "P_1d", P_1d.view_host().data(), PDI_INOUT,
-            "fx_1d", fx_1d.view_host().data(), PDI_INOUT,
-            nullptr);
+                "read_hydro_1d",
+                "nullptr",
+                nullptr,
+                PDI_OUT,
+                "init_filename_size",
+                &filename_size,
+                PDI_OUT,
+                "init_filename",
+                m_param_setup.init_filename.data(),
+                PDI_OUT,
+                "rho_1d",
+                rho_1d.view_host().data(),
+                PDI_INOUT,
+                "u_1d",
+                u_1d.view_host().data(),
+                PDI_INOUT,
+                "P_1d",
+                P_1d.view_host().data(),
+                PDI_INOUT,
+                "fx_1d",
+                fx_1d.view_host().data(),
+                PDI_INOUT,
+                nullptr);
         // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
         modify_host(rho_1d, u_1d, P_1d, fx_1d);
         sync_device(rho_1d, u_1d, P_1d, fx_1d);
 
         broadcast(range, rho_1d.view_device(), rho);
         broadcast(range, u_1d.view_device(), Kokkos::subview(u, ALL, ALL, ALL, 0));
-        for (int idim = 1; idim < u.extent_int(3); ++idim)
-        {
+        for (int idim = 1; idim < u.extent_int(3); ++idim) {
             broadcast(range, 0, Kokkos::subview(u, ALL, ALL, ALL, idim));
         }
         broadcast(range, P_1d.view_device(), P);
-        for(int ifx = 0; ifx < fx.extent_int(3); ++ifx)
-        {
+        for (int ifx = 0; ifx < fx.extent_int(3); ++ifx) {
             broadcast(range, Kokkos::subview(fx_1d.view_device(), ALL, ifx), Kokkos::subview(fx, ALL, ALL, ALL, ifx));
         }
     }
@@ -133,21 +132,18 @@ public:
 
 class GridSetup : public IGridType
 {
-private :
+private:
     Param m_param;
 
 public:
-    explicit GridSetup(Param param)
-        : m_param(std::move(param))
-    {
-    }
+    explicit GridSetup(Param param) : m_param(std::move(param)) {}
 
     void execute(
-        std::array<int, 3> const Nghost,
-        std::array<int, 3> const Nx_glob_ng,
-        KVH_double_1d const& x0_glob,
-        KVH_double_1d const& x1_glob,
-        KVH_double_1d const& x2_glob) const final
+            std::array<int, 3> const Nghost,
+            std::array<int, 3> const Nx_glob_ng,
+            KVH_double_1d const& x0_glob,
+            KVH_double_1d const& x1_glob,
+            KVH_double_1d const& x2_glob) const final
     {
         std::string const init_file = m_param.reader.Get("problem", "init_file", "");
 
@@ -157,12 +153,20 @@ public:
         int const filename_size = init_file.size();
         // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
         PDI_multi_expose(
-            "read_mesh_1d",
-            "nullptr", nullptr, PDI_OUT,
-            "init_filename_size", &filename_size, PDI_OUT,
-            "init_filename", init_file.data(), PDI_OUT,
-            "x0", x0_glob.data(), PDI_INOUT,
-            nullptr);
+                "read_mesh_1d",
+                "nullptr",
+                nullptr,
+                PDI_OUT,
+                "init_filename_size",
+                &filename_size,
+                PDI_OUT,
+                "init_filename",
+                init_file.data(),
+                PDI_OUT,
+                "x0",
+                x0_glob.data(),
+                PDI_INOUT,
+                nullptr);
         // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
 
         compute_regular_mesh_1d(x1_glob, Nghost[1], m_param.x1min, (m_param.x1max - m_param.x1min) / Nx_glob_ng[1]);
@@ -176,18 +180,15 @@ private:
     ParamSetup m_param_setup;
 
 public:
-    explicit UserShiftCriterion(ParamSetup param_setup)
-        : m_param_setup(std::move(param_setup))
-    {
-    }
+    explicit UserShiftCriterion(ParamSetup param_setup) : m_param_setup(std::move(param_setup)) {}
 
     [[nodiscard]] bool execute(
-        Range const& /*range*/,
-        Grid const& grid,
-        KV_cdouble_3d const& rho,
-        KV_cdouble_4d const& rhou,
-        [[maybe_unused]] KV_cdouble_3d const& E,
-        [[maybe_unused]] KV_cdouble_4d const& fx) const override
+            Range const& /*range*/,
+            Grid const& grid,
+            KV_cdouble_3d const& rho,
+            KV_cdouble_4d const& rhou,
+            [[maybe_unused]] KV_cdouble_3d const& E,
+            [[maybe_unused]] KV_cdouble_4d const& fx) const override
     {
         assert(equal_extents({0, 1, 2}, rho, rhou, E, fx));
         assert(rhou.extent_int(3) == ndim);
@@ -198,28 +199,21 @@ public:
         MPI_Cart_rank(grid.comm_cart, root_coords.data(), &root);
         MPI_Bcast(&exit_bool, 1, MPI_CXX_BOOL, root, grid.comm_cart);
 
-        if (exit_bool)
-        {
+        if (exit_bool) {
             throw std::runtime_error("The shift criterion is greater than the size of the last MPI process");
         }
 
         double vmax = 0;
 
-        if (grid.mpi_rank_cart[0] == grid.mpi_dims_cart[0] - 1)
-        {
+        if (grid.mpi_rank_cart[0] == grid.mpi_dims_cart[0] - 1) {
             int const ishift_min = grid.Nx_local_ng[0] - m_param_setup.cell_shift;
             Kokkos::parallel_reduce(
-                "shift criterion",
-                Kokkos::MDRangePolicy<Kokkos::IndexType<int>, Kokkos::Rank<3>>(
-                {ishift_min, grid.Nghost[1], grid.Nghost[2]},
-                {grid.Nghost[0] + grid.Nx_local_ng[0],
-                grid.Nghost[1] + grid.Nx_local_ng[1],
-                grid.Nghost[2] + grid.Nx_local_ng[2]}),
-                KOKKOS_LAMBDA(int i, int j, int k, double& vloc)
-                {
-                    vloc = Kokkos::max(rhou(i, j, k, 0) / rho(i, j, k), vloc);
-                },
-                Kokkos::Max<double>(vmax));
+                    "shift criterion",
+                    Kokkos::MDRangePolicy<Kokkos::IndexType<int>, Kokkos::Rank<3>>(
+                            {ishift_min, grid.Nghost[1], grid.Nghost[2]},
+                            {grid.Nghost[0] + grid.Nx_local_ng[0], grid.Nghost[1] + grid.Nx_local_ng[1], grid.Nghost[2] + grid.Nx_local_ng[2]}),
+                    KOKKOS_LAMBDA(int i, int j, int k, double& vloc) { vloc = Kokkos::max(rhou(i, j, k, 0) / rho(i, j, k), vloc); },
+                    Kokkos::Max<double>(vmax));
         }
         MPI_Allreduce(MPI_IN_PLACE, &vmax, 1, MPI_DOUBLE, MPI_MAX, grid.comm_cart);
         return vmax >= m_param_setup.vmax_shift;

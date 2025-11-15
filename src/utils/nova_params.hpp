@@ -9,12 +9,11 @@
 
 #include <inih/INIReader.hpp>
 
-namespace novapp
-{
+namespace novapp {
 
 class Param
 {
-public :
+public:
     INIReader reader;
     std::string problem;
     bool restart;
@@ -28,7 +27,7 @@ public :
     double x2max;
     std::string grid_type;
     int Ng;
-    std::array<int,3> mpi_dims_cart;
+    std::array<int, 3> mpi_dims_cart;
     double t_ini;
     double t_end;
     double cfl;

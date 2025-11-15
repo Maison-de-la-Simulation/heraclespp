@@ -67,9 +67,7 @@ void shift_array(KV_cdouble_4d const& var_old, KV_double_4d const& var_new)
     assert(var_new.layout() == var_old.layout());
 
     for (int i = 0; i < var_old.extent_int(3); ++i) {
-        shift_array(
-                Kokkos::subview(var_old, ALL, ALL, ALL, i),
-                Kokkos::subview(var_new, ALL, ALL, ALL, i));
+        shift_array(Kokkos::subview(var_old, ALL, ALL, ALL, i), Kokkos::subview(var_new, ALL, ALL, ALL, i));
     }
 }
 

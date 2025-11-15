@@ -9,11 +9,9 @@
 
 #include "nova_params.hpp"
 
-namespace novapp
-{
+namespace novapp {
 
-Param::Param(INIReader const& reader)
-    : reader(reader)
+Param::Param(INIReader const& reader) : reader(reader)
 {
     // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
     problem = reader.Get("Problem", "type", "ShockTube");
@@ -59,7 +57,7 @@ Param::Param(INIReader const& reader)
     gx2 = reader.GetReal("Gravity", "gx2", 0.0);
     M = reader.GetReal("Gravity", "M", 1.0);
 
-    gamma = reader.GetReal("Perfect Gas", "gamma", 5./3);
+    gamma = reader.GetReal("Perfect Gas", "gamma", 5. / 3);
     mu = reader.GetReal("Perfect Gas", "mu", 1.);
 
     bc_choice = reader.Get("Boundary Condition", "BC", "");

@@ -24,34 +24,23 @@
 #include "grid.hpp"
 #include "range.hpp"
 
-namespace novapp
-{
+namespace novapp {
 
-namespace
-{
+namespace {
 
 void compute_cell_size(KV_cdouble_1d const& x, KV_double_1d const& dx)
 {
     assert(x.extent_int(0) == dx.extent_int(0) + 1);
-    Kokkos::parallel_for(
-        "fill_cell_size_array",
-        Kokkos::RangePolicy<int>(0, dx.extent_int(0)),
-        KOKKOS_LAMBDA(int i)
-        {
-            dx(i) = x(i+1) - x(i);
-        });
+    Kokkos::parallel_for("fill_cell_size_array", Kokkos::RangePolicy<int>(0, dx.extent_int(0)), KOKKOS_LAMBDA(int i) { dx(i) = x(i + 1) - x(i); });
 }
 
 void compute_cell_center(KV_cdouble_1d const& x, KV_double_1d const& x_center)
 {
     assert(x.extent_int(0) == x_center.extent_int(0) + 1);
     Kokkos::parallel_for(
-        "fill_cell_center_array",
-        Kokkos::RangePolicy<int>(0, x_center.extent_int(0)),
-        KOKKOS_LAMBDA(int i)
-        {
-            x_center(i) = (x(i) + x(i+1)) / 2;
-        });
+            "fill_cell_center_array",
+            Kokkos::RangePolicy<int>(0, x_center.extent_int(0)),
+            KOKKOS_LAMBDA(int i) { x_center(i) = (x(i) + x(i + 1)) / 2; });
 }
 
 } // namespace
@@ -64,16 +53,15 @@ Grid::Grid(std::array<int, 3> const& nx_glob_ng, std::array<int, 3> const& mpi_d
     , mpi_rank_cart {0, 0, 0}
     , mpi_dims_cart(mpi_dims_cart)
 {
-    for (int idim = 0; idim < ndim; ++idim)
-    {
+    for (int idim = 0; idim < ndim; ++idim) {
         Nghost[idim] = Ng;
     }
 
     mpi_decomposition();
 
-    x0 = KV_double_1d("x0", Nx_local_wg[0]+1);
-    x1 = KV_double_1d("x1", Nx_local_wg[1]+1);
-    x2 = KV_double_1d("x2", Nx_local_wg[2]+1);
+    x0 = KV_double_1d("x0", Nx_local_wg[0] + 1);
+    x1 = KV_double_1d("x1", Nx_local_wg[1] + 1);
+    x2 = KV_double_1d("x2", Nx_local_wg[2] + 1);
 
     x0_center = KV_double_1d("x0_center", Nx_local_wg[0]);
     x1_center = KV_double_1d("x1_center", Nx_local_wg[1]);
@@ -83,13 +71,8 @@ Grid::Grid(std::array<int, 3> const& nx_glob_ng, std::array<int, 3> const& mpi_d
     dx1 = KV_double_1d("dx1", Nx_local_wg[1]);
     dx2 = KV_double_1d("dx2", Nx_local_wg[2]);
 
-    ds = KV_double_4d("ds", Nx_local_wg[0],
-                            Nx_local_wg[1],
-                            Nx_local_wg[2],
-                            3);
-    dv = KV_double_3d("dv", Nx_local_wg[0],
-                            Nx_local_wg[1],
-                            Nx_local_wg[2]);
+    ds = KV_double_4d("ds", Nx_local_wg[0], Nx_local_wg[1], Nx_local_wg[2], 3);
+    dv = KV_double_3d("dv", Nx_local_wg[0], Nx_local_wg[1], Nx_local_wg[2]);
 }
 
 Grid::~Grid() noexcept
@@ -110,11 +93,10 @@ void Grid::mpi_decomposition()
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
     MPI_Dims_create(world_size, ndim, mpi_dims_cart.data());
-    for(int n=ndim; n<3; ++n)
-    {
+    for (int n = ndim; n < 3; ++n) {
         mpi_dims_cart[n] = 1;
     }
-    std::array<int, 3> periodic = {1,1,1};
+    std::array<int, 3> periodic = {1, 1, 1};
 
     MPI_Cart_create(MPI_COMM_WORLD, 3, mpi_dims_cart.data(), periodic.data(), 1, &comm_cart);
     MPI_Comm_size(comm_cart, &mpi_size);
@@ -123,31 +105,26 @@ void Grid::mpi_decomposition()
 
     std::array<int, 3> cmin {0, 0, 0};
     std::array<int, 3> cmax {0, 0, 0};
-    for(int i=0; i<3; ++i)
-    {
-        Nx_local_ng[i] = Nx_glob_ng[i]/mpi_dims_cart[i];
+    for (int i = 0; i < 3; ++i) {
+        Nx_local_ng[i] = Nx_glob_ng[i] / mpi_dims_cart[i];
         cmin[i] = Nx_local_ng[i] * mpi_rank_cart[i];
 
-        if(mpi_rank_cart[i]<Nx_glob_ng[i]%mpi_dims_cart[i])
-        {
-            Nx_local_ng[i]+=1;
+        if (mpi_rank_cart[i] < Nx_glob_ng[i] % mpi_dims_cart[i]) {
+            Nx_local_ng[i] += 1;
             cmin[i] += mpi_rank_cart[i];
-        }
-        else
-        {
-            cmin[i] += Nx_glob_ng[i]%mpi_dims_cart[i];
+        } else {
+            cmin[i] += Nx_glob_ng[i] % mpi_dims_cart[i];
         }
 
-        Nx_local_wg[i] = Nx_local_ng[i] + (2*Nghost[i]);
+        Nx_local_wg[i] = Nx_local_ng[i] + (2 * Nghost[i]);
         cmax[i] = cmin[i] + Nx_local_ng[i];
     }
 
     range = Range(cmin, cmax, Ng);
 
-    for(int i=0; i<3; ++i)
-    {
+    for (int i = 0; i < 3; ++i) {
         is_border[i][0] = (mpi_rank_cart[i] == 0);
-        is_border[i][1] = (mpi_rank_cart[i] == mpi_dims_cart[i]-1);
+        is_border[i][1] = (mpi_rank_cart[i] == mpi_dims_cart[i] - 1);
     }
 
     std::array<int, 3> const remain_dims {0, 1, 1};
@@ -157,9 +134,9 @@ void Grid::mpi_decomposition()
 void Grid::set_grid(KV_double_1d const& x0_glob, KV_double_1d const& x1_glob, KV_double_1d const& x2_glob)
 {
     // Filling x, y, z
-    Kokkos::deep_copy(x0, Kokkos::subview(x0_glob, Kokkos::pair<int, int>(range.Corner_min[0], range.Corner_min[0]+Nx_local_wg[0]+1)));
-    Kokkos::deep_copy(x1, Kokkos::subview(x1_glob, Kokkos::pair<int, int>(range.Corner_min[1], range.Corner_min[1]+Nx_local_wg[1]+1)));
-    Kokkos::deep_copy(x2, Kokkos::subview(x2_glob, Kokkos::pair<int, int>(range.Corner_min[2], range.Corner_min[2]+Nx_local_wg[2]+1)));
+    Kokkos::deep_copy(x0, Kokkos::subview(x0_glob, Kokkos::pair<int, int>(range.Corner_min[0], range.Corner_min[0] + Nx_local_wg[0] + 1)));
+    Kokkos::deep_copy(x1, Kokkos::subview(x1_glob, Kokkos::pair<int, int>(range.Corner_min[1], range.Corner_min[1] + Nx_local_wg[1] + 1)));
+    Kokkos::deep_copy(x2, Kokkos::subview(x2_glob, Kokkos::pair<int, int>(range.Corner_min[2], range.Corner_min[2] + Nx_local_wg[2] + 1)));
 
     // Filling dx, dy, dz
     compute_cell_size(x0, dx0);
@@ -171,8 +148,7 @@ void Grid::set_grid(KV_double_1d const& x0_glob, KV_double_1d const& x1_glob, KV
     compute_cell_center(x1, x1_center);
     compute_cell_center(x2, x2_center);
 
-    std::unique_ptr<IComputeGeom> grid_geometry
-            = factory_grid_geometry();
+    std::unique_ptr<IComputeGeom> grid_geometry = factory_grid_geometry();
 
     // Filling ds, dv
     grid_geometry->execute(range.all_ghosts(), x0, x1, x2, dx0, dx1, dx2, ds, dv);

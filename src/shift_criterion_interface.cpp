@@ -15,8 +15,7 @@
 
 #include "shift_criterion_interface.hpp"
 
-namespace novapp
-{
+namespace novapp {
 
 IShiftCriterion::IShiftCriterion() = default;
 
@@ -31,12 +30,12 @@ IShiftCriterion& IShiftCriterion::operator=(IShiftCriterion const& /*rhs*/) = de
 IShiftCriterion& IShiftCriterion::operator=(IShiftCriterion&& /*rhs*/) noexcept = default;
 
 bool NoShiftGrid::execute(
-    Range const& /*range*/,
-    Grid const& /*grid*/,
-    [[maybe_unused]] KV_cdouble_3d const& rho,
-    [[maybe_unused]] KV_cdouble_4d const& rhou,
-    [[maybe_unused]] KV_cdouble_3d const& E,
-    [[maybe_unused]] KV_cdouble_4d const& fx) const
+        Range const& /*range*/,
+        Grid const& /*grid*/,
+        [[maybe_unused]] KV_cdouble_3d const& rho,
+        [[maybe_unused]] KV_cdouble_4d const& rhou,
+        [[maybe_unused]] KV_cdouble_3d const& E,
+        [[maybe_unused]] KV_cdouble_4d const& fx) const
 {
     assert(equal_extents({0, 1, 2}, rho, rhou, E, fx));
     assert(rhou.extent_int(3) == ndim);

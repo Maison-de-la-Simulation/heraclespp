@@ -23,8 +23,7 @@ namespace {
 void test_gravity_internal_gravity()
 {
     // The target function does not work in 1D and 2D
-    if constexpr (novapp::ndim != 3)
-    {
+    if constexpr (novapp::ndim != 3) {
         GTEST_SKIP() << "Skipping test for ndim != 3";
     }
 
@@ -48,9 +47,9 @@ void test_gravity_internal_gravity()
     novapp::Grid grid(Nx_glob_ng, mpi_dims_cart, Ng);
     novapp::Regular const regular_grid(std::array {x0min, x1min, x2min}, std::array {x0max, x1max, x2max});
 
-    novapp::KDV_double_1d x0_glob("x0_glob", grid.Nx_glob_ng[0]+(2*grid.Nghost[0])+1);
-    novapp::KDV_double_1d x1_glob("x1_glob", grid.Nx_glob_ng[1]+(2*grid.Nghost[1])+1);
-    novapp::KDV_double_1d x2_glob("x2_glob", grid.Nx_glob_ng[2]+(2*grid.Nghost[2])+1);
+    novapp::KDV_double_1d x0_glob("x0_glob", grid.Nx_glob_ng[0] + (2 * grid.Nghost[0]) + 1);
+    novapp::KDV_double_1d x1_glob("x1_glob", grid.Nx_glob_ng[1] + (2 * grid.Nghost[1]) + 1);
+    novapp::KDV_double_1d x2_glob("x2_glob", grid.Nx_glob_ng[2] + (2 * grid.Nghost[2]) + 1);
     regular_grid.execute(grid.Nghost, grid.Nx_glob_ng, x0_glob.view_host(), x1_glob.view_host(), x2_glob.view_host());
     novapp::modify_host(x0_glob, x1_glob, x2_glob);
     novapp::sync_device(x0_glob, x1_glob, x2_glob);
@@ -66,21 +65,27 @@ void test_gravity_internal_gravity()
     auto x0c = grid.x0_center;
     novapp::KV_double_1d const g_th("g_th", grid.Nx_local_wg[0]);
     Kokkos::deep_copy(g_th, 0.);
-    Kokkos::parallel_for("", novapp::cell_mdrange(grid.range.no_ghosts()), KOKKOS_LAMBDA(int i, int, int)
-    {
-        double const M_i = 4. / 3 * novapp::units::pi * rho_value * (x0c(i) * x0c(i) * x0c(i) - x0min * x0min * x0min);
-        g_th(i) = - novapp::units::G * (M_star + M_i) / (x0c(i) * x0c(i));
-    });
+    Kokkos::parallel_for(
+            "",
+            novapp::cell_mdrange(grid.range.no_ghosts()),
+            KOKKOS_LAMBDA(int i, int, int) {
+                double const M_i = 4. / 3 * novapp::units::pi * rho_value * (x0c(i) * x0c(i) * x0c(i) - x0min * x0min * x0min);
+                g_th(i) = -novapp::units::G * (M_star + M_i) / (x0c(i) * x0c(i));
+            });
 
     // Linf norm
     double error = 0;
     // Max abs(gth)
     double norm = 0;
-    Kokkos::parallel_reduce("", novapp::cell_mdrange(grid.range.no_ghosts()), KOKKOS_LAMBDA(int i, int j, int k, double& local_error, double& local_norm)
-    {
-        local_error = Kokkos::max(Kokkos::abs(g_th(i) - g(i, j, k, 0)), local_error);
-        local_norm = Kokkos::max(Kokkos::abs(g_th(i)), local_norm);
-    }, Kokkos::Max<double>(error), Kokkos::Max<double>(norm));
+    Kokkos::parallel_reduce(
+            "",
+            novapp::cell_mdrange(grid.range.no_ghosts()),
+            KOKKOS_LAMBDA(int i, int j, int k, double& local_error, double& local_norm) {
+                local_error = Kokkos::max(Kokkos::abs(g_th(i) - g(i, j, k, 0)), local_error);
+                local_norm = Kokkos::max(Kokkos::abs(g_th(i)), local_norm);
+            },
+            Kokkos::Max<double>(error),
+            Kokkos::Max<double>(norm));
     EXPECT_NEAR(error / norm, 0., 1e-14);
 }
 

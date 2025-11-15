@@ -10,8 +10,7 @@
 
 #include <kokkos_shortcut.hpp>
 
-namespace novapp
-{
+namespace novapp {
 
 class Range;
 
@@ -31,46 +30,46 @@ public:
     IComputeGeom& operator=(IComputeGeom&& rhs) noexcept;
 
     virtual void execute(
-        Range const& range,
-        KV_cdouble_1d const& x0,
-        KV_cdouble_1d const& x1,
-        KV_cdouble_1d const& x2,
-        KV_cdouble_1d const& dx0,
-        KV_cdouble_1d const& dx1,
-        KV_cdouble_1d const& dx2,
-        KV_double_4d const& ds,
-        KV_double_3d const& dv) const
-        = 0;
+            Range const& range,
+            KV_cdouble_1d const& x0,
+            KV_cdouble_1d const& x1,
+            KV_cdouble_1d const& x2,
+            KV_cdouble_1d const& dx0,
+            KV_cdouble_1d const& dx1,
+            KV_cdouble_1d const& dx2,
+            KV_double_4d const& ds,
+            KV_double_3d const& dv) const
+            = 0;
 };
 
 class Cartesian : public IComputeGeom
 {
 public:
     void execute(
-        Range const& range,
-        KV_cdouble_1d const& x0,
-        KV_cdouble_1d const& x1,
-        KV_cdouble_1d const& x2,
-        KV_cdouble_1d const& dx0,
-        KV_cdouble_1d const& dx1,
-        KV_cdouble_1d const& dx2,
-        KV_double_4d const& ds,
-        KV_double_3d const& dv) const final;
+            Range const& range,
+            KV_cdouble_1d const& x0,
+            KV_cdouble_1d const& x1,
+            KV_cdouble_1d const& x2,
+            KV_cdouble_1d const& dx0,
+            KV_cdouble_1d const& dx1,
+            KV_cdouble_1d const& dx2,
+            KV_double_4d const& ds,
+            KV_double_3d const& dv) const final;
 };
 
 class Spherical : public IComputeGeom
 {
 public:
     void execute(
-        Range const& range,
-        KV_cdouble_1d const& x0,
-        KV_cdouble_1d const& x1,
-        KV_cdouble_1d const& x2,
-        KV_cdouble_1d const& dx0,
-        KV_cdouble_1d const& dx1,
-        KV_cdouble_1d const& dx2,
-        KV_double_4d const& ds,
-        KV_double_3d const& dv) const final;
+            Range const& range,
+            KV_cdouble_1d const& x0,
+            KV_cdouble_1d const& x1,
+            KV_cdouble_1d const& x2,
+            KV_cdouble_1d const& dx0,
+            KV_cdouble_1d const& dx1,
+            KV_cdouble_1d const& dx2,
+            KV_double_4d const& ds,
+            KV_double_3d const& dv) const final;
 };
 
 } // namespace novapp
