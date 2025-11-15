@@ -150,13 +150,13 @@ TEST(Partitionner, SomeTest)
     }
     EXPECT_FALSE(list_of_cells.empty());
 
-    for (std::array<int, 2> const rng_z : Partitioner(nx[2], block[2]))
+    for (std::array<int, 2> const rng2 : Partitioner(nx[2], block[2]))
     {
-        for (std::array<int, 2> const rng_y : Partitioner(nx[1], block[1]))
+        for (std::array<int, 2> const rng1 : Partitioner(nx[1], block[1]))
         {
-            for (std::array<int, 2> const rng_x : Partitioner(nx[0], block[0]))
+            for (std::array<int, 2> const rng0 : Partitioner(nx[0], block[0]))
             {
-                novapp::Range const rng(rng_x, rng_y, rng_z, nghosts);
+                novapp::Range const rng(rng0, rng1, rng2, nghosts);
                 auto const [begin, end] = novapp::cell_range(rng.no_ghosts());
                 auto const [ibegin, jbegin, kbegin] = begin;
                 auto const [iend, jend, kend] = end;
@@ -166,7 +166,7 @@ TEST(Partitionner, SomeTest)
                     {
                         for (int i = ibegin; i < iend; ++i)
                         {
-                            std::array<int, 3> const elem {rng_x[0] + i, rng_y[0] + j, rng_z[0] + k};
+                            std::array<int, 3> const elem {rng0[0] + i, rng1[0] + j, rng2[0] + k};
                             list_of_cells.erase(elem);
                         }
                     }
