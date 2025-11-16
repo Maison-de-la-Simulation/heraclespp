@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 //!
-//! @file boundary_factory.hpp
+//! @file boundary_distribute.hpp
 //!
 
 #pragma once
