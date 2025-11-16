@@ -5,14 +5,14 @@
 //
 // https://github.com/benhoyt/inih
 
-#include "INIReader.hpp"
 #include <algorithm>  // for transform
 #include <cctype>     // for tolower
 #include <stdexcept>
 #include <limits>
 #include <string>
 #include <utility>    // for pair
-#include "ini.h"      // for ini_parse
+#include <inih/ini.h>      // for ini_parse
+#include <inih/INIReader.hpp>
 
 INIReader::INIReader() = default;
 
