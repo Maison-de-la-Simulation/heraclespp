@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 //!
-//! @file face_reconstruction.hpp
+//! @file limited_linear_reconstruction.hpp
 //!
 
 #pragma once

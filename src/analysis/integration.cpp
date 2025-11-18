@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 //!
-//! @file integration.hpp
+//! @file integration.cpp
 //!
 
 #include <mpi.h>

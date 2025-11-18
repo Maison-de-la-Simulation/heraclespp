@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 //!
-//! @file geometry.hpp
+//! @file geometry_factory.hpp
 //!
 
 #pragma once
