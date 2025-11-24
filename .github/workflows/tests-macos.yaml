@@ -55,9 +55,9 @@ jobs:
       checks: write  # Required by mikepenz/action-junit-report
     steps:
       - name: Checkout built branch
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
       - run: brew install google-benchmark googletest hdf5-mpi
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
         with:
           repository: pdidev/pdi
           ref: 1.9.2
@@ -92,7 +92,7 @@ jobs:
           cmake --build build
           cmake --install build --prefix $inih_ROOT
           rm -rf build
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
         with:
           repository: kokkos/kokkos
           ref: 4.7.01
