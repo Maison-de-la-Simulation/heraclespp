@@ -38,7 +38,7 @@ jobs:
   cpp-format:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
       - uses: jidicula/clang-format-action@6cd220de46c89139a0365edae93eee8eb30ca8fe  # v4.16.0
         with:
           clang-format-version: '21'
@@ -47,7 +47,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
       - name: Prefer 'if defined'/'if !defined' over 'ifdef'/'ifndef'
         run: if grep -RE "(ifdef|ifndef)" $(git ls-files '*.[ch]pp' ':!vendor'); then exit 1; fi
       - name: Find modifications of Kokkos reserved macros
@@ -60,7 +60,7 @@ jobs:
     container:
       image: ghcr.io/maison-de-la-simulation/heraclespp:main
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
         with:
           repository: google/googletest
           ref: v1.17.0
@@ -71,7 +71,7 @@ jobs:
             -S googletest
           cmake --build googletest/build
           cmake --install googletest/build --prefix opt/gtest
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
         with:
           path: heraclespp
       - run: |
@@ -80,7 +80,7 @@ jobs:
             -S heraclespp/vendor/inih
           cmake --build heraclespp/vendor/inih/build
           cmake --install heraclespp/vendor/inih/build --prefix opt/inih
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
         with:
           repository: google/benchmark
           ref: v1.9.4
@@ -105,7 +105,7 @@ jobs:
     env:
       NVCC_WRAPPER_DEFAULT_COMPILER: g++-13
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
         with:
           repository: kokkos/kokkos
           ref: 4.7.01
@@ -136,7 +136,7 @@ jobs:
     env:
       CXX: hipcc
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
         with:
           repository: kokkos/kokkos
           ref: 4.7.01
@@ -165,7 +165,7 @@ jobs:
     container:
       image: ghcr.io/maison-de-la-simulation/heraclespp:main
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
         with:
           repository: kokkos/kokkos
           ref: 4.7.01
@@ -203,7 +203,7 @@ jobs:
       inih_ROOT: ${{github.workspace}}/opt/inih
       Kokkos_ROOT: ${{github.workspace}}/opt/kokkos-serial
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
       - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53  # v6.0.0
         with:
           path: opt
@@ -228,7 +228,7 @@ jobs:
     permissions:
       checks: write  # Required by mikepenz/action-junit-report
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
       - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53  # v6.0.0
         with:
           path: opt
@@ -273,7 +273,7 @@ jobs:
     permissions:
       checks: write  # Required by mikepenz/action-junit-report
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
       - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53  # v6.0.0
         with:
           path: opt
@@ -315,7 +315,7 @@ jobs:
     permissions:
       checks: write  # Required by mikepenz/action-junit-report
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
       - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53  # v6.0.0
         with:
           path: opt
@@ -355,7 +355,7 @@ jobs:
       Kokkos_ROOT: ${{github.workspace}}/opt/kokkos-cuda
       NVCC_WRAPPER_DEFAULT_COMPILER: g++-13
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
       - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53  # v6.0.0
         with:
           path: opt
@@ -389,7 +389,7 @@ jobs:
       inih_ROOT: ${{github.workspace}}/opt/inih
       Kokkos_ROOT: ${{github.workspace}}/opt/kokkos-hip
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
       - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53  # v6.0.0
         with:
           path: opt
@@ -421,7 +421,7 @@ jobs:
       inih_ROOT: ${{github.workspace}}/opt/inih
       Kokkos_ROOT: ${{github.workspace}}/opt/kokkos-serial
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
       - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53  # v6.0.0
         with:
           path: opt
@@ -461,7 +461,7 @@ jobs:
       inih_ROOT: ${{github.workspace}}/opt/inih
       Kokkos_ROOT: ${{github.workspace}}/opt/kokkos-serial
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
       - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53  # v6.0.0
         with:
           path: opt
@@ -493,7 +493,7 @@ jobs:
       inih_ROOT: ${{github.workspace}}/opt/inih
       Kokkos_ROOT: ${{github.workspace}}/opt/kokkos-serial
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
       - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53  # v6.0.0
         with:
           path: opt
@@ -525,7 +525,7 @@ jobs:
       inih_ROOT: ${{github.workspace}}/opt/inih
       Kokkos_ROOT: ${{github.workspace}}/opt/kokkos-serial
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
       - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53  # v6.0.0
         with:
           path: opt
