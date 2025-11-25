@@ -154,7 +154,7 @@ set_property(
 if("${Novapp_Kokkos_DEPENDENCY_POLICY}" STREQUAL "EMBEDDED")
     add_subdirectory(vendor/kokkos SYSTEM)
 elseif("${Novapp_Kokkos_DEPENDENCY_POLICY}" STREQUAL "INSTALLED")
-    find_package(Kokkos 4...<5 REQUIRED CONFIG)
+    find_package(Kokkos 4...<6 REQUIRED CONFIG)
 endif()
 
 add_subdirectory(src)
