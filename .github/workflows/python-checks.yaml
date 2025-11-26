@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
       - name: Install dependencies
         run: |
-          pipx install black
+          pipx install black~=25.11
       - name: Check format using black
         run: |
           black --line-length 100 $(git ls-files '*.py')
@@ -36,7 +36,7 @@ jobs:
       - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
       - name: Install dependencies
         run: |
-          pipx install pylint
+          pipx install pylint~=4.0
       - name: Analysing the code with pylint
         run: |
           pylint  --disable=R0801,R0912,R0913,R0914,R0915,R0917,C0103,C0114,C0116,E1101,E0401 --max-line-length 100 $(git ls-files '*.py')
