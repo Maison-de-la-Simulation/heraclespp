@@ -101,7 +101,7 @@ jobs:
         run: |
           cmake \
             -D CMAKE_CXX_STANDARD=${{matrix.cxx_version}} \
-            -D Kokkos_ENABLE_DEPRECATED_CODE_5=OFF \
+            -D Kokkos_ENABLE_DEPRECATED_CODE_5=ON \
             -D Kokkos_ENABLE_DEPRECATION_WARNINGS=OFF \
             -D Kokkos_ENABLE_SERIAL=ON \
             -B build \

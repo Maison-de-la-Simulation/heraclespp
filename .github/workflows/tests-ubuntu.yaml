@@ -116,7 +116,7 @@ jobs:
             -D Kokkos_ARCH_AMPERE80=ON \
             -D Kokkos_ENABLE_COMPILER_WARNINGS=ON \
             -D Kokkos_ENABLE_CUDA=ON \
-            -D Kokkos_ENABLE_DEPRECATED_CODE_5=OFF \
+            -D Kokkos_ENABLE_DEPRECATED_CODE_5=ON \
             -D Kokkos_ENABLE_DEPRECATION_WARNINGS=OFF \
             -D Kokkos_ENABLE_SERIAL=ON \
             -B kokkos/build \
@@ -145,7 +145,7 @@ jobs:
           cmake \
             -D Kokkos_ARCH_AMD_GFX90A=ON \
             -D Kokkos_ENABLE_COMPILER_WARNINGS=ON \
-            -D Kokkos_ENABLE_DEPRECATED_CODE_5=OFF \
+            -D Kokkos_ENABLE_DEPRECATED_CODE_5=ON \
             -D Kokkos_ENABLE_DEPRECATION_WARNINGS=OFF \
             -D Kokkos_ENABLE_HIP=ON \
             -D Kokkos_ENABLE_ROCTHRUST=OFF \
@@ -176,7 +176,7 @@ jobs:
             -D Kokkos_ENABLE_DEBUG=ON \
             -D Kokkos_ENABLE_DEBUG_BOUNDS_CHECK=ON \
             -D Kokkos_ENABLE_DEBUG_DUALVIEW_MODIFY_CHECK=ON \
-            -D Kokkos_ENABLE_DEPRECATED_CODE_5=OFF \
+            -D Kokkos_ENABLE_DEPRECATED_CODE_5=ON \
             -D Kokkos_ENABLE_DEPRECATION_WARNINGS=OFF \
             -D Kokkos_ENABLE_SERIAL=ON \
             -B kokkos/build \
