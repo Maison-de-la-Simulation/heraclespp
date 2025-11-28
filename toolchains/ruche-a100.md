@@ -31,7 +31,7 @@ cmake \
     -D CMAKE_CXX_COMPILER=$PWD/vendor/kokkos/bin/nvcc_wrapper \
     -D Kokkos_ARCH_AMPERE80=ON \
     -D Kokkos_ARCH_ICX=ON \
-    -D Kokkos_ENABLE_DEPRECATED_CODE_4=OFF \
+    -D Kokkos_ENABLE_DEPRECATED_CODE_5=ON \
     -D Kokkos_ENABLE_CUDA=ON \
     -D Kokkos_ENABLE_OPENMP=ON \
     -D Novapp_SETUP=sedov1d \
