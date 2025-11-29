@@ -8,8 +8,10 @@
 #include <cassert>
 #include <cstddef>
 #include <fstream>
+#include <initializer_list>
 #include <iomanip>
 #include <ostream>
+#include <span>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -32,6 +34,33 @@
 #include "io_hdf5.hpp"
 
 namespace {
+
+struct NamedPtrs
+{
+    char const* name;
+    void const* data;
+    PDI_inout_t access;
+
+    NamedPtrs(char const* name, void const* data) : name(name), data(data), access(PDI_OUT) {}
+
+    NamedPtrs(char const* name, void* data, PDI_inout_t access = PDI_INOUT) : name(name), data(data), access(access) {}
+};
+
+void expose_to_pdi(char const* const event, std::span<NamedPtrs const> const list)
+{
+    for (NamedPtrs const& e : std::ranges::ref_view(list)) {
+        PDI_share(e.name, e.data, e.access);
+    }
+    PDI_event(event);
+    for (NamedPtrs const& e : std::ranges::reverse_view(list)) {
+        PDI_reclaim(e.name);
+    }
+}
+
+void expose_to_pdi(char const* const event, std::initializer_list<NamedPtrs const> const list)
+{
+    expose_to_pdi(event, std::span<NamedPtrs const>(list));
+}
 
 void write_string_attribute(hclpp::RaiiH5Hid const& file_id, char const* const attribute_name, std::string_view const attribute_value)
 {
@@ -144,41 +173,17 @@ void write_pdi_init(Grid const& grid, Param const& param)
     int const simu_ndim = ndim;
     int const simu_nfx = param.nfx;
 
-    // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
-    PDI_multi_expose(
+    expose_to_pdi(
             "init_PDI",
-            "nullptr",
-            nullptr,
-            PDI_OUT,
-            "ndim",
-            &simu_ndim,
-            PDI_OUT,
-            "nfx",
-            &simu_nfx,
-            PDI_OUT,
-            "n_ghost",
-            grid.Nghost.data(),
-            PDI_OUT,
-            "nx_glob_ng",
-            grid.Nx_glob_ng.data(),
-            PDI_OUT,
-            "nx_local_ng",
-            grid.Nx_local_ng.data(),
-            PDI_OUT,
-            "nx_local_wg",
-            grid.Nx_local_wg.data(),
-            PDI_OUT,
-            "start",
-            grid.range.Corner_min.data(),
-            PDI_OUT,
-            "grid_communicator",
-            &grid.comm_cart,
-            PDI_OUT,
-            "mpi_rank",
-            &grid.mpi_rank,
-            PDI_OUT,
-            nullptr);
-    // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
+            {NamedPtrs("ndim", &simu_ndim),
+             NamedPtrs("nfx", &simu_nfx),
+             NamedPtrs("n_ghost", grid.Nghost.data()),
+             NamedPtrs("nx_glob_ng", grid.Nx_glob_ng.data()),
+             NamedPtrs("nx_local_ng", grid.Nx_local_ng.data()),
+             NamedPtrs("nx_local_wg", grid.Nx_local_wg.data()),
+             NamedPtrs("start", grid.range.Corner_min.data()),
+             NamedPtrs("grid_communicator", static_cast<void const*>(&grid.comm_cart)),
+             NamedPtrs("mpi_rank", &grid.mpi_rank)});
 }
 
 void write_pdi(
@@ -206,114 +211,42 @@ void write_pdi(
     std::string const output_filename = get_output_filename(prefix, output_id);
     int const output_filename_size = int_cast<int>(output_filename.size());
     sync_host(rho, u, P, E, fx, T, x0, x1, x2);
-    // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
-    PDI_multi_expose(
+    expose_to_pdi(
             "write_replicated_data",
-            "nullptr",
-            nullptr,
-            PDI_OUT,
-            "directory_size",
-            &directory_size,
-            PDI_OUT,
-            "directory",
-            directory.data(),
-            PDI_OUT,
-            "output_filename_size",
-            &output_filename_size,
-            PDI_OUT,
-            "output_filename",
-            output_filename.data(),
-            PDI_OUT,
-            "output_id",
-            &output_id,
-            PDI_OUT,
-            "iter_output_id",
-            &iter_output_id,
-            PDI_OUT,
-            "time_output_id",
-            &time_output_id,
-            PDI_OUT,
-            "iter",
-            &iter,
-            PDI_OUT,
-            "current_time",
-            &t,
-            PDI_OUT,
-            "gamma",
-            &gamma,
-            PDI_OUT,
-            "x0",
-            x0.view_host().data(),
-            PDI_OUT,
-            "x1",
-            x1.view_host().data(),
-            PDI_OUT,
-            "x2",
-            x2.view_host().data(),
-            PDI_OUT,
-            nullptr);
-    // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
-    // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
-    PDI_multi_expose(
+            {NamedPtrs("directory_size", &directory_size),
+             NamedPtrs("directory", directory.data()),
+             NamedPtrs("output_filename_size", &output_filename_size),
+             NamedPtrs("output_filename", output_filename.data()),
+             NamedPtrs("output_id", &output_id),
+             NamedPtrs("iter_output_id", &iter_output_id),
+             NamedPtrs("time_output_id", &time_output_id),
+             NamedPtrs("iter", &iter),
+             NamedPtrs("current_time", &t),
+             NamedPtrs("gamma", &gamma),
+             NamedPtrs("x0", x0.view_host().data()),
+             NamedPtrs("x1", x1.view_host().data()),
+             NamedPtrs("x2", x2.view_host().data())});
+    expose_to_pdi(
             "write_distributed_data",
-            "nullptr",
-            nullptr,
-            PDI_OUT,
-            "directory_size",
-            &directory_size,
-            PDI_OUT,
-            "directory",
-            directory.data(),
-            PDI_OUT,
-            "output_filename_size",
-            &output_filename_size,
-            PDI_OUT,
-            "output_filename",
-            output_filename.data(),
-            PDI_OUT,
-            "rho",
-            rho.view_host().data(),
-            PDI_OUT,
-            "u",
-            u.view_host().data(),
-            PDI_OUT,
-            "P",
-            P.view_host().data(),
-            PDI_OUT,
-            "E",
-            E.view_host().data(),
-            PDI_OUT,
-            "T",
-            T.view_host().data(),
-            PDI_OUT,
-            nullptr);
+            {NamedPtrs("directory_size", &directory_size),
+             NamedPtrs("directory", directory.data()),
+             NamedPtrs("output_filename_size", &output_filename_size),
+             NamedPtrs("output_filename", output_filename.data()),
+             NamedPtrs("rho", rho.view_host().data()),
+             NamedPtrs("u", u.view_host().data()),
+             NamedPtrs("P", P.view_host().data()),
+             NamedPtrs("E", E.view_host().data()),
+             NamedPtrs("T", T.view_host().data())});
     for (int ifx = 0; ifx < fx.extent_int(3); ++ifx) {
-        PDI_multi_expose(
+        expose_to_pdi(
                 "write_fx",
-                "nullptr",
-                nullptr,
-                PDI_OUT,
-                "directory_size",
-                &directory_size,
-                PDI_OUT,
-                "directory",
-                directory.data(),
-                PDI_OUT,
-                "output_filename_size",
-                &output_filename_size,
-                PDI_OUT,
-                "output_filename",
-                output_filename.data(),
-                PDI_OUT,
-                "ifx",
-                &ifx,
-                PDI_OUT,
-                "fx",
-                fx.view_host().data(),
-                PDI_OUT,
-                nullptr);
+                {NamedPtrs("directory_size", &directory_size),
+                 NamedPtrs("directory", directory.data()),
+                 NamedPtrs("output_filename_size", &output_filename_size),
+                 NamedPtrs("output_filename", output_filename.data()),
+                 NamedPtrs("ifx", &ifx, PDI_OUT),
+                 NamedPtrs("fx", fx.view_host().data())});
     }
-    // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     if (grid.mpi_rank == 0) {
         RaiiH5Hid const file_id(::H5Fopen((directory + '/' + output_filename).c_str(), H5F_ACC_RDWR, H5P_DEFAULT), H5Fclose);
         write_string_attribute(file_id, "git_build_string", git_build_string);
@@ -361,73 +294,29 @@ void read_pdi(
     check_extent_dset(file_id, "/x2", std::array {x2_glob.extent(0)});
 
     int const filename_size = int_cast<int>(restart_file.size());
-    // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
-    PDI_multi_expose(
+    expose_to_pdi(
             "read_file",
-            "nullptr",
-            nullptr,
-            PDI_OUT,
-            "restart_filename_size",
-            &filename_size,
-            PDI_OUT,
-            "restart_filename",
-            restart_file.data(),
-            PDI_OUT,
-            "output_id",
-            &output_id,
-            PDI_INOUT,
-            "iter_output_id",
-            &iter_output_id,
-            PDI_INOUT,
-            "time_output_id",
-            &time_output_id,
-            PDI_INOUT,
-            "iter",
-            &iter,
-            PDI_INOUT,
-            "current_time",
-            &t,
-            PDI_INOUT,
-            "rho",
-            rho.view_host().data(),
-            PDI_INOUT,
-            "u",
-            u.view_host().data(),
-            PDI_INOUT,
-            "P",
-            P.view_host().data(),
-            PDI_INOUT,
-            "x0",
-            x0_glob.view_host().data(),
-            PDI_INOUT,
-            "x1",
-            x1_glob.view_host().data(),
-            PDI_INOUT,
-            "x2",
-            x2_glob.view_host().data(),
-            PDI_INOUT,
-            nullptr);
+            {NamedPtrs("restart_filename_size", &filename_size),
+             NamedPtrs("restart_filename", restart_file.data()),
+             NamedPtrs("output_id", &output_id),
+             NamedPtrs("iter_output_id", &iter_output_id),
+             NamedPtrs("time_output_id", &time_output_id),
+             NamedPtrs("iter", &iter),
+             NamedPtrs("current_time", &t),
+             NamedPtrs("rho", rho.view_host().data()),
+             NamedPtrs("u", u.view_host().data()),
+             NamedPtrs("P", P.view_host().data()),
+             NamedPtrs("x0", x0_glob.view_host().data()),
+             NamedPtrs("x1", x1_glob.view_host().data()),
+             NamedPtrs("x2", x2_glob.view_host().data())});
     for (int ifx = 0; ifx < fx.extent_int(3); ++ifx) {
-        PDI_multi_expose(
+        expose_to_pdi(
                 "read_fx",
-                "nullptr",
-                nullptr,
-                PDI_OUT,
-                "restart_filename_size",
-                &filename_size,
-                PDI_OUT,
-                "restart_filename",
-                restart_file.data(),
-                PDI_OUT,
-                "ifx",
-                &ifx,
-                PDI_OUT,
-                "fx",
-                fx.view_host().data(),
-                PDI_INOUT,
-                nullptr);
+                {NamedPtrs("restart_filename_size", &filename_size),
+                 NamedPtrs("restart_filename", restart_file.data()),
+                 NamedPtrs("ifx", &ifx, PDI_OUT),
+                 NamedPtrs("fx", fx.view_host().data())});
     }
-    // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     modify_host(rho, u, P, fx, x0_glob, x1_glob, x2_glob);
 }
 
