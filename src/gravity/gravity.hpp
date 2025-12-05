@@ -11,7 +11,7 @@
 #include <Kokkos_Core.hpp>
 #include <kokkos_shortcut.hpp>
 
-namespace novapp {
+namespace hclpp {
 
 class Grid;
 
@@ -102,4 +102,4 @@ public:
 
 InternalMassGravity make_internal_mass_gravity(double central_mass, Grid const& grid, KV_cdouble_3d const& rho);
 
-} // namespace novapp
+} // namespace hclpp

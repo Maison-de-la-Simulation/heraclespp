@@ -15,7 +15,7 @@
 #include <Kokkos_Core.hpp>
 #include <Kokkos_DualView.hpp>
 
-namespace novapp {
+namespace hclpp {
 
 using Kokkos::ALL;
 
@@ -104,4 +104,4 @@ bool equal_extents(std::initializer_list<std::size_t> idx, View0 const& view0, V
     return std::ranges::all_of(idx, [&](std::size_t const i) -> bool { return equal_extents(i, view0, views...); });
 }
 
-} // namespace novapp
+} // namespace hclpp

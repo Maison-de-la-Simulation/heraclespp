@@ -15,7 +15,7 @@
 
 #include "shift_criterion_interface.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 IShiftCriterion::IShiftCriterion() = default;
 
@@ -43,4 +43,4 @@ bool NoShiftGrid::execute(
     return false;
 }
 
-} // namespace novapp
+} // namespace hclpp

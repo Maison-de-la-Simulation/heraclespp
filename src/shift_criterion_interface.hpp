@@ -10,7 +10,7 @@
 
 #include <kokkos_shortcut.hpp>
 
-namespace novapp {
+namespace hclpp {
 
 class Grid;
 class Range;
@@ -52,4 +52,4 @@ public:
             KV_cdouble_4d const& fx) const final;
 };
 
-} // namespace novapp
+} // namespace hclpp

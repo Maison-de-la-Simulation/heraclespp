@@ -9,7 +9,7 @@
 #include <kokkos_shortcut.hpp>
 #include <shift_criterion_interface.hpp>
 
-namespace novapp {
+namespace hclpp {
 
 class Grid;
 class ParamSetup;
@@ -32,4 +32,4 @@ public:
     }
 };
 
-} // namespace novapp
+} // namespace hclpp

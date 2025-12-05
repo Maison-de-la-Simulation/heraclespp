@@ -10,10 +10,10 @@
 
 #include <memory>
 
-namespace novapp {
+namespace hclpp {
 
 class IComputeGeom;
 
 std::unique_ptr<IComputeGeom> factory_grid_geometry();
 
-} // namespace novapp
+} // namespace hclpp

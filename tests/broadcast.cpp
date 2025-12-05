@@ -16,7 +16,7 @@
 
 TEST(BroadcastScalar, Case1d)
 {
-    if (novapp::ndim != 1) {
+    if (hclpp::ndim != 1) {
         GTEST_SKIP();
     }
 
@@ -31,15 +31,15 @@ TEST(BroadcastScalar, Case1d)
     int const nx1_wg = nx1;
     int const nx2_wg = nx2;
 
-    novapp::Range const rng({0, 0, 0}, {nx0, nx1, nx2}, ng);
-    novapp::KDV_double_3d array("array", nx0_wg, nx1_wg, nx2_wg);
+    hclpp::Range const rng({0, 0, 0}, {nx0, nx1, nx2}, ng);
+    hclpp::KDV_double_3d array("array", nx0_wg, nx1_wg, nx2_wg);
     Kokkos::deep_copy(array.view_device(), outer_value);
     array.modify_device();
-    novapp::broadcast(rng.no_ghosts(), inner_value, array.view_device());
+    hclpp::broadcast(rng.no_ghosts(), inner_value, array.view_device());
     array.modify_device();
     array.sync_host();
     {
-        auto const array_h = novapp::view_host(array);
+        auto const array_h = hclpp::view_host(array);
         for (int i = 0; i < nx0_wg; ++i) {
             for (int j = 0; j < nx1_wg; ++j) {
                 for (int k = 0; k < nx2_wg; ++k) {
@@ -56,7 +56,7 @@ TEST(BroadcastScalar, Case1d)
 
 TEST(BroadcastScalar, Case2d)
 {
-    if (novapp::ndim != 2) {
+    if (hclpp::ndim != 2) {
         GTEST_SKIP();
     }
 
@@ -71,15 +71,15 @@ TEST(BroadcastScalar, Case2d)
     int const nx1_wg = nx1 + (2 * ng);
     int const nx2_wg = nx2;
 
-    novapp::Range const rng({0, 0, 0}, {nx0, nx1, nx2}, ng);
-    novapp::KDV_double_3d array("array", nx0_wg, nx1_wg, nx2_wg);
+    hclpp::Range const rng({0, 0, 0}, {nx0, nx1, nx2}, ng);
+    hclpp::KDV_double_3d array("array", nx0_wg, nx1_wg, nx2_wg);
     Kokkos::deep_copy(array.view_device(), outer_value);
     array.modify_device();
-    novapp::broadcast(rng.no_ghosts(), inner_value, array.view_device());
+    hclpp::broadcast(rng.no_ghosts(), inner_value, array.view_device());
     array.modify_device();
     array.sync_host();
     {
-        auto const array_h = novapp::view_host(array);
+        auto const array_h = hclpp::view_host(array);
         for (int i = 0; i < nx0_wg; ++i) {
             for (int j = 0; j < nx1_wg; ++j) {
                 for (int k = 0; k < nx2_wg; ++k) {
@@ -96,7 +96,7 @@ TEST(BroadcastScalar, Case2d)
 
 TEST(BroadcastScalar, Case3d)
 {
-    if (novapp::ndim != 3) {
+    if (hclpp::ndim != 3) {
         GTEST_SKIP();
     }
 
@@ -111,15 +111,15 @@ TEST(BroadcastScalar, Case3d)
     int const nx1_wg = nx1 + (2 * ng);
     int const nx2_wg = nx2 + (2 * ng);
 
-    novapp::Range const rng({0, 0, 0}, {nx0, nx1, nx2}, ng);
-    novapp::KDV_double_3d array("array", nx0_wg, nx1_wg, nx2_wg);
+    hclpp::Range const rng({0, 0, 0}, {nx0, nx1, nx2}, ng);
+    hclpp::KDV_double_3d array("array", nx0_wg, nx1_wg, nx2_wg);
     Kokkos::deep_copy(array.view_device(), outer_value);
     array.modify_device();
-    novapp::broadcast(rng.no_ghosts(), inner_value, array.view_device());
+    hclpp::broadcast(rng.no_ghosts(), inner_value, array.view_device());
     array.modify_device();
     array.sync_host();
     {
-        auto const array_h = novapp::view_host(array);
+        auto const array_h = hclpp::view_host(array);
         for (int i = 0; i < nx0_wg; ++i) {
             for (int j = 0; j < nx1_wg; ++j) {
                 for (int k = 0; k < nx2_wg; ++k) {
@@ -136,7 +136,7 @@ TEST(BroadcastScalar, Case3d)
 
 TEST(BroadcastArray, Case1d)
 {
-    if (novapp::ndim != 1) {
+    if (hclpp::ndim != 1) {
         GTEST_SKIP();
     }
 
@@ -151,17 +151,17 @@ TEST(BroadcastArray, Case1d)
     int const nx1_wg = nx1;
     int const nx2_wg = nx2;
 
-    novapp::Range const rng({0, 0, 0}, {nx0, nx1, nx2}, ng);
-    novapp::KDV_double_3d array("array", nx0_wg, nx1_wg, nx2_wg);
+    hclpp::Range const rng({0, 0, 0}, {nx0, nx1, nx2}, ng);
+    hclpp::KDV_double_3d array("array", nx0_wg, nx1_wg, nx2_wg);
     Kokkos::deep_copy(array.view_device(), outer_value);
     array.modify_device();
-    novapp::KV_double_1d const arr("arr", nx0);
+    hclpp::KV_double_1d const arr("arr", nx0);
     Kokkos::deep_copy(arr, inner_value);
-    novapp::broadcast(rng.no_ghosts(), arr, array.view_device());
+    hclpp::broadcast(rng.no_ghosts(), arr, array.view_device());
     array.modify_device();
     array.sync_host();
     {
-        auto const array_h = novapp::view_host(array);
+        auto const array_h = hclpp::view_host(array);
         for (int i = 0; i < nx0_wg; ++i) {
             for (int j = 0; j < nx1_wg; ++j) {
                 for (int k = 0; k < nx2_wg; ++k) {
@@ -178,7 +178,7 @@ TEST(BroadcastArray, Case1d)
 
 TEST(BroadcastArray, Case2d)
 {
-    if (novapp::ndim != 2) {
+    if (hclpp::ndim != 2) {
         GTEST_SKIP();
     }
 
@@ -193,17 +193,17 @@ TEST(BroadcastArray, Case2d)
     int const nx1_wg = nx1 + (2 * ng);
     int const nx2_wg = nx2;
 
-    novapp::Range const rng({0, 0, 0}, {nx0, nx1, nx2}, ng);
-    novapp::KDV_double_3d array("array", nx0_wg, nx1_wg, nx2_wg);
+    hclpp::Range const rng({0, 0, 0}, {nx0, nx1, nx2}, ng);
+    hclpp::KDV_double_3d array("array", nx0_wg, nx1_wg, nx2_wg);
     Kokkos::deep_copy(array.view_device(), outer_value);
     array.modify_device();
-    novapp::KV_double_1d const arr("arr", nx0);
+    hclpp::KV_double_1d const arr("arr", nx0);
     Kokkos::deep_copy(arr, inner_value);
-    novapp::broadcast(rng.no_ghosts(), arr, array.view_device());
+    hclpp::broadcast(rng.no_ghosts(), arr, array.view_device());
     array.modify_device();
     array.sync_host();
     {
-        auto const array_h = novapp::view_host(array);
+        auto const array_h = hclpp::view_host(array);
         for (int i = 0; i < nx0_wg; ++i) {
             for (int j = 0; j < nx1_wg; ++j) {
                 for (int k = 0; k < nx2_wg; ++k) {
@@ -220,7 +220,7 @@ TEST(BroadcastArray, Case2d)
 
 TEST(BroadcastArray, Case3d)
 {
-    if (novapp::ndim != 3) {
+    if (hclpp::ndim != 3) {
         GTEST_SKIP();
     }
 
@@ -235,17 +235,17 @@ TEST(BroadcastArray, Case3d)
     int const nx1_wg = nx1 + (2 * ng);
     int const nx2_wg = nx2 + (2 * ng);
 
-    novapp::Range const rng({0, 0, 0}, {nx0, nx1, nx2}, ng);
-    novapp::KDV_double_3d array("array", nx0_wg, nx1_wg, nx2_wg);
+    hclpp::Range const rng({0, 0, 0}, {nx0, nx1, nx2}, ng);
+    hclpp::KDV_double_3d array("array", nx0_wg, nx1_wg, nx2_wg);
     Kokkos::deep_copy(array.view_device(), outer_value);
     array.modify_device();
-    novapp::KV_double_1d const arr("arr", 10);
+    hclpp::KV_double_1d const arr("arr", 10);
     Kokkos::deep_copy(arr, inner_value);
-    novapp::broadcast(rng.no_ghosts(), arr, array.view_device());
+    hclpp::broadcast(rng.no_ghosts(), arr, array.view_device());
     array.modify_device();
     array.sync_host();
     {
-        auto const array_h = novapp::view_host(array);
+        auto const array_h = hclpp::view_host(array);
         for (int i = 0; i < nx0_wg; ++i) {
             for (int j = 0; j < nx1_wg; ++j) {
                 for (int k = 0; k < nx2_wg; ++k) {

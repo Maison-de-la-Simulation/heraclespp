@@ -10,7 +10,7 @@
 
 #include "moving_grid.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 void shift_grid(
         KV_cdouble_3d const& rho_old,
@@ -71,4 +71,4 @@ void shift_array(KV_cdouble_4d const& var_old, KV_double_4d const& var_new)
     }
 }
 
-} // namespace novapp
+} // namespace hclpp

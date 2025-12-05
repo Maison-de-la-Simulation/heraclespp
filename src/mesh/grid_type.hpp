@@ -12,7 +12,7 @@
 
 #include <kokkos_shortcut.hpp>
 
-namespace novapp {
+namespace hclpp {
 
 class Param;
 
@@ -62,4 +62,4 @@ public:
             KVH_double_1d const& x2_glob) const final;
 };
 
-} // namespace novapp
+} // namespace hclpp

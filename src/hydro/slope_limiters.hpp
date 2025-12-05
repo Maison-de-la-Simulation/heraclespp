@@ -12,7 +12,7 @@
 #include <Kokkos_Macros.hpp>
 #include <Kokkos_MathematicalFunctions.hpp>
 
-namespace novapp {
+namespace hclpp {
 
 //! The null slope limiter.
 class Constant
@@ -86,4 +86,4 @@ public:
     }
 };
 
-} // namespace novapp
+} // namespace hclpp

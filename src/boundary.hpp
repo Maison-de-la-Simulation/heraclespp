@@ -18,7 +18,7 @@
 #    include <ndim.hpp>
 #endif
 
-namespace novapp {
+namespace hclpp {
 
 class Grid;
 
@@ -165,4 +165,4 @@ public:
     }
 };
 
-} // namespace novapp
+} // namespace hclpp

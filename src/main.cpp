@@ -47,8 +47,8 @@
 #include <kokkos_shortcut.hpp>
 #include <moving_grid.hpp>
 #include <ndim.hpp>
-#include <nova_params.hpp>
 #include <paraconf.h>
+#include <param.hpp>
 #include <pdi.h>
 #include <pressure_fix.hpp>
 #include <print_info.hpp>
@@ -66,17 +66,17 @@
 #include "setup.hpp"
 #include "shift_criterion_interface.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 namespace {
 
-#if defined(NOVAPP_GRAVITY_Uniform)
+#if defined(HERACLESPP_GRAVITY_Uniform)
 using Gravity = UniformGravity;
 std::string_view const gravity_label("Uniform");
-#elif defined(NOVAPP_GRAVITY_Point_mass)
+#elif defined(HERACLESPP_GRAVITY_Point_mass)
 using Gravity = PointMassGravity;
 std::string_view const gravity_label("Point_mass");
-#elif defined(NOVAPP_GRAVITY_Internal_mass)
+#elif defined(HERACLESPP_GRAVITY_Internal_mass)
 using Gravity = InternalMassGravity;
 std::string_view const gravity_label("Internal_mass");
 #else
@@ -85,11 +85,11 @@ static_assert(false, "Gravity not defined");
 
 Gravity make_gravity(Param const& param, [[maybe_unused]] Grid const& grid, [[maybe_unused]] KV_cdouble_3d const& rho)
 {
-#if defined(NOVAPP_GRAVITY_Uniform)
+#if defined(HERACLESPP_GRAVITY_Uniform)
     return make_uniform_gravity(param.gx0, param.gx1, param.gx2);
-#elif defined(NOVAPP_GRAVITY_Point_mass)
+#elif defined(HERACLESPP_GRAVITY_Point_mass)
     return make_point_mass_gravity(param.M, grid);
-#elif defined(NOVAPP_GRAVITY_Internal_mass)
+#elif defined(HERACLESPP_GRAVITY_Internal_mass)
     return make_internal_mass_gravity(param.M, grid, rho);
 #endif
 }
@@ -351,10 +351,10 @@ void main(int argc, char** argv)
 
     double const initial_mass = integrate(grid.range.no_ghosts(), grid, rho.view_device());
 
-    Kokkos::fence("Nova++: before main time loop");
+    Kokkos::fence("HERACLES++: before main time loop");
     MPI_Barrier(grid.comm_cart);
     std::chrono::steady_clock::time_point const start = std::chrono::steady_clock::now();
-    Kokkos::Profiling::pushRegion("Nova++: main time loop");
+    Kokkos::Profiling::pushRegion("HERACLES++: main time loop");
 
     // Main timestep loop
     while (!should_exit) {
@@ -570,7 +570,7 @@ void main(int argc, char** argv)
         }
     }
 
-    Kokkos::fence("Nova++: after main time loop");
+    Kokkos::fence("HERACLES++: after main time loop");
     MPI_Barrier(grid.comm_cart);
     Kokkos::Profiling::popRegion();
     std::chrono::steady_clock::time_point const end = std::chrono::steady_clock::now();
@@ -599,12 +599,12 @@ void main(int argc, char** argv)
 
 } // namespace
 
-} // namespace novapp
+} // namespace hclpp
 
 int main(int argc, char** argv)
 {
     try {
-        novapp::main(argc, argv);
+        hclpp::main(argc, argv);
     } catch (std::exception const& e) {
         std::cerr << e.what() << '\n';
         return EXIT_FAILURE;

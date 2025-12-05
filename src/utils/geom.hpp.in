@@ -11,10 +11,10 @@
 
 #include <string_view>
 
-namespace novapp
+namespace hclpp
 {
 
-inline constexpr std::string_view geom_choice = "@Novapp_GEOM@";
+inline constexpr std::string_view geom_choice = "@Heraclespp_GEOM@";
 
 enum Geometry
 {
@@ -24,4 +24,4 @@ enum Geometry
 
 constexpr Geometry geom = geom_choice == "Spherical" ?  Geometry::Geom_spherical : Geometry::Geom_cartesian;
 
-} // namespace novapp
+} // namespace hclpp

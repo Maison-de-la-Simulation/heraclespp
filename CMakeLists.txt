@@ -4,52 +4,52 @@
 
 cmake_minimum_required(VERSION 3.25)
 
-project(Nova++ LANGUAGES CXX)
+project(HERACLES++ LANGUAGES CXX)
 
 set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_NO_CYCLES ON)
 
-option(Novapp_BUILD_BENCHMARKING "Build the benchmarking tree." OFF)
+option(Heraclespp_BUILD_BENCHMARKING "Build the benchmarking tree." OFF)
 
-set(Novapp_EOS
+set(Heraclespp_EOS
     ""
     CACHE STRING
     "Choose the equation of state: PerfectGas(Perfect Gas) ; Gas+Radiation(Gas+Radiation)"
 )
-set_property(CACHE Novapp_EOS PROPERTY STRINGS "PerfectGas;Gas+Radiation")
-if("${Novapp_EOS}" STREQUAL "")
-    message(FATAL_ERROR "Novapp_EOS is not defined")
+set_property(CACHE Heraclespp_EOS PROPERTY STRINGS "PerfectGas;Gas+Radiation")
+if("${Heraclespp_EOS}" STREQUAL "")
+    message(FATAL_ERROR "Heraclespp_EOS is not defined")
 endif()
 
-set(Novapp_GEOM
+set(Heraclespp_GEOM
     ""
     CACHE STRING
     "Choose the geometric system: Cartesian(Cartesian system) ; Spherical(Spherical system)"
 )
-set_property(CACHE Novapp_GEOM PROPERTY STRINGS "Cartesian;Spherical")
-if("${Novapp_GEOM}" STREQUAL "")
-    message(FATAL_ERROR "Novapp_GEOM is not defined")
+set_property(CACHE Heraclespp_GEOM PROPERTY STRINGS "Cartesian;Spherical")
+if("${Heraclespp_GEOM}" STREQUAL "")
+    message(FATAL_ERROR "Heraclespp_GEOM is not defined")
 endif()
 
-set(Novapp_GRAVITY
+set(Heraclespp_GRAVITY
     ""
     CACHE STRING
     "Choose the equation of state: Uniform(Uniform gravity) ; Point_mass(Point mass gravity); Internal_Mass(Internal mass gravity)"
 )
 set_property(
-    CACHE Novapp_GRAVITY
+    CACHE Heraclespp_GRAVITY
     PROPERTY STRINGS "Uniform;Point_mass;Internal_mass"
 )
-if("${Novapp_GRAVITY}" STREQUAL "")
-    message(FATAL_ERROR "Novapp_GRAVITY is not defined")
+if("${Heraclespp_GRAVITY}" STREQUAL "")
+    message(FATAL_ERROR "Heraclespp_GRAVITY is not defined")
 endif()
 
 set(DIMS "1;2;3")
-set(Novapp_NDIM "" CACHE STRING "Choose the dimension, options are ${DIMS}")
-set_property(CACHE Novapp_NDIM PROPERTY STRINGS "${DIMS}")
-if(NOT ("${Novapp_NDIM}" IN_LIST DIMS))
+set(Heraclespp_NDIM "" CACHE STRING "Choose the dimension, options are ${DIMS}")
+set_property(CACHE Heraclespp_NDIM PROPERTY STRINGS "${DIMS}")
+if(NOT ("${Heraclespp_NDIM}" IN_LIST DIMS))
     message(
         FATAL_ERROR
-        "Novapp_NDIM is not defined, available dimensions are ${DIMS}"
+        "Heraclespp_NDIM is not defined, available dimensions are ${DIMS}"
     )
 endif()
 
@@ -60,49 +60,49 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
     )
 endif()
 
-set(Novapp_SETUP "" CACHE STRING "Choose the setup")
+set(Heraclespp_SETUP "" CACHE STRING "Choose the setup")
 file(
     GLOB sub-dirs-name
     RELATIVE ${PROJECT_SOURCE_DIR}/src/setups
     ${PROJECT_SOURCE_DIR}/src/setups/*
 )
-set_property(CACHE Novapp_SETUP PROPERTY STRINGS "${sub-dirs-name}")
+set_property(CACHE Heraclespp_SETUP PROPERTY STRINGS "${sub-dirs-name}")
 
-if(NOT ("${Novapp_SETUP}" IN_LIST sub-dirs-name))
+if(NOT ("${Heraclespp_SETUP}" IN_LIST sub-dirs-name))
     message(
         FATAL_ERROR
-        "Novapp_SETUP is not defined, available setups are: ${sub-dirs-name}"
+        "Heraclespp_SETUP is not defined, available setups are: ${sub-dirs-name}"
     )
 endif()
 
 include(CTest)
 
-set(Novapp_DEPENDENCY_POLICIES "EMBEDDED" "INSTALLED")
-set(Novapp_DEFAULT_DEPENDENCY_POLICY "EMBEDDED")
-if(DEFINED ENV{NOVAPP_DEFAULT_DEPENDENCY_POLICY})
-    set(Novapp_DEFAULT_DEPENDENCY_POLICY
-        "$ENV{NOVAPP_DEFAULT_DEPENDENCY_POLICY}"
+set(Heraclespp_DEPENDENCY_POLICIES "EMBEDDED" "INSTALLED")
+set(Heraclespp_DEFAULT_DEPENDENCY_POLICY "EMBEDDED")
+if(DEFINED ENV{HERACLESPP_DEFAULT_DEPENDENCY_POLICY})
+    set(Heraclespp_DEFAULT_DEPENDENCY_POLICY
+        "$ENV{HERACLESPP_DEFAULT_DEPENDENCY_POLICY}"
     )
 endif()
-if(DEFINED CACHE{Novapp_DEFAULT_DEPENDENCY_POLICY})
-    set(Novapp_DEFAULT_DEPENDENCY_POLICY
-        "$CACHE{Novapp_DEFAULT_DEPENDENCY_POLICY}"
+if(DEFINED CACHE{Heraclespp_DEFAULT_DEPENDENCY_POLICY})
+    set(Heraclespp_DEFAULT_DEPENDENCY_POLICY
+        "$CACHE{Heraclespp_DEFAULT_DEPENDENCY_POLICY}"
     )
 endif()
 
 # benchmark dependency
-set(Novapp_benchmark_DEPENDENCY_POLICY
-    "${Novapp_DEFAULT_DEPENDENCY_POLICY}"
+set(Heraclespp_benchmark_DEPENDENCY_POLICY
+    "${Heraclespp_DEFAULT_DEPENDENCY_POLICY}"
     CACHE STRING
-    "Policy to find the `benchmark` package. Options: ${Novapp_DEPENDENCY_POLICIES}"
+    "Policy to find the `benchmark` package. Options: ${Heraclespp_DEPENDENCY_POLICIES}"
 )
 set_property(
-    CACHE Novapp_benchmark_DEPENDENCY_POLICY
-    PROPERTY STRINGS "${Novapp_DEPENDENCY_POLICIES}"
+    CACHE Heraclespp_benchmark_DEPENDENCY_POLICY
+    PROPERTY STRINGS "${Heraclespp_DEPENDENCY_POLICIES}"
 )
-if("${Novapp_benchmark_DEPENDENCY_POLICY}" STREQUAL "EMBEDDED")
+if("${Heraclespp_benchmark_DEPENDENCY_POLICY}" STREQUAL "EMBEDDED")
     add_subdirectory(vendor/benchmark SYSTEM)
-elseif("${Novapp_benchmark_DEPENDENCY_POLICY}" STREQUAL "INSTALLED")
+elseif("${Heraclespp_benchmark_DEPENDENCY_POLICY}" STREQUAL "INSTALLED")
     find_package(benchmark REQUIRED)
 endif()
 
@@ -110,50 +110,50 @@ endif()
 find_package(Doxygen)
 
 # GTest dependency
-set(Novapp_GTest_DEPENDENCY_POLICY
-    "${Novapp_DEFAULT_DEPENDENCY_POLICY}"
+set(Heraclespp_GTest_DEPENDENCY_POLICY
+    "${Heraclespp_DEFAULT_DEPENDENCY_POLICY}"
     CACHE STRING
-    "Policy to find the `GTest` package. Options: ${Novapp_DEPENDENCY_POLICIES}"
+    "Policy to find the `GTest` package. Options: ${Heraclespp_DEPENDENCY_POLICIES}"
 )
 set_property(
-    CACHE Novapp_GTest_DEPENDENCY_POLICY
-    PROPERTY STRINGS "${Novapp_DEPENDENCY_POLICIES}"
+    CACHE Heraclespp_GTest_DEPENDENCY_POLICY
+    PROPERTY STRINGS "${Heraclespp_DEPENDENCY_POLICIES}"
 )
-if("${Novapp_GTest_DEPENDENCY_POLICY}" STREQUAL "EMBEDDED")
+if("${Heraclespp_GTest_DEPENDENCY_POLICY}" STREQUAL "EMBEDDED")
     add_subdirectory(vendor/googletest SYSTEM)
-elseif("${Novapp_GTest_DEPENDENCY_POLICY}" STREQUAL "INSTALLED")
+elseif("${Heraclespp_GTest_DEPENDENCY_POLICY}" STREQUAL "INSTALLED")
     find_package(GTest REQUIRED CONFIG)
 endif()
 
 # inih dependency
-set(Novapp_inih_DEPENDENCY_POLICY
-    "${Novapp_DEFAULT_DEPENDENCY_POLICY}"
+set(Heraclespp_inih_DEPENDENCY_POLICY
+    "${Heraclespp_DEFAULT_DEPENDENCY_POLICY}"
     CACHE STRING
-    "Policy to find the `inih` package. Options: ${Novapp_DEPENDENCY_POLICIES}"
+    "Policy to find the `inih` package. Options: ${Heraclespp_DEPENDENCY_POLICIES}"
 )
 set_property(
-    CACHE Novapp_inih_DEPENDENCY_POLICY
-    PROPERTY STRINGS "${Novapp_DEPENDENCY_POLICIES}"
+    CACHE Heraclespp_inih_DEPENDENCY_POLICY
+    PROPERTY STRINGS "${Heraclespp_DEPENDENCY_POLICIES}"
 )
-if("${Novapp_inih_DEPENDENCY_POLICY}" STREQUAL "EMBEDDED")
+if("${Heraclespp_inih_DEPENDENCY_POLICY}" STREQUAL "EMBEDDED")
     add_subdirectory(vendor/inih SYSTEM)
-elseif("${Novapp_inih_DEPENDENCY_POLICY}" STREQUAL "INSTALLED")
+elseif("${Heraclespp_inih_DEPENDENCY_POLICY}" STREQUAL "INSTALLED")
     find_package(inih REQUIRED CONFIG)
 endif()
 
 # Kokkos dependency
-set(Novapp_Kokkos_DEPENDENCY_POLICY
-    "${Novapp_DEFAULT_DEPENDENCY_POLICY}"
+set(Heraclespp_Kokkos_DEPENDENCY_POLICY
+    "${Heraclespp_DEFAULT_DEPENDENCY_POLICY}"
     CACHE STRING
-    "Policy to find the `Kokkos` package. Options: ${Novapp_DEPENDENCY_POLICIES}"
+    "Policy to find the `Kokkos` package. Options: ${Heraclespp_DEPENDENCY_POLICIES}"
 )
 set_property(
-    CACHE Novapp_Kokkos_DEPENDENCY_POLICY
-    PROPERTY STRINGS "${Novapp_DEPENDENCY_POLICIES}"
+    CACHE Heraclespp_Kokkos_DEPENDENCY_POLICY
+    PROPERTY STRINGS "${Heraclespp_DEPENDENCY_POLICIES}"
 )
-if("${Novapp_Kokkos_DEPENDENCY_POLICY}" STREQUAL "EMBEDDED")
+if("${Heraclespp_Kokkos_DEPENDENCY_POLICY}" STREQUAL "EMBEDDED")
     add_subdirectory(vendor/kokkos SYSTEM)
-elseif("${Novapp_Kokkos_DEPENDENCY_POLICY}" STREQUAL "INSTALLED")
+elseif("${Heraclespp_Kokkos_DEPENDENCY_POLICY}" STREQUAL "INSTALLED")
     find_package(Kokkos 4...<6 REQUIRED CONFIG)
 endif()
 
@@ -171,6 +171,6 @@ if("${BUILD_TESTING}")
     add_subdirectory(tests)
 endif()
 
-if("${Novapp_BUILD_BENCHMARKING}")
+if("${Heraclespp_BUILD_BENCHMARKING}")
     add_subdirectory(benchmarks)
 endif()

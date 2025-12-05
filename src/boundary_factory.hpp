@@ -14,7 +14,7 @@
 
 #include <concepts.hpp>
 
-namespace novapp {
+namespace hclpp {
 
 template <concepts::GravityField Gravity>
 class IBoundaryCondition;
@@ -46,4 +46,4 @@ std::unique_ptr<IBoundaryCondition<Gravity>> factory_boundary_construction(std::
     throw std::runtime_error("Unknown boundary condition : " + boundary + ".");
 }
 
-} // namespace novapp
+} // namespace hclpp

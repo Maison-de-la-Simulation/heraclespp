@@ -22,11 +22,11 @@
 #include <int_cast.hpp>
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
-#include <nova_params.hpp>
+#include <param.hpp>
 
 #include "boundary_distribute.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 namespace {
 
@@ -131,4 +131,4 @@ DistributedBoundaryCondition::DistributedBoundaryCondition(Grid const& grid, Par
     generate_order(m_bc_order, m_param.bc_priority);
 }
 
-} // namespace novapp
+} // namespace hclpp

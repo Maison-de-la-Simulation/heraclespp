@@ -18,9 +18,9 @@
 #include <grid.hpp>
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
-#include <nova_params.hpp>
+#include <param.hpp>
 
-namespace novapp {
+namespace hclpp {
 
 template <concepts::GravityField Gravity>
 class IBoundaryCondition;
@@ -76,4 +76,4 @@ public:
     }
 };
 
-} // namespace novapp
+} // namespace hclpp

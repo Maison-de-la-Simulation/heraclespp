@@ -12,7 +12,7 @@
 
 #include <hdf5.h>
 
-namespace novapp {
+namespace hclpp {
 
 class RaiiH5Hid
 {
@@ -25,7 +25,7 @@ public:
     RaiiH5Hid(hid_t id, herr_t (*f)(hid_t)) : m_id(id), m_close(f)
     {
         if (m_id < 0 || !m_close) {
-            throw std::runtime_error("Nova++ error: creating h5 id failed");
+            throw std::runtime_error("HERACLES++ error: creating h5 id failed");
         }
     }
 
@@ -60,13 +60,13 @@ void check_extent_dset(RaiiH5Hid const& file_id, char const* const dset_path, st
     RaiiH5Hid const dspace(::H5Dget_space(*dset_id), ::H5Sclose);
     int const ndims = ::H5Sget_simple_extent_ndims(*dspace);
     if (ndims != N) {
-        throw std::runtime_error("Nova++ error: Expecting a 1d dataset");
+        throw std::runtime_error("HERACLES++ error: Expecting a 1d dataset");
     }
     std::array<hsize_t, N> dset_extent {};
     ::H5Sget_simple_extent_dims(*dspace, dset_extent.data(), nullptr);
     if (!std::ranges::equal(dset_extent, expected_extents)) {
-        throw std::runtime_error("Nova++ error: Extents do not match");
+        throw std::runtime_error("HERACLES++ error: Extents do not match");
     }
 }
 
-} // namespace novapp
+} // namespace hclpp

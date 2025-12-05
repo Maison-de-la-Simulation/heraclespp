@@ -11,7 +11,7 @@
 #include <Kokkos_Macros.hpp>
 #include <Kokkos_MathematicalFunctions.hpp>
 
-namespace novapp {
+namespace hclpp {
 
 // Pressure term (e_{r}): 2 * P_{rr} / r
 // Pressure term (e_{th}): cot(th) * P_{th th} / r
@@ -76,4 +76,4 @@ double source_grad_u_phi(
     return dtodv * (sp - sm) / (sp + sm) * (rhoR * uR_phi * uR_th * dS_p + rhoL * uL_phi * uL_th * dS);
 }
 
-} // namespace novapp
+} // namespace hclpp

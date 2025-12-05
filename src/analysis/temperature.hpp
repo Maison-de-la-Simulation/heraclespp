@@ -13,7 +13,7 @@
 #include <kokkos_shortcut.hpp>
 #include <range.hpp>
 
-namespace novapp {
+namespace hclpp {
 
 template <concepts::EulerEoS EoS>
 void temperature(Range const& range, EoS const& eos, KV_cdouble_3d const& rho, KV_cdouble_3d const& P, KV_double_3d const& T)
@@ -24,4 +24,4 @@ void temperature(Range const& range, EoS const& eos, KV_cdouble_3d const& rho, K
             KOKKOS_LAMBDA(int i, int j, int k) { T(i, j, k) = eos.compute_temp_from_pres(rho(i, j, k), P(i, j, k)); });
 }
 
-} // namespace novapp
+} // namespace hclpp

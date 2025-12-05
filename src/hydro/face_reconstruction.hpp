@@ -13,7 +13,7 @@
 
 #include <kokkos_shortcut.hpp>
 
-namespace novapp {
+namespace hclpp {
 
 class Grid;
 class Range;
@@ -42,4 +42,4 @@ public:
 
 std::unique_ptr<IFaceReconstruction> factory_face_reconstruction(std::string const& slope);
 
-} // namespace novapp
+} // namespace hclpp

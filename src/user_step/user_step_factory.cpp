@@ -13,7 +13,7 @@
 #include "user_step.hpp"
 #include "user_step_factory.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 std::unique_ptr<IUserStep> factory_user_step(std::string const& user_step)
 {
@@ -28,4 +28,4 @@ std::unique_ptr<IUserStep> factory_user_step(std::string const& user_step)
     throw std::runtime_error("Unknown user step: " + user_step + ".");
 }
 
-} // namespace novapp
+} // namespace hclpp

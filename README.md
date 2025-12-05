@@ -36,25 +36,23 @@ A straightforward way to build HERACLES++ is to assume that all dependencies are
 cmake \
     -D BUILD_TESTING=OFF \
     -D CMAKE_BUILD_TYPE=Release \
-    -D Novapp_SETUP=shock_tube \
-    -D Novapp_NDIM=1 \
-    -D Novapp_EOS=PerfectGas \
-    -D Novapp_GRAVITY=Uniform \
-    -D Novapp_GEOM=Cartesian \
-    -D Novapp_inih_DEPENDENCY_POLICY=INSTALLED \
-    -D Novapp_Kokkos_DEPENDENCY_POLICY=INSTALLED \
+    -D Heraclespp_SETUP=shock_tube \
+    -D Heraclespp_NDIM=1 \
+    -D Heraclespp_EOS=PerfectGas \
+    -D Heraclespp_GRAVITY=Uniform \
+    -D Heraclespp_GEOM=Cartesian \
+    -D Heraclespp_inih_DEPENDENCY_POLICY=INSTALLED \
+    -D Heraclespp_Kokkos_DEPENDENCY_POLICY=INSTALLED \
     -B build
 cmake --build build --parallel 2
 ```
 
-One can notice that HERACLES++ related options are being prefixed by `Novapp`.
-
-The executable can be found in the directory `build/src/nova++`.
+The executable can be found in the directory `build/src/heracles++`.
 
 The execution needs an input file and is done with the following command:
 
 ```bash
-./build/src/nova++ ./inputs/shock_tube.ini
+./build/src/heracles++ ./inputs/shock_tube.ini
 ```
 
 For more complex compilation scenarios, please refer to the `toolchains` directory or the [Kokkos documentation](https://kokkos.org/kokkos-core-wiki/get-started.html).

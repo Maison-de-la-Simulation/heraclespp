@@ -28,17 +28,17 @@ void set_constant_cells_processed(benchmark::State& state, std::size_t const cel
 
 void prim_to_cons(benchmark::State& state)
 {
-    int const nx0 = novapp::int_cast<int>(state.range());
+    int const nx0 = hclpp::int_cast<int>(state.range());
     int const nx1 = nx0;
     int const nx2 = nx0;
 
-    novapp::Range const range({0, 0, 0}, {nx0, nx1, nx2}, 0);
-    novapp::thermodynamics::PerfectGas const eos(2, 1);
-    novapp::KV_double_3d const rho("rho", nx0, nx1, nx2);
-    novapp::KV_double_4d const rhou("rhou", nx0, nx1, nx2, novapp::ndim);
-    novapp::KV_double_3d const E("E", nx0, nx1, nx2);
-    novapp::KV_double_4d const u("u", nx0, nx1, nx2, novapp::ndim);
-    novapp::KV_double_3d const P("P", nx0, nx1, nx2);
+    hclpp::Range const range({0, 0, 0}, {nx0, nx1, nx2}, 0);
+    hclpp::thermodynamics::PerfectGas const eos(2, 1);
+    hclpp::KV_double_3d const rho("rho", nx0, nx1, nx2);
+    hclpp::KV_double_4d const rhou("rhou", nx0, nx1, nx2, hclpp::ndim);
+    hclpp::KV_double_3d const E("E", nx0, nx1, nx2);
+    hclpp::KV_double_4d const u("u", nx0, nx1, nx2, hclpp::ndim);
+    hclpp::KV_double_3d const P("P", nx0, nx1, nx2);
 
     Kokkos::deep_copy(rho, 1);
     Kokkos::deep_copy(u, 0);
@@ -46,14 +46,14 @@ void prim_to_cons(benchmark::State& state)
 
     Kokkos::fence();
     for ([[maybe_unused]] auto _ : state) {
-        novapp::conv_prim_to_cons(range, eos, rho, u, P, rhou, E);
+        hclpp::conv_prim_to_cons(range, eos, rho, u, P, rhou, E);
         Kokkos::fence();
     }
 
     std::size_t const cells = (static_cast<std::size_t>(nx0) * nx1) * nx2;
 
     set_constant_cells_processed(state, cells);
-    set_constant_bytes_processed(state, sizeof(double) * ((2 + novapp::ndim) + (1 + novapp::ndim)) * cells);
+    set_constant_bytes_processed(state, sizeof(double) * ((2 + hclpp::ndim) + (1 + hclpp::ndim)) * cells);
 }
 
 } // namespace

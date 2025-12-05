@@ -16,7 +16,7 @@
 
 #include "boundary.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 std::string_view bc_dir(int i) noexcept
 {
@@ -109,4 +109,4 @@ void reflexive_condition(
             });
 }
 
-} // namespace novapp
+} // namespace hclpp

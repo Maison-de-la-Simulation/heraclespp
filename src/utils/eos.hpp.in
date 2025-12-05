@@ -15,14 +15,14 @@
 #include <perfect_gas.hpp>
 #include <rad_gas.hpp>
 
-namespace novapp
+namespace hclpp
 {
 
-inline constexpr std::string_view eos_choice = "@Novapp_EOS@";
+inline constexpr std::string_view eos_choice = "@Heraclespp_EOS@";
 
 using EOS = std::conditional_t<
         eos_choice == "PerfectGas",
         thermodynamics::PerfectGas,
         thermodynamics::RadGas>;
 
-} // namespace novapp
+} // namespace hclpp

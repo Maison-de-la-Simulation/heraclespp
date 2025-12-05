@@ -31,7 +31,7 @@ public:
     EquationOfStateFixture& operator=(EquationOfStateFixture&& rhs) noexcept = default;
 };
 
-using EquationOfStates = ::testing::Types<novapp::thermodynamics::PerfectGas, novapp::thermodynamics::RadGas>;
+using EquationOfStates = ::testing::Types<hclpp::thermodynamics::PerfectGas, hclpp::thermodynamics::RadGas>;
 // Trailing comma is needed to avoid spurious `gnu-zero-variadic-macro-arguments` warning with clang
 TYPED_TEST_SUITE(EquationOfStateFixture, EquationOfStates, );
 

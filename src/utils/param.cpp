@@ -7,9 +7,9 @@
 
 #include <inih/INIReader.hpp>
 
-#include "nova_params.hpp"
+#include "param.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 Param::Param(INIReader const& reader) : reader(reader)
 {
@@ -82,4 +82,4 @@ Param& Param::operator=(Param const& rhs) = default;
 
 Param& Param::operator=(Param&& rhs) noexcept = default;
 
-} // namespace novapp
+} // namespace hclpp

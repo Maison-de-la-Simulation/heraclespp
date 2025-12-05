@@ -9,7 +9,7 @@
 #include <kokkos_shortcut.hpp>
 #include <user_step.hpp>
 
-namespace novapp {
+namespace hclpp {
 
 class Range;
 
@@ -28,4 +28,4 @@ public:
     }
 };
 
-} // namespace novapp
+} // namespace hclpp

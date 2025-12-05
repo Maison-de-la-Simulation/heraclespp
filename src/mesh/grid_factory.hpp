@@ -11,11 +11,11 @@
 #include <memory>
 #include <string>
 
-namespace novapp {
+namespace hclpp {
 
 class IGridType;
 class Param;
 
 std::unique_ptr<IGridType> factory_grid_type(std::string const& grid, Param const& param);
 
-} // namespace novapp
+} // namespace hclpp

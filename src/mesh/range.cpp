@@ -16,7 +16,7 @@
 
 #include "range.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 Range::Range() = default;
 
@@ -140,4 +140,4 @@ Kokkos::MDRangePolicy<Kokkos::IndexType<int>, Kokkos::Rank<3, Kokkos::Iterate::L
     return {begin, end};
 }
 
-} // namespace novapp
+} // namespace hclpp

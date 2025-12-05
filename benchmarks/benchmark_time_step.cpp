@@ -31,7 +31,7 @@ void set_constant_cells_processed(benchmark::State& state, std::size_t const cel
 
 void time_step(benchmark::State& state)
 {
-    int const nx0 = novapp::int_cast<int>(state.range());
+    int const nx0 = hclpp::int_cast<int>(state.range());
     int const nx1 = nx0;
     int const nx2 = nx0;
 
@@ -46,30 +46,30 @@ void time_step(benchmark::State& state)
     std::array<int, 3> const mpi_dims_cart {0, 0, 0};
     int const Ng = 1;
 
-    novapp::Grid grid(Nx_glob_ng, mpi_dims_cart, Ng);
-    novapp::Regular const regular_grid(std::array {x0min, x1min, x2min}, std::array {x0max, x1max, x2max});
+    hclpp::Grid grid(Nx_glob_ng, mpi_dims_cart, Ng);
+    hclpp::Regular const regular_grid(std::array {x0min, x1min, x2min}, std::array {x0max, x1max, x2max});
 
-    novapp::KDV_double_1d x0_glob("x0_glob", grid.Nx_glob_ng[0] + (2 * grid.Nghost[0]) + 1);
-    novapp::KDV_double_1d x1_glob("x1_glob", grid.Nx_glob_ng[1] + (2 * grid.Nghost[1]) + 1);
-    novapp::KDV_double_1d x2_glob("x2_glob", grid.Nx_glob_ng[2] + (2 * grid.Nghost[2]) + 1);
+    hclpp::KDV_double_1d x0_glob("x0_glob", grid.Nx_glob_ng[0] + (2 * grid.Nghost[0]) + 1);
+    hclpp::KDV_double_1d x1_glob("x1_glob", grid.Nx_glob_ng[1] + (2 * grid.Nghost[1]) + 1);
+    hclpp::KDV_double_1d x2_glob("x2_glob", grid.Nx_glob_ng[2] + (2 * grid.Nghost[2]) + 1);
     regular_grid.execute(grid.Nghost, grid.Nx_glob_ng, x0_glob.view_host(), x1_glob.view_host(), x2_glob.view_host());
-    novapp::modify_host(x0_glob, x1_glob, x2_glob);
-    novapp::sync_device(x0_glob, x1_glob, x2_glob);
+    hclpp::modify_host(x0_glob, x1_glob, x2_glob);
+    hclpp::sync_device(x0_glob, x1_glob, x2_glob);
     grid.set_grid(x0_glob.view_device(), x1_glob.view_device(), x2_glob.view_device());
 
-    novapp::thermodynamics::PerfectGas const eos(2, 1);
-    novapp::KV_double_3d const rho("rho", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
-    novapp::KV_double_3d const P("P", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
-    novapp::KV_double_4d const u("u", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], novapp::ndim);
+    hclpp::thermodynamics::PerfectGas const eos(2, 1);
+    hclpp::KV_double_3d const rho("rho", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
+    hclpp::KV_double_3d const P("P", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
+    hclpp::KV_double_4d const u("u", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], hclpp::ndim);
 
     Kokkos::deep_copy(rho, 1);
     Kokkos::deep_copy(u, 1);
     Kokkos::deep_copy(P, 1);
 
-    novapp::Range const range = grid.range.no_ghosts();
+    hclpp::Range const range = grid.range.no_ghosts();
     Kokkos::fence();
     for ([[maybe_unused]] auto _ : state) {
-        double dt = novapp::time_step(range, eos, grid, rho, u, P);
+        double dt = hclpp::time_step(range, eos, grid, rho, u, P);
         benchmark::DoNotOptimize(dt);
         Kokkos::fence();
     }
@@ -78,7 +78,7 @@ void time_step(benchmark::State& state)
 
     set_constant_cells_processed(state, cells);
 
-    set_constant_bytes_processed(state, sizeof(double) * (2 + novapp::ndim) * cells);
+    set_constant_bytes_processed(state, sizeof(double) * (2 + hclpp::ndim) * cells);
 }
 
 } // namespace

@@ -6,11 +6,11 @@
 
 #include "git_version.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 std::string_view const git_build_string("@GIT_BUILD_STRING@");
 std::string_view const git_branch("@GIT_BRANCH@");
 std::string_view const compile_date("@DATE_STRING@");
 std::string_view const compile_time("@TIME_STRING@");
 
-} // namespace novapp
+} // namespace hclpp

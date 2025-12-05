@@ -30,4 +30,4 @@ export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK}
 export OMP_PLACES=cores
 
 # execution
-./../bin/nova++ ../inputs/kelvin_helmholtz.ini
+./../bin/heracles++ ../inputs/kelvin_helmholtz.ini

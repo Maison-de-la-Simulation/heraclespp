@@ -4,12 +4,11 @@ SPDX-FileCopyrightText: 2025 The HERACLES++ development team, see COPYRIGHT.md f
 SPDX-License-Identifier: MIT
 -->
 
-# Building Nova++ on the H100 partition of Jean-Zay
+# Building HERACLES++ on the H100 partition of Jean-Zay
 
 ## Environment
 
 ```bash
-# nova-env.sh
 module purge
 module load arch/h100
 module load gcc/12.2.0
@@ -25,7 +24,7 @@ Notice that the last line assumes PDI is already installed, see next section.
 
 ## How to build PDI
 
-From the nova directory
+From the root directory
 
 ```bash
 cmake \
@@ -53,9 +52,9 @@ cmake --build build-pdi --parallel 4
 cmake --install build-pdi --prefix pdi-installation-prefix-path
 ```
 
-## How to build Nova++
+## How to build HERACLES++
 
-From the top-level nova directory
+From the root directory
 
 ```bash
 cmake \
@@ -66,10 +65,10 @@ cmake \
     -D Kokkos_ENABLE_DEPRECATED_CODE_5=ON \
     -D Kokkos_ENABLE_CUDA=ON \
     -D Kokkos_ENABLE_OPENMP=ON \
-    -D Novapp_SETUP=rayleigh_taylor3d \
-    -D Novapp_NDIM=3 \
-    -D Novapp_EOS=PerfectGas \
-    -D Novapp_GRAVITY=Uniform \
-    -D Novapp_GEOM=Cartesian
+    -D Heraclespp_SETUP=rayleigh_taylor3d \
+    -D Heraclespp_NDIM=3 \
+    -D Heraclespp_EOS=PerfectGas \
+    -D Heraclespp_GRAVITY=Uniform \
+    -D Heraclespp_GEOM=Cartesian
 cmake --build build --parallel 4
 ```

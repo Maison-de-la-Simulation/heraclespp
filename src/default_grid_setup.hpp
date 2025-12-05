@@ -10,7 +10,7 @@
 #include <grid_type.hpp>
 #include <kokkos_shortcut.hpp>
 
-namespace novapp {
+namespace hclpp {
 
 class Param;
 
@@ -30,4 +30,4 @@ public:
     }
 };
 
-} // namespace novapp
+} // namespace hclpp

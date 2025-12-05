@@ -17,7 +17,7 @@
 #include "concepts.hpp"
 #include "euler_equations.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 class HLL
 {
@@ -177,4 +177,4 @@ public:
     }
 };
 
-} // namespace novapp
+} // namespace hclpp

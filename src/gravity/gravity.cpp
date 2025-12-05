@@ -21,7 +21,7 @@
 
 #include "gravity.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 UniformGravity::UniformGravity(KV_cdouble_1d g) : m_g(std::move(g)) {}
 
@@ -136,4 +136,4 @@ InternalMassGravity make_internal_mass_gravity(double const central_mass, Grid c
     return InternalMassGravity(g_array_dv);
 }
 
-} // namespace novapp
+} // namespace hclpp
