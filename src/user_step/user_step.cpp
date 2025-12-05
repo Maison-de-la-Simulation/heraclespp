@@ -15,7 +15,7 @@
 
 #include "user_step.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 IUserStep::IUserStep() = default;
 
@@ -69,4 +69,4 @@ void HeatNickelStep::execute(
             });
 }
 
-} // namespace novapp
+} // namespace hclpp

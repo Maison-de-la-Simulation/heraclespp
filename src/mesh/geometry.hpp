@@ -10,7 +10,7 @@
 
 #include <kokkos_shortcut.hpp>
 
-namespace novapp {
+namespace hclpp {
 
 class Range;
 
@@ -72,4 +72,4 @@ public:
             KV_double_3d const& dv) const final;
 };
 
-} // namespace novapp
+} // namespace hclpp

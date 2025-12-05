@@ -9,7 +9,7 @@
 #include <ostream>
 #include <string_view>
 
-namespace novapp {
+namespace hclpp {
 
 template <class T>
 void print_info(std::ostream& os, std::string_view const var_name, T const& var_value)
@@ -19,4 +19,4 @@ void print_info(std::ostream& os, std::string_view const var_name, T const& var_
     os << std::right << std::setw(fill_width) << std::setfill('.') << var_value << '\n';
 }
 
-} // namespace novapp
+} // namespace hclpp

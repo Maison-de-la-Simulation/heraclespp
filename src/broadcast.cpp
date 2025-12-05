@@ -12,7 +12,7 @@
 
 #include "broadcast.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 void broadcast(Range const& range, double const in, KV_double_3d const& out)
 {
@@ -46,4 +46,4 @@ void broadcast(Range const& range, KV_cdouble_1d const& in, KV_double_4d const& 
     }
 }
 
-} // namespace novapp
+} // namespace hclpp

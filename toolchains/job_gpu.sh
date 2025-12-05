@@ -24,4 +24,4 @@ set -x
 cd "${SLURM_SUBMIT_DIR}"
 
 # execution
-./../bin/nova++ ../inputs/kelvin_helmholtz.ini
+./../bin/heracles++ ../inputs/kelvin_helmholtz.ini

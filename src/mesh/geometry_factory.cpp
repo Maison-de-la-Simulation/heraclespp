@@ -13,7 +13,7 @@
 #include "geometry.hpp"
 #include "geometry_factory.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 std::unique_ptr<IComputeGeom> factory_grid_geometry()
 {
@@ -28,4 +28,4 @@ std::unique_ptr<IComputeGeom> factory_grid_geometry()
     throw std::runtime_error("Invalid grid geometry: .");
 }
 
-} // namespace novapp
+} // namespace hclpp

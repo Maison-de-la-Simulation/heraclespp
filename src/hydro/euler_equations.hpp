@@ -15,7 +15,7 @@
 
 #include "concepts.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 struct EulerCons
 {
@@ -133,4 +133,4 @@ KOKKOS_FORCEINLINE_FUNCTION EulerCons to_cons(EulerPrim const& prim, EoS const& 
     return cons;
 }
 
-} // namespace novapp
+} // namespace hclpp

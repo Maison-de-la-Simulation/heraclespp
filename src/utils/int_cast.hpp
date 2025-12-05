@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <utility>
 
-namespace novapp {
+namespace hclpp {
 
 template <class R, class T>
 R int_cast(T t)
@@ -18,4 +18,4 @@ R int_cast(T t)
     throw std::runtime_error("Conversion cannot preserve value representation");
 }
 
-} // namespace novapp
+} // namespace hclpp

@@ -32,16 +32,16 @@ def build_suite(sources: pathlib.Path, setups: typing.List[typing.Dict]):
                 [
                     "cmake",
                     "-DBUILD_TESTING=OFF",
-                    "-DNovapp_BUILD_BENCHMARKING=OFF",
-                    f"-DNovapp_EOS={cmake_options['eos']}",
-                    f"-DNovapp_GEOM={cmake_options['geom']}",
-                    f"-DNovapp_GRAVITY={cmake_options['gravity']}",
-                    "-DNovapp_benchmark_DEPENDENCY_POLICY=INSTALLED",
-                    "-DNovapp_GTest_DEPENDENCY_POLICY=INSTALLED",
-                    "-DNovapp_inih_DEPENDENCY_POLICY=INSTALLED",
-                    "-DNovapp_Kokkos_DEPENDENCY_POLICY=INSTALLED",
-                    f"-DNovapp_NDIM={cmake_options['ndim']}",
-                    f"-DNovapp_SETUP={setup['name']}",
+                    "-DHeraclespp_BUILD_BENCHMARKING=OFF",
+                    f"-DHeraclespp_EOS={cmake_options['eos']}",
+                    f"-DHeraclespp_GEOM={cmake_options['geom']}",
+                    f"-DHeraclespp_GRAVITY={cmake_options['gravity']}",
+                    "-DHeraclespp_benchmark_DEPENDENCY_POLICY=INSTALLED",
+                    "-DHeraclespp_GTest_DEPENDENCY_POLICY=INSTALLED",
+                    "-DHeraclespp_inih_DEPENDENCY_POLICY=INSTALLED",
+                    "-DHeraclespp_Kokkos_DEPENDENCY_POLICY=INSTALLED",
+                    f"-DHeraclespp_NDIM={cmake_options['ndim']}",
+                    f"-DHeraclespp_SETUP={setup['name']}",
                     "-B",
                     build_directory,
                     "-S",
@@ -64,10 +64,15 @@ if __name__ == "__main__":
         """main function"""
         parser = argparse.ArgumentParser(description="Build suite")
         parser.add_argument(
-            "filename", type=pathlib.Path, help="Path to input YAML configuration filename"
+            "filename",
+            type=pathlib.Path,
+            help="Path to input YAML configuration filename",
         )
         parser.add_argument(
-            "-S", default=pathlib.Path.cwd(), type=pathlib.Path, help="Path to the nova++ sources"
+            "-S",
+            default=pathlib.Path.cwd(),
+            type=pathlib.Path,
+            help="Path to the heracles++ sources",
         )
         args = parser.parse_args()
 

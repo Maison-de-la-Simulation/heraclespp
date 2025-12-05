@@ -9,7 +9,7 @@
 
 #pragma once
 
-namespace novapp {
+namespace hclpp {
 
 class MpiScopeGuard
 {
@@ -29,4 +29,4 @@ public:
     MpiScopeGuard& operator=(MpiScopeGuard&& rhs) noexcept = delete;
 };
 
-} // namespace novapp
+} // namespace hclpp

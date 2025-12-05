@@ -9,13 +9,13 @@
 
 #include <print_info.hpp>
 
-namespace novapp {
+namespace hclpp {
 
 TEST(PrintInfo, Format)
 {
     std::stringstream ss;
-    novapp::print_info(ss, "Parameter", std::string_view("Value"));
+    hclpp::print_info(ss, "Parameter", std::string_view("Value"));
     EXPECT_EQ(ss.str(), "Parameter..................................................................Value\n");
 }
 
-} // namespace novapp
+} // namespace hclpp

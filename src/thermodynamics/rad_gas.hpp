@@ -13,7 +13,7 @@
 #include <Kokkos_Printf.hpp>
 #include <units.hpp>
 
-namespace novapp::thermodynamics {
+namespace hclpp::thermodynamics {
 
 class RadGas
 {
@@ -148,4 +148,4 @@ public:
     }
 };
 
-} // namespace novapp::thermodynamics
+} // namespace hclpp::thermodynamics

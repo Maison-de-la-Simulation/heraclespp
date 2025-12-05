@@ -14,7 +14,7 @@
 #include "limited_linear_reconstruction.hpp"
 #include "slope_limiters.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 IFaceReconstruction::IFaceReconstruction() = default;
 
@@ -49,4 +49,4 @@ std::unique_ptr<IFaceReconstruction> factory_face_reconstruction(std::string con
     throw std::runtime_error("Unknown face reconstruction algorithm: " + slope + ".");
 }
 
-} // namespace novapp
+} // namespace hclpp

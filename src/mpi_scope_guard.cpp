@@ -6,7 +6,7 @@
 
 #include "mpi_scope_guard.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 MpiScopeGuard::MpiScopeGuard() noexcept
 {
@@ -23,4 +23,4 @@ MpiScopeGuard::~MpiScopeGuard() noexcept
     MPI_Finalize();
 }
 
-} // namespace novapp
+} // namespace hclpp

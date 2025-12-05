@@ -19,7 +19,7 @@
 #include "concepts.hpp"
 #include "euler_equations.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 //! Conversion from primitive to conservative variables
 //! @param[in] range output iteration range
@@ -171,4 +171,4 @@ void conv_cons_to_prim(
     conv_cons_to_prim(range, eos, rho, rhou_array, E, u_array, P);
 }
 
-} // namespace novapp
+} // namespace hclpp

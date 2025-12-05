@@ -11,7 +11,7 @@ TEST(NullSlopeLimiter, Zero)
     double const diffR = 68.9;
     double const diffL = 37.65;
 
-    novapp::Constant const slope;
+    hclpp::Constant const slope;
     EXPECT_EQ(slope(diffR, diffL), 0.);
 }
 
@@ -34,7 +34,7 @@ public:
     SlopeLimiterFixture& operator=(SlopeLimiterFixture&& rhs) noexcept = default;
 };
 
-using SlopeLimiters = ::testing::Types<novapp::Minmod, novapp::VanAlbada, novapp::VanLeer>;
+using SlopeLimiters = ::testing::Types<hclpp::Minmod, hclpp::VanAlbada, hclpp::VanLeer>;
 // Trailing comma is needed to avoid spurious `gnu-zero-variadic-macro-arguments` warning with clang
 TYPED_TEST_SUITE(SlopeLimiterFixture, SlopeLimiters, );
 

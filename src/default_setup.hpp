@@ -16,7 +16,7 @@
 
 class INIReader;
 
-namespace novapp {
+namespace hclpp {
 
 class Grid;
 class Range;
@@ -45,4 +45,4 @@ public:
     }
 };
 
-} // namespace novapp
+} // namespace hclpp

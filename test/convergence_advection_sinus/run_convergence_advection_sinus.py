@@ -16,8 +16,10 @@ from check_convergence_advection_sinus import check_convergence_order
 
 def run_convergence_test(sources: pathlib.Path):
     """Run convergence sinus test"""
-    pdi_config_path = sources.joinpath("test/convergence_advection_sinus/pdi_config.yaml")
-    binary_path = sources.joinpath("bin/nova++")
+    pdi_config_path = sources.joinpath(
+        "test/convergence_advection_sinus/pdi_config.yaml"
+    )
+    binary_path = sources.joinpath("bin/heracles++")
     base_setup_config_path = sources.joinpath("inputs/advection_sinus.ini")
 
     try:
@@ -66,7 +68,10 @@ if __name__ == "__main__":
         """main function"""
         parser = argparse.ArgumentParser(description="")
         parser.add_argument(
-            "-S", default=pathlib.Path.cwd(), type=pathlib.Path, help="Path to the nova++ sources"
+            "-S",
+            default=pathlib.Path.cwd(),
+            type=pathlib.Path,
+            help="Path to the heracles++ sources",
         )
         args = parser.parse_args()
 

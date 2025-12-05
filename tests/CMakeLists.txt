@@ -23,6 +23,6 @@ add_executable(
     int_cast.cpp
 )
 target_compile_features(unit_tests PUBLIC cxx_std_17)
-target_link_libraries(unit_tests PUBLIC libnova++ GTest::gtest)
+target_link_libraries(unit_tests PUBLIC libheracles++ GTest::gtest)
 
 gtest_discover_tests(unit_tests DISCOVERY_MODE PRE_TEST)

@@ -24,7 +24,7 @@
 #include <hdf5.h>
 #include <io_hdf5.hpp>
 #include <kokkos_shortcut.hpp>
-#include <nova_params.hpp>
+#include <param.hpp>
 #include <pdi.h>
 #include <units.hpp>
 #if !defined(NDEBUG)
@@ -37,7 +37,7 @@
 #include "initialization_interface.hpp"
 #include "shift_criterion_interface.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 class ParamSetup
 {
@@ -220,4 +220,4 @@ public:
     }
 };
 
-} // namespace novapp
+} // namespace hclpp

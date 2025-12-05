@@ -21,7 +21,7 @@
 #include "default_user_step.hpp" // IWYU pragma: keep
 #include "initialization_interface.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 class ParamSetup
 {
@@ -85,4 +85,4 @@ public:
     }
 };
 
-} // namespace novapp
+} // namespace hclpp

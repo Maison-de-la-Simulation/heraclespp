@@ -8,7 +8,7 @@
 
 #include "perfect_gas.hpp"
 
-namespace novapp::thermodynamics {
+namespace hclpp::thermodynamics {
 
 PerfectGas::PerfectGas(double const gamma, double const mmw) : m_gamma(gamma), m_gamma_m1(gamma - 1), m_mmw(mmw)
 {
@@ -21,4 +21,4 @@ PerfectGas::PerfectGas(double const gamma, double const mmw) : m_gamma(gamma), m
     }
 }
 
-} // namespace novapp::thermodynamics
+} // namespace hclpp::thermodynamics

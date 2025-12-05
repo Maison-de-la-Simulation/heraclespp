@@ -16,7 +16,7 @@
 
 #include <kokkos_shortcut.hpp>
 
-namespace novapp {
+namespace hclpp {
 
 class Grid;
 class Param;
@@ -80,4 +80,4 @@ public:
             KDV_double_1d& x2) const;
 };
 
-} // namespace novapp
+} // namespace hclpp

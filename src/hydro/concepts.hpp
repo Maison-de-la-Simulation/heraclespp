@@ -6,7 +6,7 @@
 
 #include <concepts>
 
-namespace novapp {
+namespace hclpp {
 
 struct EulerCons;
 struct EulerFlux;
@@ -37,4 +37,4 @@ concept GravityField = requires(Gravity const gravity, int const i) {
 
 } // namespace concepts
 
-} // namespace novapp
+} // namespace hclpp

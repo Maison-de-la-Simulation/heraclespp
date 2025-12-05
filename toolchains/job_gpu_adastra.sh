@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: MIT
 
 #SBATCH --account=cin4698
-#SBATCH --job-name=nova-run
+#SBATCH --job-name=HERACLES++-run
 #SBATCH --output=%x.o%j
 #SBATCH --nodes=16
 #SBATCH --exclusive
@@ -23,4 +23,4 @@ set -x
 cd "${SLURM_SUBMIT_DIR}"
 
 # execution
-srun -N16 -n128 -c2 --account=cin4698 --constraint=MI250 --gpus-per-node=8 --time=05:59:00 ./../bin/nova++ ../inputs/rayleigh_taylor3d_sph.ini
+srun -N16 -n128 -c2 --account=cin4698 --constraint=MI250 --gpus-per-node=8 --time=05:59:00 ./../bin/heracles++ ../inputs/rayleigh_taylor3d_sph.ini

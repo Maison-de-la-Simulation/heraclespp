@@ -22,7 +22,7 @@
 
 #include "concepts.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 //! Time step with the cfl condition
 //! @param[in] range output iteration range
@@ -81,4 +81,4 @@ template <concepts::EulerEoS EoS>
     return 1 / inverse_dt;
 }
 
-} // namespace novapp
+} // namespace hclpp

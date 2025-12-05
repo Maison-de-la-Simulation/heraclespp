@@ -6,7 +6,7 @@
 
 #include <Kokkos_DualView.hpp>
 
-namespace novapp {
+namespace hclpp {
 
 template <class DualView>
     requires(Kokkos::is_dual_view_v<DualView>)
@@ -22,4 +22,4 @@ auto view_host(DualView const& view) noexcept
     return view.view_host();
 }
 
-} // namespace novapp
+} // namespace hclpp

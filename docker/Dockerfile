@@ -14,7 +14,7 @@ ENV BASH_ENV=/etc/profile
 SHELL ["/bin/bash", "-c"]
 
 ENV PYTHONUNBUFFERED=1
-ENV PATH=/opt/nova-venv/bin:${PATH:+:${PATH}}
+ENV PATH=/opt/heraclespp-venv/bin:${PATH:+:${PATH}}
 ENV PATH=/usr/local/cuda/bin${PATH:+:${PATH}}
 
 RUN export DEBIAN_FRONTEND=noninteractive \
@@ -73,8 +73,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
  && echo "/opt/rocm/lib" >> /etc/ld.so.conf.d/rocm.conf \
  && echo "/opt/rocm/lib64" >> /etc/ld.so.conf.d/rocm.conf \
  && ldconfig \
- && python3 -m venv /opt/nova-venv \
- && . /opt/nova-venv/bin/activate \
+ && python3 -m venv /opt/heraclespp-venv \
+ && . /opt/heraclespp-venv/bin/activate \
  && python3 -m pip install --no-cache-dir --require-virtualenv --upgrade \
     h5py \
     matplotlib \

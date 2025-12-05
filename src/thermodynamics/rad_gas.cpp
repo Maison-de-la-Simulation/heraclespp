@@ -8,7 +8,7 @@
 
 #include "rad_gas.hpp"
 
-namespace novapp::thermodynamics {
+namespace hclpp::thermodynamics {
 
 RadGas::RadGas(double const gamma, double const mmw) : m_gamma(gamma), m_gamma_m1(gamma - 1), m_mmw(mmw)
 {
@@ -21,4 +21,4 @@ RadGas::RadGas(double const gamma, double const mmw) : m_gamma(gamma), m_gamma_m
     }
 }
 
-} // namespace novapp::thermodynamics
+} // namespace hclpp::thermodynamics

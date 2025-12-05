@@ -17,7 +17,7 @@
 
 #include "integration.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 double integrate(Range const& range, Grid const& grid, KV_cdouble_3d const& var)
 {
@@ -36,4 +36,4 @@ double integrate(Range const& range, Grid const& grid, KV_cdouble_3d const& var)
     return sum;
 }
 
-} // namespace novapp
+} // namespace hclpp

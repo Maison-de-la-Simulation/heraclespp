@@ -20,7 +20,7 @@
 #include "concepts.hpp"
 #include "face_reconstruction.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 template <concepts::SlopeLimiter SlopeLimiter>
 class LimitedLinearReconstruction : public IFaceReconstruction
@@ -65,4 +65,4 @@ public:
     }
 };
 
-} // namespace novapp
+} // namespace hclpp

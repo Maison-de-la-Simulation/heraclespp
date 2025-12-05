@@ -124,8 +124,8 @@ TEST(Partitionner, SomeTest)
     std::set<std::array<int, 3>> list_of_cells;
 
     {
-        novapp::Range const rng({0, 0, 0}, nx, nghosts);
-        auto const [begin, end] = novapp::cell_range(rng.no_ghosts());
+        hclpp::Range const rng({0, 0, 0}, nx, nghosts);
+        auto const [begin, end] = hclpp::cell_range(rng.no_ghosts());
         auto const [ibegin, jbegin, kbegin] = begin;
         auto const [iend, jend, kend] = end;
         for (int k = kbegin; k < kend; ++k) {
@@ -142,8 +142,8 @@ TEST(Partitionner, SomeTest)
     for (std::array<int, 2> const rng2 : Partitioner(nx[2], block[2])) {
         for (std::array<int, 2> const rng1 : Partitioner(nx[1], block[1])) {
             for (std::array<int, 2> const rng0 : Partitioner(nx[0], block[0])) {
-                novapp::Range const rng(rng0, rng1, rng2, nghosts);
-                auto const [begin, end] = novapp::cell_range(rng.no_ghosts());
+                hclpp::Range const rng(rng0, rng1, rng2, nghosts);
+                auto const [begin, end] = hclpp::cell_range(rng.no_ghosts());
                 auto const [ibegin, jbegin, kbegin] = begin;
                 auto const [iend, jend, kend] = end;
                 for (int k = kbegin; k < kend; ++k) {

@@ -12,7 +12,7 @@
 #include <Kokkos_MathematicalFunctions.hpp>
 #include <units.hpp>
 
-namespace novapp::thermodynamics {
+namespace hclpp::thermodynamics {
 
 class PerfectGas
 {
@@ -89,4 +89,4 @@ public:
     }
 };
 
-} // namespace novapp::thermodynamics
+} // namespace hclpp::thermodynamics

@@ -6,7 +6,7 @@
 
 #include <kokkos_shortcut.hpp>
 
-namespace novapp {
+namespace hclpp {
 
 class Grid;
 
@@ -28,4 +28,4 @@ void shift_grid(
         KDV_double_1d& x2_glob,
         Grid& grid);
 
-} // namespace novapp
+} // namespace hclpp

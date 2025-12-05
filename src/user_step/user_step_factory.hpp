@@ -11,10 +11,10 @@
 #include <memory>
 #include <string>
 
-namespace novapp {
+namespace hclpp {
 
 class IUserStep;
 
 std::unique_ptr<IUserStep> factory_user_step(std::string const& user_step);
 
-} // namespace novapp
+} // namespace hclpp

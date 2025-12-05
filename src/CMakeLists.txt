@@ -4,7 +4,7 @@
 
 # Workaround a defect from FindHDF5.cmake
 if(
-    ("${Novapp_inih_DEPENDENCY_POLICY}" STREQUAL "INSTALLED")
+    ("${Heraclespp_inih_DEPENDENCY_POLICY}" STREQUAL "INSTALLED")
     AND (CMAKE_VERSION VERSION_LESS "3.26.1")
 )
     enable_language(C)
@@ -25,10 +25,10 @@ add_subdirectory(user_step)
 add_subdirectory(utils)
 add_subdirectory(moving_grid)
 
-add_library(libnova++)
-target_compile_features(libnova++ PUBLIC cxx_std_17)
+add_library(libheracles++)
+target_compile_features(libheracles++ PUBLIC cxx_std_17)
 target_link_libraries(
-    libnova++
+    libheracles++
     PRIVATE MPI::MPI_CXX
     PUBLIC
         analysis
@@ -43,7 +43,7 @@ target_link_libraries(
         utils
 )
 target_sources(
-    libnova++
+    libheracles++
     PRIVATE
         boundary.cpp
         boundary_distribute.cpp
@@ -63,18 +63,20 @@ target_sources(
                 shift_criterion_interface.hpp
 )
 
-add_executable(nova++ main.cpp)
+add_executable(heracles++ main.cpp)
 target_compile_definitions(
-    nova++
-    PUBLIC MY_SETUP="${Novapp_SETUP}" NOVAPP_GRAVITY_${Novapp_GRAVITY}
+    heracles++
+    PUBLIC
+        MY_SETUP="${Heraclespp_SETUP}"
+        HERACLESPP_GRAVITY_${Heraclespp_GRAVITY}
 )
-target_compile_features(nova++ PUBLIC cxx_std_20)
-target_include_directories(nova++ PUBLIC setups/${Novapp_SETUP}/)
+target_compile_features(heracles++ PUBLIC cxx_std_20)
+target_include_directories(heracles++ PUBLIC setups/${Heraclespp_SETUP}/)
 target_link_libraries(
-    nova++
-    PUBLIC inih io libnova++ MPI::MPI_CXX paraconf::paraconf PDI::PDI_C
+    heracles++
+    PUBLIC inih io libheracles++ MPI::MPI_CXX paraconf::paraconf PDI::PDI_C
 )
 
 include(GNUInstallDirs)
 
-install(TARGETS nova++ RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS heracles++ RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

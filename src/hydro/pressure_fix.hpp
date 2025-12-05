@@ -14,7 +14,7 @@
 #include "grid.hpp"
 #include "kronecker.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 template <concepts::EulerEoS EoS>
 void pressure_fix(
@@ -171,4 +171,4 @@ void pressure_fix(
             });
 }
 
-} // namespace novapp
+} // namespace hclpp

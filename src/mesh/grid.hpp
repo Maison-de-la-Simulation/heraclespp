@@ -18,7 +18,7 @@
 
 #include "range.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 class Grid
 {
@@ -74,4 +74,4 @@ private:
     void mpi_decomposition();
 };
 
-} // namespace novapp
+} // namespace hclpp

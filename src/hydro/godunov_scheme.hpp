@@ -26,7 +26,7 @@
 #include "riemann_solver.hpp"
 #include "source_terms.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 template <concepts::GravityField Gravity>
 class IGodunovScheme
@@ -321,4 +321,4 @@ inline std::unique_ptr<IGodunovScheme<Gravity>> factory_godunov_scheme(std::stri
     throw std::runtime_error("Invalid riemann solver: " + riemann_solver + ".");
 }
 
-} // namespace novapp
+} // namespace hclpp

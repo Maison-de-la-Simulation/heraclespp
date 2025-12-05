@@ -9,7 +9,7 @@
 
 #include <inih/INIReader.hpp>
 
-namespace novapp {
+namespace hclpp {
 
 class Param
 {
@@ -69,4 +69,4 @@ public:
     Param& operator=(Param&& rhs) noexcept;
 };
 
-} // namespace novapp
+} // namespace hclpp

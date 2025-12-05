@@ -4,12 +4,11 @@ SPDX-FileCopyrightText: 2025 The HERACLES++ development team, see COPYRIGHT.md f
 SPDX-License-Identifier: MIT
 -->
 
-# Building Nova++ on the A100 partition of Ruche
+# Building HERACLES++ on the A100 partition of Ruche
 
 ## Environment
 
 ```bash
-# nova-env.sh
 module purge
 module load cmake/3.21.4/gcc-11.2.0
 module load gcc/11.2.0/gcc-4.8.5
@@ -20,9 +19,9 @@ module load paraconf/1.0.0/gcc-11.2.0 libyaml/0.2.5/gcc-11.2.0
 module load pdi/1.6.0/gcc-11.2.0
 ```
 
-## How to build Nova++
+## How to build HERACLES++
 
-From the top-level nova directory
+From the root directory
 
 ```bash
 cmake \
@@ -34,10 +33,10 @@ cmake \
     -D Kokkos_ENABLE_DEPRECATED_CODE_5=ON \
     -D Kokkos_ENABLE_CUDA=ON \
     -D Kokkos_ENABLE_OPENMP=ON \
-    -D Novapp_SETUP=sedov1d \
-    -D Novapp_NDIM=1 \
-    -D Novapp_EOS=PerfectGas \
-    -D Novapp_GRAVITY=Uniform \
-    -D Novapp_GEOM=Cartesian
+    -D Heraclespp_SETUP=sedov1d \
+    -D Heraclespp_NDIM=1 \
+    -D Heraclespp_EOS=PerfectGas \
+    -D Heraclespp_GRAVITY=Uniform \
+    -D Heraclespp_GEOM=Cartesian
 cmake --build build --parallel 4
 ```

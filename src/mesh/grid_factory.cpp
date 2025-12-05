@@ -13,7 +13,7 @@
 #include "grid_factory.hpp"
 #include "grid_type.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 class Param;
 
@@ -26,4 +26,4 @@ std::unique_ptr<IGridType> factory_grid_type(std::string const& grid, Param cons
     throw std::runtime_error("Unknown grid type : " + grid + ".");
 }
 
-} // namespace novapp
+} // namespace hclpp

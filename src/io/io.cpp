@@ -24,7 +24,7 @@
 #include <int_cast.hpp>
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
-#include <nova_params.hpp>
+#include <param.hpp>
 #include <pdi.h>
 #include <range.hpp>
 
@@ -33,22 +33,22 @@
 
 namespace {
 
-void write_string_attribute(novapp::RaiiH5Hid const& file_id, char const* const attribute_name, std::string_view const attribute_value)
+void write_string_attribute(hclpp::RaiiH5Hid const& file_id, char const* const attribute_name, std::string_view const attribute_value)
 {
-    novapp::RaiiH5Hid const space_id(::H5Screate(H5S_SCALAR), ::H5Sclose);
+    hclpp::RaiiH5Hid const space_id(::H5Screate(H5S_SCALAR), ::H5Sclose);
 
-    novapp::RaiiH5Hid const type_id(::H5Tcopy(H5T_C_S1), ::H5Tclose);
+    hclpp::RaiiH5Hid const type_id(::H5Tcopy(H5T_C_S1), ::H5Tclose);
     if (::H5Tset_size(*type_id, attribute_value.size()) < 0) {
-        throw std::runtime_error("Nova++ error: defining the size of the datatype failed");
+        throw std::runtime_error("HERACLES++ error: defining the size of the datatype failed");
     }
     if (::H5Tset_cset(*type_id, H5T_CSET_UTF8) < 0) {
-        throw std::runtime_error("Nova++ error: defining utf-8 character set failed");
+        throw std::runtime_error("HERACLES++ error: defining utf-8 character set failed");
     }
 
-    novapp::RaiiH5Hid const attr_id(::H5Acreate2(*file_id, attribute_name, *type_id, *space_id, H5P_DEFAULT, H5P_DEFAULT), ::H5Aclose);
+    hclpp::RaiiH5Hid const attr_id(::H5Acreate2(*file_id, attribute_name, *type_id, *space_id, H5P_DEFAULT, H5P_DEFAULT), ::H5Aclose);
 
     if (::H5Awrite(*attr_id, *type_id, attribute_value.data()) < 0) {
-        throw std::runtime_error("Nova++ error: writing attribute failed");
+        throw std::runtime_error("HERACLES++ error: writing attribute failed");
     }
 }
 
@@ -122,7 +122,7 @@ public:
 
 } // namespace
 
-namespace novapp {
+namespace hclpp {
 
 void print_simulation_status(std::ostream& os, int const iter, double const current, double const time_out, int const output_id)
 {
@@ -567,4 +567,4 @@ void XmlWriter::operator()(
     xdmfFile << indent << "</Xdmf>\n";
 }
 
-} // namespace novapp
+} // namespace hclpp

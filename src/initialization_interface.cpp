@@ -8,7 +8,7 @@
 
 #include "initialization_interface.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 IInitializationProblem::IInitializationProblem() = default;
 
@@ -22,4 +22,4 @@ IInitializationProblem& IInitializationProblem::operator=(IInitializationProblem
 
 IInitializationProblem& IInitializationProblem::operator=(IInitializationProblem&& /*rhs*/) noexcept = default;
 
-} // namespace novapp
+} // namespace hclpp

@@ -11,7 +11,7 @@
 
 #include "boundary.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 class Grid;
 class ParamSetup;
@@ -34,4 +34,4 @@ public:
     }
 };
 
-} // namespace novapp
+} // namespace hclpp

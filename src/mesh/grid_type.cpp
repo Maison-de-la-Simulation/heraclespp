@@ -9,11 +9,11 @@
 #include <array>
 
 #include <kokkos_shortcut.hpp>
-#include <nova_params.hpp>
+#include <param.hpp>
 
 #include "grid_type.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 //! Computes the position of nodes in a regular mesh given the length of cells
 //! @param[out] x The coordinates of nodes
@@ -57,4 +57,4 @@ void Regular::execute(
     compute_regular_mesh_1d(x2_glob, Nghost[2], m_min[2], (m_max[2] - m_min[2]) / Nx_glob_ng[2]);
 }
 
-} // namespace novapp
+} // namespace hclpp

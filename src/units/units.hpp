@@ -11,7 +11,7 @@
 
 #include <Kokkos_MathematicalConstants.hpp>
 
-namespace novapp::units {
+namespace hclpp::units {
 
 // code units in SI : kg / meter / second
 constexpr double unit_M = 1.0; // Mass : kilogram
@@ -93,4 +93,4 @@ constexpr double Mpc = kpc * 1E3;
 constexpr double Pascal = kg / (m * s2); // kg.m^{-1}.s^{-1}
 constexpr double H0 = 7.2E1 * m * 1E3 / Mpc; // Hubble constant
 
-} // namespace novapp::units
+} // namespace hclpp::units

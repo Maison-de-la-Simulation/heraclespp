@@ -22,7 +22,7 @@
 #include "euler_equations.hpp"
 #include "source_terms.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 template <concepts::GravityField Gravity>
 class IExtrapolationReconstruction
@@ -339,4 +339,4 @@ public:
     }
 };
 
-} // namespace novapp
+} // namespace hclpp

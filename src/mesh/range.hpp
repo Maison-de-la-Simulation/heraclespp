@@ -14,7 +14,7 @@
 
 #include <Kokkos_Core.hpp>
 
-namespace novapp {
+namespace hclpp {
 
 class Range
 {
@@ -54,4 +54,4 @@ std::array<Kokkos::Array<int, 3>, 2> cell_range(Range const& range);
 
 Kokkos::MDRangePolicy<Kokkos::IndexType<int>, Kokkos::Rank<3, Kokkos::Iterate::Left, Kokkos::Iterate::Left>> cell_mdrange(Range const& range);
 
-} // namespace novapp
+} // namespace hclpp

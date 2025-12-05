@@ -24,7 +24,7 @@
 #include "grid.hpp"
 #include "range.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 namespace {
 
@@ -188,4 +188,4 @@ void Grid::print_grid(std::ostream& os) const
     print_info(os, "Corner_max[2]", range.Corner_max[2]);
 }
 
-} // namespace novapp
+} // namespace hclpp

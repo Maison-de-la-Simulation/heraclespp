@@ -40,7 +40,7 @@ target_compile_features(utils PUBLIC cxx_std_20)
 target_link_libraries(utils INTERFACE Kokkos::kokkos thermodynamics PUBLIC inih)
 target_sources(
     utils
-    PRIVATE nova_params.cpp ${CMAKE_CURRENT_BINARY_DIR}/git_version.cpp
+    PRIVATE param.cpp ${CMAKE_CURRENT_BINARY_DIR}/git_version.cpp
     INTERFACE
         FILE_SET interface_utils
             TYPE HEADERS
@@ -57,7 +57,7 @@ target_sources(
                 int_cast.hpp
                 kokkos_shortcut.hpp
                 kronecker.hpp
-                nova_params.hpp
+                param.hpp
                 print_info.hpp
 )
 

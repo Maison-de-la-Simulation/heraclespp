@@ -10,7 +10,7 @@
 
 #include <kokkos_shortcut.hpp>
 
-namespace novapp {
+namespace hclpp {
 
 class Range;
 
@@ -44,4 +44,4 @@ public:
     void execute(Range const& range, double t, double dt, KV_double_3d const& rho, KV_double_3d const& E, KV_double_4d const& fx) const final;
 };
 
-} // namespace novapp
+} // namespace hclpp

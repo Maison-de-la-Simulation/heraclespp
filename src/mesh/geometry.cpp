@@ -15,7 +15,7 @@
 #include "geometry.hpp"
 #include "range.hpp"
 
-namespace novapp {
+namespace hclpp {
 
 IComputeGeom::IComputeGeom() = default;
 
@@ -125,4 +125,4 @@ void Spherical::execute(
     }
 }
 
-} // namespace novapp
+} // namespace hclpp
