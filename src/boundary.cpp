@@ -31,9 +31,9 @@ std::string_view bc_face(int i) noexcept
 }
 
 void null_gradient_condition(
-        int m_bc_idim,
-        int m_bc_iface,
-        std::string const& m_label,
+        int bc_idim,
+        int bc_iface,
+        std::string const& label,
         Grid const& grid,
         KV_double_3d const& rho,
         KV_double_4d const& rhou,
@@ -44,16 +44,15 @@ void null_gradient_condition(
     Kokkos::Array<int, 3> end {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)};
     int const nfx = fx.extent_int(3);
 
-    int const ng = grid.Nghost[m_bc_idim];
-    if (m_bc_iface == 1) {
-        begin[m_bc_idim] = rho.extent_int(m_bc_idim) - ng;
+    int const ng = grid.Nghost[bc_idim];
+    if (bc_iface == 1) {
+        begin[bc_idim] = rho.extent_int(bc_idim) - ng;
     }
-    end[m_bc_idim] = begin[m_bc_idim] + ng;
+    end[bc_idim] = begin[bc_idim] + ng;
 
-    int const offset = m_bc_iface == 0 ? end[m_bc_idim] : begin[m_bc_idim] - 1;
-    int const& bc_idim = m_bc_idim;
+    int const offset = bc_iface == 0 ? end[bc_idim] : begin[bc_idim] - 1;
     Kokkos::parallel_for(
-            m_label,
+            label,
             Kokkos::MDRangePolicy<Kokkos::IndexType<int>, Kokkos::Rank<3>>(begin, end),
             KOKKOS_LAMBDA(int i, int j, int k) {
                 Kokkos::Array<int, 3> offsets {i, j, k};
@@ -70,9 +69,9 @@ void null_gradient_condition(
 }
 
 void reflexive_condition(
-        int m_bc_idim,
-        int m_bc_iface,
-        std::string const& m_label,
+        int bc_idim,
+        int bc_iface,
+        std::string const& label,
         Grid const& grid,
         KV_double_3d const& rho,
         KV_double_4d const& rhou,
@@ -83,16 +82,15 @@ void reflexive_condition(
     Kokkos::Array<int, 3> end {rho.extent_int(0), rho.extent_int(1), rho.extent_int(2)};
     int const nfx = fx.extent_int(3);
 
-    int const ng = grid.Nghost[m_bc_idim];
-    if (m_bc_iface == 1) {
-        begin[m_bc_idim] = rho.extent_int(m_bc_idim) - ng;
+    int const ng = grid.Nghost[bc_idim];
+    if (bc_iface == 1) {
+        begin[bc_idim] = rho.extent_int(bc_idim) - ng;
     }
-    end[m_bc_idim] = begin[m_bc_idim] + ng;
+    end[bc_idim] = begin[bc_idim] + ng;
 
-    int const mirror = m_bc_iface == 0 ? ((2 * ng) - 1) : ((2 * (rho.extent_int(m_bc_idim) - ng)) - 1);
-    int const& bc_idim = m_bc_idim;
+    int const mirror = bc_iface == 0 ? ((2 * ng) - 1) : ((2 * (rho.extent_int(bc_idim) - ng)) - 1);
     Kokkos::parallel_for(
-            m_label,
+            label,
             Kokkos::MDRangePolicy<Kokkos::IndexType<int>, Kokkos::Rank<3>>(begin, end),
             KOKKOS_LAMBDA(int i, int j, int k) {
                 Kokkos::Array<int, 3> offsets {i, j, k};

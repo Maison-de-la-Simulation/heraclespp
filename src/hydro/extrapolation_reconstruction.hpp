@@ -67,7 +67,7 @@ public:
             Range const& range,
             Grid const& grid,
             Gravity const& gravity,
-            double const dt_reconstruction,
+            double const dt,
             KV_cdouble_6d const& u_rec,
             KV_cdouble_5d const& P_rec,
             KV_double_5d const& rho_rec,
@@ -128,7 +128,7 @@ public:
                         primR.P = P_rec(i, j, k, 1, idim);
                         EulerFlux const fluxR = compute_flux(primR, idim, eos);
 
-                        double const dtodv = dt_reconstruction / dv(i, j, k);
+                        double const dtodv = dt / dv(i, j, k);
 
                         for (int ipos = 0; ipos < ndim; ++ipos) {
                             rho_rec(i, j, k, 0, ipos) += dtodv * (fluxL.rho * ds(i, j, k, idim) - fluxR.rho * ds(i_p, j_p, k_p, idim));
@@ -305,11 +305,11 @@ public:
 
                         // Gravity
                         for (int ipos = 0; ipos < ndim; ++ipos) {
-                            rhou_rec(i, j, k, 0, ipos, idim) += dt_reconstruction * gravity(i, j, k, idim) * rho_old[0][ipos];
-                            rhou_rec(i, j, k, 1, ipos, idim) += dt_reconstruction * gravity(i, j, k, idim) * rho_old[1][ipos];
+                            rhou_rec(i, j, k, 0, ipos, idim) += dt * gravity(i, j, k, idim) * rho_old[0][ipos];
+                            rhou_rec(i, j, k, 1, ipos, idim) += dt * gravity(i, j, k, idim) * rho_old[1][ipos];
 
-                            E_rec(i, j, k, 0, ipos) += dt_reconstruction * gravity(i, j, k, idim) * rhou_old[0][ipos][idim];
-                            E_rec(i, j, k, 1, ipos) += dt_reconstruction * gravity(i, j, k, idim) * rhou_old[1][ipos][idim];
+                            E_rec(i, j, k, 0, ipos) += dt * gravity(i, j, k, idim) * rhou_old[0][ipos][idim];
+                            E_rec(i, j, k, 1, ipos) += dt * gravity(i, j, k, idim) * rhou_old[1][ipos][idim];
                         }
 
                         // Passive scalar
