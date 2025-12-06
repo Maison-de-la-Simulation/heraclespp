@@ -14,6 +14,8 @@
 
 #include <Kokkos_Core.hpp>
 
+// IWYU pragma: no_forward_declare Kokkos::MDRangePolicy
+
 namespace hclpp {
 
 class Range

@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 #include <cstddef>
+#include <string>
 
 #include <benchmark/benchmark.h>
 

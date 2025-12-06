@@ -11,6 +11,6 @@ target_link_libraries(
 )
 target_sources(
     io
-    PRIVATE io.cpp config.yaml.cpp
+    PRIVATE io.cpp io_hdf5.cpp config.yaml.cpp
     INTERFACE FILE_SET HEADERS FILES config.yaml.hpp io_hdf5.hpp io.hpp
 )

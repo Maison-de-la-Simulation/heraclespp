@@ -11,7 +11,20 @@ target_link_libraries(
 )
 target_sources(
     hydro
-    PRIVATE face_reconstruction.cpp
+    PRIVATE
+        array_conversion.cpp
+        concepts.cpp
+        euler_equations.cpp
+        extrapolation_reconstruction.cpp
+        face_reconstruction.cpp
+        godunov_scheme.cpp
+        hydro_reconstruction.cpp
+        limited_linear_reconstruction.cpp
+        pressure_fix.cpp
+        riemann_solver.cpp
+        slope_limiters.cpp
+        source_terms.cpp
+        time_step.cpp
     INTERFACE
         FILE_SET HEADERS
             FILES

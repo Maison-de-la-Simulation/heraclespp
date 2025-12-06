@@ -37,10 +37,16 @@ execute_process(
 
 add_library(utils)
 target_compile_features(utils PUBLIC cxx_std_20)
-target_link_libraries(utils INTERFACE Kokkos::kokkos thermodynamics PUBLIC inih)
+target_link_libraries(utils PUBLIC Kokkos::kokkos thermodynamics inih)
 target_sources(
     utils
-    PRIVATE param.cpp ${CMAKE_CURRENT_BINARY_DIR}/git_version.cpp
+    PRIVATE
+        int_cast.cpp
+        kokkos_shortcut.cpp
+        kronecker.cpp
+        param.cpp
+        print_info.cpp
+        ${CMAKE_CURRENT_BINARY_DIR}/git_version.cpp
     INTERFACE
         FILE_SET interface_utils
             TYPE HEADERS

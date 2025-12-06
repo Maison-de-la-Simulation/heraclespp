@@ -2,6 +2,10 @@
 #
 # SPDX-License-Identifier: MIT
 
-add_library(units INTERFACE)
-target_link_libraries(units INTERFACE Kokkos::kokkos)
-target_sources(units INTERFACE FILE_SET HEADERS FILES units.hpp)
+add_library(units)
+target_link_libraries(units PUBLIC Kokkos::kokkos)
+target_sources(
+    units
+    PRIVATE units.cpp
+    INTERFACE FILE_SET HEADERS FILES units.hpp
+)

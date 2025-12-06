@@ -6,6 +6,12 @@
  * @file main.cpp
  */
 
+// IWYU pragma: no_include "default_boundary_setup.hpp"
+// IWYU pragma: no_include "default_grid_setup.hpp"
+// IWYU pragma: no_include "default_setup.hpp"
+// IWYU pragma: no_include "default_shift_criterion.hpp"
+// IWYU pragma: no_include "default_user_step.hpp"
+
 #include <mpi.h>
 
 #include <array>

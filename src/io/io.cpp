@@ -9,7 +9,6 @@
 #include <cstddef>
 #include <fstream>
 #include <iomanip>
-#include <ostream>
 #include <sstream>
 #include <stdexcept>
 #include <string>
