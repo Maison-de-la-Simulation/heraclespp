@@ -43,11 +43,11 @@ spack:
     - 'pdiplugin-mpi@1.9'
     - 'pdiplugin-set-value@1.9'
     - 'pdiplugin-trace@1.9'
-    - 'py-h5py'
-    - 'py-matplotlib'
-    - 'py-numpy'
-    - 'py-pyyaml'
-    - 'py-scipy'
+    - 'py-h5py@3.14'
+    - 'py-matplotlib@3.10'
+    - 'py-numpy@2.3'
+    - 'py-pyyaml@6.0'
+    - 'py-scipy@1.16'
 
   config:
     install_tree:

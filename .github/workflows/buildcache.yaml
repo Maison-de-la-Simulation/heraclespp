@@ -14,6 +14,12 @@ on:
 permissions:
   contents: read
 
+env:
+  CMAKE_BUILD_PARALLEL_LEVEL: 4
+  CMAKE_BUILD_TYPE: Release
+  CMAKE_GENERATOR: Ninja
+  HERACLESPP_DEFAULT_DEPENDENCY_POLICY: INSTALLED
+
 jobs:
   build:
     runs-on: ubuntu-24.04
@@ -31,24 +37,47 @@ jobs:
           color: true       # Force color output (SPACK_COLOR=always)
           path: spack       # Where to clone Spack
 
-      - name: Spec
+      - name: Bootstrap
+        run: spack bootstrap now
+
+      - name: Find compilers
         run: spack --env . compiler find
 
-      - name: Spec
-        run: spack --env . spec -I
+      - name: Concretize
+        run: spack --env . concretize
 
-        # - name: Install
-        #   run: spack --env . install
+      - name: Install
+        run: spack --env . install --jobs 1 --concurrent-packages 4
 
-        # - name: Run
-        #   shell: spack-bash {0}
-        #   run: |
-        #     spack env activate .
-        #     python3 -c 'print("hello world")'
+      - name: Push packages and update index
+        env:
+          GITHUB_USER: ${{github.actor}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run: spack --env . buildcache push --base-image ubuntu:24.04 --update-index local-buildcache
 
-        # - name: Push packages and update index
-        #   if: false
-        #   env:
-        #     GITHUB_USER: ${{github.actor}}
-        #     GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        #   run: spack --env . buildcache push --base-image ubuntu:24.04 --update-index local-buildcache
+      - name: Run
+        shell: spack-bash {0}
+        run: |
+          spack env activate .
+
+          cmake \
+            -B vendor/inih/build \
+            -S vendor/inih
+          cmake --build vendor/inih/build
+          cmake --install vendor/inih/build --prefix opt/inih
+
+          export inih_ROOT=$PWD/opt/inih
+          cmake \
+            -D BUILD_TESTING=ON \
+            -D CMAKE_COMPILE_WARNING_AS_ERROR=ON \
+            -D Heraclespp_BUILD_BENCHMARKING=ON \
+            -D Heraclespp_EOS=PerfectGas \
+            -D Heraclespp_GEOM=Cartesian \
+            -D Heraclespp_GRAVITY=Uniform \
+            -D Heraclespp_NDIM=1 \
+            -D Heraclespp_SETUP=advection_sinus \
+            -B build
+          cmake --build build
+          ctest --test-dir build --output-on-failure --timeout 5 --output-junit tests.xml
+          ./build/benchmarks/benchmarks --benchmark_dry_run=true
+          cmake --install build --prefix $PWD
