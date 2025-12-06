@@ -27,9 +27,9 @@ std::string_view bc_dir(int i) noexcept;
 std::string_view bc_face(int i) noexcept;
 
 void null_gradient_condition(
-        int m_bc_idim,
-        int m_bc_iface,
-        std::string const& m_label,
+        int bc_idim,
+        int bc_iface,
+        std::string const& label,
         Grid const& grid,
         KV_double_3d const& rho,
         KV_double_4d const& rhou,
@@ -37,9 +37,9 @@ void null_gradient_condition(
         KV_double_4d const& fx);
 
 void reflexive_condition(
-        int m_bc_idim,
-        int m_bc_iface,
-        std::string const& m_label,
+        int bc_idim,
+        int bc_iface,
+        std::string const& label,
         Grid const& grid,
         KV_double_3d const& rho,
         KV_double_4d const& rhou,
