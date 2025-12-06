@@ -8,6 +8,7 @@
 #include <gtest/gtest.h>
 
 #include <Kokkos_Core.hpp>
+#include <dual_view.hpp>
 #include <gravity.hpp>
 #include <grid.hpp>
 #include <grid_type.hpp>

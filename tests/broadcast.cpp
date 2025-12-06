@@ -8,6 +8,7 @@
 
 #include <Kokkos_Core.hpp>
 #include <broadcast.hpp>
+#include <dual_view.hpp>
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
 #include <range.hpp>

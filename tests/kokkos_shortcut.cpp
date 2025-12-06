@@ -6,7 +6,6 @@
 
 #include <gtest/gtest.h>
 
-#include <Kokkos_Core.hpp>
 #include <kokkos_shortcut.hpp>
 
 TEST(EqualExtents, SingleDimension)

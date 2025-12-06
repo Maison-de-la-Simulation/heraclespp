@@ -11,7 +11,7 @@ target_link_libraries(
 )
 target_sources(
     analysis
-    PRIVATE integration.cpp internal_energy.cpp
+    PRIVATE integration.cpp internal_energy.cpp temperature.cpp
     PUBLIC
         FILE_SET HEADERS
             FILES integration.hpp internal_energy.hpp temperature.hpp

@@ -5,6 +5,7 @@
 #include <cassert>
 
 #include <Kokkos_Core.hpp>
+#include <dual_view.hpp>
 #include <grid.hpp>
 #include <kokkos_shortcut.hpp>
 
