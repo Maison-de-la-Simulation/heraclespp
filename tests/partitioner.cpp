@@ -7,6 +7,7 @@
 #include <iterator>
 #include <ranges>
 #include <set>
+#include <string>
 #include <type_traits>
 #include <version>
 

@@ -8,6 +8,7 @@
 
 #include <Kokkos_Core.hpp>
 #include <array_conversion.hpp>
+#include <dual_view.hpp>
 #include <euler_equations.hpp>
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>

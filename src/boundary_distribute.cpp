@@ -18,6 +18,7 @@
 #include <string>
 #include <vector>
 
+#include <dual_view.hpp>
 #include <grid.hpp>
 #include <int_cast.hpp>
 #include <kokkos_shortcut.hpp>
