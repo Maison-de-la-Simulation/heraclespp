@@ -10,7 +10,7 @@ spack:
   packages:
     all:
       require:
-        - 'target=x86_64_v2'
+        - 'target=aarch64'
         - spec: 'generator=ninja'
           when: 'build_system=cmake'
         - '~cuda'
@@ -20,15 +20,13 @@ spack:
         - '~fortran'
       variants: 'cxxstd=17'
     c:
-      require: 'gcc@13'
+      require: 'apple-clang@17'
     cxx:
-      require: 'gcc@13'
-    fortran:
-      require: 'gcc@13'
+      require: 'apple-clang@17'
     mpi:
       require: 'openmpi@5.0'
   specs:
-    - 'gcc@13'
+    - 'apple-clang@17'
     - 'benchmark@1.9 ~performance_counters'
     - 'cmake@3.31'
     - 'doxygen@1.14'
@@ -38,7 +36,7 @@ spack:
     - 'kokkos-tools'
     - 'mpi'
     - 'paraconf@1.0'
-    - 'pdi@1.9'
+    - 'pdi@1.9 ~python'
     - 'pdiplugin-decl-hdf5@1.9 +mpi'
     - 'pdiplugin-mpi@1.9'
     - 'pdiplugin-set-value@1.9'
@@ -55,7 +53,7 @@ spack:
 
   mirrors:
     local-buildcache:
-      url: oci://ghcr.io/Maison-de-la-Simulation/heraclespp-spack-cache
+      url: oci://ghcr.io/Maison-de-la-Simulation/heraclespp-macos-spack-cache
       binary: true
       signed: false
       access_pair:

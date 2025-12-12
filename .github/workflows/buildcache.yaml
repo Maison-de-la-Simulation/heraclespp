@@ -22,7 +22,7 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    runs-on: macos-15
     permissions:
       packages: write
     steps:
@@ -49,11 +49,11 @@ jobs:
       - name: Install
         run: spack --env . install --jobs 1 --concurrent-packages 4
 
-      - name: Push packages and update index
-        env:
-          GITHUB_USER: ${{github.actor}}
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        run: spack --env . buildcache push --base-image ubuntu:24.04 --update-index local-buildcache
+      # - name: Push packages and update index
+      #   env:
+      #     GITHUB_USER: ${{github.actor}}
+      #     GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      #   run: spack --env . buildcache push --update-index local-buildcache
 
       - name: Run
         shell: spack-bash {0}
