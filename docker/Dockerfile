@@ -39,7 +39,6 @@ RUN export DEBIAN_FRONTEND=noninteractive \
  && apt-get --yes update \
  && apt-get --yes --no-install-recommends install \
     build-essential \
-    clang-format-${LLVM_VERSION} \
     clang-tidy-${LLVM_VERSION} \
     llvm-${LLVM_VERSION}-dev \
     libclang-${LLVM_VERSION}-dev \
