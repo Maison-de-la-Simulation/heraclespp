@@ -18,16 +18,16 @@
 
 namespace hclpp {
 
-std::string_view bc_dir(int i) noexcept
+std::string_view bc_dir(int i)
 {
     static constexpr std::array<std::string_view, 3> s_bc_dir {"_X0", "_X1", "_X2"};
-    return s_bc_dir[i];
+    return s_bc_dir.at(i);
 }
 
-std::string_view bc_face(int i) noexcept
+std::string_view bc_face(int i)
 {
     static constexpr std::array<std::string_view, 2> s_bc_face {"_left", "_right"};
-    return s_bc_face[i];
+    return s_bc_face.at(i);
 }
 
 void null_gradient_condition(

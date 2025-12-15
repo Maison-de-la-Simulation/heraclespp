@@ -22,9 +22,9 @@ namespace hclpp {
 
 class Grid;
 
-std::string_view bc_dir(int i) noexcept;
+std::string_view bc_dir(int i);
 
-std::string_view bc_face(int i) noexcept;
+std::string_view bc_face(int i);
 
 void null_gradient_condition(
         int bc_idim,
