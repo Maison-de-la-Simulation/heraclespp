@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-FROM ubuntu:noble@sha256:66460d557b25769b102175144d538d88219c077c678a49af4afca6fbfc1b5252
+FROM ubuntu:noble@sha256:c35e29c9450151419d9448b0fd75374fec4fff364a27f176fb458d472dfc9e54
 
 ARG AMDGPU_VERSION=6.4.4
 ARG CUDA_MAJOR_VERSION=12
@@ -19,7 +19,6 @@ ENV PATH=/usr/local/cuda/bin${PATH:+:${PATH}}
 
 RUN export DEBIAN_FRONTEND=noninteractive \
  && apt-get --yes update \
- && apt-get --yes upgrade \
  && apt-get --yes --no-install-recommends install \
     apt-transport-https \
     apt-utils \
