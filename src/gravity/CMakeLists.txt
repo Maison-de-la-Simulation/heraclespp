@@ -7,7 +7,7 @@ target_compile_features(gravity PUBLIC cxx_std_20)
 target_link_libraries(
     gravity
     PUBLIC Kokkos::kokkos utils
-    PRIVATE mesh MPI::MPI_CXX units
+    PRIVATE dual_view mesh MPI::MPI_CXX units
 )
 target_sources(
     gravity
