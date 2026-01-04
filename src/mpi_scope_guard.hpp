@@ -24,9 +24,9 @@ public:
 
     ~MpiScopeGuard() noexcept;
 
-    MpiScopeGuard& operator=(MpiScopeGuard const& rhs) = delete;
+    auto operator=(MpiScopeGuard const& rhs) -> MpiScopeGuard& = delete;
 
-    MpiScopeGuard& operator=(MpiScopeGuard&& rhs) noexcept = delete;
+    auto operator=(MpiScopeGuard&& rhs) noexcept -> MpiScopeGuard& = delete;
 };
 
 } // namespace hclpp

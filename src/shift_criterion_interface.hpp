@@ -26,30 +26,30 @@ public:
 
     virtual ~IShiftCriterion() noexcept;
 
-    IShiftCriterion& operator=(IShiftCriterion const& rhs);
+    auto operator=(IShiftCriterion const& rhs) -> IShiftCriterion&;
 
-    IShiftCriterion& operator=(IShiftCriterion&& rhs) noexcept;
+    auto operator=(IShiftCriterion&& rhs) noexcept -> IShiftCriterion&;
 
-    [[nodiscard]] virtual bool execute(
+    [[nodiscard]] virtual auto execute(
             Range const& range,
             Grid const& grid,
             KV_cdouble_3d const& rho,
             KV_cdouble_4d const& rhou,
             KV_cdouble_3d const& E,
-            KV_cdouble_4d const& fx) const
+            KV_cdouble_4d const& fx) const -> bool
             = 0;
 };
 
 class NoShiftGrid : public IShiftCriterion
 {
 public:
-    [[nodiscard]] bool execute(
+    [[nodiscard]] auto execute(
             Range const& range,
             Grid const& grid,
             KV_cdouble_3d const& rho,
             KV_cdouble_4d const& rhou,
             KV_cdouble_3d const& E,
-            KV_cdouble_4d const& fx) const final;
+            KV_cdouble_4d const& fx) const -> bool final;
 };
 
 } // namespace hclpp

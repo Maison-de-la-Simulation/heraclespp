@@ -8,7 +8,7 @@
 
 #include <Kokkos_Core.hpp>
 
-int main(int argc, char** argv)
+auto main(int argc, char** argv) -> int
 {
     ::Kokkos::ScopeGuard const scope(argc, argv);
     MPI_Init(&argc, &argv);

@@ -29,9 +29,9 @@ public:
 
     ~SlopeLimiterFixture() override = default;
 
-    SlopeLimiterFixture& operator=(SlopeLimiterFixture const& rhs) = default;
+    auto operator=(SlopeLimiterFixture const& rhs) -> SlopeLimiterFixture& = default;
 
-    SlopeLimiterFixture& operator=(SlopeLimiterFixture&& rhs) noexcept = default;
+    auto operator=(SlopeLimiterFixture&& rhs) noexcept -> SlopeLimiterFixture& = default;
 };
 
 using SlopeLimiters = ::testing::Types<hclpp::Minmod, hclpp::VanAlbada, hclpp::VanLeer>;

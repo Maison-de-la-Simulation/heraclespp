@@ -62,13 +62,13 @@ public:
 
     ~Grid() noexcept;
 
-    Grid& operator=(Grid const& rhs) = delete;
+    auto operator=(Grid const& rhs) -> Grid& = delete;
 
-    Grid& operator=(Grid&& rhs) noexcept = delete;
+    auto operator=(Grid&& rhs) noexcept -> Grid& = delete;
 
     void print_grid(std::ostream& os) const;
 
-    void set_grid(KV_double_1d const& x0_glob, KV_double_1d const& x1_glob, KV_double_1d const& x2_glob);
+    void set_grid(KV_cdouble_1d const& x0_glob, KV_cdouble_1d const& x1_glob, KV_cdouble_1d const& x2_glob);
 
 private:
     void mpi_decomposition();

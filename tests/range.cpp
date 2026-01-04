@@ -12,7 +12,7 @@
 
 namespace {
 
-constexpr std::array<int, 3> dim_mask(std::array<int, 3> const lhs, std::array<int, 3> const rhs) noexcept
+constexpr auto dim_mask(std::array<int, 3> const lhs, std::array<int, 3> const rhs) noexcept -> std::array<int, 3>
 {
     std::array<int, 3> out = lhs;
     for (int idim = hclpp::ndim; idim < 3; ++idim) {

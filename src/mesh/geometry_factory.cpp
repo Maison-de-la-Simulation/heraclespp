@@ -15,7 +15,7 @@
 
 namespace hclpp {
 
-std::unique_ptr<IComputeGeom> factory_grid_geometry()
+auto factory_grid_geometry() -> std::unique_ptr<IComputeGeom>
 {
     if (geom == Geometry::Geom_cartesian) {
         return std::make_unique<Cartesian>();

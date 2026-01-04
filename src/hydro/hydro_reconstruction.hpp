@@ -39,9 +39,9 @@ public:
 
     virtual ~IHydroReconstruction() noexcept = default;
 
-    IHydroReconstruction& operator=(IHydroReconstruction const& rhs) = default;
+    auto operator=(IHydroReconstruction const& rhs) -> IHydroReconstruction& = default;
 
-    IHydroReconstruction& operator=(IHydroReconstruction&& rhs) noexcept = default;
+    auto operator=(IHydroReconstruction&& rhs) noexcept -> IHydroReconstruction& = default;
 
     virtual void execute(
             Range const& range,

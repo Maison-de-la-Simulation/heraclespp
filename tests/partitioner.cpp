@@ -27,9 +27,9 @@ public:
 
     Partitioner(int size, int block) noexcept;
 
-    [[nodiscard]] Iterator begin() const noexcept;
+    [[nodiscard]] auto begin() const noexcept -> Iterator;
 
-    [[nodiscard]] Iterator end() const noexcept;
+    [[nodiscard]] auto end() const noexcept -> Iterator;
 };
 
 class Partitioner::Iterator
@@ -50,12 +50,12 @@ public:
 
     explicit Iterator(int const begin, int const end, int const block) noexcept : m_front(begin), m_end(end), m_block(std::min(block, end - begin)) {}
 
-    std::array<int, 2> operator*() const noexcept
+    auto operator*() const noexcept -> std::array<int, 2>
     {
         return std::array<int, 2> {m_front, m_front + m_block};
     }
 
-    Iterator& operator++() noexcept
+    auto operator++() noexcept -> Iterator&
     {
         m_front += m_block;
         if (m_front + m_block > m_end) {
@@ -64,7 +64,7 @@ public:
         return *this;
     }
 
-    friend bool operator==(Iterator const& lhs, Iterator const& rhs)
+    friend auto operator==(Iterator const& lhs, Iterator const& rhs) -> bool
     {
         return lhs.m_front == rhs.m_front;
     }
@@ -77,7 +77,7 @@ public:
 #endif
 
 #if defined(__cpp_lib_three_way_comparison)
-    friend std::strong_ordering operator<=>(Iterator const& lhs, Iterator const& rhs)
+    friend auto operator<=>(Iterator const& lhs, Iterator const& rhs) -> std::strong_ordering
     {
         return lhs.m_front <=> rhs.m_front;
     }
@@ -106,12 +106,12 @@ public:
 
 Partitioner::Partitioner(int const size, int const block) noexcept : m_dom {0, size}, m_block(block) {}
 
-Partitioner::Iterator Partitioner::begin() const noexcept
+auto Partitioner::begin() const noexcept -> Partitioner::Iterator
 {
     return Iterator(m_dom[0], m_dom[1], m_block);
 }
 
-Partitioner::Iterator Partitioner::end() const noexcept
+auto Partitioner::end() const noexcept -> Partitioner::Iterator
 {
     return Iterator(m_dom[1], m_dom[1], m_block);
 }

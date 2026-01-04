@@ -41,17 +41,17 @@ public:
 
     Range(std::array<int, 2> const& rng_x0, std::array<int, 2> const& rng_x1, std::array<int, 2> const& rng_x2, int Nghost);
 
-    [[nodiscard]] Range no_ghosts() const;
+    [[nodiscard]] auto no_ghosts() const -> Range;
 
-    [[nodiscard]] Range all_ghosts() const;
+    [[nodiscard]] auto all_ghosts() const -> Range;
 
-    [[nodiscard]] Range with_ghosts(int NgEff) const;
+    [[nodiscard]] auto with_ghosts(int NgEff) const -> Range;
 };
 
-std::ostream& operator<<(std::ostream& os, Range const& rng);
+auto operator<<(std::ostream& os, Range const& rng) -> std::ostream&;
 
-std::array<Kokkos::Array<int, 3>, 2> cell_range(Range const& range);
+auto cell_range(Range const& range) -> std::array<Kokkos::Array<int, 3>, 2>;
 
-Kokkos::MDRangePolicy<Kokkos::IndexType<int>, Kokkos::Rank<3, Kokkos::Iterate::Left, Kokkos::Iterate::Left>> cell_mdrange(Range const& range);
+auto cell_mdrange(Range const& range) -> Kokkos::MDRangePolicy<Kokkos::IndexType<int>, Kokkos::Rank<3, Kokkos::Iterate::Left, Kokkos::Iterate::Left>>;
 
 } // namespace hclpp

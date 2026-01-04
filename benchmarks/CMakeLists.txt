@@ -16,5 +16,5 @@ target_sources(
 )
 target_link_libraries(
     benchmarks
-    PRIVATE MPI::MPI_CXX benchmark::benchmark hydro utils
+    PRIVATE MPI::MPI_CXX benchmark::benchmark dual_view hydro utils
 )

@@ -29,9 +29,9 @@ public:
 
     virtual ~IFaceReconstruction() noexcept;
 
-    IFaceReconstruction& operator=(IFaceReconstruction const& rhs);
+    auto operator=(IFaceReconstruction const& rhs) -> IFaceReconstruction&;
 
-    IFaceReconstruction& operator=(IFaceReconstruction&& rhs) noexcept;
+    auto operator=(IFaceReconstruction&& rhs) noexcept -> IFaceReconstruction&;
 
     //! @param[in] range output iteration range
     //! @param[in] grid provides grid information
@@ -40,6 +40,6 @@ public:
     virtual void execute(Range const& range, Grid const& grid, KV_cdouble_3d const& var, KV_double_5d const& var_rec) const = 0;
 };
 
-std::unique_ptr<IFaceReconstruction> factory_face_reconstruction(std::string const& slope);
+auto factory_face_reconstruction(std::string const& slope) -> std::unique_ptr<IFaceReconstruction>;
 
 } // namespace hclpp

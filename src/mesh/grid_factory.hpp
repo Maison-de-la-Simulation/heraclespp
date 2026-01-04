@@ -16,6 +16,6 @@ namespace hclpp {
 class IGridType;
 class Param;
 
-std::unique_ptr<IGridType> factory_grid_type(std::string const& grid, Param const& param);
+auto factory_grid_type(std::string const& grid, Param const& param) -> std::unique_ptr<IGridType>;
 
 } // namespace hclpp

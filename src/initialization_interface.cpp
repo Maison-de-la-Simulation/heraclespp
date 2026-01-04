@@ -18,8 +18,8 @@ IInitializationProblem::IInitializationProblem(IInitializationProblem&& rhs) noe
 
 IInitializationProblem::~IInitializationProblem() noexcept = default;
 
-IInitializationProblem& IInitializationProblem::operator=(IInitializationProblem const& /*rhs*/) = default;
+auto IInitializationProblem::operator=(IInitializationProblem const& /*rhs*/) -> IInitializationProblem& = default;
 
-IInitializationProblem& IInitializationProblem::operator=(IInitializationProblem&& /*rhs*/) noexcept = default;
+auto IInitializationProblem::operator=(IInitializationProblem&& /*rhs*/) noexcept -> IInitializationProblem& = default;
 
 } // namespace hclpp

@@ -13,7 +13,7 @@
 namespace hclpp {
 
 KOKKOS_FORCEINLINE_FUNCTION
-constexpr int kron(int a, int b) noexcept
+constexpr auto kron(int a, int b) noexcept -> int
 {
     if (a == b) {
         return 1;
@@ -23,13 +23,13 @@ constexpr int kron(int a, int b) noexcept
 }
 
 KOKKOS_FORCEINLINE_FUNCTION
-constexpr Kokkos::Array<int, 3> lindex(int a, int i0, int i1, int i2) noexcept
+constexpr auto lindex(int a, int i0, int i1, int i2) noexcept -> Kokkos::Array<int, 3>
 {
     return Kokkos::Array<int, 3> {i0 - kron(a, 0), i1 - kron(a, 1), i2 - kron(a, 2)};
 }
 
 KOKKOS_FORCEINLINE_FUNCTION
-constexpr Kokkos::Array<int, 3> rindex(int a, int i0, int i1, int i2) noexcept
+constexpr auto rindex(int a, int i0, int i1, int i2) noexcept -> Kokkos::Array<int, 3>
 {
     return Kokkos::Array<int, 3> {i0 + kron(a, 0), i1 + kron(a, 1), i2 + kron(a, 2)};
 }

@@ -78,8 +78,8 @@ Param::Param(Param&& rhs) noexcept = default;
 
 Param::~Param() noexcept = default;
 
-Param& Param::operator=(Param const& rhs) = default;
+auto Param::operator=(Param const& rhs) -> Param& = default;
 
-Param& Param::operator=(Param&& rhs) noexcept = default;
+auto Param::operator=(Param&& rhs) noexcept -> Param& = default;
 
 } // namespace hclpp

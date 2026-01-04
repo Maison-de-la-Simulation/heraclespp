@@ -29,9 +29,9 @@ public:
 
     virtual ~IGridType() noexcept;
 
-    IGridType& operator=(IGridType const& rhs);
+    auto operator=(IGridType const& rhs) -> IGridType&;
 
-    IGridType& operator=(IGridType&& rhs) noexcept;
+    auto operator=(IGridType&& rhs) noexcept -> IGridType&;
 
     virtual void execute(
             std::array<int, 3> Nghost,

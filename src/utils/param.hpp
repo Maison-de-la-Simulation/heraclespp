@@ -64,9 +64,9 @@ public:
 
     ~Param() noexcept;
 
-    Param& operator=(Param const& rhs);
+    auto operator=(Param const& rhs) -> Param&;
 
-    Param& operator=(Param&& rhs) noexcept;
+    auto operator=(Param&& rhs) noexcept -> Param&;
 };
 
 } // namespace hclpp

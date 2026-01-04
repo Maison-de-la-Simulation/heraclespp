@@ -40,11 +40,11 @@ public:
         }
     }
 
-    RaiiH5Hid& operator=(RaiiH5Hid const&) = delete;
+    auto operator=(RaiiH5Hid const&) -> RaiiH5Hid& = delete;
 
-    RaiiH5Hid& operator=(RaiiH5Hid&&) = delete;
+    auto operator=(RaiiH5Hid&&) -> RaiiH5Hid& = delete;
 
-    hid_t operator*() const noexcept
+    auto operator*() const noexcept -> hid_t
     {
         return m_id;
     }

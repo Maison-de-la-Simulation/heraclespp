@@ -25,9 +25,9 @@ IComputeGeom::IComputeGeom(IComputeGeom&& rhs) noexcept = default;
 
 IComputeGeom::~IComputeGeom() noexcept = default;
 
-IComputeGeom& IComputeGeom::operator=(IComputeGeom const& /*rhs*/) = default;
+auto IComputeGeom::operator=(IComputeGeom const& /*rhs*/) -> IComputeGeom& = default;
 
-IComputeGeom& IComputeGeom::operator=(IComputeGeom&& /*rhs*/) noexcept = default;
+auto IComputeGeom::operator=(IComputeGeom&& /*rhs*/) noexcept -> IComputeGeom& = default;
 
 void Cartesian::execute(
         Range const& range,
