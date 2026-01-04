@@ -19,7 +19,7 @@ class Constant
 {
 public:
     KOKKOS_FORCEINLINE_FUNCTION
-    double operator()(double const /*diffR*/, double const /*diffL*/) const noexcept
+    auto operator()(double const /*diffR*/, double const /*diffL*/) const noexcept -> double
     {
         return 0;
     }
@@ -34,7 +34,7 @@ public:
     //! @param[in] diffL float (U_{i}^{n} - U_{i-1}^{n}) / dx
     //! @return slope
     KOKKOS_FORCEINLINE_FUNCTION
-    double operator()(double const diffR, double const diffL) const noexcept
+    auto operator()(double const diffR, double const diffL) const noexcept -> double
     {
         if (diffL * diffR > 0) {
             double const ratio = diffR / diffL;
@@ -54,7 +54,7 @@ public:
     //! @param[in] diffL float (U_{i}^{n} - U_{i-1}^{n}) / dx
     //! @return slope
     KOKKOS_FORCEINLINE_FUNCTION
-    double operator()(double const diffR, double const diffL) const noexcept
+    auto operator()(double const diffR, double const diffL) const noexcept -> double
     {
         if (diffL * diffR > 0) {
             double const ratio = diffR / diffL;
@@ -75,7 +75,7 @@ public:
     //! @param[in] diffL float (U_{i}^{n} - U_{i-1}^{n}) / dx
     //! @return slope
     KOKKOS_FORCEINLINE_FUNCTION
-    double operator()(double const diffR, double const diffL) const noexcept
+    auto operator()(double const diffR, double const diffL) const noexcept -> double
     {
         if (diffL * diffR > 0) {
             double const ratio = diffR / diffL;

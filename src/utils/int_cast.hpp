@@ -10,7 +10,7 @@
 namespace hclpp {
 
 template <class R, class T>
-R int_cast(T t)
+auto int_cast(T t) -> R
 {
     if (std::in_range<R>(t)) {
         return static_cast<R>(t);

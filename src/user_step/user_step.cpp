@@ -25,9 +25,9 @@ IUserStep::IUserStep(IUserStep&& rhs) noexcept = default;
 
 IUserStep::~IUserStep() noexcept = default;
 
-IUserStep& IUserStep::operator=(IUserStep const& /*rhs*/) = default;
+auto IUserStep::operator=(IUserStep const& /*rhs*/) -> IUserStep& = default;
 
-IUserStep& IUserStep::operator=(IUserStep&& /*rhs*/) noexcept = default;
+auto IUserStep::operator=(IUserStep&& /*rhs*/) noexcept -> IUserStep& = default;
 
 void NoUserStep::execute(
         Range const& /*range*/,

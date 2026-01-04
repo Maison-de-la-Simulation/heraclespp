@@ -26,9 +26,9 @@ public:
 
     virtual ~IInitializationProblem() noexcept;
 
-    IInitializationProblem& operator=(IInitializationProblem const& rhs);
+    auto operator=(IInitializationProblem const& rhs) -> IInitializationProblem&;
 
-    IInitializationProblem& operator=(IInitializationProblem&& rhs) noexcept;
+    auto operator=(IInitializationProblem&& rhs) noexcept -> IInitializationProblem&;
 
     virtual void execute(
             Range const& range,

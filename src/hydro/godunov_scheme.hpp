@@ -40,9 +40,9 @@ public:
 
     virtual ~IGodunovScheme() noexcept = default;
 
-    IGodunovScheme& operator=(IGodunovScheme const& rhs) = default;
+    auto operator=(IGodunovScheme const& rhs) -> IGodunovScheme& = default;
 
-    IGodunovScheme& operator=(IGodunovScheme&& rhs) noexcept = default;
+    auto operator=(IGodunovScheme&& rhs) noexcept -> IGodunovScheme& = default;
 
     virtual void execute(
             Range const& range,
@@ -304,7 +304,7 @@ public:
 };
 
 template <concepts::EulerEoS EoS, concepts::GravityField Gravity>
-inline std::unique_ptr<IGodunovScheme<Gravity>> factory_godunov_scheme(std::string const& riemann_solver, EoS const& eos)
+inline auto factory_godunov_scheme(std::string const& riemann_solver, EoS const& eos) -> std::unique_ptr<IGodunovScheme<Gravity>>
 {
     if (riemann_solver == "HLL") {
         return std::make_unique<RiemannBasedGodunovScheme<HLL, Gravity, EoS>>(HLL(), eos);

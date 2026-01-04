@@ -39,7 +39,7 @@ struct EulerPrim
 };
 
 KOKKOS_FORCEINLINE_FUNCTION
-double compute_ek(EulerCons const& cons) noexcept
+auto compute_ek(EulerCons const& cons) noexcept -> double
 {
     double norm_rhou = 0;
     for (int idim = 0; idim < ndim; ++idim) {
@@ -49,7 +49,7 @@ double compute_ek(EulerCons const& cons) noexcept
 }
 
 KOKKOS_FORCEINLINE_FUNCTION
-double compute_ek(EulerPrim const& prim) noexcept
+auto compute_ek(EulerPrim const& prim) noexcept -> double
 {
     double norm_u = 0;
     for (int idim = 0; idim < ndim; ++idim) {
@@ -59,7 +59,7 @@ double compute_ek(EulerPrim const& prim) noexcept
 }
 
 KOKKOS_FORCEINLINE_FUNCTION
-double compute_evol(EulerCons const& cons) noexcept
+auto compute_evol(EulerCons const& cons) noexcept -> double
 {
     return cons.E - compute_ek(cons);
 }
@@ -70,7 +70,7 @@ double compute_evol(EulerCons const& cons) noexcept
 //! @param[in] eos Equation of state
 //! @return flux
 template <concepts::EulerEoS EoS>
-KOKKOS_FORCEINLINE_FUNCTION EulerFlux compute_flux(EulerPrim const& prim, int locdim, EoS const& eos) noexcept
+KOKKOS_FORCEINLINE_FUNCTION auto compute_flux(EulerPrim const& prim, int locdim, EoS const& eos) noexcept -> EulerFlux
 {
     KOKKOS_ASSERT(locdim >= 0)
     KOKKOS_ASSERT(locdim < ndim)
@@ -91,7 +91,7 @@ KOKKOS_FORCEINLINE_FUNCTION EulerFlux compute_flux(EulerPrim const& prim, int lo
 //! @param[in] eos Equation of state
 //! @return flux
 template <concepts::EulerEoS EoS>
-KOKKOS_FORCEINLINE_FUNCTION EulerFlux compute_flux(EulerCons const& cons, int locdim, EoS const& eos) noexcept
+KOKKOS_FORCEINLINE_FUNCTION auto compute_flux(EulerCons const& cons, int locdim, EoS const& eos) noexcept -> EulerFlux
 {
     KOKKOS_ASSERT(locdim >= 0)
     KOKKOS_ASSERT(locdim < ndim)
@@ -109,7 +109,7 @@ KOKKOS_FORCEINLINE_FUNCTION EulerFlux compute_flux(EulerCons const& cons, int lo
 }
 
 template <concepts::EulerEoS EoS>
-KOKKOS_FORCEINLINE_FUNCTION EulerPrim to_prim(EulerCons const& cons, EoS const& eos) noexcept
+KOKKOS_FORCEINLINE_FUNCTION auto to_prim(EulerCons const& cons, EoS const& eos) noexcept -> EulerPrim
 {
     EulerPrim prim;
     double const evol = compute_evol(cons);
@@ -122,7 +122,7 @@ KOKKOS_FORCEINLINE_FUNCTION EulerPrim to_prim(EulerCons const& cons, EoS const& 
 }
 
 template <concepts::EulerEoS EoS>
-KOKKOS_FORCEINLINE_FUNCTION EulerCons to_cons(EulerPrim const& prim, EoS const& eos) noexcept
+KOKKOS_FORCEINLINE_FUNCTION auto to_cons(EulerPrim const& prim, EoS const& eos) noexcept -> EulerCons
 {
     EulerCons cons;
     cons.rho = prim.rho;

@@ -20,13 +20,13 @@ class UserShiftCriterion : public IShiftCriterion
 public:
     explicit UserShiftCriterion(ParamSetup const& /*param_setup*/) {}
 
-    [[nodiscard]] bool execute(
+    [[nodiscard]] auto execute(
             Range const& /*range*/,
             Grid const& /*grid*/,
             KV_cdouble_3d const& /*rho*/,
             KV_cdouble_4d const& /*rhou*/,
             KV_cdouble_3d const& /*E*/,
-            KV_cdouble_4d const& /*fx*/) const final
+            KV_cdouble_4d const& /*fx*/) const -> bool final
     {
         throw std::runtime_error("User shift criterion not implemented");
     }

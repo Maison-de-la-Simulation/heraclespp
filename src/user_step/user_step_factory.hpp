@@ -15,6 +15,6 @@ namespace hclpp {
 
 class IUserStep;
 
-std::unique_ptr<IUserStep> factory_user_step(std::string const& user_step);
+auto factory_user_step(std::string const& user_step) -> std::unique_ptr<IUserStep>;
 
 } // namespace hclpp

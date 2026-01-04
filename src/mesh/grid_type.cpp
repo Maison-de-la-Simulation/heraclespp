@@ -37,9 +37,9 @@ IGridType::IGridType(IGridType&& rhs) noexcept = default;
 
 IGridType::~IGridType() noexcept = default;
 
-IGridType& IGridType::operator=(IGridType const& /*rhs*/) = default;
+auto IGridType::operator=(IGridType const& /*rhs*/) -> IGridType& = default;
 
-IGridType& IGridType::operator=(IGridType&& /*rhs*/) noexcept = default;
+auto IGridType::operator=(IGridType&& /*rhs*/) noexcept -> IGridType& = default;
 
 Regular::Regular(std::array<double, 3> min, std::array<double, 3> max) : m_min(min), m_max(max) {}
 

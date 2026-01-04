@@ -28,7 +28,8 @@ public:
     //! @param[in] eos Equation of state
     //! @return intercell EulerFlux
     template <concepts::EulerEoS EoS>
-    KOKKOS_FORCEINLINE_FUNCTION EulerFlux operator()(EulerCons const& consL, EulerCons const& consR, int locdim, EoS const& eos) const noexcept
+    KOKKOS_FORCEINLINE_FUNCTION auto operator()(EulerCons const& consL, EulerCons const& consR, int locdim, EoS const& eos) const noexcept
+            -> EulerFlux
     {
         KOKKOS_ASSERT(locdim >= 0)
         KOKKOS_ASSERT(locdim < ndim)
@@ -57,7 +58,7 @@ public:
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
-    static double flux_hll(double const UL, double const UR, double const FL, double const FR, double const wsL, double const wsR) noexcept
+    static auto flux_hll(double const UL, double const UR, double const FL, double const FR, double const wsL, double const wsR) noexcept -> double
     {
         return (wsR * FL - wsL * FR + wsL * wsR * (UR - UL)) / (wsR - wsL);
     }
@@ -67,7 +68,8 @@ class HLLC
 {
 public:
     template <concepts::EulerEoS EoS>
-    KOKKOS_FORCEINLINE_FUNCTION EulerFlux operator()(EulerCons const& consL, EulerCons const& consR, int locdim, EoS const& eos) const noexcept
+    KOKKOS_FORCEINLINE_FUNCTION auto operator()(EulerCons const& consL, EulerCons const& consR, int locdim, EoS const& eos) const noexcept
+            -> EulerFlux
     {
         KOKKOS_ASSERT(locdim >= 0)
         KOKKOS_ASSERT(locdim < ndim)
@@ -132,7 +134,7 @@ public:
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
-    static double flux_hllc(double const F, double const U, double const Ustar, double const ws) noexcept
+    static auto flux_hllc(double const F, double const U, double const Ustar, double const ws) noexcept -> double
     {
         return F + (ws * (Ustar - U));
     }
@@ -142,7 +144,8 @@ class Splitting
 {
 public:
     template <concepts::EulerEoS EoS>
-    KOKKOS_FORCEINLINE_FUNCTION EulerFlux operator()(EulerCons const& consL, EulerCons const& consR, int locdim, EoS const& eos) const noexcept
+    KOKKOS_FORCEINLINE_FUNCTION auto operator()(EulerCons const& consL, EulerCons const& consR, int locdim, EoS const& eos) const noexcept
+            -> EulerFlux
     {
         KOKKOS_ASSERT(locdim >= 0)
         KOKKOS_ASSERT(locdim < ndim)

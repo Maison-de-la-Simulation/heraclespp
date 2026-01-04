@@ -33,13 +33,13 @@ namespace hclpp {
 //! @param[in] P pressure array 3D
 //! @return time step
 template <concepts::EulerEoS EoS>
-[[nodiscard]] double time_step(
+[[nodiscard]] auto time_step(
         Range const& range,
         EoS const& eos,
         Grid const& grid,
         KV_cdouble_3d const& rho,
         KV_cdouble_4d const& u,
-        KV_cdouble_3d const& P)
+        KV_cdouble_3d const& P) -> double
 {
     assert(equal_extents({0, 1, 2}, rho, u, P));
     assert(u.extent(3) == ndim);

@@ -26,9 +26,9 @@ public:
 
     ~EquationOfStateFixture() override = default;
 
-    EquationOfStateFixture& operator=(EquationOfStateFixture const& rhs) = default;
+    auto operator=(EquationOfStateFixture const& rhs) -> EquationOfStateFixture& = default;
 
-    EquationOfStateFixture& operator=(EquationOfStateFixture&& rhs) noexcept = default;
+    auto operator=(EquationOfStateFixture&& rhs) noexcept -> EquationOfStateFixture& = default;
 };
 
 using EquationOfStates = ::testing::Types<hclpp::thermodynamics::PerfectGas, hclpp::thermodynamics::RadGas>;

@@ -19,7 +19,7 @@
 
 namespace hclpp {
 
-double integrate(Range const& range, Grid const& grid, KV_cdouble_3d const& var)
+auto integrate(Range const& range, Grid const& grid, KV_cdouble_3d const& var) -> double
 {
     double sum = 0;
 

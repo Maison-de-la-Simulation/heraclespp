@@ -25,9 +25,9 @@ public:
 
     ~RiemannSolverFixture() override = default;
 
-    RiemannSolverFixture& operator=(RiemannSolverFixture const& rhs) = default;
+    auto operator=(RiemannSolverFixture const& rhs) -> RiemannSolverFixture& = default;
 
-    RiemannSolverFixture& operator=(RiemannSolverFixture&& rhs) noexcept = default;
+    auto operator=(RiemannSolverFixture&& rhs) noexcept -> RiemannSolverFixture& = default;
 };
 
 using RiemannSolvers = ::testing::Types<hclpp::HLL, hclpp::HLLC, hclpp::Splitting>;

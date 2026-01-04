@@ -78,28 +78,28 @@ void sync_device(DualViews&... views)
 
 template <class View, std::size_t N>
     requires(Kokkos::is_view_v<View> || Kokkos::is_dual_view_v<View>)
-bool equal_extents(std::size_t const i, Kokkos::Array<View, N> const& views) noexcept
+auto equal_extents(std::size_t const i, Kokkos::Array<View, N> const& views) noexcept -> bool
 {
     return std::ranges::all_of(views, [&](View const& view) -> bool { return views[0].extent(i) == view.extent(i); });
 }
 
 template <class View0, class... Views>
     requires((Kokkos::is_view_v<View0> || Kokkos::is_dual_view_v<View0>) && ((Kokkos::is_view_v<Views> || Kokkos::is_dual_view_v<Views>) && ...))
-bool equal_extents(std::size_t const i, View0 const& view0, Views const&... views) noexcept
+auto equal_extents(std::size_t const i, View0 const& view0, Views const&... views) noexcept -> bool
 {
     return ((view0.extent(i) == views.extent(i)) && ...);
 }
 
 template <class View, std::size_t N>
     requires(Kokkos::is_view_v<View> || Kokkos::is_dual_view_v<View>)
-bool equal_extents(std::initializer_list<std::size_t> idx, Kokkos::Array<View, N> const& views) noexcept
+auto equal_extents(std::initializer_list<std::size_t> idx, Kokkos::Array<View, N> const& views) noexcept -> bool
 {
     return std::ranges::all_of(idx, [&](std::size_t const i) -> bool { return equal_extents(i, views); });
 }
 
 template <class View0, class... Views>
     requires((Kokkos::is_view_v<View0> || Kokkos::is_dual_view_v<View0>) && ((Kokkos::is_view_v<Views> || Kokkos::is_dual_view_v<Views>) && ...))
-bool equal_extents(std::initializer_list<std::size_t> idx, View0 const& view0, Views const&... views) noexcept
+auto equal_extents(std::initializer_list<std::size_t> idx, View0 const& view0, Views const&... views) noexcept -> bool
 {
     return std::ranges::all_of(idx, [&](std::size_t const i) -> bool { return equal_extents(i, view0, views...); });
 }

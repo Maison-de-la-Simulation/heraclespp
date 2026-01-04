@@ -36,9 +36,9 @@ public:
 
     virtual ~IExtrapolationReconstruction() noexcept = default;
 
-    IExtrapolationReconstruction& operator=(IExtrapolationReconstruction const& rhs) = default;
+    auto operator=(IExtrapolationReconstruction const& rhs) -> IExtrapolationReconstruction& = default;
 
-    IExtrapolationReconstruction& operator=(IExtrapolationReconstruction&& rhs) noexcept = default;
+    auto operator=(IExtrapolationReconstruction&& rhs) noexcept -> IExtrapolationReconstruction& = default;
 
     virtual void execute(
             Range const& range,

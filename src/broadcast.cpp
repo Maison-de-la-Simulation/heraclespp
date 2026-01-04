@@ -30,7 +30,7 @@ void broadcast(Range const& range, double const in, KV_double_4d const& out)
 void broadcast(Range const& range, KV_cdouble_1d const& in, KV_double_3d const& out)
 {
     assert(range.NgEff == 0);
-    assert(in.extent_int(0) + 2 * range.Nghost[0] == out.extent_int(0));
+    assert(in.extent_int(0) + (2 * range.Nghost[0] == out.extent_int(0)));
     int const ghost_x = range.Nghost[0];
 
     Kokkos::parallel_for(

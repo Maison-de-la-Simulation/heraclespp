@@ -86,17 +86,17 @@ Range::Range(std::array<int, 2> const& rng_x0, std::array<int, 2> const& rng_x1,
 {
 }
 
-Range Range::no_ghosts() const
+auto Range::no_ghosts() const -> Range
 {
     return with_ghosts(0);
 }
 
-Range Range::all_ghosts() const
+auto Range::all_ghosts() const -> Range
 {
     return with_ghosts(Ng);
 }
 
-Range Range::with_ghosts(int const NgEff) const
+auto Range::with_ghosts(int const NgEff) const -> Range
 {
     Range rng(*this);
     if (NgEff > Ng) {
@@ -106,7 +106,7 @@ Range Range::with_ghosts(int const NgEff) const
     return rng;
 }
 
-std::ostream& operator<<(std::ostream& os, Range const& rng)
+auto operator<<(std::ostream& os, Range const& rng) -> std::ostream&
 {
     for (int idim = 0; idim < 3; ++idim) {
         os << "[" << rng.Corner_min[idim] << "," << rng.Corner_max[idim] << "[";
@@ -117,7 +117,7 @@ std::ostream& operator<<(std::ostream& os, Range const& rng)
     return os;
 }
 
-std::array<Kokkos::Array<int, 3>, 2> cell_range(Range const& range)
+auto cell_range(Range const& range) -> std::array<Kokkos::Array<int, 3>, 2>
 {
     Kokkos::Array<int, 3> begin;
     Kokkos::Array<int, 3> end;
@@ -134,7 +134,7 @@ std::array<Kokkos::Array<int, 3>, 2> cell_range(Range const& range)
     return std::array<Kokkos::Array<int, 3>, 2> {begin, end};
 }
 
-Kokkos::MDRangePolicy<Kokkos::IndexType<int>, Kokkos::Rank<3, Kokkos::Iterate::Left, Kokkos::Iterate::Left>> cell_mdrange(Range const& range)
+auto cell_mdrange(Range const& range) -> Kokkos::MDRangePolicy<Kokkos::IndexType<int>, Kokkos::Rank<3, Kokkos::Iterate::Left, Kokkos::Iterate::Left>>
 {
     auto const [begin, end] = cell_range(range);
     return {begin, end};
