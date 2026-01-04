@@ -18,6 +18,7 @@
 #include <inih/INIReader.hpp>
 
 #include <Kokkos_Core.hpp>
+#include <dual_view.hpp>
 #include <eos.hpp>
 #include <grid.hpp>
 #include <grid_type.hpp>
@@ -69,10 +70,10 @@ public:
         assert(equal_extents({0, 1, 2}, rho, u, P, fx));
         assert(u.extent_int(3) == ndim);
 
-        KDV_double_1d rho_1d("rho_1d", grid.Nx_local_ng[0]);
-        KDV_double_1d u_1d("u_1d", grid.Nx_local_ng[0]);
-        KDV_double_1d P_1d("P_1d", grid.Nx_local_ng[0]);
-        KDV_double_2d fx_1d("fx_1d", grid.Nx_local_ng[0], fx.extent_int(3));
+        KDV_double_1d const rho_1d("rho_1d", grid.Nx_local_ng[0]);
+        KDV_double_1d const u_1d("u_1d", grid.Nx_local_ng[0]);
+        KDV_double_1d const P_1d("P_1d", grid.Nx_local_ng[0]);
+        KDV_double_2d const fx_1d("fx_1d", grid.Nx_local_ng[0], fx.extent_int(3));
 
         std::size_t const extent = grid.Nx_glob_ng[0];
 
@@ -102,30 +103,28 @@ public:
                 m_param_setup.init_filename.data(),
                 PDI_OUT,
                 "rho_1d",
-                rho_1d.view_host().data(),
+                rho_1d(host, discard_write).data(),
                 PDI_INOUT,
                 "u_1d",
-                u_1d.view_host().data(),
+                u_1d(host, discard_write).data(),
                 PDI_INOUT,
                 "P_1d",
-                P_1d.view_host().data(),
+                P_1d(host, discard_write).data(),
                 PDI_INOUT,
                 "fx_1d",
-                fx_1d.view_host().data(),
+                fx_1d(host, discard_write).data(),
                 PDI_INOUT,
                 nullptr);
         // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
-        modify_host(rho_1d, u_1d, P_1d, fx_1d);
-        sync_device(rho_1d, u_1d, P_1d, fx_1d);
 
-        broadcast(range, rho_1d.view_device(), rho);
-        broadcast(range, u_1d.view_device(), Kokkos::subview(u, ALL, ALL, ALL, 0));
+        broadcast(range, rho_1d(device, read_only), rho);
+        broadcast(range, u_1d(device, read_only), Kokkos::subview(u, ALL, ALL, ALL, 0));
         for (int idim = 1; idim < u.extent_int(3); ++idim) {
             broadcast(range, 0, Kokkos::subview(u, ALL, ALL, ALL, idim));
         }
-        broadcast(range, P_1d.view_device(), P);
+        broadcast(range, P_1d(device, read_only), P);
         for (int ifx = 0; ifx < fx.extent_int(3); ++ifx) {
-            broadcast(range, Kokkos::subview(fx_1d.view_device(), ALL, ifx), Kokkos::subview(fx, ALL, ALL, ALL, ifx));
+            broadcast(range, Kokkos::subview(fx_1d(device, read_only), ALL, ifx), Kokkos::subview(fx, ALL, ALL, ALL, ifx));
         }
     }
 };

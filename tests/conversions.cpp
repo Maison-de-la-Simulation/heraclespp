@@ -14,8 +14,6 @@
 #include <perfect_gas.hpp>
 #include <range.hpp>
 
-#include "utils_dual_view.hpp"
-
 TEST(Conversions, PrimToCons)
 {
     int const n = 10;
@@ -41,16 +39,12 @@ TEST(Conversions, PrimToCons)
     }
     Kokkos::deep_copy(P_view, prim.P);
 
-    hclpp::KDV_double_4d rhou_view("rhou", n, n, n, hclpp::ndim);
-    hclpp::KDV_double_3d E_view("E", n, n, n);
-    conv_prim_to_cons(range.all_ghosts(), eos, rho_view, u_view, P_view, rhou_view.view_device(), E_view.view_device());
-    rhou_view.modify_device();
-    E_view.modify_device();
-    rhou_view.sync_host();
-    E_view.sync_host();
+    hclpp::KDV_double_4d const rhou_view("rhou", n, n, n, hclpp::ndim);
+    hclpp::KDV_double_3d const E_view("E", n, n, n);
+    conv_prim_to_cons(range.all_ghosts(), eos, rho_view, u_view, P_view, rhou_view(hclpp::device), E_view(hclpp::device));
 
-    hclpp::KDV_double_4d::t_host const rhou_host = hclpp::view_host(rhou_view);
-    hclpp::KDV_double_3d::t_host const E_host = hclpp::view_host(E_view);
+    auto const rhou_host = rhou_view(hclpp::host, hclpp::read_only);
+    auto const E_host = E_view(hclpp::host, hclpp::read_only);
     hclpp::EulerCons const cons = to_cons(prim, eos);
     for (int k = 0; k < n; ++k) {
         for (int j = 0; j < n; ++j) {
@@ -89,16 +83,12 @@ TEST(Conversions, ConsToPrim)
     }
     Kokkos::deep_copy(E_view, cons.E);
 
-    hclpp::KDV_double_4d u_view("u", n, n, n, hclpp::ndim);
-    hclpp::KDV_double_3d P_view("P", n, n, n);
-    conv_cons_to_prim(range.all_ghosts(), eos, rho_view, rhou_view, E_view, u_view.view_device(), P_view.view_device());
-    u_view.modify_device();
-    P_view.modify_device();
-    u_view.sync_host();
-    P_view.sync_host();
+    hclpp::KDV_double_4d const u_view("u", n, n, n, hclpp::ndim);
+    hclpp::KDV_double_3d const P_view("P", n, n, n);
+    conv_cons_to_prim(range.all_ghosts(), eos, rho_view, rhou_view, E_view, u_view(hclpp::device), P_view(hclpp::device));
 
-    hclpp::KDV_double_4d::t_host const u_host = hclpp::view_host(u_view);
-    hclpp::KDV_double_3d::t_host const P_host = hclpp::view_host(P_view);
+    auto const u_host = u_view(hclpp::host, hclpp::read_only);
+    auto const P_host = P_view(hclpp::host, hclpp::read_only);
     hclpp::EulerPrim const prim = to_prim(cons, eos);
     for (int k = 0; k < n; ++k) {
         for (int j = 0; j < n; ++j) {

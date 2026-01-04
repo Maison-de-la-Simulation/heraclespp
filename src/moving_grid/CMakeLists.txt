@@ -4,7 +4,11 @@
 
 add_library(moving_grid)
 target_compile_features(moving_grid PUBLIC cxx_std_17)
-target_link_libraries(moving_grid PRIVATE Kokkos::kokkos mesh PUBLIC utils)
+target_link_libraries(
+    moving_grid
+    PRIVATE dual_view Kokkos::kokkos mesh
+    PUBLIC utils
+)
 target_sources(
     moving_grid
     PRIVATE moving_grid.cpp

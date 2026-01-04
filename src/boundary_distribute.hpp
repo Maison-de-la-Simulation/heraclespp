@@ -13,8 +13,8 @@
 #include <vector>
 
 #include <Kokkos_Core.hpp>
-#include <Kokkos_DualView.hpp>
 #include <concepts.hpp>
+#include <dual_view.hpp>
 #include <grid.hpp>
 #include <kokkos_shortcut.hpp>
 #include <ndim.hpp>
@@ -27,7 +27,7 @@ class IBoundaryCondition;
 
 class DistributedBoundaryCondition
 {
-    using mpi_buffer_type = Kokkos::DualView<double****, Kokkos::LayoutLeft, Kokkos::SharedHostPinnedSpace, DefaultMemoryTraits>;
+    using mpi_buffer_type = DualView<double****, Kokkos::LayoutLeft, Kokkos::SharedHostPinnedSpace>;
 
 private:
     std::array<mpi_buffer_type, ndim> m_mpi_buffer;

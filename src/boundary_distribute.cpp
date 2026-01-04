@@ -76,7 +76,7 @@ void DistributedBoundaryCondition::ghost_sync(Grid const& grid, std::vector<KV_d
 {
     int const ng = grid.Nghost[bc_idim];
 
-    mpi_buffer_type buf = m_mpi_buffer[bc_idim];
+    mpi_buffer_type const buf = m_mpi_buffer[bc_idim];
 
     Kokkos::Array<Kokkos::pair<int, int>, 3> KRange
             = {Kokkos::make_pair(0, views[0].extent_int(0)),
@@ -86,36 +86,36 @@ void DistributedBoundaryCondition::ghost_sync(Grid const& grid, std::vector<KV_d
     KRange[bc_idim].first = bc_iface == 0 ? ng : views[0].extent_int(bc_idim) - (2 * ng);
     KRange[bc_idim].second = KRange[bc_idim].first + ng;
 
-    for (std::size_t i = 0; i < views.size(); ++i) {
-        Kokkos::deep_copy(Kokkos::subview(buf.view_device(), ALL, ALL, ALL, i), Kokkos::subview(views[i], KRange[0], KRange[1], KRange[2]));
+    {
+        auto const buf_d = buf(device, discard_write);
+        for (std::size_t i = 0; i < views.size(); ++i) {
+            Kokkos::deep_copy(Kokkos::subview(buf_d, ALL, ALL, ALL, i), Kokkos::subview(views[i], KRange[0], KRange[1], KRange[2]));
+        }
     }
 
-    buf.modify_device();
+    {
+        double* ptr = nullptr;
+        if (m_param.mpi_device_aware) {
+            ptr = buf(device).data();
+        } else {
+            ptr = buf(host).data();
+        }
 
-    double* ptr = nullptr;
-    if (!m_param.mpi_device_aware) {
-        buf.sync_host();
-        ptr = buf.view_host().data();
-    } else {
-        ptr = buf.view_device().data();
-    }
+        int src = 0;
+        int dst = 0;
+        MPI_Cart_shift(grid.comm_cart, bc_idim, bc_iface == 0 ? -1 : 1, &src, &dst);
 
-    int src = 0;
-    int dst = 0;
-    MPI_Cart_shift(grid.comm_cart, bc_idim, bc_iface == 0 ? -1 : 1, &src, &dst);
-
-    MPI_Sendrecv_replace(ptr, int_cast<int>(buf.view_host().size()), MPI_DOUBLE, dst, bc_idim, src, bc_idim, grid.comm_cart, MPI_STATUS_IGNORE);
-
-    if (!m_param.mpi_device_aware) {
-        buf.modify_host();
-        buf.sync_device();
+        MPI_Sendrecv_replace(ptr, int_cast<int>(buf.size()), MPI_DOUBLE, dst, bc_idim, src, bc_idim, grid.comm_cart, MPI_STATUS_IGNORE);
     }
 
     KRange[bc_idim].first = bc_iface == 0 ? views[0].extent_int(bc_idim) - ng : 0;
     KRange[bc_idim].second = KRange[bc_idim].first + ng;
 
-    for (std::size_t i = 0; i < views.size(); ++i) {
-        Kokkos::deep_copy(Kokkos::subview(views[i], KRange[0], KRange[1], KRange[2]), Kokkos::subview(buf.view_device(), ALL, ALL, ALL, i));
+    {
+        auto const buf_d = buf(device, read_only);
+        for (std::size_t i = 0; i < views.size(); ++i) {
+            Kokkos::deep_copy(Kokkos::subview(views[i], KRange[0], KRange[1], KRange[2]), Kokkos::subview(buf_d, ALL, ALL, ALL, i));
+        }
     }
 }
 
