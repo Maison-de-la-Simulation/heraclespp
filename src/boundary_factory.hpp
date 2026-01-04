@@ -29,7 +29,7 @@ template <concepts::GravityField Gravity>
 class ReflexiveCondition;
 
 template <concepts::GravityField Gravity>
-std::unique_ptr<IBoundaryCondition<Gravity>> factory_boundary_construction(std::string const& boundary, int idim, int iface)
+auto factory_boundary_construction(std::string const& boundary, int idim, int iface) -> std::unique_ptr<IBoundaryCondition<Gravity>>
 {
     if (boundary == "NullGradient") {
         return std::make_unique<NullGradient<Gravity>>(idim, iface);

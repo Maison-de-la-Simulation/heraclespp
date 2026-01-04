@@ -25,7 +25,7 @@ namespace hclpp {
 
 UniformGravity::UniformGravity(KV_cdouble_1d g) : m_g(std::move(g)) {}
 
-UniformGravity make_uniform_gravity(double const gx0, double const gx1, double const gx2)
+auto make_uniform_gravity(double const gx0, double const gx1, double const gx2) -> UniformGravity
 {
     KDV_double_1d g_array_dv("g_array", 3);
     {
@@ -42,7 +42,7 @@ UniformGravity make_uniform_gravity(double const gx0, double const gx1, double c
 
 PointMassGravity::PointMassGravity(KV_cdouble_1d g) : m_g(std::move(g)) {}
 
-PointMassGravity make_point_mass_gravity(double const central_mass, Grid const& grid)
+auto make_point_mass_gravity(double const central_mass, Grid const& grid) -> PointMassGravity
 {
     KV_double_1d const g_array("g_array", grid.Nx_local_wg[0]);
 
@@ -57,7 +57,7 @@ PointMassGravity make_point_mass_gravity(double const central_mass, Grid const& 
 
 InternalMassGravity::InternalMassGravity(KV_cdouble_1d g) : m_g(std::move(g)) {}
 
-InternalMassGravity make_internal_mass_gravity(double const central_mass, Grid const& grid, KV_cdouble_3d const& rho)
+auto make_internal_mass_gravity(double const central_mass, Grid const& grid, KV_cdouble_3d const& rho) -> InternalMassGravity
 {
     if (grid.mpi_dims_cart[0] != 1) {
         throw std::runtime_error("The function make_internal_mass_gravity does not handle more than 1 MPI process in the first dimension");

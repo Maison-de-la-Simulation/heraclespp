@@ -24,11 +24,11 @@ IFaceReconstruction::IFaceReconstruction(IFaceReconstruction&& rhs) noexcept = d
 
 IFaceReconstruction::~IFaceReconstruction() noexcept = default;
 
-IFaceReconstruction& IFaceReconstruction::operator=(IFaceReconstruction const& /*rhs*/) = default;
+auto IFaceReconstruction::operator=(IFaceReconstruction const& /*rhs*/) -> IFaceReconstruction& = default;
 
-IFaceReconstruction& IFaceReconstruction::operator=(IFaceReconstruction&& /*rhs*/) noexcept = default;
+auto IFaceReconstruction::operator=(IFaceReconstruction&& /*rhs*/) noexcept -> IFaceReconstruction& = default;
 
-std::unique_ptr<IFaceReconstruction> factory_face_reconstruction(std::string const& slope)
+auto factory_face_reconstruction(std::string const& slope) -> std::unique_ptr<IFaceReconstruction>
 {
     if (slope == "Constant") {
         return std::make_unique<LimitedLinearReconstruction<Constant>>(Constant());

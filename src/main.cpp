@@ -83,7 +83,7 @@ std::string_view const gravity_label("Internal_mass");
 static_assert(false, "Gravity not defined");
 #endif
 
-Gravity make_gravity(Param const& param, [[maybe_unused]] Grid const& grid, [[maybe_unused]] KV_cdouble_3d const& rho)
+auto make_gravity(Param const& param, [[maybe_unused]] Grid const& grid, [[maybe_unused]] KV_cdouble_3d const& rho) -> Gravity
 {
 #if defined(HERACLESPP_GRAVITY_Uniform)
     return make_uniform_gravity(param.gx0, param.gx1, param.gx2);
@@ -94,7 +94,7 @@ Gravity make_gravity(Param const& param, [[maybe_unused]] Grid const& grid, [[ma
 #endif
 }
 
-std::string display_help_message(std::filesystem::path const& executable)
+auto display_help_message(std::filesystem::path const& executable) -> std::string
 {
     std::stringstream ss;
     ss << "usage: " << executable.filename() << " <path to the ini file> [options]";
@@ -601,7 +601,7 @@ void main(int argc, char** argv)
 
 } // namespace hclpp
 
-int main(int argc, char** argv)
+auto main(int argc, char** argv) -> int
 {
     try {
         hclpp::main(argc, argv);

@@ -25,9 +25,9 @@ public:
 
     virtual ~IUserStep() noexcept;
 
-    IUserStep& operator=(IUserStep const& rhs);
+    auto operator=(IUserStep const& rhs) -> IUserStep&;
 
-    IUserStep& operator=(IUserStep&& rhs) noexcept;
+    auto operator=(IUserStep&& rhs) noexcept -> IUserStep&;
 
     virtual void execute(Range const& range, double t, double dt, KV_double_3d const& rho, KV_double_3d const& E, KV_double_4d const& fx) const = 0;
 };

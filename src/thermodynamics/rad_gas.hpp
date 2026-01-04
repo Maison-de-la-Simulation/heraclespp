@@ -30,46 +30,46 @@ public:
 
     ~RadGas() noexcept = default;
 
-    RadGas& operator=(RadGas const& rhs) = default;
+    auto operator=(RadGas const& rhs) -> RadGas& = default;
 
-    RadGas& operator=(RadGas&& rhs) noexcept = default;
+    auto operator=(RadGas&& rhs) noexcept -> RadGas& = default;
 
-    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION double adiabatic_index() const noexcept
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION auto adiabatic_index() const noexcept -> double
     {
         return m_gamma;
     }
 
-    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION double mean_molecular_weight() const noexcept
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION auto mean_molecular_weight() const noexcept -> double
     {
         return m_mmw;
     }
 
-    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION double compute_evol_from_pres(double const rho, double const P) const noexcept
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION auto compute_evol_from_pres(double const rho, double const P) const noexcept -> double
     {
         // evol = rho * eint
         return compute_evol_from_temp(rho, compute_temp_from_pres(rho, P));
     }
 
-    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION double compute_evol_from_temp(double const rho, double const T) const noexcept
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION auto compute_evol_from_temp(double const rho, double const T) const noexcept -> double
     {
         // evol = rho * eint
         double const T4 = T * T * T * T;
         return (rho * units::kb * T / (m_mmw * units::mp * m_gamma_m1)) + (units::ar * T4);
     }
 
-    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION double compute_pres_from_evol(double const rho, double const evol) const noexcept
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION auto compute_pres_from_evol(double const rho, double const evol) const noexcept -> double
     {
         // evol = rho * eint
         return compute_pres_from_temp(rho, compute_temp_from_evol(rho, evol));
     }
 
-    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION double compute_pres_from_temp(double const rho, double const T) const noexcept
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION auto compute_pres_from_temp(double const rho, double const T) const noexcept -> double
     {
         double const T4 = T * T * T * T;
         return (rho * units::kb * T / (m_mmw * units::mp)) + (units::ar * T4 / 3);
     }
 
-    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION double compute_temp_from_pres(double const rho, double const P) const noexcept
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION auto compute_temp_from_pres(double const rho, double const P) const noexcept -> double
     {
         int static constexpr max_itr = 100;
         double static constexpr tol_newton = 1E-6;
@@ -98,7 +98,7 @@ public:
         return T;
     }
 
-    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION double compute_temp_from_evol(double const rho, double const evol) const noexcept
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION auto compute_temp_from_evol(double const rho, double const evol) const noexcept -> double
     {
         int static constexpr max_itr = 100;
         double static constexpr tol_newton = 1E-6;
@@ -128,7 +128,7 @@ public:
         return T;
     }
 
-    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION double compute_speed_of_sound(double const rho, double const P) const noexcept
+    [[nodiscard]] KOKKOS_FORCEINLINE_FUNCTION auto compute_speed_of_sound(double const rho, double const P) const noexcept -> double
     {
         double const T = compute_temp_from_pres(rho, P);
         double const Pg = rho * units::kb * T / (m_mmw * units::mp);
@@ -142,7 +142,7 @@ public:
     }
 
     KOKKOS_FORCEINLINE_FUNCTION
-    static bool is_valid(double const rho, double const P) noexcept
+    static auto is_valid(double const rho, double const P) noexcept -> bool
     {
         return Kokkos::isfinite(rho) && rho > 0 && Kokkos::isfinite(P) && P > 0;
     }

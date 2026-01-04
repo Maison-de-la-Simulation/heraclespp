@@ -8,8 +8,8 @@ Checks: >
   -bugprone-easily-swappable-parameters,
   cert-*,
   clang-analyzer-*,
-  clang-diagnostic-*,
   -clang-analyzer-security.ArrayBound,
+  clang-diagnostic-*,
   concurrency-*,
   cppcoreguidelines-*,
   -cppcoreguidelines-pro-bounds-constant-array-index,
@@ -20,7 +20,6 @@ Checks: >
   misc-*,
   -misc-include-cleaner,
   modernize-*,
-  -modernize-use-trailing-return-type,
   mpi-*,
   openmp-*,
   performance-*,
@@ -28,9 +27,9 @@ Checks: >
   -portability-avoid-pragma-once,
   -portability-template-virtual-member-function,
   readability-*,
-  -readability-use-concise-preprocessor-directives,
   -readability-identifier-length,
-  -readability-function-cognitive-complexity
+  -readability-function-cognitive-complexity,
+  -readability-use-concise-preprocessor-directives
 CheckOptions:
   - key: cppcoreguidelines-avoid-magic-numbers.IgnoredIntegerValues
     value: '1;2;3;4;5'

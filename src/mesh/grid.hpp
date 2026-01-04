@@ -62,9 +62,9 @@ public:
 
     ~Grid() noexcept;
 
-    Grid& operator=(Grid const& rhs) = delete;
+    auto operator=(Grid const& rhs) -> Grid& = delete;
 
-    Grid& operator=(Grid&& rhs) noexcept = delete;
+    auto operator=(Grid&& rhs) noexcept -> Grid& = delete;
 
     void print_grid(std::ostream& os) const;
 

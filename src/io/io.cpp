@@ -53,12 +53,12 @@ void write_string_attribute(hclpp::RaiiH5Hid const& file_id, char const* const a
 }
 
 template <class... Views>
-bool span_is_contiguous(Views const&... views)
+auto span_is_contiguous(Views const&... views) -> bool
 {
     return (views.span_is_contiguous() && ...);
 }
 
-std::string get_output_filename(std::string const& prefix, std::size_t const num)
+auto get_output_filename(std::string const& prefix, std::size_t const num) -> std::string
 {
     static constexpr int fill_width = 8;
 
@@ -83,7 +83,7 @@ private:
 
     std::vector<char> m_max_spaces;
 
-    [[nodiscard]] std::string_view to_string_view() const
+    [[nodiscard]] auto to_string_view() const -> std::string_view
     {
         return std::string_view(m_max_spaces.data(), m_max_spaces.size()).substr(0, m_indent_width * m_indent_level);
     }
@@ -96,7 +96,7 @@ public:
     {
     }
 
-    IndentFn& push()
+    auto push() -> IndentFn&
     {
         if (m_indent_level == m_max_level) {
             throw std::runtime_error("Level out of bound");
@@ -105,7 +105,7 @@ public:
         return *this;
     }
 
-    IndentFn& pop()
+    auto pop() -> IndentFn&
     {
         if (m_indent_level == 0) {
             throw std::runtime_error("Level out of bound");
@@ -114,7 +114,7 @@ public:
         return *this;
     }
 
-    friend std::ostream& operator<<(std::ostream& os, IndentFn const& indent)
+    friend auto operator<<(std::ostream& os, IndentFn const& indent) -> std::ostream&
     {
         return os << indent.to_string_view();
     }

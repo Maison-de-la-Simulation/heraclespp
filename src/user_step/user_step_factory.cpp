@@ -15,7 +15,7 @@
 
 namespace hclpp {
 
-std::unique_ptr<IUserStep> factory_user_step(std::string const& user_step)
+auto factory_user_step(std::string const& user_step) -> std::unique_ptr<IUserStep>
 {
     if (user_step == "Off") {
         return std::make_unique<NoUserStep>();

@@ -22,9 +22,9 @@ namespace hclpp {
 
 class Grid;
 
-std::string_view bc_dir(int i);
+auto bc_dir(int i) -> std::string_view;
 
-std::string_view bc_face(int i);
+auto bc_face(int i) -> std::string_view;
 
 void null_gradient_condition(
         int bc_idim,
@@ -55,12 +55,12 @@ private:
     int m_bc_iface;
 
 protected:
-    [[nodiscard]] int bc_idim() const noexcept
+    [[nodiscard]] auto bc_idim() const noexcept -> int
     {
         return m_bc_idim;
     }
 
-    [[nodiscard]] int bc_iface() const noexcept
+    [[nodiscard]] auto bc_iface() const noexcept -> int
     {
         return m_bc_iface;
     }
@@ -74,9 +74,9 @@ public:
 
     virtual ~IBoundaryCondition() noexcept = default;
 
-    IBoundaryCondition& operator=(IBoundaryCondition const& rhs) = default;
+    auto operator=(IBoundaryCondition const& rhs) -> IBoundaryCondition& = default;
 
-    IBoundaryCondition& operator=(IBoundaryCondition&& rhs) noexcept = default;
+    auto operator=(IBoundaryCondition&& rhs) noexcept -> IBoundaryCondition& = default;
 
     virtual void execute(
             Grid const& grid,

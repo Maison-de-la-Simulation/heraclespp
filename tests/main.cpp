@@ -7,7 +7,7 @@
 #include <Kokkos_Core.hpp>
 #include <mpi_scope_guard.hpp>
 
-int main(int argc, char** argv)
+auto main(int argc, char** argv) -> int
 {
     ::testing::InitGoogleTest(&argc, argv);
 

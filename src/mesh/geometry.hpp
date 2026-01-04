@@ -25,9 +25,9 @@ public:
 
     virtual ~IComputeGeom() noexcept;
 
-    IComputeGeom& operator=(IComputeGeom const& rhs);
+    auto operator=(IComputeGeom const& rhs) -> IComputeGeom&;
 
-    IComputeGeom& operator=(IComputeGeom&& rhs) noexcept;
+    auto operator=(IComputeGeom&& rhs) noexcept -> IComputeGeom&;
 
     virtual void execute(
             Range const& range,

@@ -25,17 +25,17 @@ IShiftCriterion::IShiftCriterion(IShiftCriterion&& rhs) noexcept = default;
 
 IShiftCriterion::~IShiftCriterion() noexcept = default;
 
-IShiftCriterion& IShiftCriterion::operator=(IShiftCriterion const& /*rhs*/) = default;
+auto IShiftCriterion::operator=(IShiftCriterion const& /*rhs*/) -> IShiftCriterion& = default;
 
-IShiftCriterion& IShiftCriterion::operator=(IShiftCriterion&& /*rhs*/) noexcept = default;
+auto IShiftCriterion::operator=(IShiftCriterion&& /*rhs*/) noexcept -> IShiftCriterion& = default;
 
-bool NoShiftGrid::execute(
+auto NoShiftGrid::execute(
         Range const& /*range*/,
         Grid const& /*grid*/,
         [[maybe_unused]] KV_cdouble_3d const& rho,
         [[maybe_unused]] KV_cdouble_4d const& rhou,
         [[maybe_unused]] KV_cdouble_3d const& E,
-        [[maybe_unused]] KV_cdouble_4d const& fx) const
+        [[maybe_unused]] KV_cdouble_4d const& fx) const -> bool
 {
     assert(equal_extents({0, 1, 2}, rho, rhou, E, fx));
     assert(rhou.extent_int(3) == ndim);
