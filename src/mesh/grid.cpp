@@ -131,7 +131,7 @@ void Grid::mpi_decomposition()
     MPI_Cart_sub(comm_cart, remain_dims.data(), &comm_cart_horizontal);
 }
 
-void Grid::set_grid(KV_double_1d const& x0_glob, KV_double_1d const& x1_glob, KV_double_1d const& x2_glob)
+void Grid::set_grid(KV_cdouble_1d const& x0_glob, KV_cdouble_1d const& x1_glob, KV_cdouble_1d const& x2_glob)
 {
     // Filling x, y, z
     Kokkos::deep_copy(x0, Kokkos::subview(x0_glob, Kokkos::pair<int, int>(range.Corner_min[0], range.Corner_min[0] + Nx_local_wg[0] + 1)));

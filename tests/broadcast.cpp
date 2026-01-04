@@ -12,8 +12,6 @@
 #include <ndim.hpp>
 #include <range.hpp>
 
-#include "utils_dual_view.hpp"
-
 TEST(BroadcastScalar, Case1d)
 {
     if (hclpp::ndim != 1) {
@@ -32,14 +30,12 @@ TEST(BroadcastScalar, Case1d)
     int const nx2_wg = nx2;
 
     hclpp::Range const rng({0, 0, 0}, {nx0, nx1, nx2}, ng);
-    hclpp::KDV_double_3d array("array", nx0_wg, nx1_wg, nx2_wg);
-    Kokkos::deep_copy(array.view_device(), outer_value);
-    array.modify_device();
-    hclpp::broadcast(rng.no_ghosts(), inner_value, array.view_device());
-    array.modify_device();
-    array.sync_host();
+    hclpp::KDV_double_3d const array("array", nx0_wg, nx1_wg, nx2_wg);
+    Kokkos::deep_copy(array(hclpp::device, hclpp::discard_write), outer_value);
+    hclpp::broadcast(rng.no_ghosts(), inner_value, array(hclpp::device));
+
     {
-        auto const array_h = hclpp::view_host(array);
+        auto const array_h = array(hclpp::host, hclpp::read_only);
         for (int i = 0; i < nx0_wg; ++i) {
             for (int j = 0; j < nx1_wg; ++j) {
                 for (int k = 0; k < nx2_wg; ++k) {
@@ -72,14 +68,12 @@ TEST(BroadcastScalar, Case2d)
     int const nx2_wg = nx2;
 
     hclpp::Range const rng({0, 0, 0}, {nx0, nx1, nx2}, ng);
-    hclpp::KDV_double_3d array("array", nx0_wg, nx1_wg, nx2_wg);
-    Kokkos::deep_copy(array.view_device(), outer_value);
-    array.modify_device();
-    hclpp::broadcast(rng.no_ghosts(), inner_value, array.view_device());
-    array.modify_device();
-    array.sync_host();
+    hclpp::KDV_double_3d const array("array", nx0_wg, nx1_wg, nx2_wg);
+    Kokkos::deep_copy(array(hclpp::device, hclpp::discard_write), outer_value);
+    hclpp::broadcast(rng.no_ghosts(), inner_value, array(hclpp::device));
+
     {
-        auto const array_h = hclpp::view_host(array);
+        auto const array_h = array(hclpp::host, hclpp::read_only);
         for (int i = 0; i < nx0_wg; ++i) {
             for (int j = 0; j < nx1_wg; ++j) {
                 for (int k = 0; k < nx2_wg; ++k) {
@@ -112,14 +106,12 @@ TEST(BroadcastScalar, Case3d)
     int const nx2_wg = nx2 + (2 * ng);
 
     hclpp::Range const rng({0, 0, 0}, {nx0, nx1, nx2}, ng);
-    hclpp::KDV_double_3d array("array", nx0_wg, nx1_wg, nx2_wg);
-    Kokkos::deep_copy(array.view_device(), outer_value);
-    array.modify_device();
-    hclpp::broadcast(rng.no_ghosts(), inner_value, array.view_device());
-    array.modify_device();
-    array.sync_host();
+    hclpp::KDV_double_3d const array("array", nx0_wg, nx1_wg, nx2_wg);
+    Kokkos::deep_copy(array(hclpp::device, hclpp::discard_write), outer_value);
+    hclpp::broadcast(rng.no_ghosts(), inner_value, array(hclpp::device));
+
     {
-        auto const array_h = hclpp::view_host(array);
+        auto const array_h = array(hclpp::host, hclpp::read_only);
         for (int i = 0; i < nx0_wg; ++i) {
             for (int j = 0; j < nx1_wg; ++j) {
                 for (int k = 0; k < nx2_wg; ++k) {
@@ -152,16 +144,14 @@ TEST(BroadcastArray, Case1d)
     int const nx2_wg = nx2;
 
     hclpp::Range const rng({0, 0, 0}, {nx0, nx1, nx2}, ng);
-    hclpp::KDV_double_3d array("array", nx0_wg, nx1_wg, nx2_wg);
-    Kokkos::deep_copy(array.view_device(), outer_value);
-    array.modify_device();
+    hclpp::KDV_double_3d const array("array", nx0_wg, nx1_wg, nx2_wg);
+    Kokkos::deep_copy(array(hclpp::device, hclpp::discard_write), outer_value);
     hclpp::KV_double_1d const arr("arr", nx0);
     Kokkos::deep_copy(arr, inner_value);
-    hclpp::broadcast(rng.no_ghosts(), arr, array.view_device());
-    array.modify_device();
-    array.sync_host();
+    hclpp::broadcast(rng.no_ghosts(), inner_value, array(hclpp::device));
+
     {
-        auto const array_h = hclpp::view_host(array);
+        auto const array_h = array(hclpp::host, hclpp::read_only);
         for (int i = 0; i < nx0_wg; ++i) {
             for (int j = 0; j < nx1_wg; ++j) {
                 for (int k = 0; k < nx2_wg; ++k) {
@@ -194,16 +184,14 @@ TEST(BroadcastArray, Case2d)
     int const nx2_wg = nx2;
 
     hclpp::Range const rng({0, 0, 0}, {nx0, nx1, nx2}, ng);
-    hclpp::KDV_double_3d array("array", nx0_wg, nx1_wg, nx2_wg);
-    Kokkos::deep_copy(array.view_device(), outer_value);
-    array.modify_device();
+    hclpp::KDV_double_3d const array("array", nx0_wg, nx1_wg, nx2_wg);
+    Kokkos::deep_copy(array(hclpp::device, hclpp::discard_write), outer_value);
     hclpp::KV_double_1d const arr("arr", nx0);
     Kokkos::deep_copy(arr, inner_value);
-    hclpp::broadcast(rng.no_ghosts(), arr, array.view_device());
-    array.modify_device();
-    array.sync_host();
+    hclpp::broadcast(rng.no_ghosts(), inner_value, array(hclpp::device));
+
     {
-        auto const array_h = hclpp::view_host(array);
+        auto const array_h = array(hclpp::host, hclpp::read_only);
         for (int i = 0; i < nx0_wg; ++i) {
             for (int j = 0; j < nx1_wg; ++j) {
                 for (int k = 0; k < nx2_wg; ++k) {
@@ -236,16 +224,14 @@ TEST(BroadcastArray, Case3d)
     int const nx2_wg = nx2 + (2 * ng);
 
     hclpp::Range const rng({0, 0, 0}, {nx0, nx1, nx2}, ng);
-    hclpp::KDV_double_3d array("array", nx0_wg, nx1_wg, nx2_wg);
-    Kokkos::deep_copy(array.view_device(), outer_value);
-    array.modify_device();
-    hclpp::KV_double_1d const arr("arr", 10);
+    hclpp::KDV_double_3d const array("array", nx0_wg, nx1_wg, nx2_wg);
+    Kokkos::deep_copy(array(hclpp::device, hclpp::discard_write), outer_value);
+    hclpp::KV_double_1d const arr("arr", nx0);
     Kokkos::deep_copy(arr, inner_value);
-    hclpp::broadcast(rng.no_ghosts(), arr, array.view_device());
-    array.modify_device();
-    array.sync_host();
+    hclpp::broadcast(rng.no_ghosts(), inner_value, array(hclpp::device));
+
     {
-        auto const array_h = hclpp::view_host(array);
+        auto const array_h = array(hclpp::host, hclpp::read_only);
         for (int i = 0; i < nx0_wg; ++i) {
             for (int j = 0; j < nx1_wg; ++j) {
                 for (int k = 0; k < nx2_wg; ++k) {

@@ -15,6 +15,7 @@ find_package(paraconf REQUIRED COMPONENTS C)
 find_package(PDI REQUIRED COMPONENTS C)
 
 add_subdirectory(analysis)
+add_subdirectory(dual_view)
 add_subdirectory(gravity)
 add_subdirectory(hydro)
 add_subdirectory(io)
@@ -32,6 +33,7 @@ target_link_libraries(
     PRIVATE MPI::MPI_CXX
     PUBLIC
         analysis
+        dual_view
         gravity
         hydro
         Kokkos::kokkos

@@ -9,10 +9,12 @@ add_executable(
     main.cpp
     broadcast.cpp
     conversions.cpp
-    kokkos_shortcut.cpp
+    dual_view.cpp
     euler_equations.cpp
     gravity.cpp
     grid_type.cpp
+    int_cast.cpp
+    kokkos_shortcut.cpp
     kronecker.cpp
     partitioner.cpp
     print_info.cpp
@@ -20,7 +22,6 @@ add_executable(
     riemann_solvers.cpp
     slopes.cpp
     thermodynamics.cpp
-    int_cast.cpp
 )
 target_compile_features(unit_tests PUBLIC cxx_std_17)
 target_link_libraries(unit_tests PUBLIC libheracles++ GTest::gtest)
