@@ -95,13 +95,13 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
           repository: kokkos/kokkos
-          ref: 5.0.0
+          ref: 5.0.1
           path: kokkos
       - name: Install Kokkos
         run: |
           cmake \
             -D CMAKE_CXX_STANDARD=${{matrix.cxx_version}} \
-            -D Kokkos_ENABLE_DEPRECATED_CODE_5=ON \
+            -D Kokkos_ENABLE_DEPRECATED_CODE_5=OFF \
             -D Kokkos_ENABLE_DEPRECATION_WARNINGS=OFF \
             -D Kokkos_ENABLE_SERIAL=ON \
             -B build \
