@@ -13,9 +13,11 @@ ARG ROCM_VERSION=6.4.4
 ENV BASH_ENV=/etc/profile
 SHELL ["/bin/bash", "-c"]
 
-ENV PYTHONUNBUFFERED=1
-ENV PATH=/opt/heraclespp-venv/bin:${PATH:+:${PATH}}
+ENV CMAKE_PREFIX_PATH=/opt/rocm-${ROCM_VERSION}
+ENV PATH=/opt/heraclespp-venv/bin${PATH:+:${PATH}}
 ENV PATH=/usr/local/cuda/bin${PATH:+:${PATH}}
+ENV PATH=/opt/rocm-${ROCM_VERSION}/bin${PATH:+:${PATH}}
+ENV PYTHONUNBUFFERED=1
 
 RUN export DEBIAN_FRONTEND=noninteractive \
  && apt-get --yes update \
