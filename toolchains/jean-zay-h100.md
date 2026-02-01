@@ -62,7 +62,7 @@ cmake \
     -D CMAKE_BUILD_TYPE=Release \
     -D CMAKE_CXX_COMPILER=$PWD/vendor/kokkos/bin/nvcc_wrapper \
     -D Kokkos_ARCH_HOPPER90=ON \
-    -D Kokkos_ENABLE_DEPRECATED_CODE_5=ON \
+    -D Kokkos_ENABLE_DEPRECATED_CODE_5=OFF \
     -D Kokkos_ENABLE_CUDA=ON \
     -D Kokkos_ENABLE_OPENMP=ON \
     -D Heraclespp_SETUP=rayleigh_taylor3d \

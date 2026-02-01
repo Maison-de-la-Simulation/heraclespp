@@ -64,7 +64,7 @@ cmake \
     -D CMAKE_EXE_LINKER_FLAGS="-L${CRAY_HDF5_PARALLEL_PREFIX}/lib -lhdf5_hl_parallel -lhdf5_parallel" \
     -D Kokkos_ARCH_AMD_GFX90A=ON \
     -D Kokkos_ARCH_ZEN3=ON \
-    -D Kokkos_ENABLE_DEPRECATED_CODE_5=ON \
+    -D Kokkos_ENABLE_DEPRECATED_CODE_5=OFF \
     -D Kokkos_ENABLE_HIP=ON \
     -D Kokkos_ENABLE_OPENMP=ON \
     -D Heraclespp_SETUP=sedov1d \
