@@ -27,7 +27,7 @@ class IBoundaryCondition;
 
 class DistributedBoundaryCondition
 {
-    using mpi_buffer_type = Kokkos::DualView<double****, Kokkos::LayoutLeft, Kokkos::SharedHostPinnedSpace>;
+    using mpi_buffer_type = Kokkos::DualView<double****, Kokkos::LayoutLeft, Kokkos::SharedHostPinnedSpace, DefaultMemoryTraits>;
 
 private:
     std::array<mpi_buffer_type, ndim> m_mpi_buffer;
