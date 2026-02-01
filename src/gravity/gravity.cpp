@@ -15,6 +15,7 @@
 #include <utility>
 
 #include <Kokkos_Core.hpp>
+#include <dual_view.hpp>
 #include <grid.hpp>
 #include <kokkos_shortcut.hpp>
 #include <units.hpp>
@@ -27,17 +28,15 @@ UniformGravity::UniformGravity(KV_cdouble_1d g) : m_g(std::move(g)) {}
 
 auto make_uniform_gravity(double const gx0, double const gx1, double const gx2) -> UniformGravity
 {
-    KDV_double_1d g_array_dv("g_array", 3);
+    KDV_double_1d const g_array_dv("g_array", 3);
     {
         // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
-        auto const g_array_h = g_array_dv.view_host();
+        auto const g_array_h = g_array_dv(host, discard_write);
         g_array_h(0) = gx0;
         g_array_h(1) = gx1;
         g_array_h(2) = gx2;
     }
-    g_array_dv.modify_host();
-    g_array_dv.sync_device();
-    return UniformGravity(g_array_dv.view_device());
+    return UniformGravity(g_array_dv(device, read_only));
 }
 
 PointMassGravity::PointMassGravity(KV_cdouble_1d g) : m_g(std::move(g)) {}
@@ -64,8 +63,8 @@ auto make_internal_mass_gravity(double const central_mass, Grid const& grid, KV_
     }
 
     KV_double_1d const g_array_dv("g_array", grid.Nx_local_wg[0]);
-    KDV_double_1d dv_total_dv("dv_mean_array", grid.Nx_local_ng[0] + grid.Nghost[0]); // sum dv
-    KDV_double_1d rho_mean_dv("rho_mean_array", grid.Nx_local_ng[0] + grid.Nghost[0]); // sum (rho * dv) / (sum dv)
+    KDV_double_1d const dv_total_dv("dv_mean_array", grid.Nx_local_ng[0] + grid.Nghost[0]); // sum dv
+    KDV_double_1d const rho_mean_dv("rho_mean_array", grid.Nx_local_ng[0] + grid.Nghost[0]); // sum (rho * dv) / (sum dv)
 
     KV_double_1d const M_r("M_r_array", grid.Nx_local_wg[0]); // total mass at r
     auto const x0 = grid.x0;
@@ -75,8 +74,6 @@ auto make_internal_mass_gravity(double const central_mass, Grid const& grid, KV_
     Kokkos::Array<int, 3> nghost;
     std::ranges::copy(grid.Nghost, nghost.data());
 
-    rho_mean_dv.modify_device();
-    dv_total_dv.modify_device();
     for (int i = 0; i < grid.Nx_local_ng[0] + grid.Nghost[0]; ++i) {
         Kokkos::parallel_reduce(
                 "integration_shell",
@@ -88,21 +85,15 @@ auto make_internal_mass_gravity(double const central_mass, Grid const& grid, KV_
                     local_sum_mass += rho(offset_i, offset_j, offset_k) * dv(offset_i, offset_j, offset_k);
                     local_sum_dv += dv(offset_i, offset_j, offset_k);
                 },
-                Kokkos::Sum(Kokkos::subview(rho_mean_dv.view_device(), i)),
-                Kokkos::Sum(Kokkos::subview(dv_total_dv.view_device(), i)));
+                Kokkos::Sum(Kokkos::subview(rho_mean_dv(device), i)),
+                Kokkos::Sum(Kokkos::subview(dv_total_dv(device), i)));
     }
-    rho_mean_dv.sync_host();
-    dv_total_dv.sync_host();
 
-    rho_mean_dv.modify_host();
-    dv_total_dv.modify_host();
-    MPI_Allreduce(MPI_IN_PLACE, dv_total_dv.view_host().data(), dv_total_dv.extent_int(0), MPI_DOUBLE, MPI_SUM, grid.comm_cart_horizontal);
-    MPI_Allreduce(MPI_IN_PLACE, rho_mean_dv.view_host().data(), rho_mean_dv.extent_int(0), MPI_DOUBLE, MPI_SUM, grid.comm_cart_horizontal);
-    rho_mean_dv.sync_device();
-    dv_total_dv.sync_device();
+    MPI_Allreduce(MPI_IN_PLACE, dv_total_dv(host).data(), dv_total_dv.extent_int(0), MPI_DOUBLE, MPI_SUM, grid.comm_cart_horizontal);
+    MPI_Allreduce(MPI_IN_PLACE, rho_mean_dv(host).data(), rho_mean_dv.extent_int(0), MPI_DOUBLE, MPI_SUM, grid.comm_cart_horizontal);
 
-    KV_double_1d const rho_mean = rho_mean_dv.view_device();
-    KV_cdouble_1d const dv_total = dv_total_dv.view_device();
+    KV_double_1d const rho_mean = rho_mean_dv(device);
+    KV_cdouble_1d const dv_total = dv_total_dv(device, read_only);
     Kokkos::parallel_for(
             "rho_mean_o_dv_tot",
             Kokkos::RangePolicy<int>(0, grid.Nx_local_ng[0] + grid.Nghost[0]),

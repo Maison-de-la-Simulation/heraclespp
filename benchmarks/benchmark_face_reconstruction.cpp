@@ -8,6 +8,7 @@
 #include <benchmark/benchmark.h>
 
 #include <Kokkos_Core.hpp>
+#include <dual_view.hpp>
 #include <grid.hpp>
 #include <grid_type.hpp>
 #include <int_cast.hpp>
@@ -49,13 +50,11 @@ void face_reconstruction(benchmark::State& state)
     hclpp::Grid grid(Nx_glob_ng, mpi_dims_cart, Ng);
     hclpp::Regular const regular_grid(std::array {x0min, x1min, x2min}, std::array {x0max, x1max, x2max});
 
-    hclpp::KDV_double_1d x0_glob("x0_glob", grid.Nx_glob_ng[0] + (2 * grid.Nghost[0]) + 1);
-    hclpp::KDV_double_1d x1_glob("x1_glob", grid.Nx_glob_ng[1] + (2 * grid.Nghost[1]) + 1);
-    hclpp::KDV_double_1d x2_glob("x2_glob", grid.Nx_glob_ng[2] + (2 * grid.Nghost[2]) + 1);
-    regular_grid.execute(grid.Nghost, grid.Nx_glob_ng, x0_glob.view_host(), x1_glob.view_host(), x2_glob.view_host());
-    hclpp::modify_host(x0_glob, x1_glob, x2_glob);
-    hclpp::sync_device(x0_glob, x1_glob, x2_glob);
-    grid.set_grid(x0_glob.view_device(), x1_glob.view_device(), x2_glob.view_device());
+    hclpp::KDV_double_1d const x0_glob("x0_glob", grid.Nx_glob_ng[0] + (2 * grid.Nghost[0]) + 1);
+    hclpp::KDV_double_1d const x1_glob("x1_glob", grid.Nx_glob_ng[1] + (2 * grid.Nghost[1]) + 1);
+    hclpp::KDV_double_1d const x2_glob("x2_glob", grid.Nx_glob_ng[2] + (2 * grid.Nghost[2]) + 1);
+    regular_grid.execute(grid.Nghost, grid.Nx_glob_ng, x0_glob(hclpp::host), x1_glob(hclpp::host), x2_glob(hclpp::host));
+    grid.set_grid(x0_glob(hclpp::device, hclpp::read_only), x1_glob(hclpp::device, hclpp::read_only), x2_glob(hclpp::device, hclpp::read_only));
 
     hclpp::KV_double_3d const rho("rho", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
     hclpp::KV_double_5d const rho_rec("rho_rec", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2], 2, hclpp::ndim);

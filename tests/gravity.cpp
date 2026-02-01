@@ -16,8 +16,6 @@
 #include <range.hpp>
 #include <units.hpp>
 
-#include "utils_dual_view.hpp"
-
 namespace {
 
 void test_gravity_internal_gravity()
@@ -47,13 +45,11 @@ void test_gravity_internal_gravity()
     hclpp::Grid grid(Nx_glob_ng, mpi_dims_cart, Ng);
     hclpp::Regular const regular_grid(std::array {x0min, x1min, x2min}, std::array {x0max, x1max, x2max});
 
-    hclpp::KDV_double_1d x0_glob("x0_glob", grid.Nx_glob_ng[0] + (2 * grid.Nghost[0]) + 1);
-    hclpp::KDV_double_1d x1_glob("x1_glob", grid.Nx_glob_ng[1] + (2 * grid.Nghost[1]) + 1);
-    hclpp::KDV_double_1d x2_glob("x2_glob", grid.Nx_glob_ng[2] + (2 * grid.Nghost[2]) + 1);
-    regular_grid.execute(grid.Nghost, grid.Nx_glob_ng, x0_glob.view_host(), x1_glob.view_host(), x2_glob.view_host());
-    hclpp::modify_host(x0_glob, x1_glob, x2_glob);
-    hclpp::sync_device(x0_glob, x1_glob, x2_glob);
-    grid.set_grid(x0_glob.view_device(), x1_glob.view_device(), x2_glob.view_device());
+    hclpp::KDV_double_1d const x0_glob("x0_glob", grid.Nx_glob_ng[0] + (2 * grid.Nghost[0]) + 1);
+    hclpp::KDV_double_1d const x1_glob("x1_glob", grid.Nx_glob_ng[1] + (2 * grid.Nghost[1]) + 1);
+    hclpp::KDV_double_1d const x2_glob("x2_glob", grid.Nx_glob_ng[2] + (2 * grid.Nghost[2]) + 1);
+    regular_grid.execute(grid.Nghost, grid.Nx_glob_ng, x0_glob(hclpp::host), x1_glob(hclpp::host), x2_glob(hclpp::host));
+    grid.set_grid(x0_glob(hclpp::device, hclpp::read_only), x1_glob(hclpp::device, hclpp::read_only), x2_glob(hclpp::device, hclpp::read_only));
 
     hclpp::KV_double_3d const rho("rho", grid.Nx_local_wg[0], grid.Nx_local_wg[1], grid.Nx_local_wg[2]);
     Kokkos::deep_copy(rho, rho_value);
@@ -104,22 +100,21 @@ void test_gravity_uniform_gravity()
     double const gy = 1.9;
     double const gz = 3.7;
 
-    hclpp::KDV_double_1d g("g", 3);
+    hclpp::KDV_double_1d const g("g", 3);
     {
-        auto const g_h = hclpp::view_host(g);
+        auto const g_h = g(hclpp::host);
         g_h(0) = gx;
         g_h(1) = gy;
         g_h(2) = gz;
     }
-    g.modify_host();
-    g.sync_device();
-    hclpp::UniformGravity const gravity(g.view_device());
+    hclpp::UniformGravity const gravity(g(hclpp::device, hclpp::read_only));
     int const nx = 5;
     int const ny = 4;
     int const nz = 3;
-    hclpp::KDV_double_4d result("result", nx, ny, nz, 3);
+    hclpp::KDV_double_4d const result("result", nx, ny, nz, 3);
+
     {
-        auto const result_d = hclpp::view_device(result);
+        auto const result_d = result(hclpp::device);
         Kokkos::parallel_for(
                 Kokkos::MDRangePolicy<Kokkos::IndexType<int>, Kokkos::Rank<3>>({0, 0, 0}, {nx, ny, nz}),
                 KOKKOS_LAMBDA(int i, int j, int k) {
@@ -128,10 +123,9 @@ void test_gravity_uniform_gravity()
                     result_d(i, j, k, 2) = gravity(i, j, k, 2);
                 });
     }
-    result.modify_device();
-    result.sync_host();
+
     {
-        auto const result_h = hclpp::view_host(result);
+        auto const result_h = result(hclpp::host, hclpp::read_only);
         for (int k = 0; k < nz; ++k) {
             for (int j = 0; j < ny; ++j) {
                 for (int i = 0; i < nx; ++i) {
