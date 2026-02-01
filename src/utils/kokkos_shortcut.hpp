@@ -19,34 +19,39 @@ namespace hclpp {
 
 using Kokkos::ALL;
 
-using KV_double_1d = Kokkos::View<double*, Kokkos::LayoutLeft>;
-using KV_double_2d = Kokkos::View<double**, Kokkos::LayoutLeft>;
-using KV_double_3d = Kokkos::View<double***, Kokkos::LayoutLeft>;
-using KV_double_4d = Kokkos::View<double****, Kokkos::LayoutLeft>;
-using KV_double_5d = Kokkos::View<double*****, Kokkos::LayoutLeft>;
-using KV_double_6d = Kokkos::View<double******, Kokkos::LayoutLeft>;
+using DefaultSpace = Kokkos::DefaultExecutionSpace::memory_space;
+using DefaultMemoryTraits = Kokkos::MemoryTraits<>;
 
-using KVH_double_1d = KV_double_1d::host_mirror_type;
-using KVH_double_2d = KV_double_2d::host_mirror_type;
-using KVH_double_3d = KV_double_3d::host_mirror_type;
-using KVH_double_4d = KV_double_4d::host_mirror_type;
-using KVH_double_5d = KV_double_5d::host_mirror_type;
-using KVH_double_6d = KV_double_6d::host_mirror_type;
+using KV_double_1d = Kokkos::View<double*, Kokkos::LayoutLeft, DefaultSpace, DefaultMemoryTraits>;
+using KV_double_2d = Kokkos::View<double**, Kokkos::LayoutLeft, DefaultSpace, DefaultMemoryTraits>;
+using KV_double_3d = Kokkos::View<double***, Kokkos::LayoutLeft, DefaultSpace, DefaultMemoryTraits>;
+using KV_double_4d = Kokkos::View<double****, Kokkos::LayoutLeft, DefaultSpace, DefaultMemoryTraits>;
+using KV_double_5d = Kokkos::View<double*****, Kokkos::LayoutLeft, DefaultSpace, DefaultMemoryTraits>;
+using KV_double_6d = Kokkos::View<double******, Kokkos::LayoutLeft, DefaultSpace, DefaultMemoryTraits>;
 
-using KV_cdouble_1d = Kokkos::View<double const*, Kokkos::LayoutLeft>;
-using KV_cdouble_2d = Kokkos::View<double const**, Kokkos::LayoutLeft>;
-using KV_cdouble_3d = Kokkos::View<double const***, Kokkos::LayoutLeft>;
-using KV_cdouble_4d = Kokkos::View<double const****, Kokkos::LayoutLeft>;
-using KV_cdouble_5d = Kokkos::View<double const*****, Kokkos::LayoutLeft>;
-using KV_cdouble_6d = Kokkos::View<double const******, Kokkos::LayoutLeft>;
+using KVH_double_1d = Kokkos::View<double*, Kokkos::LayoutLeft, Kokkos::HostSpace, DefaultMemoryTraits>;
+using KVH_double_2d = Kokkos::View<double**, Kokkos::LayoutLeft, Kokkos::HostSpace, DefaultMemoryTraits>;
+using KVH_double_3d = Kokkos::View<double***, Kokkos::LayoutLeft, Kokkos::HostSpace, DefaultMemoryTraits>;
+using KVH_double_4d = Kokkos::View<double****, Kokkos::LayoutLeft, Kokkos::HostSpace, DefaultMemoryTraits>;
+using KVH_double_5d = Kokkos::View<double*****, Kokkos::LayoutLeft, Kokkos::HostSpace, DefaultMemoryTraits>;
+using KVH_double_6d = Kokkos::View<double******, Kokkos::LayoutLeft, Kokkos::HostSpace, DefaultMemoryTraits>;
 
-using KDV_double_1d = Kokkos::DualView<double*, Kokkos::LayoutLeft>;
-using KDV_double_2d = Kokkos::DualView<double**, Kokkos::LayoutLeft>;
-using KDV_double_3d = Kokkos::DualView<double***, Kokkos::LayoutLeft>;
-using KDV_double_4d = Kokkos::DualView<double****, Kokkos::LayoutLeft>;
+using KV_cdouble_1d = Kokkos::View<double const*, Kokkos::LayoutLeft, DefaultSpace, DefaultMemoryTraits>;
+using KV_cdouble_2d = Kokkos::View<double const**, Kokkos::LayoutLeft, DefaultSpace, DefaultMemoryTraits>;
+using KV_cdouble_3d = Kokkos::View<double const***, Kokkos::LayoutLeft, DefaultSpace, DefaultMemoryTraits>;
+using KV_cdouble_4d = Kokkos::View<double const****, Kokkos::LayoutLeft, DefaultSpace, DefaultMemoryTraits>;
+using KV_cdouble_5d = Kokkos::View<double const*****, Kokkos::LayoutLeft, DefaultSpace, DefaultMemoryTraits>;
+using KV_cdouble_6d = Kokkos::View<double const******, Kokkos::LayoutLeft, DefaultSpace, DefaultMemoryTraits>;
 
-using KDV_cdouble_3d = Kokkos::DualView<double const***, Kokkos::LayoutLeft>;
-using KDV_cdouble_4d = Kokkos::DualView<double const****, Kokkos::LayoutLeft>;
+using KDV_double_1d = Kokkos::DualView<double*, Kokkos::LayoutLeft, DefaultSpace, DefaultMemoryTraits>;
+using KDV_double_2d = Kokkos::DualView<double**, Kokkos::LayoutLeft, DefaultSpace, DefaultMemoryTraits>;
+using KDV_double_3d = Kokkos::DualView<double***, Kokkos::LayoutLeft, DefaultSpace, DefaultMemoryTraits>;
+using KDV_double_4d = Kokkos::DualView<double****, Kokkos::LayoutLeft, DefaultSpace, DefaultMemoryTraits>;
+
+using KDV_cdouble_1d = Kokkos::DualView<double const*, Kokkos::LayoutLeft, DefaultSpace, DefaultMemoryTraits>;
+using KDV_cdouble_2d = Kokkos::DualView<double const**, Kokkos::LayoutLeft, DefaultSpace, DefaultMemoryTraits>;
+using KDV_cdouble_3d = Kokkos::DualView<double const***, Kokkos::LayoutLeft, DefaultSpace, DefaultMemoryTraits>;
+using KDV_cdouble_4d = Kokkos::DualView<double const****, Kokkos::LayoutLeft, DefaultSpace, DefaultMemoryTraits>;
 
 template <class... DualViews>
     requires((Kokkos::is_dual_view_v<DualViews> && ...))
