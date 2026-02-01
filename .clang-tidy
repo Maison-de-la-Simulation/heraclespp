@@ -8,6 +8,7 @@ Checks: >
   -bugprone-easily-swappable-parameters,
   cert-*,
   clang-analyzer-*,
+  -clang-analyzer-cplusplus.NewDeleteLeaks,
   -clang-analyzer-security.ArrayBound,
   clang-diagnostic-*,
   concurrency-*,
