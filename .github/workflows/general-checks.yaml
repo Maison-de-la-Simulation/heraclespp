@@ -31,7 +31,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: Spell Check Repo
-        uses: crate-ci/typos@a1d64977b4aa1709d6328d518aa753f4899352d8  # v1.42.2
+        uses: crate-ci/typos@93cbdb2d23269548cf0db0f74d0bc6a09a3f0d5c  # v1.43.0
 
   trailing-whitespaces-check:
     name: Trailing whitespaces check
