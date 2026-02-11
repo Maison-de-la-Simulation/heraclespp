@@ -18,6 +18,7 @@
 #include <vector>
 
 #include <Kokkos_Core.hpp>
+#include <dual_view.hpp>
 #include <git_version.hpp>
 #include <grid.hpp>
 #include <hdf5.h>
@@ -191,21 +192,20 @@ void write_pdi(
         double const t,
         double const gamma,
         Grid const& grid,
-        KDV_double_3d& rho,
-        KDV_double_4d& u,
-        KDV_double_3d& P,
-        KDV_double_3d& E,
-        KDV_double_1d& x0,
-        KDV_double_1d& x1,
-        KDV_double_1d& x2,
-        KDV_double_4d& fx,
-        KDV_double_3d& T)
+        KDV_cdouble_3d const& rho,
+        KDV_cdouble_4d const& u,
+        KDV_cdouble_3d const& P,
+        KDV_cdouble_3d const& E,
+        KDV_cdouble_1d const& x0,
+        KDV_cdouble_1d const& x1,
+        KDV_cdouble_1d const& x2,
+        KDV_cdouble_4d const& fx,
+        KDV_cdouble_3d const& T)
 {
     assert(span_is_contiguous(rho, u, P, E, fx, T));
     int const directory_size = int_cast<int>(directory.size());
     std::string const output_filename = get_output_filename(prefix, output_id);
     int const output_filename_size = int_cast<int>(output_filename.size());
-    sync_host(rho, u, P, E, fx, T, x0, x1, x2);
     // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     PDI_multi_expose(
             "write_replicated_data",
@@ -243,13 +243,13 @@ void write_pdi(
             &gamma,
             PDI_OUT,
             "x0",
-            x0.view_host().data(),
+            x0(host, read_only).data(),
             PDI_OUT,
             "x1",
-            x1.view_host().data(),
+            x1(host, read_only).data(),
             PDI_OUT,
             "x2",
-            x2.view_host().data(),
+            x2(host, read_only).data(),
             PDI_OUT,
             nullptr);
     // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
@@ -272,19 +272,19 @@ void write_pdi(
             output_filename.data(),
             PDI_OUT,
             "rho",
-            rho.view_host().data(),
+            rho(host, read_only).data(),
             PDI_OUT,
             "u",
-            u.view_host().data(),
+            u(host, read_only).data(),
             PDI_OUT,
             "P",
-            P.view_host().data(),
+            P(host, read_only).data(),
             PDI_OUT,
             "E",
-            E.view_host().data(),
+            E(host, read_only).data(),
             PDI_OUT,
             "T",
-            T.view_host().data(),
+            T(host, read_only).data(),
             PDI_OUT,
             nullptr);
     for (int ifx = 0; ifx < fx.extent_int(3); ++ifx) {
@@ -309,7 +309,7 @@ void write_pdi(
                 &ifx,
                 PDI_OUT,
                 "fx",
-                fx.view_host().data(),
+                fx(host, read_only).data(),
                 PDI_OUT,
                 nullptr);
     }
@@ -330,13 +330,13 @@ void read_pdi(
         int& time_output_id,
         int& iter,
         double& t,
-        KDV_double_3d& rho,
-        KDV_double_4d& u,
-        KDV_double_3d& P,
-        KDV_double_4d& fx,
-        KDV_double_1d& x0_glob,
-        KDV_double_1d& x1_glob,
-        KDV_double_1d& x2_glob)
+        KDV_double_3d const& rho,
+        KDV_double_4d const& u,
+        KDV_double_3d const& P,
+        KDV_double_4d const& fx,
+        KDV_double_1d const& x0_glob,
+        KDV_double_1d const& x1_glob,
+        KDV_double_1d const& x2_glob)
 {
     assert(span_is_contiguous(rho, u, P, fx));
 
@@ -389,22 +389,22 @@ void read_pdi(
             &t,
             PDI_INOUT,
             "rho",
-            rho.view_host().data(),
+            rho(host).data(),
             PDI_INOUT,
             "u",
-            u.view_host().data(),
+            u(host).data(),
             PDI_INOUT,
             "P",
-            P.view_host().data(),
+            P(host).data(),
             PDI_INOUT,
             "x0",
-            x0_glob.view_host().data(),
+            x0_glob(host).data(),
             PDI_INOUT,
             "x1",
-            x1_glob.view_host().data(),
+            x1_glob(host).data(),
             PDI_INOUT,
             "x2",
-            x2_glob.view_host().data(),
+            x2_glob(host).data(),
             PDI_INOUT,
             nullptr);
     for (int ifx = 0; ifx < fx.extent_int(3); ++ifx) {
@@ -423,12 +423,11 @@ void read_pdi(
                 &ifx,
                 PDI_OUT,
                 "fx",
-                fx.view_host().data(),
+                fx(host).data(),
                 PDI_INOUT,
                 nullptr);
     }
     // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
-    modify_host(rho, u, P, fx, x0_glob, x1_glob, x2_glob);
 }
 
 XmlWriter::XmlWriter(std::string directory, std::string prefix, int const nfx)
@@ -449,11 +448,10 @@ void XmlWriter::operator()(
         Grid const& grid,
         int const output_id,
         std::vector<std::pair<int, double>> const& outputs_record,
-        KDV_double_1d& x0,
-        KDV_double_1d& x1,
-        KDV_double_1d& x2) const
+        KDV_cdouble_1d const& x0,
+        KDV_cdouble_1d const& x1,
+        KDV_cdouble_1d const& x2) const
 {
-    sync_host(x0, x1, x2);
     if (grid.mpi_rank != 0) {
         return;
     }
@@ -507,7 +505,7 @@ void XmlWriter::operator()(
         xdmfFile << ">\n";
 
         std::string const output_filename = get_output_filename(m_prefix, first_output_id + i);
-        std::array const axes_arrays {x0.view_host(), x1.view_host(), x2.view_host()};
+        std::array const axes_arrays {x0(host, read_only), x1(host, read_only), x2(host, read_only)};
         std::array const axes_labels {"x0_ng", "x1_ng", "x2_ng"};
         for (int idim = 0; idim < 3; ++idim) {
             indent.push();

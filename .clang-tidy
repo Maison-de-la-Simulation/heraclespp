@@ -34,6 +34,8 @@ Checks: >
 CheckOptions:
   - key: cppcoreguidelines-avoid-magic-numbers.IgnoredIntegerValues
     value: '1;2;3;4;5'
+  - key: cppcoreguidelines-rvalue-reference-param-not-moved.AllowPartialMove
+    value: 'true'
   - key: misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
     value: 'true'
   - key: readability-identifier-naming.ClassCase
