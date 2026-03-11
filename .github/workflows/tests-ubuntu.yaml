@@ -437,7 +437,7 @@ jobs:
       - run: |
           cmake \
             -D BUILD_TESTING=ON \
-            -D CMAKE_CXX_COMPILER=clang++-21 \
+            -D CMAKE_CXX_COMPILER=clang++-22 \
             -D CMAKE_CXX_INCLUDE_WHAT_YOU_USE="include-what-you-use;-Xiwyu;--verbose=3;-Xiwyu;--mapping=$PWD/iwyu-heraclespp.json;-Xiwyu;--mapping=$PWD/iwyu-kokkos.json;" \
             -D Heraclespp_BUILD_BENCHMARKING=ON \
             -D Heraclespp_EOS=PerfectGas \
@@ -469,7 +469,7 @@ jobs:
       - run: |
           cmake \
             -D BUILD_TESTING=ON \
-            -D CMAKE_CXX_COMPILER=clang++-21 \
+            -D CMAKE_CXX_COMPILER=clang++-22 \
             -D CMAKE_CXX_CLANG_TIDY="clang-tidy-21;-header-filter=${{github.workspace}}/src/.*;-warnings-as-errors=*" \
             -D Heraclespp_BUILD_BENCHMARKING=ON \
             -D Heraclespp_EOS=PerfectGas \
@@ -501,7 +501,7 @@ jobs:
       - run: |
           cmake \
             -D BUILD_TESTING=ON \
-            -D CMAKE_CXX_COMPILER=clang++-21 \
+            -D CMAKE_CXX_COMPILER=clang++-22 \
             -D CMAKE_LINK_WHAT_YOU_USE=ON \
             -D Heraclespp_BUILD_BENCHMARKING=ON \
             -D Heraclespp_EOS=PerfectGas \
