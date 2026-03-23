@@ -4,8 +4,8 @@
 
 #include <algorithm>
 #include <array>
-#include <compare>
 #include <iterator>
+#include <ranges>
 #include <set>
 #include <type_traits>
 #include <version>
@@ -66,6 +66,13 @@ public:
         return *this;
     }
 
+    auto operator++(int) noexcept -> Iterator
+    {
+        Iterator tmp = *this;
+        ++*this;
+        return tmp;
+    }
+
     friend auto operator==(Iterator const& lhs, Iterator const& rhs) -> bool
     {
         return lhs.m_front == rhs.m_front;
@@ -75,33 +82,6 @@ public:
     friend bool operator!=(Iterator const& lhs, Iterator const& rhs)
     {
         return lhs.m_front != rhs.m_front;
-    }
-#endif
-
-#if defined(__cpp_lib_three_way_comparison)
-    friend auto operator<=>(Iterator const& lhs, Iterator const& rhs) -> std::strong_ordering
-    {
-        return lhs.m_front <=> rhs.m_front;
-    }
-#else
-    friend bool operator>(Iterator const& lhs, Iterator const& rhs)
-    {
-        return lhs.m_front > rhs.m_front;
-    }
-
-    friend bool operator<(Iterator const& lhs, Iterator const& rhs)
-    {
-        return lhs.m_front < rhs.m_front;
-    }
-
-    friend bool operator>=(Iterator const& lhs, Iterator const& rhs)
-    {
-        return lhs.m_front >= rhs.m_front;
-    }
-
-    friend bool operator<=(Iterator const& lhs, Iterator const& rhs)
-    {
-        return lhs.m_front <= rhs.m_front;
     }
 #endif
 };
@@ -119,6 +99,21 @@ auto Partitioner::end() const noexcept -> Partitioner::Iterator
 }
 
 } // namespace
+
+TEST(Partitioner, Range)
+{
+    EXPECT_TRUE(std::ranges::forward_range<Partitioner>);
+}
+
+TEST(Partitioner, Comparison)
+{
+    Partitioner::Iterator const it1(0, 1, 1);
+    Partitioner::Iterator const it2(0, 1, 1);
+    Partitioner::Iterator const it3(1, 1, 1);
+
+    EXPECT_EQ(it1, it2);
+    EXPECT_NE(it1, it3);
+}
 
 TEST(Partitionner, SomeTest)
 {
