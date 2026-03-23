@@ -1,3 +1,6 @@
 [
-    {"include": ["@<H5.*h>", "private", "<hdf5.h>", "public"]}
+    {"include": ["@<H5.*.h>", "private", "<hdf5.h>", "public"]},
+    {"include": ["<new>", "public", "<Kokkos_Core.hpp>", "public"]},
+    {"symbol": ["std::array", "private", "<array>", "public"]},
+    {"symbol": ["std::pair", "private", "<utility>", "public"]}
 ]
