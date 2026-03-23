@@ -75,7 +75,7 @@ void face_reconstruction(benchmark::State& state)
 
     set_constant_cells_processed(state, cells);
 
-    set_constant_bytes_processed(state, sizeof(double) * (1 + hclpp::ndim * 2) * cells);
+    set_constant_bytes_processed(state, sizeof(double) * (1 + (hclpp::ndim * 2)) * cells);
 }
 
 } // namespace
