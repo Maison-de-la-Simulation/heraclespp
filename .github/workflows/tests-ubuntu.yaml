@@ -470,7 +470,7 @@ jobs:
           cmake \
             -D BUILD_TESTING=ON \
             -D CMAKE_CXX_COMPILER=clang++-22 \
-            -D CMAKE_CXX_CLANG_TIDY="clang-tidy-21;-header-filter=${{github.workspace}}/src/.*;-warnings-as-errors=*" \
+            -D CMAKE_CXX_CLANG_TIDY="clang-tidy-22;-header-filter=${{github.workspace}}/src/.*;-warnings-as-errors=*" \
             -D Heraclespp_BUILD_BENCHMARKING=ON \
             -D Heraclespp_EOS=PerfectGas \
             -D Heraclespp_GEOM=Cartesian \

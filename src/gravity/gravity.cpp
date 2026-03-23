@@ -109,10 +109,10 @@ auto make_internal_mass_gravity(double const central_mass, Grid const& grid, KV_
                 int const offset = i - nghost[0];
                 double const x3 = x0(i) * x0(i) * x0(i);
                 if (i == nghost[0]) {
-                    partial_sum += central_mass + (vol_s3 * (x0c(i) * x0c(i) * x0c(i) - x3) * rho_mean(offset));
+                    partial_sum += central_mass + (vol_s3 * ((x0c(i) * x0c(i) * x0c(i)) - x3) * rho_mean(offset));
                 } else {
-                    partial_sum += (vol_s3 * (x3 - x0c(i - 1) * x0c(i - 1) * x0c(i - 1)) * rho_mean(offset - 1))
-                                   + (vol_s3 * (x0c(i) * x0c(i) * x0c(i) - x3) * rho_mean(offset));
+                    partial_sum += (vol_s3 * (x3 - (x0c(i - 1) * x0c(i - 1) * x0c(i - 1))) * rho_mean(offset - 1))
+                                   + (vol_s3 * ((x0c(i) * x0c(i) * x0c(i)) - x3) * rho_mean(offset));
                 }
                 if (is_final) {
                     M_r(i) = partial_sum;

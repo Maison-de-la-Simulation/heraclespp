@@ -12,6 +12,8 @@
 #include <perfect_gas.hpp>
 #include <rad_gas.hpp>
 
+namespace {
+
 template <class EoS>
 class EquationOfStateFixture : public ::testing::Test
 {
@@ -31,13 +33,15 @@ public:
     auto operator=(EquationOfStateFixture&& rhs) noexcept -> EquationOfStateFixture& = default;
 };
 
+} // namespace
+
 using EquationOfStates = ::testing::Types<hclpp::thermodynamics::PerfectGas, hclpp::thermodynamics::RadGas>;
 // Trailing comma is needed to avoid spurious `gnu-zero-variadic-macro-arguments` warning with clang
 TYPED_TEST_SUITE(EquationOfStateFixture, EquationOfStates, );
 
 TYPED_TEST(EquationOfStateFixture, GammaValidityRange)
 {
-    using eos_t = typename TestFixture::eos_type;
+    using eos_t = TestFixture::eos_type;
     std::vector<double> const valid_values {std::nextafter(1., std::numeric_limits<double>::infinity()), std::numeric_limits<double>::max()};
 
     std::vector<double> invalid_values {-std::numeric_limits<double>::infinity(), -1., +1., +std::numeric_limits<double>::infinity()};
@@ -61,7 +65,7 @@ TYPED_TEST(EquationOfStateFixture, GammaValidityRange)
 
 TYPED_TEST(EquationOfStateFixture, MmwValidityRange)
 {
-    using eos_t = typename TestFixture::eos_type;
+    using eos_t = TestFixture::eos_type;
     std::vector<double> const valid_values {std::numeric_limits<double>::denorm_min(), +1., std::numeric_limits<double>::max()};
 
     std::vector<double> invalid_values {-std::numeric_limits<double>::infinity(), -1., 0., +std::numeric_limits<double>::infinity()};
@@ -85,7 +89,7 @@ TYPED_TEST(EquationOfStateFixture, MmwValidityRange)
 
 TYPED_TEST(EquationOfStateFixture, Accessors)
 {
-    using eos_t = typename TestFixture::eos_type;
+    using eos_t = TestFixture::eos_type;
     double const gamma = 1.4;
     double const mmw = 1;
 
@@ -96,7 +100,7 @@ TYPED_TEST(EquationOfStateFixture, Accessors)
 
 TYPED_TEST(EquationOfStateFixture, ValidState)
 {
-    using eos_t = typename TestFixture::eos_type;
+    using eos_t = TestFixture::eos_type;
     double const gamma = 1.4;
     double const mmw = 1;
     eos_t const eos(gamma, mmw);

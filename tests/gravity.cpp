@@ -65,7 +65,7 @@ void test_gravity_internal_gravity()
             "",
             hclpp::cell_mdrange(grid.range.no_ghosts()),
             KOKKOS_LAMBDA(int i, int, int) {
-                double const M_i = 4. / 3 * hclpp::units::pi * rho_value * (x0c(i) * x0c(i) * x0c(i) - x0min * x0min * x0min);
+                double const M_i = 4. / 3 * hclpp::units::pi * rho_value * ((x0c(i) * x0c(i) * x0c(i)) - (x0min * x0min * x0min));
                 g_th(i) = -hclpp::units::G * (M_star + M_i) / (x0c(i) * x0c(i));
             });
 
