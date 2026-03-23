@@ -15,6 +15,8 @@
 #include <Kokkos_Array.hpp>
 #include <range.hpp>
 
+namespace {
+
 class Partitioner
 {
 private:
@@ -115,6 +117,8 @@ auto Partitioner::end() const noexcept -> Partitioner::Iterator
 {
     return Iterator(m_dom[1], m_dom[1], m_block);
 }
+
+} // namespace
 
 TEST(Partitionner, SomeTest)
 {

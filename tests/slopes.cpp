@@ -15,6 +15,8 @@ TEST(NullSlopeLimiter, Zero)
     EXPECT_EQ(slope(diffR, diffL), 0.);
 }
 
+namespace {
+
 template <class SlopeLimiter>
 class SlopeLimiterFixture : public ::testing::Test
 {
@@ -33,6 +35,8 @@ public:
 
     auto operator=(SlopeLimiterFixture&& rhs) noexcept -> SlopeLimiterFixture& = default;
 };
+
+} // namespace
 
 using SlopeLimiters = ::testing::Types<hclpp::Minmod, hclpp::VanAlbada, hclpp::VanLeer>;
 // Trailing comma is needed to avoid spurious `gnu-zero-variadic-macro-arguments` warning with clang

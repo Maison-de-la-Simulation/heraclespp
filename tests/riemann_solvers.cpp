@@ -11,6 +11,8 @@
 #include <perfect_gas.hpp>
 #include <riemann_solver.hpp>
 
+namespace {
+
 template <class RiemannSolver>
 class RiemannSolverFixture : public ::testing::Test
 {
@@ -29,6 +31,8 @@ public:
 
     auto operator=(RiemannSolverFixture&& rhs) noexcept -> RiemannSolverFixture& = default;
 };
+
+} // namespace
 
 using RiemannSolvers = ::testing::Types<hclpp::HLL, hclpp::HLLC, hclpp::Splitting>;
 // Trailing comma is needed to avoid spurious `gnu-zero-variadic-macro-arguments` warning with clang
