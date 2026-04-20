@@ -139,7 +139,7 @@ void pressure_fix(
                             double const us = (prim_mR.u[ipos] + primL.u[ipos]) / 2; // Not the values from the Riemann solver
                             double const us_p = (primR.u[ipos] + prim_pL.u[ipos]) / 2;
 
-                            divU += (us_p * ds(i_p, j_p, k_p, ipos) - us * ds(i, j, k, ipos)) / dv(i, j, k);
+                            divU += ((us_p * ds(i_p, j_p, k_p, ipos)) - (us * ds(i, j, k, ipos))) / dv(i, j, k);
 
                             if (us_p > 0) {
                                 einR = E(i, j, k) - compute_ek(cons);
@@ -153,9 +153,9 @@ void pressure_fix(
                                 einL = E(i_m, j_m, k_m) - compute_ek(cons_m);
                             }
 
-                            divUE += (us_p * einR * ds(i_p, j_p, k_p, ipos) - us * einL * ds(i, j, k, ipos)) / dv(i, j, k);
+                            divUE += ((us_p * einR * ds(i_p, j_p, k_p, ipos)) - (us * einL * ds(i, j, k, ipos))) / dv(i, j, k);
 
-                            double const de_pf = dt * (-prim.P * divU - divUE);
+                            double const de_pf = dt * ((-prim.P * divU) - divUE);
 
                             double sum = 0;
                             for (int idr = 0; idr < ndim; ++idr) {

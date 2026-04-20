@@ -60,7 +60,7 @@ public:
     KOKKOS_FORCEINLINE_FUNCTION
     static auto flux_hll(double const UL, double const UR, double const FL, double const FR, double const wsL, double const wsR) noexcept -> double
     {
-        return (wsR * FL - wsL * FR + wsL * wsR * (UR - UL)) / (wsR - wsL);
+        return ((wsR * FL) - (wsL * FR) + (wsL * wsR * (UR - UL))) / (wsR - wsL);
     }
 };
 
@@ -88,8 +88,8 @@ public:
         double const rcL = primL.rho * (wsL - primL.u[locdim]);
         double const rcR = primR.rho * (wsR - primR.u[locdim]);
 
-        double const ustar = (primR.P - primL.P + rcL * primL.u[locdim] - rcR * primR.u[locdim]) / (rcL - rcR);
-        double const pstar = 1. / 2 * (primL.P + primR.P + rcL * (ustar - primL.u[locdim]) + rcR * (ustar - primR.u[locdim]));
+        double const ustar = (primR.P - primL.P + (rcL * primL.u[locdim]) - (rcR * primR.u[locdim])) / (rcL - rcR);
+        double const pstar = 1. / 2 * (primL.P + primR.P + (rcL * (ustar - primL.u[locdim])) + (rcR * (ustar - primR.u[locdim])));
 
         double S = 0;
         EulerCons cons_state;
@@ -127,7 +127,7 @@ public:
             flux.rhou[locdim] = (rho_star * ustar * ustar) + pstar;
 
             double const E_star
-                    = ((S - un) / (S - ustar) * cons_state.E) + ((ustar - un) / (S - ustar) * (ustar * cons_state.rho * (S - un) + prim_state.P));
+                    = ((S - un) / (S - ustar) * cons_state.E) + ((ustar - un) / (S - ustar) * ((ustar * cons_state.rho * (S - un)) + prim_state.P));
             flux.E = flux_hllc(flux_state.E, cons_state.E, E_star, S);
         }
         return flux;

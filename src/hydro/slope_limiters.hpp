@@ -79,7 +79,7 @@ public:
     {
         if (diffL * diffR > 0) {
             double const ratio = diffR / diffL;
-            return (1. / 2) * (diffR + diffL) * (2 * ratio) / (ratio * ratio + 1);
+            return (1. / 2) * (diffR + diffL) * (2 * ratio) / ((ratio * ratio) + 1);
         }
 
         return 0;

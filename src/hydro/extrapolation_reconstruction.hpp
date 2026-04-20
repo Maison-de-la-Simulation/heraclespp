@@ -130,16 +130,16 @@ public:
                         double const dtodv = dt / dv(i, j, k);
 
                         for (int ipos = 0; ipos < ndim; ++ipos) {
-                            rho_rec(i, j, k, 0, ipos) += dtodv * (fluxL.rho * ds(i, j, k, idim) - fluxR.rho * ds(i_p, j_p, k_p, idim));
-                            rho_rec(i, j, k, 1, ipos) += dtodv * (fluxL.rho * ds(i, j, k, idim) - fluxR.rho * ds(i_p, j_p, k_p, idim));
+                            rho_rec(i, j, k, 0, ipos) += dtodv * ((fluxL.rho * ds(i, j, k, idim)) - (fluxR.rho * ds(i_p, j_p, k_p, idim)));
+                            rho_rec(i, j, k, 1, ipos) += dtodv * ((fluxL.rho * ds(i, j, k, idim)) - (fluxR.rho * ds(i_p, j_p, k_p, idim)));
                             for (int idr = 0; idr < ndim; ++idr) {
                                 rhou_rec(i, j, k, 0, ipos, idr)
-                                        += dtodv * (fluxL.rhou[idr] * ds(i, j, k, idim) - fluxR.rhou[idr] * ds(i_p, j_p, k_p, idim));
+                                        += dtodv * ((fluxL.rhou[idr] * ds(i, j, k, idim)) - (fluxR.rhou[idr] * ds(i_p, j_p, k_p, idim)));
                                 rhou_rec(i, j, k, 1, ipos, idr)
-                                        += dtodv * (fluxL.rhou[idr] * ds(i, j, k, idim) - fluxR.rhou[idr] * ds(i_p, j_p, k_p, idim));
+                                        += dtodv * ((fluxL.rhou[idr] * ds(i, j, k, idim)) - (fluxR.rhou[idr] * ds(i_p, j_p, k_p, idim)));
                             }
-                            E_rec(i, j, k, 0, ipos) += dtodv * (fluxL.E * ds(i, j, k, idim) - fluxR.E * ds(i_p, j_p, k_p, idim));
-                            E_rec(i, j, k, 1, ipos) += dtodv * (fluxL.E * ds(i, j, k, idim) - fluxR.E * ds(i_p, j_p, k_p, idim));
+                            E_rec(i, j, k, 0, ipos) += dtodv * ((fluxL.E * ds(i, j, k, idim)) - (fluxR.E * ds(i_p, j_p, k_p, idim)));
+                            E_rec(i, j, k, 1, ipos) += dtodv * ((fluxL.E * ds(i, j, k, idim)) - (fluxR.E * ds(i_p, j_p, k_p, idim)));
                         }
 
                         if (geom == Geometry::Geom_spherical) {
@@ -317,8 +317,8 @@ public:
                                 double const flux_fx_L = fx_rec_old(i, j, k, 0, idim, ifx) * fluxL.rho;
                                 double const flux_fx_R = fx_rec_old(i, j, k, 1, idim, ifx) * fluxR.rho;
 
-                                fx_rec(i, j, k, 0, ipos, ifx) += dtodv * (flux_fx_L * ds(i, j, k, idim) - flux_fx_R * ds(i_p, j_p, k_p, idim));
-                                fx_rec(i, j, k, 1, ipos, ifx) += dtodv * (flux_fx_L * ds(i, j, k, idim) - flux_fx_R * ds(i_p, j_p, k_p, idim));
+                                fx_rec(i, j, k, 0, ipos, ifx) += dtodv * ((flux_fx_L * ds(i, j, k, idim)) - (flux_fx_R * ds(i_p, j_p, k_p, idim)));
+                                fx_rec(i, j, k, 1, ipos, ifx) += dtodv * ((flux_fx_L * ds(i, j, k, idim)) - (flux_fx_R * ds(i_p, j_p, k_p, idim)));
                             }
                         }
                     }
