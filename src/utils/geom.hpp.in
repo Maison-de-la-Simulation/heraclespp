@@ -16,7 +16,7 @@ namespace hclpp
 
 inline constexpr std::string_view geom_choice = "@Heraclespp_GEOM@";
 
-enum Geometry : char
+enum class Geometry : char
 {
     Geom_cartesian,
     Geom_spherical
