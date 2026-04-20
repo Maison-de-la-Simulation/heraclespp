@@ -38,8 +38,7 @@ public:
             KV_cdouble_1d const& dx1,
             KV_cdouble_1d const& dx2,
             KV_double_4d const& ds,
-            KV_double_3d const& dv) const
-            = 0;
+            KV_double_3d const& dv) const = 0;
 };
 
 class Cartesian : public IComputeGeom

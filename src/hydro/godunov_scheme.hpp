@@ -60,8 +60,7 @@ public:
             KV_double_3d const& rho_new,
             KV_double_4d const& rhou_new,
             KV_double_3d const& E_new,
-            KV_double_4d const& fx_new) const
-            = 0;
+            KV_double_4d const& fx_new) const = 0;
 };
 
 template <class RiemannSolver, concepts::GravityField Gravity, concepts::EulerEoS EoS>

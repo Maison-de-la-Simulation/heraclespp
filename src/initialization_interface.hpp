@@ -36,8 +36,7 @@ public:
             KV_double_3d const& rho,
             KV_double_4d const& u,
             KV_double_3d const& P,
-            KV_double_4d const& fx) const
-            = 0;
+            KV_double_4d const& fx) const = 0;
 };
 
 } // namespace hclpp
