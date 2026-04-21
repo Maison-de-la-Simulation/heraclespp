@@ -36,8 +36,7 @@ public:
             KV_cdouble_3d const& rho,
             KV_cdouble_4d const& rhou,
             KV_cdouble_3d const& E,
-            KV_cdouble_4d const& fx) const -> bool
-            = 0;
+            KV_cdouble_4d const& fx) const -> bool = 0;
 };
 
 class NoShiftGrid : public IShiftCriterion

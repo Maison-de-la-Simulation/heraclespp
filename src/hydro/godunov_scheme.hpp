@@ -60,8 +60,7 @@ public:
             KV_double_3d const& rho_new,
             KV_double_4d const& rhou_new,
             KV_double_3d const& E_new,
-            KV_double_4d const& fx_new) const
-            = 0;
+            KV_double_4d const& fx_new) const = 0;
 };
 
 template <class RiemannSolver, concepts::GravityField Gravity, concepts::EulerEoS EoS>
@@ -157,11 +156,11 @@ public:
 
                         double const dtodv = dt / dv(i, j, k);
 
-                        rho_new(i, j, k) += dtodv * (FluxL.rho * ds(i, j, k, idim) - FluxR.rho * ds(i_p, j_p, k_p, idim));
+                        rho_new(i, j, k) += dtodv * ((FluxL.rho * ds(i, j, k, idim)) - (FluxR.rho * ds(i_p, j_p, k_p, idim)));
                         for (int idr = 0; idr < ndim; ++idr) {
-                            rhou_new(i, j, k, idr) += dtodv * (FluxL.rhou[idr] * ds(i, j, k, idim) - FluxR.rhou[idr] * ds(i_p, j_p, k_p, idim));
+                            rhou_new(i, j, k, idr) += dtodv * ((FluxL.rhou[idr] * ds(i, j, k, idim)) - (FluxR.rhou[idr] * ds(i_p, j_p, k_p, idim)));
                         }
-                        E_new(i, j, k) += dtodv * (FluxL.E * ds(i, j, k, idim) - FluxR.E * ds(i_p, j_p, k_p, idim));
+                        E_new(i, j, k) += dtodv * ((FluxL.E * ds(i, j, k, idim)) - (FluxR.E * ds(i_p, j_p, k_p, idim)));
 
                         if (geom == Geometry::Geom_spherical) {
                             EulerPrim const primL = to_prim(var_L, eos);
@@ -287,7 +286,7 @@ public:
                             double const flux_fx_L = fx_rec(iL_uw, jL_uw, kL_uw, face_L, idim, ifx) * FluxL.rho;
                             double const flux_fx_R = fx_rec(iR_uw, jR_uw, kR_uw, face_R, idim, ifx) * FluxR.rho;
 
-                            fx_new(i, j, k, ifx) += dtodv * (flux_fx_L * ds(i, j, k, idim) - flux_fx_R * ds(i_p, j_p, k_p, idim));
+                            fx_new(i, j, k, ifx) += dtodv * ((flux_fx_L * ds(i, j, k, idim)) - (flux_fx_R * ds(i_p, j_p, k_p, idim)));
                         }
                     }
                 });

@@ -41,7 +41,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: jidicula/clang-format-action@654a770daa28443dd111d133e4083e21c1075674  # v4.18.0
         with:
-          clang-format-version: '21'
+          clang-format-version: '22'
           exclude-regex: 'vendor'
 
   lint:
@@ -470,7 +470,7 @@ jobs:
           cmake \
             -D BUILD_TESTING=ON \
             -D CMAKE_CXX_COMPILER=clang++-22 \
-            -D CMAKE_CXX_CLANG_TIDY="clang-tidy-22;-header-filter=${{github.workspace}}/src/.*;-warnings-as-errors=*" \
+            -D CMAKE_CXX_CLANG_TIDY="clang-tidy-22;-warnings-as-errors=*" \
             -D Heraclespp_BUILD_BENCHMARKING=ON \
             -D Heraclespp_EOS=PerfectGas \
             -D Heraclespp_GEOM=Cartesian \
