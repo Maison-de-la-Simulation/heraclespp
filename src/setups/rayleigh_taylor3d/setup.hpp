@@ -84,13 +84,12 @@ public:
 
         if (mpi_rank == 0)
         {
-            std::random_device rd;
-            std::mt19937 const gen(rd());
+            std::mt19937 gen(42);
             std::uniform_real_distribution<double> dist(-1.0, 1.0);
 
             for(double& data : data_to_broadcast)
             {
-                data = dist(rd);
+                data = dist(gen);
             }
         }
 
