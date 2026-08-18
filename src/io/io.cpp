@@ -206,11 +206,27 @@ void write_pdi(
     int const directory_size = int_cast<int>(directory.size());
     std::string const output_filename = get_output_filename(prefix, output_id);
     int const output_filename_size = int_cast<int>(output_filename.size());
+    std::array<int, 3> const dimensions = {grid.Nx_glob_ng[0] + 1, grid.Nx_glob_ng[1] + 1, grid.Nx_glob_ng[2] + 1};
+    std::array<int, 2> const version = {2, 7};
+    std::string const type("RectilinearGrid");
+    int const type_size = int_cast<int>(type.size());
     // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     PDI_multi_expose(
             "write_replicated_data",
             "nullptr",
             nullptr,
+            PDI_OUT,
+            "dimensions",
+            dimensions.data(),
+            PDI_OUT,
+            "type_size",
+            &type_size,
+            PDI_OUT,
+            "type",
+            type.data(),
+            PDI_OUT,
+            "version",
+            version.data(),
             PDI_OUT,
             "directory_size",
             &directory_size,
@@ -314,13 +330,13 @@ void write_pdi(
                 nullptr);
     }
     // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
-    if (grid.mpi_rank == 0) {
-        RaiiH5Hid const file_id(::H5Fopen((directory + '/' + output_filename).c_str(), H5F_ACC_RDWR, H5P_DEFAULT), H5Fclose);
-        write_string_attribute(file_id, "git_build_string", git_build_string);
-        write_string_attribute(file_id, "git_branch", git_branch);
-        write_string_attribute(file_id, "compile_date", compile_date);
-        write_string_attribute(file_id, "compile_time", compile_time);
-    }
+    // if (grid.mpi_rank == 0) {
+    //     RaiiH5Hid const file_id(::H5Fopen((directory + '/' + output_filename).c_str(), H5F_ACC_RDWR, H5P_DEFAULT), H5Fclose);
+    //     write_string_attribute(file_id, "git_build_string", git_build_string);
+    //     write_string_attribute(file_id, "git_branch", git_branch);
+    //     write_string_attribute(file_id, "compile_date", compile_date);
+    //     write_string_attribute(file_id, "compile_time", compile_time);
+    // }
 }
 
 void read_pdi(

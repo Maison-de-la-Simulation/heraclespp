@@ -3,108 +3,169 @@
 # SPDX-License-Identifier: MIT
 
 ---
-pdi:
-  metadata:
-    ndim: int
-    max_iter: int
-    frequency: int
-    iter: int
-    time_out: double
-    current_time: double
-    mpi_rank: int
-    mpi_size: int
-    nx_glob_ng: {type: array, subtype: int, size: 3}
-    nx_local_ng: {type: array, subtype: int, size: 3}
-    nx_local_wg: {type: array, subtype: int, size: 3}
-    n_ghost: {type: array, subtype: int, size: 3}
-    start: {type: array, subtype: int, size: 3}
-    version: {type: array, subtype: int64, size: 2}
-    whole_extents: {type: array, subtype: int64, size: 6}
-    direction: {type: array, subtype: int64, size: 9}
-    spacing: {type: array, subtype: double, size: 3}
-    origin: {type: array, subtype: double, size: 3}
-    type: {type: array, subtype: char, size: 9}
-    x: {type: array, subtype: double, size: ['$nx_glob_ng[0]']}
-    y: {type: array, subtype: double, size: ['$nx_glob_ng[1]']}
-    z: {type: array, subtype: double, size: ['$nx_glob_ng[2]']}
+metadata:
+  ndim: int
+  nfx: int
+  output_id: int
+  iter_output_id: int
+  time_output_id: int
+  iter: int
+  gamma: double
+  current_time: double
+  nx_glob_ng: {type: array, subtype: int, size: 3}
+  nx_local_ng: {type: array, subtype: int, size: 3}
+  nx_local_wg: {type: array, subtype: int, size: 3}
+  n_ghost: {type: array, subtype: int, size: 3}
+  start: {type: array, subtype: int, size: 3}
+  restart_filename_size: int
+  restart_filename: {type: array, subtype: char, size: $restart_filename_size}
+  directory_size: int
+  directory: {type: array, subtype: char, size: $directory_size}
+  output_filename_size: int
+  output_filename: {type: array, subtype: char, size: $output_filename_size}
+  init_filename_size: int
+  init_filename: {type: array, subtype: char, size: $init_filename_size}
+  grid_communicator: MPI_Comm
+  mpi_rank: int
+  ifx: int
+  dimensions: {type: array, subtype: int, size: 3}
+  type_size: int
+  type: {type: array, subtype: char, size: $type_size}
+  version: {type: array, subtype: int, size: 2}
 
-  data:
-    u: {type: array, subtype: double, size: ['$ndim', '$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]']}
-    rho: {type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]']}
-    P: {type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]']}
+data:
+  u: {type: array, subtype: double, size: ['$ndim', '$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]']}
+  rho: {type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]']}
+  P: {type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]']}
+  E: {type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]']}
+  T: {type: array, subtype: double, size: ['$nx_local_wg[2]', '$nx_local_wg[1]', '$nx_local_wg[0]']}
+  x0: {type: array, subtype: double, size: ['$nx_glob_ng[0]+2*$n_ghost[0]+1']}
+  x1: {type: array, subtype: double, size: ['$nx_glob_ng[1]+2*$n_ghost[1]+1']}
+  x2: {type: array, subtype: double, size: ['$nx_glob_ng[2]+2*$n_ghost[2]+1']}
 
-  plugins:
-    mpi:
-    decl_hdf5:
-      - file: test_${iter:08}.hdf
-        collision_policy: write_into
-        communicator: '$MPI_COMM_WORLD'
-        on_event: write_file
-        datasets:
-          /VTKHDF/CellData/rho: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
-          /VTKHDF/CellData/u: {type: array, subtype: double, size: ['$ndim', '$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
-          /VTKHDF/CellData/P: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
-          /VTKHDF/CellData/x: {type: array, subtype: double, size: ['$nx_glob_ng[0]']}
-          /VTKHDF/CellData/y: {type: array, subtype: double, size: ['$nx_glob_ng[1]']}
-          /VTKHDF/CellData/z: {type: array, subtype: double, size: ['$nx_glob_ng[2]']}
-        write:
-          direction:
-            attribute: VTKHDF#Direction
-          origin:
-            attribute: VTKHDF#Origin
-          spacing:
-            attribute: VTKHDF#Spacing
-          type:
-            attribute: VTKHDF#Type
-          version:
-            attribute: VTKHDF#Version
-          whole_extents:
-            attribute: VTKHDF#WholeExtent
-          rho:
-            dataset: /VTKHDF/CellData/rho
+plugins:
+  mpi:
+  decl_hdf5:
+    - file: ${directory}//test_${iter:08}.vtkhdf
+      on_event: write_replicated_data
+      collision_policy: replace
+      when: '${mpi_rank}=0'
+      datasets:
+        /VTKHDF/XCoordinates: {type: array, subtype: double, size: ['$nx_glob_ng[0] + 1']}
+        /VTKHDF/YCoordinates: {type: array, subtype: double, size: ['$nx_glob_ng[1] + 1']}
+        /VTKHDF/ZCoordinates: {type: array, subtype: double, size: ['$nx_glob_ng[2] + 1']}
+      write:
+        dimensions:
+          attribute: VTKHDF#Dimensions
+        type:
+          attribute: VTKHDF#Type
+        version:
+          attribute: VTKHDF#Version
+        x0:
+          dataset: /VTKHDF/XCoordinates
+          memory_selection:
+            size: ['$nx_glob_ng[0] + 1']
+            start: ['$n_ghost[0]']
+        x1:
+          dataset: /VTKHDF/YCoordinates
+          memory_selection:
+            size: ['$nx_glob_ng[1] + 1']
+            start: ['$n_ghost[1]']
+        x2:
+          dataset: /VTKHDF/ZCoordinates
+          memory_selection:
+            size: ['$nx_glob_ng[2] + 1']
+            start: ['$n_ghost[2]']
+    - file: ${directory}//test_${iter:08}.vtkhdf
+      on_event: write_distributed_data
+      collision_policy: write_into
+      communicator: '$grid_communicator'
+      datasets:
+        /VTKHDF/CellData/rho: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
+        /VTKHDF/CellData/ux0: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
+        /VTKHDF/CellData/ux1: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
+        /VTKHDF/CellData/ux2: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
+        /VTKHDF/CellData/P: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
+        /VTKHDF/CellData/E: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
+        /VTKHDF/CellData/T: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
+      write:
+        rho:
+          dataset: /VTKHDF/CellData/rho
+          memory_selection:
+            size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
+            start: ['$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']
+          dataset_selection:
+            size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
+            start: ['$start[2]', '$start[1]', '$start[0]']
+        u:
+          - dataset: /VTKHDF/CellData/ux0
             memory_selection:
-              size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
-              start: ['$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']
-            dataset_selection:
-              size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
-              start: ['$start[2]', '$start[1]', '$start[0]']
-          u:
-            dataset: /VTKHDF/CellData/u
-            memory_selection:
-              size: ['$ndim', '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
+              size: [1, '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
               start: [0, '$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']
             dataset_selection:
-              size: ['$ndim', '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
-              start: [0, '$start[2]', '$start[1]', '$start[0]']
-          P:
-            dataset: /VTKHDF/CellData/P
-            memory_selection:
               size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
-              start: ['$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']
+              start: ['$start[2]', '$start[1]', '$start[0]']
+          - dataset: /VTKHDF/CellData/ux1
+            when: '$ndim>1'
+            memory_selection:
+              size: [1, '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
+              start: [1, '$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']
             dataset_selection:
               size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
               start: ['$start[2]', '$start[1]', '$start[0]']
-          x:
-            dataset: /VTKHDF/CellData/rho
+          - dataset: /VTKHDF/CellData/ux2
+            when: '$ndim>2'
             memory_selection:
-              size: ['$nx_local_ng[0]']
-              start: ['$n_ghost[0]']
+              size: [1, '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
+              start: [2, '$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']
             dataset_selection:
-              size: ['$nx_local_ng[0]']
-              start: ['$start[0]']
-          y:
-            dataset: /VTKHDF/CellData/rho
-            memory_selection:
-              size: ['$nx_local_ng[1]']
-              start: ['$n_ghost[1]']
-            dataset_selection:
-              size: ['$nx_local_ng[1]']
-              start: ['$start[1]']
-          z:
-            dataset: /VTKHDF/CellData/rho
-            memory_selection:
-              size: ['$nx_local_ng[2]']
-              start: ['$n_ghost[2]']
-            dataset_selection:
-              size: ['$nx_local_ng[2]']
-              start: ['$start[2]']
+              size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
+              start: ['$start[2]', '$start[1]', '$start[0]']
+        P:
+          dataset: /VTKHDF/CellData/P
+          memory_selection:
+            size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
+            start: ['$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']
+          dataset_selection:
+            size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
+            start: ['$start[2]', '$start[1]', '$start[0]']
+        E:
+          dataset: /VTKHDF/CellData/P
+          memory_selection:
+            size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
+            start: ['$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']
+          dataset_selection:
+            size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
+            start: ['$start[2]', '$start[1]', '$start[0]']
+        T:
+          dataset: /VTKHDF/CellData/T
+          memory_selection:
+            size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
+            start: ['$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']
+          dataset_selection:
+            size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
+            start: ['$start[2]', '$start[1]', '$start[0]']
+    - file: ${directory}//test_${iter:08}.vtkhdf
+      on_event: write_fx
+      collision_policy: write_into
+      communicator: '$grid_communicator'
+      datasets:  # this describes the global data (data in the final h5 file)
+        /VTKHDF/CellData/fx0: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
+        /VTKHDF/CellData/fx1: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
+        /VTKHDF/CellData/fx2: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
+        /VTKHDF/CellData/fx3: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
+        /VTKHDF/CellData/fx4: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
+        /VTKHDF/CellData/fx5: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
+        /VTKHDF/CellData/fx6: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
+        /VTKHDF/CellData/fx7: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
+        /VTKHDF/CellData/fx8: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
+        /VTKHDF/CellData/fx9: {type: array, subtype: double, size: ['$nx_glob_ng[2]', '$nx_glob_ng[1]', '$nx_glob_ng[0]']}
+      write:
+        fx:
+          dataset: '/VTKHDF/CellData/fx${ifx}'
+          memory_selection:
+            size: [1, '$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
+            start: ['${ifx}', '$n_ghost[2]', '$n_ghost[1]', '$n_ghost[0]']
+          dataset_selection:
+            size: ['$nx_local_ng[2]', '$nx_local_ng[1]', '$nx_local_ng[0]']
+            start: ['$start[2]', '$start[1]', '$start[0]']
