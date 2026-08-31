@@ -1,0 +1,61 @@
+# SPDX-FileCopyrightText: 2025 The HERACLES++ development team, see COPYRIGHT.md file
+#
+# SPDX-License-Identifier: MIT
+
+---
+spack:
+  concretizer:
+    reuse: false
+    unify: true
+  packages:
+    all:
+      require:
+        - 'target=aarch64'
+        - spec: 'generator=ninja'
+          when: 'build_system=cmake'
+        - '~cuda'
+        - '~rocm'
+        - '~openmp'
+        - '+mpi'
+        - '~fortran'
+      variants: 'cxxstd=17'
+    c:
+      require: 'apple-clang@17'
+    cxx:
+      require: 'apple-clang@17'
+    mpi:
+      require: 'openmpi@5.0'
+  specs:
+    - 'apple-clang@17'
+    - 'benchmark@1.9 ~performance_counters'
+    - 'cmake@3.31'
+    - 'doxygen@1.14'
+    - 'googletest@1.17'
+    - 'hdf5@1.14 +mpi'
+    - 'kokkos@4.7'
+    - 'kokkos-tools'
+    - 'mpi'
+    - 'paraconf@1.0'
+    - 'pdi@1.9 ~python'
+    - 'pdiplugin-decl-hdf5@1.9 +mpi'
+    - 'pdiplugin-mpi@1.9'
+    - 'pdiplugin-set-value@1.9'
+    - 'pdiplugin-trace@1.9'
+    - 'py-h5py@3.14'
+    - 'py-matplotlib@3.10'
+    - 'py-numpy@2.3'
+    - 'py-pyyaml@6.0'
+    - 'py-scipy@1.16'
+
+  config:
+    install_tree:
+      padded_length: 128
+
+  mirrors:
+    local-buildcache:
+      url: oci://ghcr.io/Maison-de-la-Simulation/heraclespp-macos-spack-cache
+      binary: true
+      signed: false
+      access_pair:
+        id_variable: GITHUB_USER
+        secret_variable: GITHUB_TOKEN
